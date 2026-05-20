@@ -138,7 +138,8 @@ TMP_M=$(mktemp -d)
 assert "marker exists" '[ -f "$TMP_M/.ai-kit-setup" ]'
 assert "setup_mode solo-both" 'grep -q "\"setup_mode\": \"solo-both\"" "$TMP_M/.ai-kit-setup"'
 assert "tier minimal" 'grep -q "\"setup_tier\": \"minimal\"" "$TMP_M/.ai-kit-setup"'
-assert "version 1.0.0" 'grep -q "\"ai_kit_version\": \"1.0.0\"" "$TMP_M/.ai-kit-setup"'
+EXPECTED_VERSION="$(tr -d '[:space:]' < "$AIKIT/VERSION")"
+assert "marker carries current version" 'grep -q "\"ai_kit_version\": \"$EXPECTED_VERSION\"" "$TMP_M/.ai-kit-setup"'
 "$AIKIT/bin/write-setup-marker.sh" "$TMP_M" --architecture=skipped
 assert "architecture merge skip" 'grep -q "\"architecture\": \"skipped\"" "$TMP_M/.ai-kit-setup"'
 rm -rf "$TMP_M"

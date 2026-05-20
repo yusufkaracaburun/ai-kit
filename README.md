@@ -91,13 +91,17 @@ CI runs the same suite on push/PR (`.github/workflows/test.yml`).
 
 ## Troubleshooting
 
-| Probleem | Oplossing |
-| -------- | --------- |
-| `/setup` not found | Re-run `install-global.sh`; check `~/.agents/skills/setup` and `~/.cursor/skills/setup` |
-| ai-kit root unknown | Set `AI_KIT_ROOT` or run `install-global.sh` (writes `~/.config/ai-kit/root`) |
-| Skills missing in Cursor | Check `.cursor/skills` symlink in project; reload window |
-| Sandcastle install fails | Edit `.sandcastle/main.mts` install hook; lockfile detection is best-effort |
-| Re-configure project | Run `/setup` again (keep/change/skip per branch) or delete `.ai-kit-setup` |
+See [docs/troubleshooting.md](docs/troubleshooting.md) for the expanded list. Quick hits:
+
+| Issue | First thing to try |
+| ----- | ------------------ |
+| `/setup` not found | Re-run `install-global.sh`; verify the two `setup` symlinks |
+| ai-kit root unknown | Set `AI_KIT_ROOT` or run `install-global.sh` once |
+| Skills missing in Cursor | Reload the window, check `.cursor/skills` resolves |
+| Sandcastle placeholder leaked | Edit `.sandcastle/main.mts` install line manually |
+| Re-configure project | `/setup` again (keep/change/skip per branch) or `rm .ai-kit-setup` |
+| Brownfield rule "lost" | Use `--merge-skills` (default), not `--link-all` |
+| Usage log empty | `export AI_KIT_USAGE=1` and open a new shell |
 
 ## What ai-kit logs locally (opt-in)
 
