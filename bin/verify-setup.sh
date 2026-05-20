@@ -106,6 +106,12 @@ if [ "$SETUP_MODE" = "solo-global" ]; then
 fi
 
 if [ "$SKILLS_REQUIRED" = true ]; then
+  if [ -d "$TARGET/.claude/skills" ] || [ -L "$TARGET/.claude/skills" ]; then
+    check ".claude/skills present" true
+  else
+    check ".claude/skills present" false
+  fi
+
   if [ -d "$TARGET/.agents/skills" ] || [ -L "$TARGET/.agents/skills" ]; then
     check ".agents/skills present" true
   else
@@ -118,6 +124,7 @@ if [ "$SKILLS_REQUIRED" = true ]; then
     check ".cursor/skills present" false
   fi
 else
+  check ".claude/skills skipped (solo-global)" true
   check ".agents/skills skipped (solo-global)" true
   check ".cursor/skills skipped (solo-global)" true
 fi

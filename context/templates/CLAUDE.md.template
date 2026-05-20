@@ -2,7 +2,8 @@
 
 ## Claude Code
 
-- Load skills from `.agents/skills/` (project symlink) or `~/.agents/skills/` (global via `install-global.sh`).
+- Load skills from `.claude/skills/` (project symlink) or `~/.claude/skills/` (global via `install-global.sh`).
+- Legacy: `.agents/skills/` and `~/.agents/skills/` still symlinked for older tooling that reads them.
 - Use `grill-with-docs` before significant features.
 - Use `tdd` for implementation; `diagnose` for hard bugs.
 - Use `ship` to deploy; `retro` at cycle end.

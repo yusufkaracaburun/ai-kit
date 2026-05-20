@@ -20,10 +20,10 @@ usage() {
   echo "  --merge-skills  Symlink ai-kit skills individually (default; preserves custom skills)"
   echo "  --link-all      Symlink entire skills dir to ai-kit (greenfield / explicit replace)"
   echo "  --copy-skills   Copy skills into project instead of symlink"
-  echo "  --no-skills     Skip .agents/skills and .cursor/skills (use global install only)"
+  echo "  --no-skills     Skip .agents/skills, .claude/skills and .cursor/skills (use global install only)"
   echo "  --with-mcp      Copy baseline .cursor/mcp.json.template to .cursor/mcp.json (opt-in)"
   echo ""
-  echo "Configures Claude Code (.agents/skills) and Cursor (.cursor/skills)."
+  echo "Configures Claude Code (.claude/skills + legacy .agents/skills) and Cursor (.cursor/skills)."
   echo "Full setup via /setup in the agent."
   exit 1
 }
@@ -126,11 +126,13 @@ merge_skills() {
 }
 
 if [ "$NO_SKILLS" = true ]; then
-  echo "Skipped project skill links (--no-skills; use global ~/.agents/skills and ~/.cursor/skills)"
+  echo "Skipped project skill links (--no-skills; use global ~/.claude/skills, ~/.agents/skills and ~/.cursor/skills)"
 elif [ "$SKILLS_MODE" = "link-all" ]; then
+  link_skills_all "$TARGET/.claude" ".claude/skills"
   link_skills_all "$TARGET/.agents" ".agents/skills"
   link_skills_all "$TARGET/.cursor" ".cursor/skills"
 else
+  merge_skills "$TARGET/.claude" ".claude/skills"
   merge_skills "$TARGET/.agents" ".agents/skills"
   merge_skills "$TARGET/.cursor" ".cursor/skills"
 fi

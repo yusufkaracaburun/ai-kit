@@ -85,6 +85,9 @@ echo "=== bootstrap ==="
 TMP_BOOT=$(mktemp -d)
 "$AIKIT/bin/bootstrap-project.sh" --minimal "$TMP_BOOT"
 assert "AGENTS.md" '[ -f "$TMP_BOOT/AGENTS.md" ]'
+assert ".claude/skills dir" '[ -d "$TMP_BOOT/.claude/skills" ]'
+assert ".claude/skills setup linked" '[ -L "$TMP_BOOT/.claude/skills/setup" ] || [ -d "$TMP_BOOT/.claude/skills/setup" ]'
+assert ".agents/skills dir" '[ -d "$TMP_BOOT/.agents/skills" ]'
 assert ".cursor/skills dir" '[ -d "$TMP_BOOT/.cursor/skills" ]'
 assert "setup skill linked" '[ -L "$TMP_BOOT/.cursor/skills/setup" ] || [ -d "$TMP_BOOT/.cursor/skills/setup" ]'
 assert "ai-kit.mdc" '[ -f "$TMP_BOOT/.cursor/rules/ai-kit.mdc" ]'
@@ -93,6 +96,7 @@ rm -rf "$TMP_BOOT"
 
 TMP_LINK=$(mktemp -d)
 "$AIKIT/bin/bootstrap-project.sh" --minimal --link-all "$TMP_LINK"
+assert "link-all .claude symlink" '[ -L "$TMP_LINK/.claude/skills" ]'
 assert "link-all symlink" '[ -L "$TMP_LINK/.cursor/skills" ]'
 rm -rf "$TMP_LINK"
 
@@ -101,11 +105,13 @@ cp -R "$AIKIT/tests/fixtures/brownfield-custom-skills/.cursor" "$TMP_MERGE/"
 "$AIKIT/bin/bootstrap-project.sh" --minimal --merge-skills "$TMP_MERGE"
 assert "merge keeps custom skill" '[ -d "$TMP_MERGE/.cursor/skills/my-custom-skill" ] || [ -L "$TMP_MERGE/.cursor/skills/my-custom-skill" ]'
 assert "merge adds setup" '[ -e "$TMP_MERGE/.cursor/skills/setup" ]'
+assert "merge adds .claude/skills/setup" '[ -e "$TMP_MERGE/.claude/skills/setup" ]'
 rm -rf "$TMP_MERGE"
 
 TMP_NO_SK=$(mktemp -d)
 "$AIKIT/bin/bootstrap-project.sh" --minimal --no-skills "$TMP_NO_SK"
 assert "no-skills AGENTS.md" '[ -f "$TMP_NO_SK/AGENTS.md" ]'
+assert "no-skills skips .claude/skills" '[ ! -e "$TMP_NO_SK/.claude/skills" ]'
 assert "no-skills skips .agents/skills" '[ ! -e "$TMP_NO_SK/.agents/skills" ]'
 assert "no-skills skips .cursor/skills" '[ ! -e "$TMP_NO_SK/.cursor/skills" ]'
 rm -rf "$TMP_NO_SK"

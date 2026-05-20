@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.1.1 — Claude Code skills discovery fix
+
+**Bug fix**
+- `bin/bootstrap-project.sh`: project bootstrap now also creates `.claude/skills/`
+  symlinks. Claude Code (the CLI) reads skills from `.claude/skills/` and
+  `~/.claude/skills/` — not from `.agents/skills/`. Before this fix, project
+  skills were invisible to Claude Code unless symlinked manually.
+- `bin/install-global.sh`: also symlinks into `~/.claude/skills/`. Collision-safe:
+  refuses to clobber existing non-aikit entries (e.g. GSD skills); only
+  re-links symlinks that already point into ai-kit.
+- `bin/verify-setup.sh`: now checks `.claude/skills/` presence as a required
+  Tier-A artefact (in addition to `.agents/skills/` and `.cursor/skills/`).
+- `context/templates/CLAUDE.md.template`: documents `.claude/skills/` as the
+  primary Claude Code skill path; `.agents/skills/` retained as legacy.
+- Tests in `tests/bin/run-tests.sh` cover the new path across `--minimal`,
+  `--link-all`, `--merge-skills`, and `--no-skills` modes.
+
+**Migration**
+- Existing projects on 1.1.0: re-run `bin/bootstrap-project.sh <project> --merge-skills`
+  to populate `.claude/skills/`. Existing `.agents/skills/` and `.cursor/skills/`
+  symlinks are preserved (merge mode is idempotent).
+- Existing global install: re-run `bin/install-global.sh` to add `~/.claude/skills/`
+  links. Will skip any name that conflicts with an existing non-aikit skill.
+
 ## 1.1.0 — public repo, eval harness, observability
 
 **Repo hygiene**
