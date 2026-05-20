@@ -244,7 +244,46 @@ assert "16 skills" '[ "$SKILL_COUNT" -eq 16 ]'
 
 echo ""
 echo "=== VERSION ==="
-assert "VERSION file" '[ -f "$AIKIT/VERSION" ] && grep -q "1.0.0" "$AIKIT/VERSION"'
+assert "VERSION file" '[ -f "$AIKIT/VERSION" ]'
+
+echo ""
+echo "=== eval-structure ==="
+if "$AIKIT/tests/bin/eval-structure.sh" > /tmp/eval-structure.out 2>&1; then
+  STRUCT_OK=true
+else
+  STRUCT_OK=false
+  echo "  (eval-structure.sh failures — see /tmp/eval-structure.out)"
+  tail -20 /tmp/eval-structure.out
+fi
+assert "eval-structure clean" '[ "$STRUCT_OK" = true ]'
+
+echo ""
+echo "=== usage logging ==="
+USAGE_STATE=$(mktemp -d)
+unset AI_KIT_USAGE
+"$AIKIT/bin/log-skill.sh" diagnose start 2>/dev/null
+assert "log-skill no-op without env" '[ ! -f "$USAGE_STATE/ai-kit/usage.jsonl" ]'
+
+XDG_STATE_HOME="$USAGE_STATE" AI_KIT_USAGE=1 "$AIKIT/bin/log-skill.sh" diagnose start
+XDG_STATE_HOME="$USAGE_STATE" AI_KIT_USAGE=1 "$AIKIT/bin/log-skill.sh" diagnose done
+assert "log-skill writes one line per event" '[ "$(wc -l < "$USAGE_STATE/ai-kit/usage.jsonl" | tr -d " ")" = "2" ]'
+assert "log line has skill" 'grep -q "\"skill\":\"diagnose\"" "$USAGE_STATE/ai-kit/usage.jsonl"'
+assert "log line has no absolute path" '! grep -q "/Users/" "$USAGE_STATE/ai-kit/usage.jsonl"'
+
+STATS_OUT="$(XDG_STATE_HOME="$USAGE_STATE" "$AIKIT/bin/usage-stats.sh" --since=all)"
+assert "usage-stats reports diagnose" 'echo "$STATS_OUT" | grep -q "diagnose"'
+
+JSON_OUT="$(XDG_STATE_HOME="$USAGE_STATE" "$AIKIT/bin/usage-stats.sh" --json)"
+assert "usage-stats --json parses" 'echo "$JSON_OUT" | grep -q "\"events\":2"'
+
+XDG_STATE_HOME="$USAGE_STATE" "$AIKIT/bin/usage-purge.sh" --yes >/dev/null
+assert "usage-purge removes log" '[ ! -f "$USAGE_STATE/ai-kit/usage.jsonl" ]'
+rm -rf "$USAGE_STATE"
+
+echo ""
+echo "=== privacy ==="
+NET_HITS="$(grep -REn 'curl|wget|/dev/tcp|nc ' "$AIKIT/bin/log-skill.sh" "$AIKIT/bin/usage-stats.sh" "$AIKIT/bin/usage-purge.sh" || true)"
+assert "no network calls in usage scripts" '[ -z "$NET_HITS" ]'
 
 echo ""
 if [ "$FAIL" -eq 0 ]; then

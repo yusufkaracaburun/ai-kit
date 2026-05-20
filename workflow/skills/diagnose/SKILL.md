@@ -115,3 +115,15 @@ Required before declaring done:
 - [ ] The hypothesis that turned out correct is stated in the commit / PR message — so the next debugger learns
 
 **Then ask: what would have prevented this bug?** If the answer involves architectural change (no good test seam, tangled callers, hidden coupling) hand off to the `/improve-codebase-architecture` skill with the specifics. Make the recommendation **after** the fix is in, not before — you have more information now than when you started.
+
+## Usage logging (opt-in)
+
+When `AI_KIT_USAGE=1` is set, log the invocation so `retro` can spot patterns:
+
+```bash
+bash "$AI_KIT_ROOT/bin/log-skill.sh" diagnose start  # at the start
+bash "$AI_KIT_ROOT/bin/log-skill.sh" diagnose done   # at the end (or `abort` if you bail)
+```
+
+Silent no-op when the env var is unset. See [SECURITY.md](../../../SECURITY.md) for what is logged and where.
+

@@ -127,3 +127,15 @@ $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict
 ```
 
 Summarise what was configured. Re-run `/setup` to extend Tier A → Tier B later.
+
+## Usage logging (opt-in)
+
+When `AI_KIT_USAGE=1` is set, log the invocation so `retro` can spot patterns:
+
+```bash
+bash "$AI_KIT_ROOT/bin/log-skill.sh" setup start  # at the start
+bash "$AI_KIT_ROOT/bin/log-skill.sh" setup done   # at the end (or `abort` if you bail)
+```
+
+Silent no-op when the env var is unset. See [SECURITY.md](../../../SECURITY.md) for what is logged and where.
+

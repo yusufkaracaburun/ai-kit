@@ -57,3 +57,15 @@ APPROVE | REQUEST CHANGES
 ```
 
 Inspired by [gstack /review](https://github.com/garrytan/gstack) — stripped of gstack-specific tooling.
+
+## Usage logging (opt-in)
+
+When `AI_KIT_USAGE=1` is set, log the invocation so `retro` can spot patterns:
+
+```bash
+bash "$AI_KIT_ROOT/bin/log-skill.sh" review start  # at the start
+bash "$AI_KIT_ROOT/bin/log-skill.sh" review done   # at the end (or `abort` if you bail)
+```
+
+Silent no-op when the env var is unset. See [SECURITY.md](../../../SECURITY.md) for what is logged and where.
+

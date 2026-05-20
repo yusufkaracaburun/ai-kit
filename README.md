@@ -99,6 +99,34 @@ CI runs the same suite on push/PR (`.github/workflows/test.yml`).
 | Sandcastle install fails | Edit `.sandcastle/main.mts` install hook; lockfile detection is best-effort |
 | Re-configure project | Run `/setup` again (keep/change/skip per branch) or delete `.ai-kit-setup` |
 
+## What ai-kit logs locally (opt-in)
+
+When `AI_KIT_USAGE=1` is set, each invocation of a skill writes one line to
+`${XDG_STATE_HOME:-~/.local/state}/ai-kit/usage.jsonl`:
+
+```
+{"ts":"2026-05-20T17:14:03Z","skill":"diagnose","event":"start","project":"ai-kit","cwd_hash":"a1b2c3d4e5f6"}
+```
+
+Fields: `ts`, `skill`, `event` (`start|done|abort`), `project` (basename of the git root or cwd), `cwd_hash` (sha1 of the absolute path). **Never** the absolute path, prompt contents, file contents, branch names, or anything else. No network calls — CI greps for `curl|wget|/dev/tcp|nc` in the usage scripts to enforce this.
+
+```bash
+bin/usage-stats.sh --since=7d        # human report
+bin/usage-stats.sh --json            # machine-readable
+bin/usage-purge.sh                   # wipe the log
+```
+
+`retro` reads `usage-stats.sh` to ground the conversation in observed behaviour. See [SECURITY.md](SECURITY.md) for the full data contract.
+
+## Eval harness
+
+```bash
+./tests/bin/eval-structure.sh        # 8 deterministic SKILL.md checks + fixture lint
+./bin/eval-skill.sh diagnose         # dump prompt + SKILL.md + rating template for manual rating
+```
+
+Fixtures live in `tests/eval/prompts/<skill>/<scenario>.md`. Rating notes go to `tests/eval/results/` (gitignored). See [docs/eval.md](docs/eval.md).
+
 ## License & Provenance
 
 ai-kit is licensed [MIT](LICENSE). It incorporates work from the following MIT-licensed upstreams:

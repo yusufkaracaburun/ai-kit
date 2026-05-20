@@ -90,3 +90,15 @@ If any of the three is missing, skip the ADR. Use the format in [ADR-FORMAT.md](
 When a decision changes how frontend or backend code is organized (not just domain terms), update `docs/agents/architecture.md` inline and offer an ADR if the choice is hard to reverse. Create `architecture.md` lazily from `$AI_KIT_ROOT/context/templates/docs/agents/architecture.md` when needed (resolve `AI_KIT_ROOT` from env or `~/.config/ai-kit/root`).
 
 </supporting-info>
+
+## Usage logging (opt-in)
+
+When `AI_KIT_USAGE=1` is set, log the invocation so `retro` can spot patterns:
+
+```bash
+bash "$AI_KIT_ROOT/bin/log-skill.sh" grill-with-docs start  # at the start
+bash "$AI_KIT_ROOT/bin/log-skill.sh" grill-with-docs done   # at the end (or `abort` if you bail)
+```
+
+Silent no-op when the env var is unset. See [SECURITY.md](../../../SECURITY.md) for what is logged and where.
+

@@ -101,3 +101,15 @@ Capture everything resolved during grilling under "established so far" so the wo
 ## Resuming a previous session
 
 If prior triage notes exist on the issue, read them, check whether the reporter has answered any outstanding questions, and present an updated picture before continuing. Don't re-ask resolved questions.
+
+## Usage logging (opt-in)
+
+When `AI_KIT_USAGE=1` is set, log the invocation so `retro` can spot patterns:
+
+```bash
+bash "$AI_KIT_ROOT/bin/log-skill.sh" triage start  # at the start
+bash "$AI_KIT_ROOT/bin/log-skill.sh" triage done   # at the end (or `abort` if you bail)
+```
+
+Silent no-op when the env var is unset. See [SECURITY.md](../../../SECURITY.md) for what is logged and where.
+

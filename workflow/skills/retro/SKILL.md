@@ -15,8 +15,9 @@ Ask **one topic at a time** (grill-me-lite). Provide a recommendation based on g
 
 1. **What shipped**
    - Explore: merged PRs, closed issues, tags since last retro (or last 1–4 weeks)
-   - **Finding:** list increments delivered
-   - **Question:** anything missing from this list?
+   - If `$AI_KIT_ROOT/bin/usage-stats.sh` is available and the log has events, also run `usage-stats.sh --since=7d` (or `30d`) and surface: top skills used, skills with high abandon-%. Mention this BEFORE asking open questions — it grounds the conversation in observed behaviour.
+   - **Finding:** list increments delivered + observed skill usage
+   - **Question:** anything missing from this list? Any skill that felt off?
 
 2. **What blocked us**
    - Explore: open issues, reopened bugs, long-running PRs
@@ -29,6 +30,7 @@ Ask **one topic at a time** (grill-me-lite). Provide a recommendation based on g
 
 4. **Learnings**
    - Should anything update `CONTEXT.md` or a new ADR?
+   - If usage-stats showed a high abandon-% on a skill: ask why the user backed out, and whether the skill itself needs adjusting (e.g. open an issue with template `skill-suggestion`).
    - Only write docs if the user agrees
 
 5. **Next cycle**
@@ -60,3 +62,15 @@ Ask **one topic at a time** (grill-me-lite). Provide a recommendation based on g
 ```
 
 Works without fixed sprint length — Kanban teams run `/retro` on a rhythm they choose.
+
+## Usage logging (opt-in)
+
+When `AI_KIT_USAGE=1` is set, log the invocation so `retro` can spot patterns:
+
+```bash
+bash "$AI_KIT_ROOT/bin/log-skill.sh" retro start  # at the start
+bash "$AI_KIT_ROOT/bin/log-skill.sh" retro done   # at the end (or `abort` if you bail)
+```
+
+Silent no-op when the env var is unset. See [SECURITY.md](../../../SECURITY.md) for what is logged and where.
+

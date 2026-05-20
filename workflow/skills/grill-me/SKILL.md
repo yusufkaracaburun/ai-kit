@@ -43,3 +43,15 @@ Then route to the next skill: usually [to-prd](../to-prd/SKILL.md), [to-issues](
 - **Walking out of order.** Resolve dependencies first; don't grill the user about a UI when the data model isn't settled.
 - **Stopping at the first plausible answer.** Push one level deeper: "what would change that decision?"
 - **Forgetting to surface what you settled in the codebase.** The user wants to know which questions you skipped and why.
+
+## Usage logging (opt-in)
+
+When `AI_KIT_USAGE=1` is set, log the invocation so `retro` can spot patterns:
+
+```bash
+bash "$AI_KIT_ROOT/bin/log-skill.sh" grill-me start  # at the start
+bash "$AI_KIT_ROOT/bin/log-skill.sh" grill-me done   # at the end (or `abort` if you bail)
+```
+
+Silent no-op when the env var is unset. See [SECURITY.md](../../../SECURITY.md) for what is logged and where.
+

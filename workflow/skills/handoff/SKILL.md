@@ -68,3 +68,15 @@ If the user passed arguments, treat them as the focus of the next session and ta
 ## Routing on the receiving end
 
 A good handoff sets up `/resume-work` or an equivalent rehydration step. If the receiving session is going to a different agent tool (e.g. Cursor → Claude Code), call that out explicitly so the next session knows which conventions apply.
+
+## Usage logging (opt-in)
+
+When `AI_KIT_USAGE=1` is set, log the invocation so `retro` can spot patterns:
+
+```bash
+bash "$AI_KIT_ROOT/bin/log-skill.sh" handoff start  # at the start
+bash "$AI_KIT_ROOT/bin/log-skill.sh" handoff done   # at the end (or `abort` if you bail)
+```
+
+Silent no-op when the env var is unset. See [SECURITY.md](../../../SECURITY.md) for what is logged and where.
+
