@@ -4,7 +4,7 @@ Thanks for your interest. ai-kit is a personal agent kit; contributions stay sma
 
 ## Quick checklist
 
-- [ ] Branch from `main`: `feat/<area>-<short-desc>` or `fix/<area>-<short-desc>`
+- [ ] Branch from `master`: `feat/<area>-<short-desc>` or `fix/<area>-<short-desc>`
 - [ ] Commit style: imperative + scope (e.g. `feat(setup): add tier-A fast path`)
 - [ ] `./tests/bin/run-tests.sh` passes locally
 - [ ] If you touched any `workflow/skills/*/SKILL.md`: `./tests/bin/eval-structure.sh` passes
@@ -44,7 +44,7 @@ For high-signal skills, also add at least one fixture under `tests/eval/prompts/
 
 ## Pull requests
 
-Open against `main`. Use the PR template. Keep PRs ≤ 400 lines of diff where possible — split if larger.
+Open against `master`. Use the PR template. Keep PRs ≤ 400 lines of diff where possible — split if larger.
 
 ## Releases
 

@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/yusufkaracaburun/ai-kit/actions/workflows/test.yml/badge.svg)](https://github.com/yusufkaracaburun/ai-kit/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/dynamic/regex?label=version&url=https%3A%2F%2Fraw.githubusercontent.com%2Fyusufkaracaburun%2Fai-kit%2Fmain%2FVERSION&pattern=%5E(.%2B)%24)](VERSION)
+[![Version](https://img.shields.io/badge/dynamic/regex?label=version&url=https%3A%2F%2Fraw.githubusercontent.com%2Fyusufkaracaburun%2Fai-kit%2Fmaster%2FVERSION&pattern=%5E(.%2B)%24)](VERSION)
 
 Personal agent kit — **stack-agnostic**, full **agile lifecycle**, Claude Code + Cursor.
 
