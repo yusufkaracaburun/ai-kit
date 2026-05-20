@@ -1,0 +1,15 @@
+@AGENTS.md
+
+## Claude Code
+
+- Load skills from `.agents/skills/` (project symlink) or `~/.agents/skills/` (global via `install-global.sh`).
+- Use `grill-with-docs` before significant features.
+- Use `tdd` for implementation; `diagnose` for hard bugs.
+- Use `ship` to deploy; `retro` at cycle end.
+- Prefer project docs (`CONTEXT.md`, `docs/agents/`) over auto memory for team facts.
+- Setup status: `.ai-kit-setup`
+
+## Cursor
+
+Same skills and docs as Claude Code. Skills also live in `.cursor/skills/` (project) or `~/.cursor/skills/` (global).
+The `ai-kit.mdc` rule loads this project's agent instructions.

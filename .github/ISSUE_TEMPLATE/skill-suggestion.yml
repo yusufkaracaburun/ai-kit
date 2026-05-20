@@ -1,0 +1,56 @@
+name: Skill suggestion
+description: Propose a new skill or a substantial change to an existing one.
+title: "skill: "
+labels: ["enhancement", "skill"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Skills are the heart of ai-kit. New skills should fill a gap in the agile lifecycle (ideation → dev → test → ship → ops) and not duplicate an existing one.
+  - type: input
+    id: name
+    attributes:
+      label: Proposed skill name
+      description: kebab-case, matches directory name.
+      placeholder: "spec-review"
+    validations:
+      required: true
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Lifecycle phase
+      options:
+        - Ideation
+        - Development
+        - Testing
+        - Deployment
+        - Ops & Review
+        - Cross-cutting
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does it solve?
+      description: When would an agent invoke this? What does the user say?
+    validations:
+      required: true
+  - type: textarea
+    id: trigger
+    attributes:
+      label: Proposed description (trigger line)
+      description: Single line, 30-500 chars, contains a "Use when …" phrase. This is what triggers the skill in Claude/Cursor.
+    validations:
+      required: true
+  - type: textarea
+    id: not-existing
+    attributes:
+      label: Why isn't an existing skill enough?
+      description: Reference existing skills you considered.
+    validations:
+      required: true
+  - type: textarea
+    id: process
+    attributes:
+      label: Sketch of the process
+      description: Bullet list of steps the skill would walk through.

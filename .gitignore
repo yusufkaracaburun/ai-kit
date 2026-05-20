@@ -1,0 +1,16 @@
+.examples/upstream/
+.DS_Store
+
+# Eval results are runtime output, not committed
+tests/eval/results/*
+!tests/eval/results/.gitkeep
+
+# Local environment files
+.env
+.env.local
+
+# IDE / OS scratch
+.idea/
+.vscode/settings.json
+*.swp
+*~

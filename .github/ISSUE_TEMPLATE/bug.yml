@@ -1,0 +1,54 @@
+name: Bug report
+description: Something in ai-kit doesn't behave as documented.
+title: "bug: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a report. Please include enough detail that another machine can reproduce.
+  - type: input
+    id: version
+    attributes:
+      label: ai-kit version
+      description: Output of `cat VERSION` in your ai-kit clone.
+      placeholder: "1.0.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: tool
+    attributes:
+      label: Agent tool
+      options:
+        - Claude Code
+        - Cursor
+        - Both
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: OS and shell
+      placeholder: "macOS 14.5, zsh 5.9"
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction steps
+      description: Exact commands or skill invocation. Include `detect-tooling.sh --json` output if relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant output
+      description: Paste error messages or script output. Redact absolute user paths.
+      render: shell

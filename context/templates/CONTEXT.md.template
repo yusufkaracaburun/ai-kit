@@ -1,0 +1,21 @@
+# Context
+
+Shared domain language for this project. Agents and humans use these terms consistently.
+
+## Glossary
+
+| Term | Meaning |
+| ---- | ------- |
+| _example_ | Replace with your domain terms |
+
+## Boundaries
+
+_Describe bounded contexts or major modules and what each owns._
+
+## Invariants
+
+_Rules that must always hold._
+
+---
+
+Extend via `grill-with-docs` sessions and ADRs in `docs/adr/`.

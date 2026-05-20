@@ -1,0 +1,18 @@
+# AFK Agent Instructions
+
+Read before writing code:
+
+- `CONTEXT.md` — domain language
+- `docs/agents/domain.md` — doc layout
+- `AGENTS.md` — project agent config
+
+## Rules
+
+- Red-green-refactor (TDD): failing test first.
+- Use CONTEXT.md terminology in names.
+- One issue per iteration; run tests before commit.
+- Output `<promise>COMPLETE</promise>` when done.
+
+## Task
+
+{{TASK_DESCRIPTION}}
