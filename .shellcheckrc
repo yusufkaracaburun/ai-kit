@@ -1,0 +1,9 @@
+# ai-kit shellcheck config
+#
+# SC2034 ("variable appears unused"):
+#   bin/lib/detect-lib.sh assigns ~25 globals (FRAMEWORKS, ARCH_FE,
+#   AGENT_STACK_*, etc.) that are consumed by bin/detect-tooling.sh after
+#   `source`. ShellCheck can't see across files, so it flags every one.
+#   Disabled globally — the cost of disabling outweighs catching a real
+#   unused var in this codebase.
+disable=SC2034
