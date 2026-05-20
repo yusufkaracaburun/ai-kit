@@ -10,6 +10,7 @@ COPY_SKILLS=false
 MINIMAL=true
 NO_SKILLS=false
 SKILLS_MODE="merge-skills"
+WITH_MCP=false
 
 usage() {
   echo "Usage: $0 [--minimal] /path/to/project [options]"
@@ -20,6 +21,7 @@ usage() {
   echo "  --link-all      Symlink entire skills dir to ai-kit (greenfield / explicit replace)"
   echo "  --copy-skills   Copy skills into project instead of symlink"
   echo "  --no-skills     Skip .agents/skills and .cursor/skills (use global install only)"
+  echo "  --with-mcp      Copy baseline .cursor/mcp.json.template to .cursor/mcp.json (opt-in)"
   echo ""
   echo "Configures Claude Code (.agents/skills) and Cursor (.cursor/skills)."
   echo "Full setup via /setup in the agent."
@@ -35,6 +37,7 @@ while [ $# -gt 0 ]; do
     --link-all) SKILLS_MODE="link-all"; shift ;;
     --copy-skills) COPY_SKILLS=true; SKILLS_MODE="link-all"; shift ;;
     --no-skills) NO_SKILLS=true; shift ;;
+    --with-mcp) WITH_MCP=true; shift ;;
     -h | --help) usage ;;
     -*)
       echo "Unknown option: $1" >&2
@@ -137,6 +140,15 @@ mkdir -p "$TARGET/.cursor/rules"
 if [ ! -f "$TARGET/.cursor/rules/ai-kit.mdc" ]; then
   cp "$TPL/.cursor/rules/ai-kit.mdc" "$TARGET/.cursor/rules/ai-kit.mdc"
   echo "Created .cursor/rules/ai-kit.mdc"
+fi
+
+if [ "$WITH_MCP" = true ]; then
+  if [ -f "$TARGET/.cursor/mcp.json" ] || [ -f "$TARGET/.mcp.json" ] || [ -f "$TARGET/.vscode/mcp.json" ]; then
+    echo "Skipped mcp.json copy (existing MCP config detected)"
+  elif [ -f "$TPL/.cursor/mcp.json.template" ]; then
+    cp "$TPL/.cursor/mcp.json.template" "$TARGET/.cursor/mcp.json"
+    echo "Created .cursor/mcp.json (baseline — uncomment servers you want)"
+  fi
 fi
 
 rule_to_mdc() {

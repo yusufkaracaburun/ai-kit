@@ -173,21 +173,22 @@ PY
 fi
 
 if [ "$JSON" = true ]; then
-  fw_json="$(_json_array "${FRAMEWORKS[@]}")"
-  docker_files="$(_json_array "${DOCKER_FILES[@]}")"
-  bootstrap_missing="$(_json_array "${BOOTSTRAP_MISSING[@]}")"
-  fe_paths="$(_json_array "${ARCH_FE_PATHS[@]}")"
-  be_paths="$(_json_array "${ARCH_BE_PATHS[@]}")"
-  ast_cursor_aikit="$(_json_array "${AGENT_STACK_CURSOR_SKILLS_AIKIT[@]}")"
-  ast_cursor_custom="$(_json_array "${AGENT_STACK_CURSOR_SKILLS_CUSTOM[@]}")"
-  ast_agents_aikit="$(_json_array "${AGENT_STACK_AGENTS_SKILLS_AIKIT[@]}")"
-  ast_agents_custom="$(_json_array "${AGENT_STACK_AGENTS_SKILLS_CUSTOM[@]}")"
-  ast_rules_aikit="$(_json_array "${AGENT_STACK_RULES_AIKIT[@]}")"
-  ast_rules_custom="$(_json_array "${AGENT_STACK_RULES_CUSTOM[@]}")"
-  ast_commands="$(_json_array "${AGENT_STACK_COMMANDS[@]}")"
-  ast_mcp="$(_json_array "${AGENT_STACK_MCP[@]}")"
-  ast_global_cursor="$(_json_array "${AGENT_STACK_GLOBAL_CURSOR[@]}")"
-  ast_global_agents="$(_json_array "${AGENT_STACK_GLOBAL_AGENTS[@]}")"
+  # Use ${ARR[@]+...} so empty arrays don't trip set -u on bash 3.2 (macOS).
+  fw_json="$(_json_array ${FRAMEWORKS[@]+"${FRAMEWORKS[@]}"})"
+  docker_files="$(_json_array ${DOCKER_FILES[@]+"${DOCKER_FILES[@]}"})"
+  bootstrap_missing="$(_json_array ${BOOTSTRAP_MISSING[@]+"${BOOTSTRAP_MISSING[@]}"})"
+  fe_paths="$(_json_array ${ARCH_FE_PATHS[@]+"${ARCH_FE_PATHS[@]}"})"
+  be_paths="$(_json_array ${ARCH_BE_PATHS[@]+"${ARCH_BE_PATHS[@]}"})"
+  ast_cursor_aikit="$(_json_array ${AGENT_STACK_CURSOR_SKILLS_AIKIT[@]+"${AGENT_STACK_CURSOR_SKILLS_AIKIT[@]}"})"
+  ast_cursor_custom="$(_json_array ${AGENT_STACK_CURSOR_SKILLS_CUSTOM[@]+"${AGENT_STACK_CURSOR_SKILLS_CUSTOM[@]}"})"
+  ast_agents_aikit="$(_json_array ${AGENT_STACK_AGENTS_SKILLS_AIKIT[@]+"${AGENT_STACK_AGENTS_SKILLS_AIKIT[@]}"})"
+  ast_agents_custom="$(_json_array ${AGENT_STACK_AGENTS_SKILLS_CUSTOM[@]+"${AGENT_STACK_AGENTS_SKILLS_CUSTOM[@]}"})"
+  ast_rules_aikit="$(_json_array ${AGENT_STACK_RULES_AIKIT[@]+"${AGENT_STACK_RULES_AIKIT[@]}"})"
+  ast_rules_custom="$(_json_array ${AGENT_STACK_RULES_CUSTOM[@]+"${AGENT_STACK_RULES_CUSTOM[@]}"})"
+  ast_commands="$(_json_array ${AGENT_STACK_COMMANDS[@]+"${AGENT_STACK_COMMANDS[@]}"})"
+  ast_mcp="$(_json_array ${AGENT_STACK_MCP[@]+"${AGENT_STACK_MCP[@]}"})"
+  ast_global_cursor="$(_json_array ${AGENT_STACK_GLOBAL_CURSOR[@]+"${AGENT_STACK_GLOBAL_CURSOR[@]}"})"
+  ast_global_agents="$(_json_array ${AGENT_STACK_GLOBAL_AGENTS[@]+"${AGENT_STACK_GLOBAL_AGENTS[@]}"})"
 
   has_agents_md="false"
   has_claude_md="false"
@@ -199,7 +200,7 @@ if [ "$JSON" = true ]; then
 
   docs_json="["
   first_doc=true
-  for fw in "${FRAMEWORKS[@]}"; do
+  for fw in ${FRAMEWORKS[@]+"${FRAMEWORKS[@]}"}; do
     url="$(docs_url_for "$fw")"
     if [ "$fw" = "laravel" ] && [ -n "$LARAVEL_VERSION" ] && [ -n "$url" ]; then
       url="${url}/${LARAVEL_VERSION}.x"
@@ -310,7 +311,7 @@ if [ -n "$SCRIPT_TEST" ] || [ -n "$SCRIPT_BUILD" ]; then
 fi
 echo ""
 echo "**Suggested docs:** (verify URLs live)"
-for fw in "${FRAMEWORKS[@]}"; do
+for fw in ${FRAMEWORKS[@]+"${FRAMEWORKS[@]}"}; do
   url="$(docs_url_for "$fw")"
   if [ "$fw" = "laravel" ] && [ -n "$LARAVEL_VERSION" ] && [ -n "$url" ]; then
     url="${url}/${LARAVEL_VERSION}.x"

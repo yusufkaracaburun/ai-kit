@@ -57,6 +57,23 @@ JSON_BF="$("$AIKIT/bin/detect-tooling.sh" "$AIKIT/tests/fixtures/brownfield-cust
 assert "json agent_stack" 'echo "$JSON_BF" | grep -q "\"recommendation\": \"brownfield\""'
 assert "json custom skill" 'echo "$JSON_BF" | grep -q "my-custom-skill"'
 
+detect_agent_stack "$AIKIT/tests/fixtures/brownfield-claude-mcp" "$AIKIT"
+assert "claude .mcp.json detected" '[[ " ${AGENT_STACK_MCP[*]} " == *" .mcp.json "* ]]'
+assert "claude mcp recommends brownfield" '[ "$AGENT_STACK_RECOMMENDATION" = "brownfield" ]'
+
+TMP_MCP=$(mktemp -d)
+"$AIKIT/bin/bootstrap-project.sh" --minimal --with-mcp "$TMP_MCP"
+assert "with-mcp creates mcp.json" '[ -f "$TMP_MCP/.cursor/mcp.json" ]'
+assert "with-mcp template content" 'grep -q "ai-kit baseline MCP" "$TMP_MCP/.cursor/mcp.json"'
+rm -rf "$TMP_MCP"
+
+TMP_MCP_KEEP=$(mktemp -d)
+mkdir -p "$TMP_MCP_KEEP/.cursor"
+echo '{"existing":true}' > "$TMP_MCP_KEEP/.cursor/mcp.json"
+"$AIKIT/bin/bootstrap-project.sh" --minimal --with-mcp "$TMP_MCP_KEEP" >/dev/null
+assert "with-mcp preserves existing" 'grep -q "existing" "$TMP_MCP_KEEP/.cursor/mcp.json"'
+rm -rf "$TMP_MCP_KEEP"
+
 echo ""
 echo "=== detect-tooling --json ==="
 JSON_OUT="$("$AIKIT/bin/detect-tooling.sh" "$AIKIT/tests/fixtures/architecture-laravel" --json)"

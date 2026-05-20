@@ -407,7 +407,7 @@ detect_agent_stack() {
     done
   fi
 
-  for mcp in "$target/.cursor/mcp.json" "$target/.vscode/mcp.json"; do
+  for mcp in "$target/.mcp.json" "$target/.cursor/mcp.json" "$target/.vscode/mcp.json"; do
     [ -f "$mcp" ] && AGENT_STACK_MCP+=("${mcp#$target/}")
   done
 

@@ -14,3 +14,6 @@ tests/eval/results/*
 .vscode/settings.json
 *.swp
 *~
+
+# Per-machine agent config
+.claude/settings.local.json
