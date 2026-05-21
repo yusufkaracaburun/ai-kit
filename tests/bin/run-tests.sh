@@ -222,6 +222,28 @@ fi
 rm -rf "$TMP_UP_FAIL"
 
 echo ""
+echo "=== ai-kit-status ==="
+TMP_ST=$(mktemp -d)
+OUT_NO_MARKER="$("$AIKIT/bin/ai-kit-status.sh" "$TMP_ST" 2>&1)"
+assert "status: marker absent" 'echo "$OUT_NO_MARKER" | grep -q "Marker:.*absent"'
+assert "status: shows ai-kit version line" 'echo "$OUT_NO_MARKER" | grep -q "ai-kit @"'
+
+"$AIKIT/bin/bootstrap-project.sh" --minimal "$TMP_ST" >/dev/null
+"$AIKIT/bin/write-setup-marker.sh" "$TMP_ST" --setup-mode=solo-both --tier=full --sandcastle=false --automation-recommender=deferred >/dev/null
+OUT_OK="$("$AIKIT/bin/ai-kit-status.sh" "$TMP_ST" 2>&1)"
+assert "status: marker present line" 'echo "$OUT_OK" | grep -q "Marker:.*$(tr -d "[:space:]" < "$AIKIT/VERSION")"'
+assert "status: branches line" 'echo "$OUT_OK" | grep -q "Branches:"'
+assert "status: bool formatted as false" 'echo "$OUT_OK" | grep -q "sandcastle=false"'
+assert "status: deferred surfaced" 'echo "$OUT_OK" | grep -q "Deferred: recommender"'
+assert "status: skills counted" 'echo "$OUT_OK" | grep -qE "\.claude/skills: [0-9]+ skills"'
+
+# Drift detection
+python3 -c "import json; p='$TMP_ST/.ai-kit-setup'; d=json.load(open(p)); d['ai_kit_version']='0.0.1'; json.dump(d, open(p,'w'), indent=2)"
+OUT_DRIFT="$("$AIKIT/bin/ai-kit-status.sh" "$TMP_ST" 2>&1)"
+assert "status: drift advisory shown" 'echo "$OUT_DRIFT" | grep -q "drift vs ai-kit"'
+rm -rf "$TMP_ST"
+
+echo ""
 echo "=== verify-setup minimal ==="
 TMP_MIN=$(mktemp -d)
 "$AIKIT/bin/bootstrap-project.sh" --minimal "$TMP_MIN"
