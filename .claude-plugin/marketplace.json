@@ -1,0 +1,22 @@
+{
+  "name": "ai-kit",
+  "description": "ai-kit — stack-agnostic agile lifecycle skills, subagents, and slash commands for Claude Code.",
+  "owner": {
+    "name": "Yusuf Karacaburun",
+    "email": "info@emeq.nl"
+  },
+  "plugins": [
+    {
+      "name": "ai-kit",
+      "source": "./workflow",
+      "description": "19 skills (setup, ship, tdd, retro, …), 2 subagents (aikit-explore, aikit-reviewer), 5 slash commands (/aikit-doctor, /aikit-which, /aikit-status, /aikit-no-globals, /aikit-upgrade).",
+      "version": "1.2.0",
+      "author": {
+        "name": "Yusuf Karacaburun",
+        "email": "info@emeq.nl"
+      },
+      "homepage": "https://github.com/yusufkaracaburun/ai-kit",
+      "license": "MIT"
+    }
+  ]
+}

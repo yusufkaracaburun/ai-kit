@@ -38,6 +38,15 @@ Project-only install (no host pollution): `... | bash -s -- --no-global`.
 Pin a release: `... | AI_KIT_REF=v1.2.0 bash`.
 Update later: `... | bash -s -- --update` (or `$AI_KIT_ROOT/install.sh --update`).
 
+**Claude Code plugin (alternative)** — for marketplace-style install + `/plugin update` semantics. Cursor users keep the symlink path above:
+
+```text
+/plugin marketplace add yusufkaracaburun/ai-kit
+/plugin install ai-kit@ai-kit
+```
+
+See [docs/install-plugin.md](docs/install-plugin.md) for details and trade-offs.
+
 Then in any project:
 
 ```bash

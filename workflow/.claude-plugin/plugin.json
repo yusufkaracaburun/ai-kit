@@ -1,0 +1,12 @@
+{
+  "name": "ai-kit",
+  "description": "Stack-agnostic agile lifecycle for Claude Code — 19 skills, 2 subagents, 5 slash commands. Ideation → development → testing → ship → retro, plus session-continuity (checkpoint/resume).",
+  "version": "1.2.0",
+  "author": {
+    "name": "Yusuf Karacaburun",
+    "email": "info@emeq.nl"
+  },
+  "homepage": "https://github.com/yusufkaracaburun/ai-kit",
+  "repository": "https://github.com/yusufkaracaburun/ai-kit",
+  "license": "MIT"
+}

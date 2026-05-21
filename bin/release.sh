@@ -120,7 +120,10 @@ out = src[:header_end] + "\n" + new_entry + src[header_end:]
 p.write_text(out)
 PY
 
-git add VERSION CHANGELOG.md
+# Keep plugin manifest + marketplace catalog in lockstep with VERSION.
+bash "$SCRIPT_BIN/sync-plugin-version.sh"
+
+git add VERSION CHANGELOG.md workflow/.claude-plugin/plugin.json .claude-plugin/marketplace.json
 git commit -m "chore(release): v$NEW_VERSION"
 
 if [ "$DO_TAG" = true ]; then

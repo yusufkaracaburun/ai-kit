@@ -3,6 +3,40 @@
 ## Unreleased
 
 **Feature**
+- **Claude Code plugin distribution** (`workflow/.claude-plugin/plugin.json`
+  + `.claude-plugin/marketplace.json`):
+  - Plugin manifest at `workflow/.claude-plugin/plugin.json` declaring
+    `name: ai-kit`, derived from `VERSION`. Skills, agents, and commands
+    are already at `workflow/{skills,agents,commands}/` — the plugin root
+    is `workflow/` itself, no restructuring needed.
+  - Self-hosted marketplace catalog at `.claude-plugin/marketplace.json`
+    listing the ai-kit plugin with `source: "./workflow"`. Users add via
+    `/plugin marketplace add yusufkaracaburun/ai-kit`, install with
+    `/plugin install ai-kit@ai-kit`.
+  - **Version-sync** (`bin/sync-plugin-version.sh`): one command stamps
+    `VERSION` into both `plugin.json:version` and
+    `marketplace.json:plugins[0].version`. `--check` mode exits non-zero
+    on drift; called from `bin/release.sh` so every tagged release stays
+    in lockstep automatically. Unicode-safe (`ensure_ascii=False`) — no
+    em-dash escaping.
+  - **Doctor** (`bin/ai-kit-doctor.sh`) gains a `Plugin install` section:
+    reports manifest presence + VERSION equality, and warns when both
+    the plugin install and symlink-install are active (stale-version
+    risk).
+  - **Docs**: new `docs/install-plugin.md` covers install / update /
+    coexistence trade-offs and the namespace-prefixed skill IDs
+    (`/ai-kit:setup`, `/ai-kit:ship`, etc). README adds the plugin
+    install path as an alternative to the curl-installer.
+  - **Not bundled in plugin**: the PostToolUse skill-logging hook
+    (opt-in via `AI_KIT_USAGE=1`, needs the bin/hooks script) and the
+    rule emitter (needs write-access to the project repo). Symlink-install
+    users keep both. Documented as an intentional gap in
+    `docs/install-plugin.md`.
+  - 13 new regression tests covering manifest validity, source path,
+    marketplace owner shape, three-way version equality, and
+    `sync-plugin-version.sh --check` drift-detection.
+
+**Feature**
 - **Claude Code subagents — `aikit-explore` + `aikit-reviewer`** (new
   `workflow/agents/`):
   - `aikit-explore` is a read-only codebase exploration subagent. Tools:

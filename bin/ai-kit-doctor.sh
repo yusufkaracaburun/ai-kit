@@ -123,6 +123,33 @@ else
   echo ""
 fi
 
+echo "Plugin install"
+PLUGIN_MANIFEST="$AIKIT/workflow/.claude-plugin/plugin.json"
+if [ -f "$PLUGIN_MANIFEST" ]; then
+  PLUGIN_VER="$(python3 -c "import json; print(json.load(open('$PLUGIN_MANIFEST')).get('version','?'))" 2>/dev/null || echo "?")"
+  if [ "$PLUGIN_VER" = "$KIT_VERSION" ]; then
+    ok "plugin manifest present and matches VERSION ($PLUGIN_VER)"
+  else
+    warn "plugin manifest version $PLUGIN_VER != VERSION $KIT_VERSION (run sync-plugin-version.sh)"
+  fi
+else
+  info "no plugin manifest at $PLUGIN_MANIFEST (plugin distribution skipped)"
+fi
+
+# Detect a marketplace-installed ai-kit plugin coexisting with the
+# symlink-install. Both work, but skill resolution gets confusing if the
+# plugin and the symlinks point at different ai-kit clones.
+INSTALLED_PLUGIN="$HOME/.claude/plugins/marketplaces/ai-kit"
+if [ -d "$INSTALLED_PLUGIN" ] && [ "$EFFECTIVE_MODE" != "project-only" ]; then
+  if [ -d "$HOME/.claude/skills" ]; then
+    GLOBAL_AI_LINKS="$(find "$HOME/.claude/skills" -mindepth 1 -maxdepth 1 -type l -exec readlink {} \; 2>/dev/null | grep -c "$AIKIT" || true)"
+    if [ "$GLOBAL_AI_LINKS" -gt 0 ]; then
+      warn "both plugin ($INSTALLED_PLUGIN) and symlink-install ($HOME/.claude/skills) active — pick one channel for updates (ai-kit-no-globals.sh on suppresses globals)"
+    fi
+  fi
+fi
+echo ""
+
 if [ -n "$TARGET" ]; then
   if [ ! -d "$TARGET" ]; then
     err "Project path not a directory: $TARGET"
