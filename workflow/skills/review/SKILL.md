@@ -7,7 +7,14 @@ description: Pre-merge code review on the current branch diff. Checks correctnes
 
 Review the diff against the base branch before merge.
 
-Read `CONTEXT.md` and relevant ADRs first; they're cached truth. For wide cross-file impact analysis, delegate to a sub-agent (`Explore`). See [`context-discipline.mini.md`](../../../standards/rules/context-discipline.mini.md).
+Read `CONTEXT.md` and relevant ADRs first; they're cached truth. See [`context-discipline.mini.md`](../../../standards/rules/context-discipline.mini.md).
+
+## Run mode
+
+- **Claude Code (preferred):** delegate the full review pass to the `aikit-reviewer` subagent via the Task tool with `subagent_type=aikit-reviewer`. Pass: base branch, target ref (default `HEAD`), mode (`daily` or `comprehensive`), security depth (`default` or `deep`). Return the subagent's markdown report to the user verbatim, then discuss the verdict.
+- **Cursor / hosts without subagents:** run the inline checklist below in the main context. The checklist below is the canonical source of truth — `aikit-reviewer`'s system prompt mirrors it.
+
+For wide cross-file impact analysis where you don't need a full verdict, prefer `aikit-explore` (read-only sweep) over inline grepping.
 
 ## Process
 

@@ -8,20 +8,27 @@ AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
 
 write_ai_kit_root_config "$AIKIT"
 
-install_to() {
-  local target="$1"
-  local aikit_real
-  aikit_real="$(cd "$AIKIT/workflow/skills" && pwd -P)"
+# Symlink every subdirectory of $src_root into $target, refusing to clobber
+# user/custom entries. Used for skills, agents — anything where each entry
+# is a directory containing a manifest file (SKILL.md, AGENT.md).
+install_dir_to() {
+  local src_root="$1"
+  local target="$2"
+  local src_real
+  if [ ! -d "$src_root" ]; then
+    return 0
+  fi
+  src_real="$(cd "$src_root" && pwd -P)"
   mkdir -p "$target"
-  for skill in "$AIKIT/workflow/skills"/*/; do
-    name="$(basename "$skill")"
+  for entry in "$src_root"/*/; do
+    [ -d "$entry" ] || continue
+    name="$(basename "$entry")"
     dest="$target/$name"
     if [ -e "$dest" ] || [ -L "$dest" ]; then
-      # Re-link only if it already points into ai-kit; never clobber user/custom skills
       if [ -L "$dest" ]; then
         resolved="$(cd "$dest" 2>/dev/null && pwd -P)" || resolved=""
         case "$resolved" in
-          "$aikit_real"/*) rm -f "$dest" ;;
+          "$src_real"/*) rm -f "$dest" ;;
           *)
             echo "Skipped $name (existing non-aikit entry at $dest)"
             continue
@@ -32,24 +39,71 @@ install_to() {
         continue
       fi
     fi
-    ln -sf "$skill" "$dest"
+    ln -sf "$entry" "$dest"
     echo "Linked $name -> $dest"
   done
 }
 
-echo "Installing ai-kit skills globally..."
+# Symlink every *.md file (top-level, not recursive) from $src_root into $target.
+# Used for slash commands — each command is a single file, not a directory.
+install_files_to() {
+  local src_root="$1"
+  local target="$2"
+  local src_real
+  if [ ! -d "$src_root" ]; then
+    return 0
+  fi
+  src_real="$(cd "$src_root" && pwd -P)"
+  mkdir -p "$target"
+  for entry in "$src_root"/*.md; do
+    [ -f "$entry" ] || continue
+    name="$(basename "$entry")"
+    dest="$target/$name"
+    if [ -e "$dest" ] || [ -L "$dest" ]; then
+      if [ -L "$dest" ]; then
+        resolved="$(cd "$(dirname "$dest")" 2>/dev/null && readlink "$dest")" || resolved=""
+        case "$resolved" in
+          "$src_real"/*|"$entry") rm -f "$dest" ;;
+          *)
+            echo "Skipped $name (existing non-aikit entry at $dest)"
+            continue
+            ;;
+        esac
+      else
+        echo "Skipped $name (existing non-aikit entry at $dest)"
+        continue
+      fi
+    fi
+    ln -sf "$entry" "$dest"
+    echo "Linked $name -> $dest"
+  done
+}
+
+echo "Installing ai-kit globally..."
 echo ""
 
-echo "=== Claude Code (~/.claude/skills) ==="
-install_to "${HOME}/.claude/skills"
+echo "=== Claude Code skills (~/.claude/skills) ==="
+install_dir_to "$AIKIT/workflow/skills" "${HOME}/.claude/skills"
 
 echo ""
 echo "=== Claude Code legacy (~/.agents/skills) ==="
-install_to "${HOME}/.agents/skills"
+install_dir_to "$AIKIT/workflow/skills" "${HOME}/.agents/skills"
 
 echo ""
-echo "=== Cursor (~/.cursor/skills) ==="
-install_to "${HOME}/.cursor/skills"
+echo "=== Cursor skills (~/.cursor/skills) ==="
+install_dir_to "$AIKIT/workflow/skills" "${HOME}/.cursor/skills"
+
+echo ""
+echo "=== Claude Code subagents (~/.claude/agents) ==="
+install_dir_to "$AIKIT/workflow/agents" "${HOME}/.claude/agents"
+
+echo ""
+echo "=== Claude Code slash commands (~/.claude/commands) ==="
+install_files_to "$AIKIT/workflow/commands" "${HOME}/.claude/commands"
+
+echo ""
+echo "=== Cursor slash commands (~/.cursor/commands) ==="
+install_files_to "$AIKIT/workflow/commands" "${HOME}/.cursor/commands"
 
 echo ""
 echo "Saved ai-kit root to ~/.config/ai-kit/root"

@@ -2,6 +2,40 @@
 
 ## Unreleased
 
+**Feature**
+- **Claude Code subagents — `aikit-explore` + `aikit-reviewer`** (new
+  `workflow/agents/`):
+  - `aikit-explore` is a read-only codebase exploration subagent. Tools:
+    Read, Grep, Glob, Bash. Bounded output (≤300 lines), structured return
+    (Summary / Findings / Files inspected / Confidence). Spawn from any
+    skill that needs cross-file sweeps without polluting main context.
+  - `aikit-reviewer` is a pre-merge code review subagent. Same tool set.
+    Returns a strict markdown report (Scope / Blockers / Security /
+    Suggestions / Verdict). The `review` skill now delegates to it on
+    Claude Code; Cursor and other hosts fall back to the inline checklist
+    (single source of truth).
+  - `bin/install-global.sh` refactored: shared `install_dir_to <src>
+    <target>` (skills + agents) and new `install_files_to <src> <target>`
+    (slash commands, file-level not dir-level). Both refuse to clobber
+    existing non-aikit entries.
+  - `bin/bootstrap-project.sh` learns `merge_agents` + `merge_commands`,
+    plus `--no-agents` / `--no-commands` opt-outs. Skills, agents, and
+    commands are now independently controllable at bootstrap.
+- **Claude Code + Cursor slash commands** (`workflow/commands/`):
+  - Five thin wrappers around `bin/ai-kit-*.sh` for IDE-native UX:
+    `/aikit-doctor`, `/aikit-which`, `/aikit-status`, `/aikit-no-globals`,
+    `/aikit-upgrade`. Each runs the underlying script via `!`-prefix
+    (deterministic, output piped to the model), then instructs the model
+    to summarise blockers and suggest the exact next-step command.
+  - `install-global.sh` mirrors to both `~/.claude/commands/` and
+    `~/.cursor/commands/`; bootstrap mirrors to project `.claude/commands/`
+    and `.cursor/commands/`. Cursor command-discovery is opportunistic —
+    if the host ignores them, no harm done.
+  - 34 new regression tests covering: subagent file presence + frontmatter,
+    slash command file presence + frontmatter, bootstrap-time linking of
+    agents and commands, `--no-agents` / `--no-commands` opt-outs, review
+    skill's delegation pattern.
+
 **Docs**
 - **Architecture + glossary + primitives decision tree** (`docs/architecture.md`,
   `docs/glossary.md`, `docs/primitives.md`):

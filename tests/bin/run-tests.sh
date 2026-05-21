@@ -141,6 +141,12 @@ assert ".claude/skills setup linked" '[ -L "$TMP_BOOT/.claude/skills/setup" ] ||
 assert ".agents/skills dir" '[ -d "$TMP_BOOT/.agents/skills" ]'
 assert ".cursor/skills dir" '[ -d "$TMP_BOOT/.cursor/skills" ]'
 assert "setup skill linked" '[ -L "$TMP_BOOT/.cursor/skills/setup" ] || [ -d "$TMP_BOOT/.cursor/skills/setup" ]'
+assert ".claude/agents dir" '[ -d "$TMP_BOOT/.claude/agents" ]'
+assert ".claude/agents aikit-explore linked" '[ -L "$TMP_BOOT/.claude/agents/aikit-explore" ] || [ -d "$TMP_BOOT/.claude/agents/aikit-explore" ]'
+assert ".claude/agents aikit-reviewer linked" '[ -L "$TMP_BOOT/.claude/agents/aikit-reviewer" ] || [ -d "$TMP_BOOT/.claude/agents/aikit-reviewer" ]'
+assert ".claude/commands dir" '[ -d "$TMP_BOOT/.claude/commands" ]'
+assert ".claude/commands aikit-doctor linked" '[ -L "$TMP_BOOT/.claude/commands/aikit-doctor.md" ] || [ -f "$TMP_BOOT/.claude/commands/aikit-doctor.md" ]'
+assert ".cursor/commands aikit-which linked" '[ -L "$TMP_BOOT/.cursor/commands/aikit-which.md" ] || [ -f "$TMP_BOOT/.cursor/commands/aikit-which.md" ]'
 assert "emit: cursor rule for git-hygiene" '[ -f "$TMP_BOOT/.cursor/rules/git-hygiene.mdc" ]'
 assert "emit: claude rule for git-hygiene" '[ -f "$TMP_BOOT/.claude/rules/git-hygiene.md" ]'
 assert "emit: active-rules index"          '[ -f "$TMP_BOOT/docs/agents/active-rules.md" ]'
@@ -210,6 +216,14 @@ assert "no-skills skips .claude/skills" '[ ! -e "$TMP_NO_SK/.claude/skills" ]'
 assert "no-skills skips .agents/skills" '[ ! -e "$TMP_NO_SK/.agents/skills" ]'
 assert "no-skills skips .cursor/skills" '[ ! -e "$TMP_NO_SK/.cursor/skills" ]'
 rm -rf "$TMP_NO_SK"
+
+TMP_NO_AG=$(mktemp -d)
+"$AIKIT/bin/bootstrap-project.sh" --minimal --no-agents --no-commands "$TMP_NO_AG"
+assert "--no-agents skips .claude/agents" '[ ! -e "$TMP_NO_AG/.claude/agents" ]'
+assert "--no-commands skips .claude/commands" '[ ! -e "$TMP_NO_AG/.claude/commands" ]'
+assert "--no-commands skips .cursor/commands" '[ ! -e "$TMP_NO_AG/.cursor/commands" ]'
+assert "no-agents/no-commands still links skills" '[ -d "$TMP_NO_AG/.claude/skills" ]'
+rm -rf "$TMP_NO_AG"
 
 echo ""
 echo "=== apply-docker ==="
@@ -578,6 +592,31 @@ SKILL_COUNT=$(find "$AIKIT/workflow/skills" -name SKILL.md | wc -l | tr -d ' ')
 assert "19 skills" '[ "$SKILL_COUNT" -eq 19 ]'
 assert "checkpoint skill exists" '[ -f "$AIKIT/workflow/skills/checkpoint/SKILL.md" ]'
 assert "resume skill exists" '[ -f "$AIKIT/workflow/skills/resume/SKILL.md" ]'
+
+echo ""
+echo "=== agents ==="
+AGENT_COUNT=$(find "$AIKIT/workflow/agents" -name AGENT.md | wc -l | tr -d ' ')
+assert "2 subagents present" '[ "$AGENT_COUNT" -eq 2 ]'
+assert "aikit-explore exists" '[ -f "$AIKIT/workflow/agents/aikit-explore/AGENT.md" ]'
+assert "aikit-reviewer exists" '[ -f "$AIKIT/workflow/agents/aikit-reviewer/AGENT.md" ]'
+assert "aikit-explore frontmatter name" 'head -5 "$AIKIT/workflow/agents/aikit-explore/AGENT.md" | grep -q "^name: aikit-explore$"'
+assert "aikit-explore frontmatter tools" 'head -5 "$AIKIT/workflow/agents/aikit-explore/AGENT.md" | grep -q "^tools:"'
+assert "aikit-reviewer frontmatter name" 'head -5 "$AIKIT/workflow/agents/aikit-reviewer/AGENT.md" | grep -q "^name: aikit-reviewer$"'
+
+echo ""
+echo "=== slash commands ==="
+COMMAND_COUNT=$(find "$AIKIT/workflow/commands" -maxdepth 1 -name "*.md" | wc -l | tr -d ' ')
+assert "5 slash commands present" '[ "$COMMAND_COUNT" -eq 5 ]'
+for cmd in aikit-doctor aikit-which aikit-status aikit-no-globals aikit-upgrade; do
+  assert "$cmd command exists"     "[ -f \"$AIKIT/workflow/commands/$cmd.md\" ]"
+  assert "$cmd has description"    "head -5 \"$AIKIT/workflow/commands/$cmd.md\" | grep -q '^description:'"
+  assert "$cmd has allowed-tools"  "head -5 \"$AIKIT/workflow/commands/$cmd.md\" | grep -q '^allowed-tools:'"
+done
+
+echo ""
+echo "=== review skill delegation ==="
+assert "review skill mentions aikit-reviewer" 'grep -q "aikit-reviewer" "$AIKIT/workflow/skills/review/SKILL.md"'
+assert "review skill mentions inline fallback" 'grep -q "Cursor / hosts without subagents" "$AIKIT/workflow/skills/review/SKILL.md"'
 
 echo ""
 echo "=== VERSION ==="

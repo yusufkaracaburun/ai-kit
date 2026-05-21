@@ -9,6 +9,8 @@ AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
 COPY_SKILLS=false
 MINIMAL=true
 NO_SKILLS=false
+NO_AGENTS=false
+NO_COMMANDS=false
 SKILLS_MODE="merge-skills"
 WITH_MCP=false
 EMIT_RULES=true
@@ -22,6 +24,8 @@ usage() {
   echo "  --link-all      Symlink entire skills dir to ai-kit (greenfield / explicit replace)"
   echo "  --copy-skills   Copy skills into project instead of symlink"
   echo "  --no-skills     Skip .agents/skills, .claude/skills and .cursor/skills (use global install only)"
+  echo "  --no-agents     Skip .claude/agents (Claude Code subagents)"
+  echo "  --no-commands   Skip .claude/commands and .cursor/commands (slash commands)"
   echo "  --with-mcp      Copy baseline .cursor/mcp.json.template to .cursor/mcp.json (opt-in)"
   echo "  --no-rules      Skip emit-rules.sh (no universal canonical rules in this project)"
   echo ""
@@ -39,6 +43,8 @@ while [ $# -gt 0 ]; do
     --link-all) SKILLS_MODE="link-all"; shift ;;
     --copy-skills) COPY_SKILLS=true; SKILLS_MODE="link-all"; shift ;;
     --no-skills) NO_SKILLS=true; shift ;;
+    --no-agents) NO_AGENTS=true; shift ;;
+    --no-commands) NO_COMMANDS=true; shift ;;
     --with-mcp) WITH_MCP=true; shift ;;
     --no-rules) EMIT_RULES=false; shift ;;
     -h | --help) usage ;;
@@ -128,6 +134,36 @@ merge_skills() {
   echo "Merged ai-kit skills into $label (custom entries preserved)"
 }
 
+merge_agents() {
+  local dest_parent="$1"
+  local label="$2"
+  local agents_dir="$dest_parent/agents"
+  local src_root="$AIKIT/workflow/agents"
+
+  [ -d "$src_root" ] || return 0
+  mkdir -p "$agents_dir"
+  for agent in "$src_root"/*/; do
+    [ -d "$agent" ] || continue
+    ln -sfn "$agent" "$agents_dir/$(basename "$agent")"
+  done
+  echo "Merged ai-kit subagents into $label (custom entries preserved)"
+}
+
+merge_commands() {
+  local dest_parent="$1"
+  local label="$2"
+  local commands_dir="$dest_parent/commands"
+  local src_root="$AIKIT/workflow/commands"
+
+  [ -d "$src_root" ] || return 0
+  mkdir -p "$commands_dir"
+  for cmd in "$src_root"/*.md; do
+    [ -f "$cmd" ] || continue
+    ln -sfn "$cmd" "$commands_dir/$(basename "$cmd")"
+  done
+  echo "Merged ai-kit slash commands into $label (custom entries preserved)"
+}
+
 if [ "$NO_SKILLS" = true ]; then
   echo "Skipped project skill links (--no-skills; use global ~/.claude/skills, ~/.agents/skills and ~/.cursor/skills)"
 elif [ "$SKILLS_MODE" = "link-all" ]; then
@@ -138,6 +174,19 @@ else
   merge_skills "$TARGET/.claude" ".claude/skills"
   merge_skills "$TARGET/.agents" ".agents/skills"
   merge_skills "$TARGET/.cursor" ".cursor/skills"
+fi
+
+if [ "$NO_AGENTS" = true ]; then
+  echo "Skipped project subagent links (--no-agents)"
+else
+  merge_agents "$TARGET/.claude" ".claude/agents"
+fi
+
+if [ "$NO_COMMANDS" = true ]; then
+  echo "Skipped project slash command links (--no-commands)"
+else
+  merge_commands "$TARGET/.claude" ".claude/commands"
+  merge_commands "$TARGET/.cursor" ".cursor/commands"
 fi
 
 if [ "$WITH_MCP" = true ]; then
