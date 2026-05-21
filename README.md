@@ -8,16 +8,25 @@ Personal agent kit — **stack-agnostic**, full **agile lifecycle**, Claude Code
 
 **Version:** see [VERSION](VERSION) · [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md)
 
+## Mental model
+
+Two things, do them in this order:
+
+1. **`install-global.sh`** *(once per machine, optional)* — symlinks the 16 ai-kit skills into `~/.claude/skills/`, `~/.agents/skills/`, `~/.cursor/skills/` so they're discoverable from anywhere. Skip this if you only ever work in one project.
+2. **`bootstrap-project.sh` + `/setup`** *(once per project)* — sets up `AGENTS.md`, `CONTEXT.md`, `.claude/skills/`, `.cursor/rules/`, and the `.ai-kit-setup` marker inside the project. **This is project-scoped — works fully without step 1.**
+
+| Setup mode | Step 1 (global) | Step 2 (project) | When |
+| ---------- | --------------- | ---------------- | ---- |
+| `solo-both` | yes | merge-skills | greenfield default |
+| `solo-global` | yes | no-skills | machine-wide only |
+| `project-only` | **no** | merge-skills | repo isolation, no host pollution |
+| `brownfield` | optional | merge-skills + agent-stack doc | project already has rules/MCP/custom skills |
+
+ai-kit is **standalone**: no package-install, no network at runtime, no required global state. `bin/ai-kit-doctor.sh` validates whichever path you chose.
+
 ## Quick start
 
 **Usual flow:** paste the [project setup prompt](context/prompts/setup-project.md). Default is **Tier A (~5 min)**: one setup-mode question, bootstrap, dev-environment.
-
-| Setup mode | When |
-| ---------- | ---- |
-| solo-both | Greenfield default — global + project merge-skills |
-| solo-global | Machine-wide skills only |
-| project-only | Project skills only |
-| brownfield | Existing rules/MCP/custom skills — documents coexistence |
 
 **ai-kit root** is resolved automatically (no hardcoded path):
 
