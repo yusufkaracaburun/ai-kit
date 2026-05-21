@@ -509,6 +509,44 @@ echo "=== VERSION ==="
 assert "VERSION file" '[ -f "$AIKIT/VERSION" ]'
 
 echo ""
+echo "=== eval-golden ==="
+# Each golden must satisfy its own rubric — catches drift where you weaken
+# either the rubric or the golden without keeping them in sync.
+if "$AIKIT/bin/eval-golden.sh" --validate-all > /tmp/eval-golden.out 2>&1; then
+  GOLDEN_OK=true
+else
+  GOLDEN_OK=false
+  echo "  (eval-golden.sh failures — see /tmp/eval-golden.out)"
+  tail -20 /tmp/eval-golden.out
+fi
+assert "all goldens satisfy own rubric" '[ "$GOLDEN_OK" = true ]'
+
+# A deliberately bad response must FAIL several checks — sanity for the
+# rubric runner itself (catches the runner silently passing everything).
+TMP_BAD_RESP=$(mktemp)
+cat > "$TMP_BAD_RESP" <<'BADRESP'
+---
+id: cart-checkout
+---
+
+# Trivial response, hits none of the structural checks.
+
+Some words here.
+BADRESP
+set +e
+"$AIKIT/bin/eval-golden.sh" tdd cart-checkout "$TMP_BAD_RESP" > /tmp/eval-golden-bad.out 2>&1
+BAD_EXIT=$?
+set -e
+assert "bad response fails (exit 1)" '[ "$BAD_EXIT" -eq 1 ]'
+assert "bad response reports failed checks" 'grep -q "FAIL" /tmp/eval-golden-bad.out'
+rm -f "$TMP_BAD_RESP"
+
+# Coverage: each priority skill (to-prd, tdd, ship) has a golden.
+for prio in to-prd tdd ship; do
+  assert "golden exists: $prio" '[ -f "$AIKIT/tests/eval/goldens/$prio"/*.md ] || ls "$AIKIT/tests/eval/goldens/$prio"/*.md >/dev/null 2>&1'
+done
+
+echo ""
 echo "=== eval-structure ==="
 if "$AIKIT/tests/bin/eval-structure.sh" > /tmp/eval-structure.out 2>&1; then
   STRUCT_OK=true

@@ -3,6 +3,15 @@
 ## Unreleased
 
 **Feature**
+- Golden-output evals for `to-prd`, `tdd`, `ship`. Hand-written ideal responses
+  at `tests/eval/goldens/<skill>/<scenario>.md` carry a structured rubric
+  (required headings/keywords/phrases, forbidden keywords, line bounds).
+  New runner `bin/eval-golden.sh` validates goldens against their own rubric
+  and can score a real model response against it. Purely deterministic —
+  no API calls, no runtime deps added. CI runs `--validate-all` on every
+  push, catching drift between rubric and golden.
+- `tests/eval/README.md` documents the two-layer eval system (structural
+  checks + golden rubric) and the manual paste-and-score flow.
 - `install.sh` at repo root: one-line curl installer. Clones ai-kit into
   `~/.local/share/ai-kit` (configurable) and runs `bin/install-global.sh`
   by default. Flags: `--dir`, `--repo`, `--branch`, `--ref`, `--no-global`,
