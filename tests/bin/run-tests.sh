@@ -639,6 +639,23 @@ assert "version triple equality (VERSION/plugin/marketplace)" \
   'bash "$AIKIT/bin/sync-plugin-version.sh" --check >/dev/null 2>&1'
 
 echo ""
+echo "=== mcp wrapper ==="
+assert "bin/ai-kit-mcp exists" '[ -f "$AIKIT/bin/ai-kit-mcp" ]'
+assert "bin/ai-kit-mcp is executable" '[ -x "$AIKIT/bin/ai-kit-mcp" ]'
+assert "wrapper does not hardcode user path" '! grep -q "/Users/" "$AIKIT/bin/ai-kit-mcp"'
+assert "wrapper sources ai-kit-root.sh" 'grep -q "source.*ai-kit-root.sh" "$AIKIT/bin/ai-kit-mcp"'
+assert "wrapper guards against missing server bundle" 'grep -q "not built" "$AIKIT/bin/ai-kit-mcp"'
+assert "wrapper guards against missing node" 'grep -q "node.*not on PATH" "$AIKIT/bin/ai-kit-mcp"'
+
+# Smoke test: install-global symlinks the wrapper, and the symlinked wrapper resolves to the same source.
+TMP_HOME_MCP=$(mktemp -d)
+HOME="$TMP_HOME_MCP" bash "$AIKIT/bin/install-global.sh" >/dev/null 2>&1
+assert "install-global creates ~/.local/bin/ai-kit-mcp symlink" '[ -L "$TMP_HOME_MCP/.local/bin/ai-kit-mcp" ]'
+assert "wrapper symlink resolves to source" \
+  '[ "$(readlink "$TMP_HOME_MCP/.local/bin/ai-kit-mcp")" = "$AIKIT/bin/ai-kit-mcp" ]'
+rm -rf "$TMP_HOME_MCP"
+
+echo ""
 echo "=== mcp server scaffold ==="
 assert "mcp/package.json exists" '[ -f "$AIKIT/mcp/package.json" ]'
 assert "mcp/tsconfig.json exists" '[ -f "$AIKIT/mcp/tsconfig.json" ]'

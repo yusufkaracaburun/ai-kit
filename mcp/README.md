@@ -27,23 +27,39 @@ Then add to your MCP client's config (`.mcp.json` or equivalent):
 ### From a clone (no npm publish needed)
 
 ```bash
-cd ~/.local/share/ai-kit/mcp
+cd "$AI_KIT_ROOT/mcp"   # or wherever you cloned ai-kit
 npm install
 npm run build
+"$AI_KIT_ROOT/bin/install-global.sh"   # symlinks bin/ai-kit-mcp into ~/.local/bin
 ```
 
-Then point your MCP client at the built artifact:
+`install-global.sh` symlinks `bin/ai-kit-mcp` into `~/.local/bin/`. If that's on your PATH (XDG default — true for most modern shells), your MCP config is:
 
 ```json
 {
   "mcpServers": {
     "ai-kit": {
-      "command": "node",
-      "args": ["/Users/<you>/.local/share/ai-kit/mcp/dist/server.js"]
+      "command": "ai-kit-mcp"
     }
   }
 }
 ```
+
+`bin/ai-kit-mcp` is a thin wrapper that resolves the ai-kit root via `$AI_KIT_ROOT` / `~/.config/ai-kit/root` / script-location fallback, then execs `node $AIKIT/mcp/dist/server.js`. No hardcoded paths in your client config.
+
+If `~/.local/bin` isn't on your PATH and you don't want to add it, use the wrapper by absolute path:
+
+```json
+{
+  "mcpServers": {
+    "ai-kit": {
+      "command": "/absolute/path/to/ai-kit/bin/ai-kit-mcp"
+    }
+  }
+}
+```
+
+Don't reference `mcp/dist/server.js` directly — the wrapper handles the "is it built? is node installed?" guards so your client gets a clear error message instead of a confusing "command not found".
 
 ## Tools (v1)
 

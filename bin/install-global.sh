@@ -105,6 +105,35 @@ echo ""
 echo "=== Cursor slash commands (~/.cursor/commands) ==="
 install_files_to "$AIKIT/workflow/commands" "${HOME}/.cursor/commands"
 
+# Symlink the MCP wrapper into ~/.local/bin (XDG default — usually on PATH).
+# Lets MCP clients reference the server by name instead of absolute path.
+echo ""
+echo "=== MCP wrapper (~/.local/bin/ai-kit-mcp) ==="
+MCP_WRAPPER_SRC="$AIKIT/bin/ai-kit-mcp"
+MCP_WRAPPER_DEST="${HOME}/.local/bin/ai-kit-mcp"
+mkdir -p "${HOME}/.local/bin"
+if [ -f "$MCP_WRAPPER_SRC" ]; then
+  if [ -L "$MCP_WRAPPER_DEST" ]; then
+    resolved="$(cd "$(dirname "$MCP_WRAPPER_DEST")" 2>/dev/null && readlink "$MCP_WRAPPER_DEST")" || resolved=""
+    if [ "$resolved" = "$MCP_WRAPPER_SRC" ]; then
+      echo "ai-kit-mcp already linked"
+    else
+      ln -sf "$MCP_WRAPPER_SRC" "$MCP_WRAPPER_DEST"
+      echo "Linked ai-kit-mcp -> $MCP_WRAPPER_DEST (was: $resolved)"
+    fi
+  elif [ -e "$MCP_WRAPPER_DEST" ]; then
+    echo "Skipped ai-kit-mcp (existing non-symlink at $MCP_WRAPPER_DEST)"
+  else
+    ln -sf "$MCP_WRAPPER_SRC" "$MCP_WRAPPER_DEST"
+    echo "Linked ai-kit-mcp -> $MCP_WRAPPER_DEST"
+  fi
+  if ! echo ":$PATH:" | grep -q ":${HOME}/.local/bin:"; then
+    echo "Note: ${HOME}/.local/bin is not on PATH. Add it to your shell init, or call the wrapper by absolute path."
+  fi
+else
+  echo "Skipped — $MCP_WRAPPER_SRC not present"
+fi
+
 echo ""
 echo "Saved ai-kit root to ~/.config/ai-kit/root"
 echo "  AI_KIT_ROOT=$AIKIT"

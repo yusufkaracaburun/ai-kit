@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+**Fix**
+- **`ai-kit-mcp` wrapper — kills the absolute-path footgun in MCP client
+  configs** (`bin/ai-kit-mcp`, `bin/install-global.sh`, `mcp/README.md`):
+  - `mcp/README.md` previously told clone-install users to write
+    `"args": ["/Users/<you>/.local/share/ai-kit/mcp/dist/server.js"]` —
+    hardcoded absolute path that breaks the moment the user moves their
+    clone or has a different home dir. JSON `args` aren't shell-expanded
+    so `$AI_KIT_ROOT` or `~` don't work as a substitute.
+  - New `bin/ai-kit-mcp` wrapper resolves the ai-kit root the same way
+    the rest of ai-kit does (`$AI_KIT_ROOT` → `~/.config/ai-kit/root` →
+    script-location walk), guards against missing build / missing
+    node, then `exec node $AIKIT/mcp/dist/server.js`. `readlink -f`
+    handles the case where the wrapper is invoked via a symlink (its
+    own `bin/lib/` lookup would otherwise resolve to the symlink's
+    parent dir).
+  - `install-global.sh` symlinks `bin/ai-kit-mcp` into `~/.local/bin/`
+    (XDG default, on PATH for most modern shells). Prints a clear note
+    if `~/.local/bin` isn't on PATH. Idempotent like the other install
+    passes; skips on non-aikit clobbers.
+  - Result: MCP client config simplifies to `{ "command": "ai-kit-mcp" }`
+    — no args, no absolute paths, no client edits when the clone moves.
+  - 8 new regression tests: wrapper presence + executability, no
+    `/Users/` hardcoding, sources `ai-kit-root.sh`, has both missing-build
+    and missing-node guards, install-global creates the symlink,
+    symlink resolves back to source.
+
 **Docs**
 - **Roadmap section 3 + mental-model refresh** (`docs/roadmap.md`,
   `docs/mental-model.md`):
