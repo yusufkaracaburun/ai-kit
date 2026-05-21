@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+**Docs**
+- **Architecture + glossary + primitives decision tree** (`docs/architecture.md`,
+  `docs/glossary.md`, `docs/primitives.md`):
+  - `architecture.md` lays out the three-layer model (source → distribution →
+    host), maps every primitive type to its source path / distribution channel /
+    host directory, and documents the two coherence rules (symlink-not-copy,
+    emitter pattern). Forward-references planned PR 1-3 primitives (subagents,
+    slash commands, plugin, MCP server) so future contributors land them in
+    the right place.
+  - `glossary.md` defines every recurring term alphabetically and explicitly
+    aliases conflicting names (`agent` host-sense vs subagent-sense, `command`
+    vs slash command). Single-source for terminology across skills and docs.
+  - `primitives.md` is a decision tree — "I want to add X" → hook / slash
+    command / skill / subagent / rule / MCP tool / bin script / template — with
+    six worked examples and six anti-patterns. Constraint test + host-reach
+    test as the two questions to ask.
+  - README adds links to all three docs. Skill-count language in
+    `bin/ai-kit-which.sh` switched to tense-agnostic ("every shipped skill")
+    to prevent future drift (was "16", now matches the 19 dirs in
+    `workflow/skills/`). Same fix in `README.md` structure block.
+
 **Feature**
 - **Claude Code hook: auto-log Skill invocations** (`bin/hooks/post-skill-log.sh`):
   - New `PostToolUse` hook wired in committed `.claude/settings.json`

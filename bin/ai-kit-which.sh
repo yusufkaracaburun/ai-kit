@@ -5,7 +5,7 @@
 #   ai-kit-which.sh "I want to write a PRD for the new feature"
 #       Score every skill's description against the intent text; print top-3.
 #   ai-kit-which.sh --list
-#       List all 16 skills with a one-line description.
+#       List every shipped skill with a one-line description.
 #   ai-kit-which.sh --explain <skill>
 #       Print the full SKILL.md for the named skill.
 #   ai-kit-which.sh
@@ -138,7 +138,7 @@ recommend() {
     echo "No skill description matched any token in your intent."
     echo ""
     echo "Try:"
-    echo "  $(basename "$0") --list                  # browse all 16 skills"
+    echo "  $(basename "$0") --list                  # browse every shipped skill"
     echo "  $(basename "$0") <topic>                 # search by a single word"
     return 1
   fi

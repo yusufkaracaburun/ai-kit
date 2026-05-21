@@ -83,8 +83,11 @@ Bootstrap symlinks both project paths. `AGENTS.md` is the single agent-agnostic 
 ## Structure
 
 ```
-workflow/skills/   18 skills incl. setup, ship, retro
+workflow/skills/   19 skills incl. setup, ship, retro
 standards/rules/   Book rules (plain markdown — read on-demand by skills)
+docs/architecture.md  How the kit is wired (layers, primitives, install paths)
+docs/glossary.md      Terms used across ai-kit code and docs
+docs/primitives.md    Decision tree: skill vs subagent vs hook vs rule vs MCP
 docs/roadmap.md    Forward-looking work (agent-agnostic refactor, smart rule recommender)
 orchestration/     Sandcastle templates
 context/templates/ Per-project doc templates
