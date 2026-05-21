@@ -72,7 +72,7 @@ for skill_dir in "$SKILLS_DIR"/*/; do
   while IFS= read -r fld; do
     [ -z "$fld" ] && continue
     case "$fld" in
-      name|description|argument-hint|model|disable-model-invocation|tools) ;;
+      name|description|argument-hint|model|disable-model-invocation|tools|allowed-tools) ;;
       *) unknown_fields="${unknown_fields}${fld} " ;;
     esac
   done <<EOF_FIELDS
@@ -116,6 +116,7 @@ EOF_FIELDS
       [ -z "$target" ] && continue
       case "$target" in
         http*|/*) continue ;;  # external or absolute (not asserted here)
+        *\<*|*\>*) continue ;; # placeholder template like `<date>` — not a real link
       esac
       resolved="$skill_dir/$target"
       if [ ! -f "$resolved" ]; then

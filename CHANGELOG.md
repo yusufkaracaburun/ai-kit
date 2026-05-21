@@ -3,6 +3,23 @@
 ## Unreleased
 
 **Feature**
+- Two new skills for session continuity, first-class in ai-kit (16 → 18):
+  - **`checkpoint`** — saves a session-continuation memo to the auto-memory
+    folder before `/clear`, `/compact`, a long break, or end of session.
+    Includes self-check rubric (memo must have `## Where we are` +
+    `## Open / next`, ≥3 bullets, ≥1 concrete reference), auto-flag for
+    `[stale]` entries in `MEMORY.md` when their branch is gone, edge-case
+    handling for non-git projects and slug collisions, and an explicit
+    "other skills in this space" routing block pointing at `/handoff`
+    (cross-machine) and `/gsd-pause-work` (GSD projects).
+  - **`resume`** — companion that finds the most recent checkpoint, summarises
+    it in five lines, proposes one concrete first action, and waits for user
+    confirmation. Never silently runs destructive ops. Routes to
+    `/gsd-resume-work` for GSD projects.
+  - Each has a fixture + golden + machine-checkable rubric. README's agile
+    lifecycle table gains a Session-continuity row.
+  - `eval-structure.sh`: recognises the `allowed-tools` Claude Code field
+    and skips placeholder-template links (`[link](<path>)`).
 - `bin/ai-kit-which.sh`: skill picker. Takes free-text intent and ranks the
   16 skills by keyword overlap against each `SKILL.md` description, surfacing
   top-3 with rationale. Also supports `--list` (catalog) and `--explain

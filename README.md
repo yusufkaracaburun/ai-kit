@@ -65,10 +65,11 @@ git clone https://github.com/yusufkaracaburun/ai-kit.git ~/.local/share/ai-kit
 | Testing | `review`, `qa`, `diagnose` |
 | Deployment | `ship` |
 | Ops & Review | `retro` |
+| Session continuity | `checkpoint` ↔ `resume` (auto-memory) · `handoff` (cross-machine) |
 
 Framework (Scrum/Kanban): optional via Full setup → `docs/agents/workflow.md`. Architecture: optional branch 7 in Full setup.
 
-Not sure which skill fits? `bin/ai-kit-which.sh "I want to ship this to production"` ranks the top 3 by keyword overlap; `--list` shows all 16, `--explain <skill>` dumps the full `SKILL.md`.
+Not sure which skill fits? `bin/ai-kit-which.sh "I want to ship this to production"` ranks the top 3 by keyword overlap; `--list` shows all 18, `--explain <skill>` dumps the full `SKILL.md`.
 
 ## Cross-tool setup
 
@@ -82,7 +83,7 @@ Bootstrap symlinks both project paths. `ai-kit.mdc` rule points agents to `AGENT
 ## Structure
 
 ```
-workflow/skills/   16 skills incl. setup, ship, retro
+workflow/skills/   18 skills incl. setup, ship, retro
 standards/rules/   Book rules (on-demand)
 orchestration/     Sandcastle templates
 context/templates/ Per-project doc templates
