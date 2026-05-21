@@ -175,6 +175,7 @@ rule_to_mdc "$AIKIT/standards/rules/refactoring.mini.md" "refactoring" "Refactor
 rule_to_mdc "$AIKIT/standards/rules/aposd.mini.md" "aposd" "A Philosophy of Software Design rules"
 rule_to_mdc "$AIKIT/standards/rules/release-it.mini.md" "release-it" "Release It production rules"
 rule_to_mdc "$AIKIT/standards/rules/git-hygiene.mini.md" "git-hygiene" "Branch naming, commit format, PR conventions, merge strategy"
+rule_to_mdc "$AIKIT/standards/rules/context-discipline.mini.md" "context-discipline" "Token-budget discipline: grep before read, delegate wide exploration, lean on CONTEXT.md and ADRs"
 
 if [ ! -f "$TARGET/.cursor/rules/pragmatic-baseline.mdc" ]; then
   cat > "$TARGET/.cursor/rules/pragmatic-baseline.mdc" << EOF

@@ -7,6 +7,8 @@ description: Pre-merge code review on the current branch diff. Checks correctnes
 
 Review the diff against the base branch before merge.
 
+Read `CONTEXT.md` and relevant ADRs first; they're cached truth. For wide cross-file impact analysis, delegate to a sub-agent (`Explore`). See [`context-discipline.mini.md`](../../../standards/rules/context-discipline.mini.md).
+
 ## Process
 
 1. **Scope** — identify changed files (`git diff --name-only` vs base branch).

@@ -2,6 +2,8 @@
 
 This project uses the ai-kit workflow (Claude Code + Cursor).
 
+**Context budget**: lean on `CONTEXT.md` and `docs/adr/` as cached truth — don't re-derive what's already documented. For wide codebase sweeps, delegate to a sub-agent (`Explore`, `Plan`) so raw output stays out of the main conversation. Full rule: `.cursor/rules/context-discipline.mdc` (or `standards/rules/context-discipline.mini.md` in ai-kit).
+
 ## Agile lifecycle
 
 | Fase | Doel | Skills |

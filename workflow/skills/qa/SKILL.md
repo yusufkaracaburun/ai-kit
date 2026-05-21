@@ -7,6 +7,8 @@ description: QA a web app at a given URL — smoke test critical paths, report b
 
 Systematically test a web application and report findings.
 
+Browser/console output is large; quote only salient lines back into this context. Filter console logs with patterns instead of dumping all output. See [`context-discipline.mini.md`](../../../standards/rules/context-discipline.mini.md).
+
 ## Process
 
 1. **Clarify scope** — URL, environment (local/staging), and critical user flows.

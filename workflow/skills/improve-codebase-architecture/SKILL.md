@@ -28,6 +28,8 @@ Key principles (see [LANGUAGE.md](LANGUAGE.md) for the full list):
 
 This skill is _informed_ by the project's domain model. The domain language gives names to good seams; ADRs record decisions the skill should not re-litigate.
 
+Wide cross-module surveys are easy to drown in. Delegate "find all callers of X" / "map this module's collaborators" to a sub-agent (`Explore`) and work from its summary. See [`context-discipline.mini.md`](../../../standards/rules/context-discipline.mini.md).
+
 ## Process
 
 ### 1. Explore

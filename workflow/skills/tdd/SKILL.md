@@ -5,6 +5,8 @@ description: Test-driven development with red-green-refactor loop. Use when user
 
 # Test-Driven Development
 
+Apply [`context-discipline.mini.md`](../../../standards/rules/context-discipline.mini.md): `grep` for the system-under-test before reading; never `Read` test fixtures or large generated files into this context.
+
 ## Philosophy
 
 **Core principle**: Tests should verify behavior through public interfaces, not implementation details. Code can change entirely; tests shouldn't.

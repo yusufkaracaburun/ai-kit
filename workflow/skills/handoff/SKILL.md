@@ -1,12 +1,19 @@
 ---
 name: handoff
-description: Compact the current conversation into a handoff document for another agent to pick up. Use when context is getting full, before /clear, or when handing work to another machine or teammate.
-argument-hint: "What will the next session be used for?"
+description: Compact the current conversation into a handoff document for another agent to pick up. Use when context is getting full, before /clear, or when handing work to another machine or teammate. Pass `mid-session` to compact without ending the current session.
+argument-hint: "What will the next session be used for? Or 'mid-session' to compact in place."
 ---
 
 Write a handoff document so a fresh agent can continue the work. Save it to the OS temp directory (`$TMPDIR` on macOS, `/tmp` on Linux) — never inside the user's project.
 
 If the user passed arguments, treat them as the focus of the next session and tailor the document accordingly.
+
+## Modes
+
+- **End-of-session (default):** user is about to `/clear` or hand off to another machine/teammate. Produce the full template below.
+- **Mid-session (`mid-session` argument):** context is heavy but the work isn't done. Write the same handoff doc, then in the *current* session prune mentally — keep only the next 1–3 action items in focus, defer the rest to the doc. Don't run `/clear`; the user explicitly stayed in this session. Goal: free the agent from re-reading prior turns, not to end the session.
+
+See [`context-discipline.mini.md`](../../../standards/rules/context-discipline.mini.md) for when to reach for either mode.
 
 ## Process
 
