@@ -3,6 +3,21 @@
 ## Unreleased
 
 **Feature**
+- **Claude Code hook: auto-log Skill invocations** (`bin/hooks/post-skill-log.sh`):
+  - New `PostToolUse` hook wired in committed `.claude/settings.json`
+    (matcher `^Skill$`). Reads the hook JSON payload from stdin, extracts
+    `tool_input.skill`, and calls `log-skill.sh <skill> done`. Closes the
+    long-standing gap where `log-skill.sh` existed but no skill called it,
+    leaving `usage.jsonl` empty even with `AI_KIT_USAGE=1` set.
+  - Triple opt-in: hook registered, `AI_KIT_USAGE=1` in env, tool name was
+    `Skill`. The wrapper itself is silent — `set -uo pipefail` (no `errexit`)
+    plus per-step `2>/dev/null` ensures a malformed payload or missing
+    `jq`/`python3` can never break a Claude Code session.
+  - JSON parsing: `jq` preferred, `python3` fallback. Defense-in-depth
+    `tool_name` check against the payload in case of matcher misconfig.
+  - 8 new regression tests in `tests/bin/run-tests.sh` covering opt-out,
+    happy path, non-Skill tools, empty stdin, missing skill field. The
+    privacy net-call grep now also covers the hook script.
 - **Agent-agnostic rule emission** (`bin/emit-rules.sh`):
   - Replaces the removed Cursor-only `.mdc` generator with a pluggable
     emit layer. `detect_agents()` (in `bin/lib/detect-lib.sh`) identifies

@@ -147,6 +147,28 @@ bin/usage-purge.sh                   # wipe the log
 
 `retro` reads `usage-stats.sh` to ground the conversation in observed behaviour. See [SECURITY.md](SECURITY.md) for the full data contract.
 
+### Auto-logging via Claude Code hook
+
+ai-kit ships a `PostToolUse` hook (`bin/hooks/post-skill-log.sh`) wired in
+`.claude/settings.json`. When `AI_KIT_USAGE=1` is set, each Skill invocation
+auto-writes a `done` event — no per-skill plumbing required. The hook is
+silent and no-op without the env var. To add it to a downstream project,
+copy this into the project's `.claude/settings.json`:
+
+```jsonc
+{
+  "hooks": {
+    "PostToolUse": [{
+      "matcher": "^Skill$",
+      "hooks": [{
+        "type": "command",
+        "command": "${AI_KIT_ROOT}/bin/hooks/post-skill-log.sh"
+      }]
+    }]
+  }
+}
+```
+
 ## Eval harness
 
 ```bash

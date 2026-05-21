@@ -656,8 +656,44 @@ assert "usage-purge removes log" '[ ! -f "$USAGE_STATE/ai-kit/usage.jsonl" ]'
 rm -rf "$USAGE_STATE"
 
 echo ""
+echo "=== hook: post-skill-log ==="
+HOOK="$AIKIT/bin/hooks/post-skill-log.sh"
+assert "hook script exists" '[ -x "$HOOK" ]'
+
+HOOK_STATE=$(mktemp -d)
+
+# Opt-out: hook must no-op without AI_KIT_USAGE=1.
+unset AI_KIT_USAGE
+echo '{"tool_name":"Skill","tool_input":{"skill":"diagnose","args":""}}' \
+  | XDG_STATE_HOME="$HOOK_STATE" "$HOOK"
+assert "hook no-op without env" '[ ! -f "$HOOK_STATE/ai-kit/usage.jsonl" ]'
+
+# Happy path: Skill payload + env → exactly one done event.
+echo '{"tool_name":"Skill","tool_input":{"skill":"diagnose","args":""}}' \
+  | AI_KIT_USAGE=1 XDG_STATE_HOME="$HOOK_STATE" "$HOOK"
+assert "hook writes one line on Skill" '[ "$(wc -l < "$HOOK_STATE/ai-kit/usage.jsonl" | tr -d " ")" = "1" ]'
+assert "hook logs event=done" 'grep -q "\"event\":\"done\"" "$HOOK_STATE/ai-kit/usage.jsonl"'
+assert "hook logs correct skill" 'grep -q "\"skill\":\"diagnose\"" "$HOOK_STATE/ai-kit/usage.jsonl"'
+
+# Non-Skill tool: matcher would normally gate, but the wrapper also guards.
+rm -f "$HOOK_STATE/ai-kit/usage.jsonl"
+echo '{"tool_name":"Bash","tool_input":{"command":"ls"}}' \
+  | AI_KIT_USAGE=1 XDG_STATE_HOME="$HOOK_STATE" "$HOOK"
+assert "hook ignores non-Skill tool" '[ ! -f "$HOOK_STATE/ai-kit/usage.jsonl" ]'
+
+# Empty stdin / malformed payload: silent no-op, no crash.
+: | AI_KIT_USAGE=1 XDG_STATE_HOME="$HOOK_STATE" "$HOOK"
+assert "hook handles empty stdin" '[ ! -f "$HOOK_STATE/ai-kit/usage.jsonl" ]'
+
+echo '{"tool_name":"Skill","tool_input":{"args":"x"}}' \
+  | AI_KIT_USAGE=1 XDG_STATE_HOME="$HOOK_STATE" "$HOOK"
+assert "hook handles missing skill field" '[ ! -f "$HOOK_STATE/ai-kit/usage.jsonl" ]'
+
+rm -rf "$HOOK_STATE"
+
+echo ""
 echo "=== privacy ==="
-NET_HITS="$(grep -REn 'curl|wget|/dev/tcp|nc ' "$AIKIT/bin/log-skill.sh" "$AIKIT/bin/usage-stats.sh" "$AIKIT/bin/usage-purge.sh" || true)"
+NET_HITS="$(grep -REn 'curl|wget|/dev/tcp|nc ' "$AIKIT/bin/log-skill.sh" "$AIKIT/bin/usage-stats.sh" "$AIKIT/bin/usage-purge.sh" "$AIKIT/bin/hooks/post-skill-log.sh" || true)"
 assert "no network calls in usage scripts" '[ -z "$NET_HITS" ]'
 
 echo ""
