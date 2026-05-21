@@ -137,6 +137,20 @@ done
 # Per-fixture checks
 if [ -d "$PROMPTS_DIR" ]; then
   echo ""
+  echo "=== eval fixture coverage ==="
+  echo ""
+  missing_coverage=0
+  for skill_dir in "$SKILLS_DIR"/*/; do
+    name="$(basename "$skill_dir")"
+    if [ -d "$PROMPTS_DIR/$name" ] && [ -n "$(find "$PROMPTS_DIR/$name" -name '*.md' -type f 2>/dev/null | head -1)" ]; then
+      ok "[$name] has ≥1 fixture"
+    else
+      bad "[$name] missing eval fixture — add tests/eval/prompts/$name/<scenario>.md"
+      missing_coverage=$((missing_coverage + 1))
+    fi
+  done
+
+  echo ""
   echo "=== eval prompt fixtures ==="
   echo ""
   fixture_count=0
