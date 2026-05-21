@@ -96,6 +96,36 @@ assert "missing list mentions .claude/skills" '[[ " ${BOOTSTRAP_MISSING[*]} " ==
 rm -rf "$TMP_BS_EMPTY"
 
 echo ""
+echo "=== release.sh ==="
+# Dry-run with prepared notes — script must not write anything.
+TMP_NOTES="$(mktemp)"
+echo "test entry body" > "$TMP_NOTES"
+set +e
+OUT_REL="$("$AIKIT/bin/release.sh" 9.9.9 --notes-file="$TMP_NOTES" --dry-run 2>&1)"
+REL_EXIT=$?
+set -e
+assert "release: dry-run exits 0" '[ "$REL_EXIT" -eq 0 ]'
+assert "release: dry-run announces version" 'echo "$OUT_REL" | grep -q "Would write VERSION = 9.9.9"'
+assert "release: dry-run mentions tag" 'echo "$OUT_REL" | grep -q "Would tag: v9.9.9"'
+
+set +e
+OUT_BAD="$("$AIKIT/bin/release.sh" notsemver --dry-run 2>&1)"
+BAD_EXIT=$?
+set -e
+assert "release: rejects non-semver" '[ "$BAD_EXIT" -ne 0 ]'
+
+# Same version should be rejected.
+CURRENT_VERSION="$(tr -d '[:space:]' < "$AIKIT/VERSION")"
+set +e
+OUT_SAME="$("$AIKIT/bin/release.sh" "$CURRENT_VERSION" --notes-file="$TMP_NOTES" --dry-run 2>&1)"
+SAME_EXIT=$?
+set -e
+assert "release: rejects same version" '[ "$SAME_EXIT" -ne 0 ]'
+assert "release: --no-tag dry-run skips tag mention" '! "$AIKIT/bin/release.sh" 9.9.8 --notes-file="$TMP_NOTES" --no-tag --dry-run 2>&1 | grep -q "Would tag"'
+
+rm -f "$TMP_NOTES"
+
+echo ""
 echo "=== detect-tooling --json ==="
 JSON_OUT="$("$AIKIT/bin/detect-tooling.sh" "$AIKIT/tests/fixtures/architecture-laravel" --json)"
 assert "json has architecture.frontend" 'echo "$JSON_OUT" | grep -q "\"detected\": \"laravel-inertia\""'
