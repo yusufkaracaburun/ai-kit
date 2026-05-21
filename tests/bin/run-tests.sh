@@ -500,6 +500,45 @@ assert "install: unknown flag exits 2" '[ "$INSTALL_BAD_FLAG_EXIT" -eq 2 ]'
 rm -rf "$TMP_HOME_INSTALL" "$BAD_DIR_INSTALL"
 
 echo ""
+echo "=== ai-kit-which ==="
+# --list shows all skills with descriptions.
+OUT_WHICH_LIST="$("$AIKIT/bin/ai-kit-which.sh" --list)"
+assert "which --list has header" 'echo "$OUT_WHICH_LIST" | head -1 | grep -q "SKILL"'
+WHICH_LIST_ROWS="$(echo "$OUT_WHICH_LIST" | tail -n +3 | wc -l | tr -d ' ')"
+assert "which --list shows all 16 skills" '[ "$WHICH_LIST_ROWS" -eq 16 ]'
+
+# --explain dumps the SKILL.md.
+OUT_WHICH_EXP="$("$AIKIT/bin/ai-kit-which.sh" --explain ship)"
+assert "which --explain ship shows frontmatter" 'echo "$OUT_WHICH_EXP" | grep -q "^name: ship$"'
+
+set +e
+"$AIKIT/bin/ai-kit-which.sh" --explain nonexistent-skill >/dev/null 2>&1
+WHICH_BAD_EXIT=$?
+set -e
+assert "which --explain unknown exits non-zero" '[ "$WHICH_BAD_EXIT" -ne 0 ]'
+
+# Free-text recommendations: each priority intent must surface its skill at rank 1.
+OUT_WHICH_PRD="$("$AIKIT/bin/ai-kit-which.sh" "I want to write a PRD for the new feature")"
+assert "which: PRD intent -> to-prd at rank 1" 'echo "$OUT_WHICH_PRD" | grep -q "^1\. /to-prd"'
+
+OUT_WHICH_TDD="$("$AIKIT/bin/ai-kit-which.sh" "I want to write tests first using red-green-refactor")"
+assert "which: TDD intent -> tdd at rank 1" 'echo "$OUT_WHICH_TDD" | grep -q "^1\. /tdd"'
+
+OUT_WHICH_SHIP="$("$AIKIT/bin/ai-kit-which.sh" "deploy to production and write release notes")"
+assert "which: ship intent -> ship at rank 1" 'echo "$OUT_WHICH_SHIP" | grep -q "^1\. /ship"'
+
+OUT_WHICH_REVIEW="$("$AIKIT/bin/ai-kit-which.sh" "review my code before merging")"
+assert "which: review intent -> review at rank 1" 'echo "$OUT_WHICH_REVIEW" | grep -q "^1\. /review"'
+
+# Gibberish intent returns the no-match message instead of a false positive.
+set +e
+OUT_WHICH_NONE="$("$AIKIT/bin/ai-kit-which.sh" "asdf qwerty zxcv hjkl" 2>&1)"
+WHICH_NONE_EXIT=$?
+set -e
+assert "which: gibberish reports no match" 'echo "$OUT_WHICH_NONE" | grep -q "No skill description matched"'
+assert "which: gibberish exits 1" '[ "$WHICH_NONE_EXIT" -eq 1 ]'
+
+echo ""
 echo "=== skills count ==="
 SKILL_COUNT=$(find "$AIKIT/workflow/skills" -name SKILL.md | wc -l | tr -d ' ')
 assert "16 skills" '[ "$SKILL_COUNT" -eq 16 ]'

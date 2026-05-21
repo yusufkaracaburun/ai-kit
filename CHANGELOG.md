@@ -3,6 +3,11 @@
 ## Unreleased
 
 **Feature**
+- `bin/ai-kit-which.sh`: skill picker. Takes free-text intent and ranks the
+  16 skills by keyword overlap against each `SKILL.md` description, surfacing
+  top-3 with rationale. Also supports `--list` (catalog) and `--explain
+  <skill>` (full dump). No LLM, no deps — pure bash + awk scoring. Recommended
+  use: `ai-kit-which.sh "I want to write a PRD"` → `/to-prd` at rank 1.
 - Golden-output evals for `to-prd`, `tdd`, `ship`. Hand-written ideal responses
   at `tests/eval/goldens/<skill>/<scenario>.md` carry a structured rubric
   (required headings/keywords/phrases, forbidden keywords, line bounds).

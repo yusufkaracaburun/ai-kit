@@ -68,6 +68,8 @@ git clone https://github.com/yusufkaracaburun/ai-kit.git ~/.local/share/ai-kit
 
 Framework (Scrum/Kanban): optional via Full setup → `docs/agents/workflow.md`. Architecture: optional branch 7 in Full setup.
 
+Not sure which skill fits? `bin/ai-kit-which.sh "I want to ship this to production"` ranks the top 3 by keyword overlap; `--list` shows all 16, `--explain <skill>` dumps the full `SKILL.md`.
+
 ## Cross-tool setup
 
 | Tool | Global skills | Project skills |
