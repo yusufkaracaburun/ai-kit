@@ -170,10 +170,11 @@ mkdir -p "$EMIT_TMP/.cursor" "$EMIT_TMP/.claude"
 assert "emit-rules: cursor file"   '[ -f "$EMIT_TMP/.cursor/rules/git-hygiene.mdc" ]'
 assert "emit-rules: claude file"   '[ -f "$EMIT_TMP/.claude/rules/git-hygiene.md" ]'
 assert "emit-rules: generic index" '[ -f "$EMIT_TMP/docs/agents/active-rules.md" ]'
-EMIT_BEFORE=$(stat -f %m "$EMIT_TMP/.cursor/rules/git-hygiene.mdc")
-sleep 1
+# Re-emit and verify the active-rules index doesn't duplicate rows.
+# (Earlier revisions captured mtime here via `stat -f %m` — macOS-only syntax
+# that broke Ubuntu CI. The mtimes were never actually asserted; the real
+# idempotency check is the row-count grep below.)
 "$AIKIT/bin/emit-rules.sh" "$EMIT_TMP" >/dev/null
-EMIT_AFTER=$(stat -f %m "$EMIT_TMP/.cursor/rules/git-hygiene.mdc")
 assert "emit-rules: idempotent (no duplicate rows)" \
   '[ "$(grep -c "^| git-hygiene " "$EMIT_TMP/docs/agents/active-rules.md")" = "1" ]'
 "$AIKIT/bin/emit-rules.sh" "$EMIT_TMP" --rules legacy-code,ddd-distilled --agents cursor >/dev/null
