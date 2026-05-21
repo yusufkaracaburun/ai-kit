@@ -8,6 +8,8 @@ Three walkthroughs of running `/setup` on real-world repo shapes. Each example d
 | [brownfield-laravel](brownfield-laravel/) | Laravel + Inertia with existing `.cursor/rules` and MCP config | `brownfield` | A then B |
 | [monorepo-nx](monorepo-nx/) | Nx workspace with libs/ and apps/, Playwright tests | `brownfield` | A |
 
+For per-skill output showcases (what the lifecycle skills actually produce), see [`skills/`](skills/).
+
 ## Reading order
 
 Read **greenfield-nextjs** first — it shows the happy path. Then **brownfield-laravel** to see how ai-kit coexists with existing agent config. **monorepo-nx** is the most complex case (multi-package detection, custom rules, MCP).
