@@ -164,6 +164,43 @@ assert "idempotent: architecture added" 'grep -q "\"architecture\": \"documented
 rm -rf "$TMP_AR"
 
 echo ""
+echo "=== ai-kit-upgrade ==="
+TMP_UP=$(mktemp -d)
+cat > "$TMP_UP/.ai-kit-setup" <<'JSON'
+{
+  "ai_kit_version": "0.0.1",
+  "completed_at": "2020-01-01T00:00:00Z",
+  "branches": {
+    "bootstrap": true,
+    "dev_environment": true,
+    "setup_mode": "solo-both",
+    "setup_tier": "full",
+    "docker": "none",
+    "issue_tracker": "github",
+    "workflow": "informal",
+    "architecture": "document-existing",
+    "sandcastle": false,
+    "automation_recommender": "deferred"
+  }
+}
+JSON
+"$AIKIT/bin/ai-kit-upgrade.sh" "$TMP_UP" >/dev/null
+CURRENT_VERSION="$(tr -d '[:space:]' < "$AIKIT/VERSION")"
+assert "upgrade stamps current version" 'grep -q "\"ai_kit_version\": \"$CURRENT_VERSION\"" "$TMP_UP/.ai-kit-setup"'
+assert "upgrade preserves branches" 'grep -q "\"automation_recommender\": \"deferred\"" "$TMP_UP/.ai-kit-setup"'
+assert "upgrade preserves tracker" 'grep -q "\"issue_tracker\": \"github\"" "$TMP_UP/.ai-kit-setup"'
+assert "upgrade preserves architecture" 'grep -q "\"architecture\": \"document-existing\"" "$TMP_UP/.ai-kit-setup"'
+rm -rf "$TMP_UP"
+
+TMP_UP_FAIL=$(mktemp -d)
+if "$AIKIT/bin/ai-kit-upgrade.sh" "$TMP_UP_FAIL" >/dev/null 2>&1; then
+  assert "upgrade fails without marker" false
+else
+  assert "upgrade fails without marker" true
+fi
+rm -rf "$TMP_UP_FAIL"
+
+echo ""
 echo "=== verify-setup minimal ==="
 TMP_MIN=$(mktemp -d)
 "$AIKIT/bin/bootstrap-project.sh" --minimal "$TMP_MIN"
