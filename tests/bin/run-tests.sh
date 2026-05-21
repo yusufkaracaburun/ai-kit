@@ -638,6 +638,25 @@ assert "marketplace plugin source is ./workflow" 'python3 -c "import json; d=jso
 assert "version triple equality (VERSION/plugin/marketplace)" \
   'bash "$AIKIT/bin/sync-plugin-version.sh" --check >/dev/null 2>&1'
 
+echo ""
+echo "=== mcp server scaffold ==="
+assert "mcp/package.json exists" '[ -f "$AIKIT/mcp/package.json" ]'
+assert "mcp/tsconfig.json exists" '[ -f "$AIKIT/mcp/tsconfig.json" ]'
+assert "mcp/src/server.ts exists" '[ -f "$AIKIT/mcp/src/server.ts" ]'
+assert "mcp/src/tools.ts exists" '[ -f "$AIKIT/mcp/src/tools.ts" ]'
+assert "mcp/src/resolve-root.ts exists" '[ -f "$AIKIT/mcp/src/resolve-root.ts" ]'
+assert "mcp/tests/handshake.test.ts exists" '[ -f "$AIKIT/mcp/tests/handshake.test.ts" ]'
+MCP_PKG_VERSION="$(python3 -c "import json; print(json.load(open('$AIKIT/mcp/package.json'))['version'])")"
+AIKIT_VERSION="$(tr -d '[:space:]' < "$AIKIT/VERSION")"
+assert "mcp package version matches VERSION" '[ "$MCP_PKG_VERSION" = "$AIKIT_VERSION" ]'
+assert "mcp/.gitignore excludes dist + node_modules" \
+  'grep -q "dist/" "$AIKIT/mcp/.gitignore" && grep -q "node_modules" "$AIKIT/mcp/.gitignore"'
+assert "mcp tools.ts defines 5 tools" \
+  '[ "$(grep -c "^    name: \"ai_kit_" "$AIKIT/mcp/src/tools.ts")" -eq 5 ]'
+assert "mcp uses execFile (no shell)" 'grep -q "execFile" "$AIKIT/mcp/src/tools.ts" && ! grep -q "child_process.*exec[^F]" "$AIKIT/mcp/src/tools.ts"'
+
+echo ""
+echo "=== sync-plugin-version drift ==="
 # sync-plugin-version.sh stamps drift away.
 TMP_PLUGIN_CHECK=$(mktemp -d)
 cp "$PLUGIN_JSON" "$TMP_PLUGIN_CHECK/plugin.json"

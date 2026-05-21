@@ -3,6 +3,40 @@
 ## Unreleased
 
 **Feature**
+- **MCP server — `@yusufkaracaburun/ai-kit-mcp`** (new `mcp/` directory):
+  - Node + TypeScript stdio MCP server that exposes ai-kit assets to
+    any MCP-speaking host (Cline, Continue, Zed, Claude Desktop). Claude
+    Code and Cursor users don't need this — they get skills via symlinks
+    or the plugin.
+  - Five read-only tools: `ai_kit_which { intent }`, `ai_kit_skill { name }`,
+    `ai_kit_rule { name }`, `ai_kit_doctor {}`, `ai_kit_list { kind }`.
+    Each shells out to existing `bin/*.sh` scripts via `execFile` (no
+    shell → no injection), validated with zod (rejects path traversal
+    at the schema boundary), 10s timeout, 1 MB output cap.
+  - Resolves ai-kit root via the same chain as `bin/lib/ai-kit-root.sh`:
+    `$AI_KIT_ROOT` env → `~/.config/ai-kit/root` → script-location walk.
+    `mcp/src/resolve-root.ts` is the TS port.
+  - Install paths: `npm install -g @yusufkaracaburun/ai-kit-mcp` (once
+    published) OR `node /path/to/ai-kit/mcp/dist/server.js` from a clone.
+    Both documented in `mcp/README.md`.
+  - Tests via `node --test --import tsx`: handshake test spawns the
+    server, sends JSON-RPC `initialize` + `tools/list`, asserts 5 tools.
+    A second test calls `ai_kit_list` end-to-end; a third confirms zod
+    rejects path-traversal inputs to `ai_kit_rule`. CI runs on Node 20
+    and 22 via `.github/workflows/mcp.yml`.
+  - `bin/sync-plugin-version.sh` extended: VERSION now stamps THREE
+    locations (plugin.json, marketplace.json, mcp/package.json). `--check`
+    reports any drift. `bin/release.sh` adds `mcp/package.json` to the
+    release commit when present.
+  - Intentionally NOT exposed (v1): tools that write files
+    (`bootstrap-project.sh`, `emit-rules.sh`, `write-setup-marker.sh`),
+    HTTP transport, project-cwd-dependent tools (`recommend-rules`).
+    Reconsider in v2 with proper consent/auth.
+  - 10 new shell regression tests covering source-tree presence,
+    package version equality, gitignore correctness, 5-tool count, and
+    no-shell-exec guard. 224 shell tests + 3 Node tests pass.
+
+**Feature**
 - **Claude Code plugin distribution** (`workflow/.claude-plugin/plugin.json`
   + `.claude-plugin/marketplace.json`):
   - Plugin manifest at `workflow/.claude-plugin/plugin.json` declaring
