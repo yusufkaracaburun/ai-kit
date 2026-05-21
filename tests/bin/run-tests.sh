@@ -312,6 +312,40 @@ assert "doctor: --project-only flag works without project" 'echo "$OUT_PO_FLAG" 
 
 rm -rf "$TMP_DOC_PO"
 
+# Machine opt-out: when no project context + opt-out file present, skip globals.
+TMP_HOME_OO="$(mktemp -d)"
+mkdir -p "$TMP_HOME_OO/.config/ai-kit"
+: > "$TMP_HOME_OO/.config/ai-kit/no-globals"
+
+set +e
+# AI_KIT_ROOT set so the env section is clean — we're isolating the opt-out
+# effect, not the env check.
+OUT_OO_NOPROJ="$(HOME="$TMP_HOME_OO" AI_KIT_ROOT="$AIKIT" "$AIKIT/bin/ai-kit-doctor.sh" 2>&1)"
+OO_NOPROJ_EXIT=$?
+set -e
+assert "doctor: machine opt-out skips globals (no project arg)" 'echo "$OUT_OO_NOPROJ" | grep -q "machine opt-out"'
+assert "doctor: opt-out alone exits 0" '[ "$OO_NOPROJ_EXIT" -eq 0 ]'
+
+# Project with non-project-only setup-mode must override the machine opt-out.
+TMP_OO_PROJ=$(mktemp -d)
+"$AIKIT/bin/bootstrap-project.sh" --minimal "$TMP_OO_PROJ" >/dev/null
+"$AIKIT/bin/write-setup-marker.sh" "$TMP_OO_PROJ" --setup-mode=solo-both --tier=minimal >/dev/null
+set +e
+OUT_OO_PROJ="$(HOME="$TMP_HOME_OO" "$AIKIT/bin/ai-kit-doctor.sh" "$TMP_OO_PROJ" 2>&1)"
+set -e
+assert "doctor: project solo-both overrides opt-out" '! echo "$OUT_OO_PROJ" | grep -q "machine opt-out"'
+rm -rf "$TMP_OO_PROJ" "$TMP_HOME_OO"
+
+# ai-kit-no-globals.sh CLI lifecycle: on -> off -> status.
+TMP_HOME_NG="$(mktemp -d)"
+HOME="$TMP_HOME_NG" "$AIKIT/bin/ai-kit-no-globals.sh" on >/dev/null
+assert "no-globals on: creates marker" '[ -f "$TMP_HOME_NG/.config/ai-kit/no-globals" ]'
+assert "no-globals status: reports ON" 'HOME="$TMP_HOME_NG" "$AIKIT/bin/ai-kit-no-globals.sh" status | grep -q "Opt-out: ON"'
+HOME="$TMP_HOME_NG" "$AIKIT/bin/ai-kit-no-globals.sh" off >/dev/null
+assert "no-globals off: removes marker" '[ ! -f "$TMP_HOME_NG/.config/ai-kit/no-globals" ]'
+assert "no-globals status: reports OFF" 'HOME="$TMP_HOME_NG" "$AIKIT/bin/ai-kit-no-globals.sh" status | grep -q "Opt-out: OFF"'
+rm -rf "$TMP_HOME_NG"
+
 echo ""
 echo "=== ai-kit-status ==="
 TMP_ST=$(mktemp -d)

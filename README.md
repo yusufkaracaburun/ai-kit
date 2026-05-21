@@ -24,6 +24,8 @@ Two things, do them in this order:
 
 ai-kit is **standalone**: no package-install, no network at runtime, no required global state. `bin/ai-kit-doctor.sh` validates whichever path you chose.
 
+Working in the ai-kit clone itself or want doctor to ignore global checks by default? Run `bin/ai-kit-no-globals.sh on`. A project's own setup-mode (e.g. `solo-both`) still overrides this — projects that *do* use globals stay correctly checked.
+
 ## Quick start
 
 **Usual flow:** paste the [project setup prompt](context/prompts/setup-project.md). Default is **Tier A (~5 min)**: one setup-mode question, bootstrap, dev-environment.

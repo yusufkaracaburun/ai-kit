@@ -67,18 +67,36 @@ else
 fi
 echo ""
 
-# Decide whether to check globals. Project-only setups don't depend on them.
+# Decide whether to check globals.
+#   1. CLI flags always win.
+#   2. If a project marker has setup_mode=project-only, skip.
+#   3. If a project marker has any OTHER setup_mode (solo-both, solo-global,
+#      brownfield) — project explicitly opted into globals, so CHECK them even
+#      if the machine has opted out. (Project intent beats machine preference.)
+#   4. Otherwise (no project context, or marker has no setup_mode), respect
+#      the machine-wide opt-out marker if present.
+#   5. Otherwise, check globals as normal.
 EFFECTIVE_MODE="$MODE"
+SKIP_REASON=""
+HAS_PROJECT_MODE=false
 if [ "$EFFECTIVE_MODE" = "auto" ] && [ -n "$TARGET" ] && [ -f "$TARGET/.ai-kit-setup" ]; then
   setup_mode="$(python3 -c "import json,sys; print(json.load(open('$TARGET/.ai-kit-setup')).get('branches',{}).get('setup_mode',''))" 2>/dev/null || echo "")"
-  if [ "$setup_mode" = "project-only" ]; then
-    EFFECTIVE_MODE="project-only"
+  if [ -n "$setup_mode" ]; then
+    HAS_PROJECT_MODE=true
+    if [ "$setup_mode" = "project-only" ]; then
+      EFFECTIVE_MODE="project-only"
+      SKIP_REASON="setup-mode is project-only (globals not required)"
+    fi
   fi
+fi
+if [ "$EFFECTIVE_MODE" = "auto" ] && [ "$HAS_PROJECT_MODE" = false ] && [ -f "${HOME}/.config/ai-kit/no-globals" ]; then
+  EFFECTIVE_MODE="project-only"
+  SKIP_REASON="machine opt-out via ${HOME}/.config/ai-kit/no-globals"
 fi
 
 if [ "$EFFECTIVE_MODE" = "project-only" ]; then
   echo "Global install"
-  echo "  info  skipped — setup-mode is project-only (globals not required)"
+  echo "  info  skipped — ${SKIP_REASON:-setup-mode is project-only (globals not required)}"
   echo ""
 else
   echo "Global install"
