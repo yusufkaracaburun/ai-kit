@@ -222,6 +222,38 @@ fi
 rm -rf "$TMP_UP_FAIL"
 
 echo ""
+echo "=== ai-kit-doctor ==="
+TMP_DOC=$(mktemp -d)
+# No project arg — should run env + global checks only.
+set +e
+OUT_DOC_NO_PROJ="$("$AIKIT/bin/ai-kit-doctor.sh" 2>&1)"
+set -e
+assert "doctor: shows env section" 'echo "$OUT_DOC_NO_PROJ" | grep -q "^Env"'
+assert "doctor: checks python3" 'echo "$OUT_DOC_NO_PROJ" | grep -q "python3"'
+assert "doctor: shows global install section" 'echo "$OUT_DOC_NO_PROJ" | grep -q "Global install"'
+
+# Bootstrapped project — symlinks should resolve.
+"$AIKIT/bin/bootstrap-project.sh" --minimal "$TMP_DOC" >/dev/null
+set +e
+OUT_DOC_PROJ="$("$AIKIT/bin/ai-kit-doctor.sh" "$TMP_DOC" 2>&1)"
+set -e
+assert "doctor: project section present" 'echo "$OUT_DOC_PROJ" | grep -q "Project:"'
+assert "doctor: skills resolve" 'echo "$OUT_DOC_PROJ" | grep -q ".claude/skills.*entries resolve"'
+assert "doctor: marker absent flagged" 'echo "$OUT_DOC_PROJ" | grep -q ".ai-kit-setup absent"'
+
+# Broken symlink — simulate ai-kit moved.
+rm -f "$TMP_DOC/.claude/skills/setup"
+ln -s /nonexistent-aikit-target "$TMP_DOC/.claude/skills/setup"
+set +e
+OUT_DOC_BROKEN="$("$AIKIT/bin/ai-kit-doctor.sh" "$TMP_DOC" 2>&1)"
+DOC_BROKEN_EXIT=$?
+set -e
+assert "doctor: broken link surfaced" 'echo "$OUT_DOC_BROKEN" | grep -q "broken symlinks"'
+assert "doctor: exit 2 on error" '[ "$DOC_BROKEN_EXIT" -eq 2 ]'
+
+rm -rf "$TMP_DOC"
+
+echo ""
 echo "=== ai-kit-status ==="
 TMP_ST=$(mktemp -d)
 OUT_NO_MARKER="$("$AIKIT/bin/ai-kit-status.sh" "$TMP_ST" 2>&1)"
