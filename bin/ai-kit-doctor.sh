@@ -10,15 +10,30 @@ AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
 KIT_VERSION="$(tr -d '[:space:]' < "$AIKIT/VERSION")"
 
 usage() {
-  echo "Usage: $0 [path]"
+  echo "Usage: $0 [path] [--project-only|--check-global]"
   echo ""
-  echo "Diagnoses ai-kit env + global install. If [path] is given, also"
-  echo "checks the project's skill symlinks resolve into this ai-kit clone."
-  exit 1
+  echo "Diagnoses ai-kit env + (optionally) global install + project."
+  echo ""
+  echo "Mode detection:"
+  echo "  --project-only    skip global-install checks (project-scoped install)"
+  echo "  --check-global    force global-install checks even if marker says project-only"
+  echo "  (none)            read setup_mode from <path>/.ai-kit-setup; default to checking"
 }
 
-case "${1:-}" in -h|--help) usage ;; esac
-TARGET="${1:-}"
+MODE="auto"
+TARGET=""
+for arg in "$@"; do
+  case "$arg" in
+    -h|--help) usage; exit 0 ;;
+    --project-only) MODE="project-only" ;;
+    --check-global) MODE="check-global" ;;
+    -*) echo "Unknown flag: $arg" >&2; usage; exit 2 ;;
+    *)
+      if [ -n "$TARGET" ]; then echo "Unexpected arg: $arg" >&2; usage; exit 2; fi
+      TARGET="$arg"
+      ;;
+  esac
+done
 
 WARN=0
 ERR=0
@@ -52,24 +67,39 @@ else
 fi
 echo ""
 
-echo "Global install"
-GLOBAL_CLAUDE="$HOME/.claude/skills"
-GLOBAL_AGENTS="$HOME/.agents/skills"
-GLOBAL_CURSOR="$HOME/.cursor/skills"
-for d in "$GLOBAL_CLAUDE" "$GLOBAL_AGENTS" "$GLOBAL_CURSOR"; do
-  if [ -d "$d" ]; then
-    count="$(find "$d" -mindepth 1 -maxdepth 1 \( -type d -o -type l \) 2>/dev/null | wc -l | tr -d ' ')"
-    aikit_links="$(find "$d" -mindepth 1 -maxdepth 1 -type l 2>/dev/null -exec readlink {} \; 2>/dev/null | grep -c "$AIKIT" || true)"
-    if [ "$aikit_links" -gt 0 ]; then
-      ok "$d — $count entries ($aikit_links linked to this ai-kit)"
-    else
-      warn "$d — $count entries but none link to $AIKIT (run install-global.sh?)"
-    fi
-  else
-    warn "$d absent — global skills unavailable in this tool"
+# Decide whether to check globals. Project-only setups don't depend on them.
+EFFECTIVE_MODE="$MODE"
+if [ "$EFFECTIVE_MODE" = "auto" ] && [ -n "$TARGET" ] && [ -f "$TARGET/.ai-kit-setup" ]; then
+  setup_mode="$(python3 -c "import json,sys; print(json.load(open('$TARGET/.ai-kit-setup')).get('branches',{}).get('setup_mode',''))" 2>/dev/null || echo "")"
+  if [ "$setup_mode" = "project-only" ]; then
+    EFFECTIVE_MODE="project-only"
   fi
-done
-echo ""
+fi
+
+if [ "$EFFECTIVE_MODE" = "project-only" ]; then
+  echo "Global install"
+  echo "  info  skipped — setup-mode is project-only (globals not required)"
+  echo ""
+else
+  echo "Global install"
+  GLOBAL_CLAUDE="$HOME/.claude/skills"
+  GLOBAL_AGENTS="$HOME/.agents/skills"
+  GLOBAL_CURSOR="$HOME/.cursor/skills"
+  for d in "$GLOBAL_CLAUDE" "$GLOBAL_AGENTS" "$GLOBAL_CURSOR"; do
+    if [ -d "$d" ]; then
+      count="$(find "$d" -mindepth 1 -maxdepth 1 \( -type d -o -type l \) 2>/dev/null | wc -l | tr -d ' ')"
+      aikit_links="$(find "$d" -mindepth 1 -maxdepth 1 -type l 2>/dev/null -exec readlink {} \; 2>/dev/null | grep -c "$AIKIT" || true)"
+      if [ "$aikit_links" -gt 0 ]; then
+        ok "$d — $count entries ($aikit_links linked to this ai-kit)"
+      else
+        warn "$d — $count entries but none link to $AIKIT (run install-global.sh, or use --project-only)"
+      fi
+    else
+      warn "$d absent — run install-global.sh, or use --project-only if you don't want globals"
+    fi
+  done
+  echo ""
+fi
 
 if [ -n "$TARGET" ]; then
   if [ ! -d "$TARGET" ]; then

@@ -253,6 +253,25 @@ assert "doctor: exit 2 on error" '[ "$DOC_BROKEN_EXIT" -eq 2 ]'
 
 rm -rf "$TMP_DOC"
 
+# Mode-aware: project-only marker should skip global checks.
+TMP_DOC_PO=$(mktemp -d)
+"$AIKIT/bin/bootstrap-project.sh" --minimal "$TMP_DOC_PO" >/dev/null
+"$AIKIT/bin/write-setup-marker.sh" "$TMP_DOC_PO" --setup-mode=project-only --tier=minimal >/dev/null
+set +e
+OUT_PO="$("$AIKIT/bin/ai-kit-doctor.sh" "$TMP_DOC_PO" 2>&1)"
+PO_EXIT=$?
+set -e
+assert "doctor: project-only skips globals" 'echo "$OUT_PO" | grep -q "skipped — setup-mode is project-only"'
+assert "doctor: project-only exit 0" '[ "$PO_EXIT" -eq 0 ]'
+
+# Explicit --project-only without a project arg should also skip.
+set +e
+OUT_PO_FLAG="$("$AIKIT/bin/ai-kit-doctor.sh" --project-only 2>&1)"
+set -e
+assert "doctor: --project-only flag works without project" 'echo "$OUT_PO_FLAG" | grep -q "skipped — setup-mode is project-only"'
+
+rm -rf "$TMP_DOC_PO"
+
 echo ""
 echo "=== ai-kit-status ==="
 TMP_ST=$(mktemp -d)
