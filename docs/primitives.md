@@ -24,7 +24,7 @@ Start: "I want to add X to ai-kit"
 │  │
 │  ├─ Does it just wrap one of bin/ai-kit-*.sh for IDE-native UX?
 │  │  │
-│  │  └─ YES → SLASH COMMAND (PR 1)
+│  │  └─ YES → SLASH COMMAND
 │  │           Source: workflow/commands/<name>.md
 │  │           Example: /aikit-doctor wraps bin/ai-kit-doctor.sh
 │  │
@@ -40,7 +40,7 @@ Start: "I want to add X to ai-kit"
 │  │  without polluting the main conversation?
 │  │  │
 │  │  ├─ YES (and Claude Code is acceptable as primary host)
-│  │  │   → SUBAGENT (PR 1) called from a SKILL
+│  │  │   → SUBAGENT called from a SKILL
 │  │  │     Source: workflow/agents/<name>/AGENT.md
 │  │  │     Example: review skill delegates to aikit-reviewer
 │  │  │
@@ -61,7 +61,7 @@ Start: "I want to add X to ai-kit"
 ├─ Is X a function that should be callable from non-Claude/non-Cursor
 │  hosts (Cline, Continue, Zed) via standard protocol?
 │  │
-│  └─ YES → MCP TOOL (PR 3)
+│  └─ YES → MCP TOOL
 │           Source: mcp/src/tools.ts
 │           Constraint: read-only; shells to bin/ scripts
 │           Example: ai_kit_which, ai_kit_rule
@@ -70,7 +70,7 @@ Start: "I want to add X to ai-kit"
 │  │
 │  └─ YES → BIN SCRIPT
 │           Source: bin/ai-kit-<name>.sh
-│           Optional: wrap as slash command (PR 1) for IDE UX
+│           Optional: wrap as slash command for IDE UX
 │           Example: ai-kit-doctor.sh, ai-kit-which.sh
 │
 └─ Is X a per-project file template (mostly literal, light variable
@@ -95,12 +95,12 @@ Start: "I want to add X to ai-kit"
 ### "Show me which skill fits my current task"
 - User wants explicit `/` invocation → **SLASH COMMAND**
 - Wraps an existing script (`bin/ai-kit-which.sh`) → fits the wrapper case
-- Source: `workflow/commands/aikit-which.md` (PR 1)
+- Source: `workflow/commands/aikit-which.md`
 
 ### "Run a heavy security audit on changed files before merge"
 - Multi-step workflow → skill territory
 - Heavy reading of files would pollute main context → delegate to a **SUBAGENT**
-- Source: `workflow/skills/review/SKILL.md` calls `workflow/agents/aikit-reviewer/AGENT.md` (PR 1)
+- Source: `workflow/skills/review/SKILL.md` calls `workflow/agents/aikit-reviewer/AGENT.md`
 
 ### "Always remind the LLM to write Conventional Commits"
 - Cross-cutting, applies everywhere → **RULE**
@@ -109,7 +109,7 @@ Start: "I want to add X to ai-kit"
 
 ### "Let Cline users browse my skills"
 - Cline doesn't load `.claude/skills/`; needs MCP → **MCP TOOL**
-- Source: `mcp/src/tools.ts` defines `ai_kit_list { kind: "skills" }` (PR 3)
+- Source: `mcp/src/tools.ts` defines `ai_kit_list { kind: "skills" }`
 
 ### "Generate a fresh PRD from a one-paragraph idea"
 - Multi-step LLM workflow, auto-discovered by intent → **SKILL**

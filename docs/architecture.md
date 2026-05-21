@@ -7,14 +7,14 @@ Read this before adding a new primitive type or moving files between layers. For
 ## Three layers
 
 1. **Source layer** — the ai-kit repository (`~/.local/share/ai-kit/` after install). Single source of truth for skills, agents, commands, rules, hooks, and templates.
-2. **Distribution layer** — scripts and manifests that hand artifacts to the host: `bin/install-global.sh` (symlinks), `bin/bootstrap-project.sh` (per-project), `.claude-plugin/` (Claude Code plugin — PR 2), `mcp/` (MCP server — PR 3).
+2. **Distribution layer** — scripts and manifests that hand artifacts to the host: `bin/install-global.sh` (symlinks), `bin/bootstrap-project.sh` (per-project), the Claude Code plugin (`workflow/.claude-plugin/plugin.json` + `.claude-plugin/marketplace.json`), `mcp/` (MCP server).
 3. **Host layer** — the IDE/CLI that loads the artifacts: Claude Code, Cursor, or any MCP-speaking client.
 
 ```
 ┌─────────────────────── source layer ────────────────────────┐
-│  workflow/skills/        18+ skills (SKILL.md)              │
-│  workflow/agents/        subagents (AGENT.md)        — PR 1 │
-│  workflow/commands/      slash commands (.md)        — PR 1 │
+│  workflow/skills/        19 skills (SKILL.md)               │
+│  workflow/agents/        2 subagents (AGENT.md)             │
+│  workflow/commands/      5 slash commands (.md)             │
 │  standards/rules/        agent-agnostic rule books          │
 │  .claude/settings.json   PostToolUse hook (Skill→log)       │
 │  context/templates/      per-project doc templates          │
@@ -26,7 +26,7 @@ Read this before adding a new primitive type or moving files between layers. For
   ┌──────────────┐    ┌───────────────┐      ┌────────────────┐
   │ install-     │    │ bootstrap-    │      │ .claude-plugin/│
   │ global.sh    │    │ project.sh    │      │ + marketplace  │
-  │ (symlinks)   │    │ (per-project) │      │ (PR 2)         │
+  │ (symlinks)   │    │ (per-project) │      │ (Claude Code)  │
   └──────┬───────┘    └───────┬───────┘      └────────┬───────┘
          │                    │                       │
          ▼                    ▼                       ▼
@@ -38,7 +38,7 @@ Read this before adding a new primitive type or moving files between layers. For
                        <proj>/CONTEXT.md
                        <proj>/.ai-kit-setup     ┌──────────────┐
                                                 │ mcp/dist/    │
-                                                │ server.js    │ — PR 3
+                                                │ server.js    │
                                                 │ (stdio MCP)  │
                                                 └──────┬───────┘
                                                        ▼
@@ -50,18 +50,18 @@ Read this before adding a new primitive type or moving files between layers. For
 
 | Primitive | Source path | Reaches host via | Host directory |
 |---|---|---|---|
-| Skill | `workflow/skills/<name>/SKILL.md` | symlink (install-global.sh / bootstrap) **or** plugin manifest (PR 2) | `~/.claude/skills/` · `~/.cursor/skills/` · `<proj>/.claude/skills/` |
-| Subagent (PR 1) | `workflow/agents/<name>/AGENT.md` | same symlink pass + plugin manifest | `~/.claude/agents/` · `<proj>/.claude/agents/` |
-| Slash command (PR 1) | `workflow/commands/<name>.md` | same symlink pass (files, not dirs) + plugin manifest | `~/.claude/commands/` · `<proj>/.claude/commands/` |
+| Skill | `workflow/skills/<name>/SKILL.md` | symlink (install-global.sh / bootstrap) **or** plugin manifest | `~/.claude/skills/` · `~/.cursor/skills/` · `<proj>/.claude/skills/` |
+| Subagent | `workflow/agents/<name>/AGENT.md` | same symlink pass + plugin manifest | `~/.claude/agents/` · `<proj>/.claude/agents/` |
+| Slash command | `workflow/commands/<name>.md` | same symlink pass (files, not dirs) + plugin manifest | `~/.claude/commands/` · `<proj>/.claude/commands/` |
 | Rule | `standards/rules/<name>.mini.md` | **emitter** (`bin/emit-rules.sh`) at `/setup` time — converts to host format | `<proj>/.cursor/rules/*.mdc` (Cursor) · skill text (Claude Code) |
 | Hook | `.claude/settings.json` + `bin/hooks/*.sh` | committed in the project (or emitted by `/setup`) | `<proj>/.claude/settings.json` |
-| MCP tool (PR 3) | `mcp/src/tools.ts` | end-user adds `.mcp.json` entry pointing at `node …/server.js` or installed binary | client-defined |
+| MCP tool | `mcp/src/tools.ts` | end-user adds `.mcp.json` entry pointing at the `ai-kit-mcp` wrapper | client-defined |
 
 ## Two design choices that keep the kit coherent
 
 ### 1. Symlinks, not copies
 
-`install-global.sh` and `bootstrap-project.sh` create symlinks back to the source layer. A `git pull` in `~/.local/share/ai-kit` instantly updates every host. The plugin (PR 2) follows the same principle: its manifest *points at* repo paths rather than copying them.
+`install-global.sh` and `bootstrap-project.sh` create symlinks back to the source layer. A `git pull` in `~/.local/share/ai-kit` instantly updates every host. The plugin follows the same principle: its manifest *points at* repo paths rather than copying them.
 
 Consequence: never write into `~/.claude/skills/<name>/` or `<proj>/.claude/skills/<name>/` directly — that path is a symlink. Edit the source under `workflow/skills/`.
 
@@ -77,37 +77,39 @@ Use this pattern whenever an artifact needs per-host transformation. Don't inven
 - **Per-project always overrides global.** `<proj>/.claude/skills/foo/` wins over `~/.claude/skills/foo/`. Use project-scope to pin a version or override for one repo.
 - **Subagents are Claude Code-only.** Skills that delegate to a subagent must include an **inline fallback** for hosts without the Task tool (Cursor, MCP clients). See `workflow/skills/review/SKILL.md` for the canonical pattern.
 - **Slash commands are Claude Code-first.** `~/.cursor/commands/` is mirrored opportunistically; verify per Cursor version.
-- **MCP tools are read-only.** The MCP server (PR 3) shells out to `bin/` scripts and never writes to the source layer. Project-bootstrap remains a `/setup` skill, not an MCP tool.
+- **MCP tools are read-only.** The MCP server shells out to `bin/` scripts and never writes to the source layer. Project-bootstrap remains a `/setup` skill, not an MCP tool.
 
 ## Versioning
 
 `VERSION` (currently `1.2.0`) is the single authority. Three derived artifacts must stay in sync:
 
-- `.claude-plugin/plugin.json:version` (PR 2)
-- `.claude-plugin/marketplace.json` entries (PR 2)
-- `mcp/package.json:version` (PR 3)
+- `workflow/.claude-plugin/plugin.json:version`
+- `.claude-plugin/marketplace.json` entries
+- `mcp/package.json:version`
 
-`bin/sync-plugin-version.sh` (PR 2) re-stamps all three from `VERSION`. CI asserts equality.
+`bin/sync-plugin-version.sh` re-stamps all three from `VERSION`. CI asserts equality.
 
 ## Where to put new things
 
 | You want to add … | Put it in … |
 |---|---|
 | A new workflow with `name:` + `description:` frontmatter | `workflow/skills/<name>/SKILL.md` |
-| An isolated context worker for one specific task | `workflow/agents/<name>/AGENT.md` (PR 1) |
-| A short prompt-template invoked by `/<name>` | `workflow/commands/<name>.md` (PR 1) |
+| An isolated context worker for one specific task | `workflow/agents/<name>/AGENT.md` |
+| A short prompt-template invoked by `/<name>` | `workflow/commands/<name>.md` |
 | Cross-cutting guidance applicable to every host | `standards/rules/<name>.mini.md` + extend `bin/emit-rules.sh` |
 | A behavior triggered by tool events | `bin/hooks/<name>.sh` + register in `.claude/settings.json` |
-| A read-only function for non-Claude hosts | `mcp/src/tools.ts` (PR 3) |
-| A user-facing diagnostic script | `bin/ai-kit-<name>.sh` — and wrap it as a slash command (PR 1) |
+| A read-only function for non-Claude hosts | `mcp/src/tools.ts` |
+| A user-facing diagnostic script | `bin/ai-kit-<name>.sh` — and wrap it as a slash command |
 
 If your answer is "two of these at once," step back: usually one is primary and the other should defer to it.
 
 ## Open follow-ups
 
-- `docs/mental-model.md` references 16 skills (now 19). To be brought into sync in PR 1.
-- Plugin manifest schema (`skills` vs `skillsDir`, `agents` shape) needs verification against current Claude Code docs before PR 2 lands.
-- Cursor `.cursor/commands/` contract stability — verify before PR 1 closes.
+All six primitive types (skill, subagent, slash command, hook, rule, MCP tool) are
+landed and documented above. Remaining work is tracked in
+[roadmap.md](roadmap.md#3-primitives-uitbreiding-subagents-slash-commands-plugin-mcp) —
+chiefly Cursor `.cursor/commands/` runtime verification, bundling the hook in the
+plugin, deriving subagent prompts from skill bodies, and publishing `ai-kit-mcp` to npm.
 
 ## See also
 

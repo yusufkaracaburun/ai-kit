@@ -71,7 +71,7 @@ Synonym for *Agent* in the "IDE / CLI" sense. This glossary uses *agent* for tha
 
 ### MCP (Model Context Protocol)
 
-The JSON-RPC protocol that lets external tools expose functions to any MCP-speaking client. ai-kit will ship an MCP server (`mcp/dist/server.js`) in PR 3 to reach non-Claude/non-Cursor hosts.
+The JSON-RPC protocol that lets external tools expose functions to any MCP-speaking client. ai-kit ships an MCP server (`mcp/dist/server.js`) to reach non-Claude/non-Cursor hosts.
 
 ### MCP server
 
@@ -87,7 +87,7 @@ The `.ai-kit-setup` file at a project root. Indicates the project has been boots
 
 ### Plugin
 
-A Claude Code distributable bundle of skills + agents + commands + hooks, defined by `.claude-plugin/plugin.json`. ai-kit becomes a plugin in PR 2. **Claude Code-only**; Cursor users keep using the symlink install.
+A Claude Code distributable bundle of skills + agents + commands, defined by `workflow/.claude-plugin/plugin.json` and catalogued in `.claude-plugin/marketplace.json`. **Claude Code-only**; Cursor users keep using the symlink install.
 
 ### PostToolUse hook
 
@@ -117,11 +117,11 @@ When the host sees a user intent matching a skill's `description`, it loads the 
 
 ### Slash command
 
-A prompt template invoked by `/<name>` in the host. File: `workflow/commands/<name>.md` (PR 1). Difference from skill: a slash command is *user-invoked* with optional `$ARGUMENTS`, processed before the model sees it; a skill is *auto-discovered* by description match.
+A prompt template invoked by `/<name>` in the host. File: `workflow/commands/<name>.md`. Difference from skill: a slash command is *user-invoked* with optional `$ARGUMENTS`, processed before the model sees it; a skill is *auto-discovered* by description match.
 
 ### Subagent
 
-A Claude Code primitive: an isolated child context spawned via the Task tool. Definition: `workflow/agents/<name>/AGENT.md` (PR 1). Use when a skill needs to do heavy work without polluting the main context.
+A Claude Code primitive: an isolated child context spawned via the Task tool. Definition: `workflow/agents/<name>/AGENT.md`. Use when a skill needs to do heavy work without polluting the main context.
 
 **Cursor and other hosts have no subagent primitive** — skills that delegate must include an inline fallback.
 
@@ -135,7 +135,7 @@ A file under `context/templates/` (or `orchestration/`) that `bootstrap-project.
 
 ### VERSION
 
-The single-source-of-truth version file at the repo root. All derived version fields (plugin manifest, MCP package.json) must mirror it. `bin/sync-plugin-version.sh` (PR 2) enforces this.
+The single-source-of-truth version file at the repo root. All derived version fields (plugin manifest, marketplace catalog, MCP package.json) must mirror it. `bin/sync-plugin-version.sh` enforces this.
 
 ---
 
