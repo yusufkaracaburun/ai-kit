@@ -75,6 +75,27 @@ assert "with-mcp preserves existing" 'grep -q "existing" "$TMP_MCP_KEEP/.cursor/
 rm -rf "$TMP_MCP_KEEP"
 
 echo ""
+echo "=== detect_bootstrap_state ==="
+TMP_BS_MERGE=$(mktemp -d)
+"$AIKIT/bin/bootstrap-project.sh" --minimal --merge-skills "$TMP_BS_MERGE" >/dev/null
+detect_bootstrap_state "$TMP_BS_MERGE"
+assert "merge-skills detected complete" '[ "$BOOTSTRAP_STATE" = "complete" ]'
+assert "merge-skills no missing dirs" '[ "${#BOOTSTRAP_MISSING[@]}" -eq 0 ]'
+rm -rf "$TMP_BS_MERGE"
+
+TMP_BS_LINK=$(mktemp -d)
+"$AIKIT/bin/bootstrap-project.sh" --minimal --link-all "$TMP_BS_LINK" >/dev/null
+detect_bootstrap_state "$TMP_BS_LINK"
+assert "link-all detected complete" '[ "$BOOTSTRAP_STATE" = "complete" ]'
+rm -rf "$TMP_BS_LINK"
+
+TMP_BS_EMPTY=$(mktemp -d)
+detect_bootstrap_state "$TMP_BS_EMPTY"
+assert "empty dir detected missing" '[ "$BOOTSTRAP_STATE" = "missing" ]'
+assert "missing list mentions .claude/skills" '[[ " ${BOOTSTRAP_MISSING[*]} " == *" .claude/skills "* ]]'
+rm -rf "$TMP_BS_EMPTY"
+
+echo ""
 echo "=== detect-tooling --json ==="
 JSON_OUT="$("$AIKIT/bin/detect-tooling.sh" "$AIKIT/tests/fixtures/architecture-laravel" --json)"
 assert "json has architecture.frontend" 'echo "$JSON_OUT" | grep -q "\"detected\": \"laravel-inertia\""'

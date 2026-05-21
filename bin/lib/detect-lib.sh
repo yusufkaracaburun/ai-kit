@@ -154,6 +154,14 @@ detect_domain_layout() {
   fi
 }
 
+_has_skills_layout() {
+  # Accept both layouts: --link-all (symlink to ai-kit's workflow/skills) and
+  # --merge-skills (regular dir whose entries are symlinks per skill). Either
+  # way the path must dereference to a non-empty directory.
+  local p="$1"
+  [ -e "$p" ] && [ -d "$p" ] && [ -n "$(ls -A "$p" 2>/dev/null)" ]
+}
+
 detect_bootstrap_state() {
   local target="$1"
   BOOTSTRAP_STATE="missing"
@@ -168,13 +176,15 @@ detect_bootstrap_state() {
     BOOTSTRAP_MISSING+=("AGENTS.md")
   fi
 
-  if [ -L "$target/.agents/skills" ] && [ -e "$target/.agents/skills" ]; then
-    :
-  else
+  if ! _has_skills_layout "$target/.claude/skills"; then
+    BOOTSTRAP_MISSING+=(".claude/skills")
+  fi
+
+  if ! _has_skills_layout "$target/.agents/skills"; then
     BOOTSTRAP_MISSING+=(".agents/skills")
   fi
 
-  if [ -L "$target/.cursor/skills" ] && [ -e "$target/.cursor/skills" ]; then
+  if _has_skills_layout "$target/.cursor/skills"; then
     has_cursor=true
   else
     BOOTSTRAP_MISSING+=(".cursor/skills")
