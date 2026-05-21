@@ -106,7 +106,7 @@ else
   for d in "$GLOBAL_CLAUDE" "$GLOBAL_AGENTS" "$GLOBAL_CURSOR"; do
     if [ -d "$d" ]; then
       count="$(find "$d" -mindepth 1 -maxdepth 1 \( -type d -o -type l \) 2>/dev/null | wc -l | tr -d ' ')"
-      aikit_links="$(find "$d" -mindepth 1 -maxdepth 1 -type l 2>/dev/null -exec readlink {} \; 2>/dev/null | grep -c "$AIKIT" || true)"
+      aikit_links="$(find "$d" -mindepth 1 -maxdepth 1 -type l -exec readlink {} \; 2>/dev/null | grep -c "$AIKIT" || true)"
       if [ "$aikit_links" -gt 0 ]; then
         ok "$d — $count entries ($aikit_links linked to this ai-kit)"
       else
