@@ -112,6 +112,16 @@ assert ".agents/skills dir" '[ -d "$TMP_BOOT/.agents/skills" ]'
 assert ".cursor/skills dir" '[ -d "$TMP_BOOT/.cursor/skills" ]'
 assert "setup skill linked" '[ -L "$TMP_BOOT/.cursor/skills/setup" ] || [ -d "$TMP_BOOT/.cursor/skills/setup" ]'
 assert "ai-kit.mdc" '[ -f "$TMP_BOOT/.cursor/rules/ai-kit.mdc" ]'
+# Every generated .mdc must have Cursor's required frontmatter keys.
+MDC_INVALID=""
+for mdc in "$TMP_BOOT/.cursor/rules"/*.mdc; do
+  for key in description globs alwaysApply; do
+    if ! head -8 "$mdc" | grep -qE "^${key}:"; then
+      MDC_INVALID="${MDC_INVALID}$(basename "$mdc")(missing:$key) "
+    fi
+  done
+done
+assert "all .mdc rules have Cursor frontmatter" '[ -z "$MDC_INVALID" ]'
 assert "no docker.md yet" '[ ! -f "$TMP_BOOT/docs/agents/docker.md" ]'
 rm -rf "$TMP_BOOT"
 

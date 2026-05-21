@@ -56,6 +56,34 @@ for skill_dir in "$SKILLS_DIR"/*/; do
     ok "[$name] frontmatter name matches dir"
   fi
 
+  # Cross-tool naming: Claude Code + Cursor both expect lowercase-hyphen names
+  # (no spaces, no uppercase, no underscores). Invalid characters break skill
+  # discovery in one tool or the other.
+  if printf '%s' "$fm_name" | grep -qE '^[a-z][a-z0-9-]*$'; then
+    ok "[$name] name uses lowercase + hyphens only"
+  elif [ -n "$fm_name" ]; then
+    bad "[$name] name '$fm_name' must be lowercase letters/digits/hyphens (cross-tool requirement)"
+  fi
+
+  # Cross-tool frontmatter: catch typos like 'desciption:' or 'argument-hints:'
+  # that pass YAML parsing but get silently ignored by Claude Code / Cursor.
+  unknown_fields=""
+  fields_seen="$(frontmatter "$skill_file" | awk -F: '/^[a-z-]+:/{print $1}' | sort -u)"
+  while IFS= read -r fld; do
+    [ -z "$fld" ] && continue
+    case "$fld" in
+      name|description|argument-hint|model|disable-model-invocation|tools) ;;
+      *) unknown_fields="${unknown_fields}${fld} " ;;
+    esac
+  done <<EOF_FIELDS
+$fields_seen
+EOF_FIELDS
+  if [ -z "$unknown_fields" ]; then
+    ok "[$name] frontmatter fields all recognised"
+  else
+    bad "[$name] unknown frontmatter field(s): ${unknown_fields}— typo or non-portable extension"
+  fi
+
   fm_disable="$(read_field "$skill_file" disable-model-invocation)"
 
   if [ -z "$fm_desc" ]; then
