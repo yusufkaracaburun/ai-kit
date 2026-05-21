@@ -4,7 +4,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/github/package-json/v/yusufkaracaburun/ai-kit?filename=mcp%2Fpackage.json&label=version)](VERSION)
 
-**The agile lifecycle as Claude Code + Cursor primitives.** Stack-agnostic. One kit ships skills, subagents, slash commands, hooks, rules, a plugin manifest, and an MCP server — pick whichever your host speaks.
+**The agile lifecycle as Claude Code + Cursor primitives.** Stack-agnostic. One kit
+ships skills, subagents, slash commands, a hook, rules, a plugin manifest, and an
+MCP server — pick whichever your host speaks.
 
 | Primitive | Count | Reaches |
 | --------- | -----:| ------- |
@@ -15,168 +17,144 @@
 | Rules | 8 canonical books | Cursor · Claude Code · Aider · Cline · Continue · Cody (via emitter) |
 | MCP server | 5 tools | Cline · Continue · Zed · Claude Desktop · anything MCP |
 
-See [docs/architecture.md](docs/architecture.md) for how the layers fit together, [docs/primitives.md](docs/primitives.md) for "I want to add X — which primitive?".
+[Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Architecture](docs/architecture.md)
 
-**Version:** see [VERSION](VERSION) · [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md)
+## Requirements
 
-## Mental model
+- **Claude Code or Cursor** — the host that loads the skills. Everything starts here.
+- **macOS or Linux** with `git` and Bash (the built-in macOS Bash is fine). No build
+  step, no package install, no network at runtime.
+- **Node 20+** — *only* if you want the MCP server (for Cline / Continue / Zed /
+  Claude Desktop). Skip it otherwise.
 
-Two things, do them in this order:
+## Install
 
-1. **`install-global.sh`** *(once per machine, optional)* — symlinks ai-kit's skills, subagents, slash commands, and the MCP wrapper into `~/.claude/`, `~/.agents/`, `~/.cursor/`, and `~/.local/bin/` so they're discoverable from anywhere. Skip this if you only ever work in one project.
-2. **`bootstrap-project.sh` + `/setup`** *(once per project)* — sets up `AGENTS.md`, `CONTEXT.md`, `.claude/skills/`, `.cursor/skills/`, and the `.ai-kit-setup` marker inside the project. **This is project-scoped — works fully without step 1.**
-
-| Setup mode | Step 1 (global) | Step 2 (project) | When |
-| ---------- | --------------- | ---------------- | ---- |
-| `solo-both` | yes | merge-skills | greenfield default |
-| `solo-global` | yes | no-skills | machine-wide only |
-| `project-only` | **no** | merge-skills | repo isolation, no host pollution |
-| `brownfield` | optional | merge-skills + agent-stack doc | project already has MCP/custom skills/agent-config |
-
-ai-kit is **standalone**: no package-install, no network at runtime, no required global state. `bin/ai-kit-doctor.sh` validates whichever path you chose.
-
-Working in the ai-kit clone itself or want doctor to ignore global checks by default? Run `bin/ai-kit-no-globals.sh on`. A project's own setup-mode (e.g. `solo-both`) still overrides this — projects that *do* use globals stay correctly checked.
-
-## Quick start
-
-**One-line install** (clones into `~/.local/share/ai-kit` and links skills globally):
+One line — clones into `~/.local/share/ai-kit` and links the skills so every project
+finds them:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/yusufkaracaburun/ai-kit/master/install.sh | bash
 ```
 
-Project-only install (no host pollution): `... | bash -s -- --no-global`.
-Pin a release: `... | AI_KIT_REF=v1.2.0 bash`.
-Update later: `... | bash -s -- --update` (or `$AI_KIT_ROOT/install.sh --update`).
+- **Project-only** (no machine-wide symlinks): append `-s -- --no-global` to `bash`.
+- **Pin a release**: run the pipe as `… | AI_KIT_REF=v1.2.0 bash`.
+- **Update later**: `~/.local/share/ai-kit/install.sh --update`.
 
-**Claude Code plugin (alternative)** — for marketplace-style install + `/plugin update` semantics. Cursor users keep the symlink path above:
+**Claude Code plugin (alternative).** Marketplace-style install with `/plugin update`
+semantics — Claude Code only; Cursor users keep the line above:
 
 ```text
 /plugin marketplace add yusufkaracaburun/ai-kit
 /plugin install ai-kit@ai-kit
 ```
 
-See [docs/install-plugin.md](docs/install-plugin.md) for details and trade-offs.
-
-Then in any project:
-
-```bash
-/setup    # in Claude Code or Cursor — runs bootstrap + dev-environment
-```
+See [docs/install-plugin.md](docs/install-plugin.md) for the trade-offs.
 
 <details>
 <summary>Manual install (or already cloned)</summary>
 
 ```bash
 git clone https://github.com/yusufkaracaburun/ai-kit.git ~/.local/share/ai-kit
-~/.local/share/ai-kit/bin/install-global.sh   # optional: link skills to ~/.claude, ~/.agents, ~/.cursor
+~/.local/share/ai-kit/bin/install-global.sh   # optional: link skills globally
 ```
 
-`ai-kit root` is resolved automatically: `$AI_KIT_ROOT` env → `~/.config/ai-kit/root` → script location. See [install-global prompt](context/prompts/install-global.md) for the agent-driven variant.
+ai-kit root resolves automatically: `$AI_KIT_ROOT` env → `~/.config/ai-kit/root` →
+script location.
 
 </details>
 
-## Agile lifecycle
+## First run
 
-| Fase | Skills |
-| ---- | ------ |
-| Ideation | `grill-me`, `grill-with-docs`, `to-prd`, `prototype`, `zoom-out` |
+In any project, inside Claude Code or Cursor:
+
+```bash
+/setup
+```
+
+`/setup` writes `AGENTS.md` + `CONTEXT.md`, symlinks the skills into the project,
+drops a `.ai-kit-setup` marker, and detects your stack. The default mode
+(`solo-both`) needs no input; three other modes exist for repo-isolation or
+brownfield repos — see [ADR-0001](docs/adr/0001-setup-modes.md).
+
+That's it — you're using ai-kit. Some first moves:
+
+- `/aikit-status` — confirm the install is healthy.
+- `/grill-me` — stress-test your next idea before you build it.
+- `/review` — second pass on a diff before you open the PR.
+- Not sure which skill fits? `/aikit-which "I want to ship to production"` ranks the
+  best matches.
+
+## The agile lifecycle
+
+ai-kit is 19 skills covering one loop — idea to retro:
+
+| Phase | Skills |
+| ----- | ------ |
+| Ideation | `grill-me` · `grill-with-docs` · `to-prd` · `prototype` · `zoom-out` |
 | Development | `to-issues` → `triage` → `tdd` |
-| Testing | `review`, `qa`, `diagnose` |
+| Testing | `review` · `qa` · `diagnose` |
 | Deployment | `ship` |
-| Ops & Review | `retro` |
-| Session continuity | `checkpoint` ↔ `resume` (auto-memory) · `handoff` (cross-machine) |
+| Ops & review | `retro` |
+| Session continuity | `checkpoint` ↔ `resume` · `handoff` |
+| Cross-cutting | `setup` · `recommend-rules` · `improve-codebase-architecture` |
 
-Framework (Scrum/Kanban): optional via Full setup → `docs/agents/workflow.md`. Architecture: optional branch 7 in Full setup.
+See [docs/mental-model.md](docs/mental-model.md) for the "which skill, when" table and
+the lifecycle diagram.
 
-Not sure which skill fits? `bin/ai-kit-which.sh "I want to ship this to production"` ranks the top 3 by keyword overlap; `--list` shows all 19, `--explain <skill>` dumps the full `SKILL.md`.
+## How it's wired
 
-## Cross-tool setup
+ai-kit is **standalone** — no runtime daemon, no network calls, no required global
+state. Two install layers, run in this order:
 
-| Tool | Global skills | Project skills |
-| ---- | ------------- | -------------- |
-| Claude Code | `~/.agents/skills/` | `.agents/skills/` |
+1. **Global** *(once per machine, optional)* — `install-global.sh` symlinks skills,
+   subagents, slash commands, and the MCP wrapper into `~/.claude/`, `~/.cursor/`,
+   etc. The one-line installer does this for you; skip it with `--no-global` if you
+   only work in one repo.
+2. **Project** *(once per repo)* — `/setup` bootstraps `AGENTS.md`, `CONTEXT.md`,
+   project skills, and the `.ai-kit-setup` marker. Works fully without step 1.
+
+`AGENTS.md` is the single agent-agnostic entry point; skills route from there. Skill
+paths per tool:
+
+| Tool | Global | Project |
+| ---- | ------ | ------- |
+| Claude Code | `~/.claude/skills/` | `.claude/skills/` |
 | Cursor | `~/.cursor/skills/` | `.cursor/skills/` |
 
-Bootstrap symlinks both project paths. `AGENTS.md` is the single agent-agnostic entry point — skills route from there.
-
-## Structure
-
-```
-workflow/skills/   19 skills incl. setup, ship, retro
-standards/rules/   Book rules (plain markdown — read on-demand by skills)
-docs/architecture.md  How the kit is wired (layers, primitives, install paths)
-docs/glossary.md      Terms used across ai-kit code and docs
-docs/primitives.md    Decision tree: skill vs subagent vs hook vs rule vs MCP
-docs/roadmap.md    Forward-looking work (agent-agnostic refactor, smart rule recommender)
-orchestration/     Sandcastle templates
-context/templates/ Per-project doc templates
-context/prompts/   Copy-paste agent prompts (setup)
-bin/               Scripts invoked by /setup
-.github/workflows/ CI test workflow
-tests/bin/         Script regression tests
-docs/              Dogfood and internal notes
-```
-
-## Setup automation
-
-```bash
-export AI_KIT_ROOT="${AI_KIT_ROOT:-$(cat "${HOME}/.config/ai-kit/root" 2>/dev/null)}"
-$AI_KIT_ROOT/bin/detect-tooling.sh .          # what is in this repo?
-$AI_KIT_ROOT/bin/verify-setup.sh . --strict --minimal  # Tier A done
-$AI_KIT_ROOT/bin/ai-kit-root.sh               # print resolved root
-```
-
-Tier B branch 10 surfaces the `claude-automation-recommender` skill (from `claude-code-setup`) as an opt-in handoff — choice recorded in `.ai-kit-setup`, never auto-run.
-
-## Tests
-
-```bash
-./tests/bin/run-tests.sh    # from ai-kit clone
-```
-
-CI runs the same suite on push/PR (`.github/workflows/test.yml`).
+`bin/ai-kit-doctor.sh` (or `/aikit-doctor`) validates whichever path you chose. For
+the three-layer model and per-primitive routing, see
+[docs/architecture.md](docs/architecture.md); for "I want to add X — which
+primitive?" see [docs/primitives.md](docs/primitives.md).
 
 ## Troubleshooting
 
-See [docs/troubleshooting.md](docs/troubleshooting.md) for the expanded list. Quick hits:
-
 | Issue | First thing to try |
 | ----- | ------------------ |
-| `/setup` not found | Re-run `install-global.sh`; verify the two `setup` symlinks |
+| `/setup` not found | Re-run `install-global.sh`; verify the `setup` symlinks |
 | ai-kit root unknown | Set `AI_KIT_ROOT` or run `install-global.sh` once |
 | Skills missing in Cursor | Reload the window, check `.cursor/skills` resolves |
-| Sandcastle placeholder leaked | Edit `.sandcastle/main.mts` install line manually |
-| Re-configure project | `/setup` again (keep/change/skip per branch) or `rm .ai-kit-setup` |
-| Brownfield rule "lost" | Use `--merge-skills` (default), not `--link-all` |
+| Re-configure a project | `/setup` again (keep/change/skip per branch) or `rm .ai-kit-setup` |
 | Usage log empty | `export AI_KIT_USAGE=1` and open a new shell |
 
-## What ai-kit logs locally (opt-in)
+Full list: [docs/troubleshooting.md](docs/troubleshooting.md).
 
-When `AI_KIT_USAGE=1` is set, each invocation of a skill writes one line to
-`${XDG_STATE_HOME:-~/.local/state}/ai-kit/usage.jsonl`:
+## Privacy & local data
 
-```
-{"ts":"2026-05-20T17:14:03Z","skill":"diagnose","event":"start","project":"ai-kit","cwd_hash":"a1b2c3d4e5f6"}
-```
+ai-kit makes **no network calls** and ships **no telemetry**. It writes three local
+files at most: the project `.ai-kit-setup` marker, `~/.config/ai-kit/root`, and —
+only when you set `AI_KIT_USAGE=1` — an opt-in skill-usage log at
+`~/.local/state/ai-kit/usage.jsonl` (skill name, event, project basename — never
+paths, prompts, or file contents). `retro` reads it to ground its questions in
+observed behaviour; `bin/usage-purge.sh` wipes it. Full data contract:
+[SECURITY.md](SECURITY.md).
 
-Fields: `ts`, `skill`, `event` (`start|done|abort`), `project` (basename of the git root or cwd), `cwd_hash` (sha1 of the absolute path). **Never** the absolute path, prompt contents, file contents, branch names, or anything else. No network calls — CI greps for `curl|wget|/dev/tcp|nc` in the usage scripts to enforce this.
+<details>
+<summary>Auto-log skill invocations via a Claude Code hook</summary>
 
-```bash
-bin/usage-stats.sh --since=7d        # human report
-bin/usage-stats.sh --json            # machine-readable
-bin/usage-purge.sh                   # wipe the log
-```
-
-`retro` reads `usage-stats.sh` to ground the conversation in observed behaviour. See [SECURITY.md](SECURITY.md) for the full data contract.
-
-### Auto-logging via Claude Code hook
-
-ai-kit ships a `PostToolUse` hook (`bin/hooks/post-skill-log.sh`) wired in
-`.claude/settings.json`. When `AI_KIT_USAGE=1` is set, each Skill invocation
-auto-writes a `done` event — no per-skill plumbing required. The hook is
-silent and no-op without the env var. To add it to a downstream project,
-copy this into the project's `.claude/settings.json`:
+ai-kit ships a `PostToolUse` hook (`bin/hooks/post-skill-log.sh`) wired in its own
+`.claude/settings.json`. With `AI_KIT_USAGE=1` set, each Skill invocation auto-writes
+a `done` event — no per-skill plumbing. The hook is silent and no-op without the env
+var. To add it to a downstream project, copy this into its `.claude/settings.json`:
 
 ```jsonc
 {
@@ -192,18 +170,18 @@ copy this into the project's `.claude/settings.json`:
 }
 ```
 
-## Eval harness
+</details>
 
-```bash
-./tests/bin/eval-structure.sh        # 8 deterministic SKILL.md checks + fixture lint
-./bin/eval-skill.sh diagnose         # dump prompt + SKILL.md + rating template for manual rating
-```
+## Contributing
 
-Fixtures live in `tests/eval/prompts/<skill>/<scenario>.md`. Rating notes go to `tests/eval/results/` (gitignored). See [docs/eval.md](docs/eval.md).
+Pure Bash + Markdown, no build step. `./tests/bin/run-tests.sh` runs the suite; CI
+runs the same on every push. See [CONTRIBUTING.md](CONTRIBUTING.md) for skill-authoring
+rules and [docs/eval.md](docs/eval.md) for the eval harness.
 
-## License & Provenance
+## License & provenance
 
-ai-kit is licensed [MIT](LICENSE). It incorporates work from the following MIT-licensed upstreams:
+ai-kit is licensed [MIT](LICENSE). It incorporates work from these MIT-licensed
+upstreams:
 
 | Upstream | What we took |
 | -------- | ------------ |
@@ -211,8 +189,3 @@ ai-kit is licensed [MIT](LICENSE). It incorporates work from the following MIT-l
 | [ciembor/agent-rules-books](https://github.com/ciembor/agent-rules-books) | Book mini rules |
 | [mattpocock/sandcastle](https://github.com/mattpocock/sandcastle) | Sandcastle templates |
 | [garrytan/gstack](https://github.com/garrytan/gstack) | Concepts → review, qa, ship |
-
-## Where facts live
-
-- Domain → `CONTEXT.md` · Decisions → `docs/adr/` · Agent config → `docs/agents/`
-- Setup state → `.ai-kit-setup` · Commands → official docs via `dev-environment.md`
