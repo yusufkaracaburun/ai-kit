@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/yusufkaracaburun/ai-kit/actions/workflows/test.yml/badge.svg)](https://github.com/yusufkaracaburun/ai-kit/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/dynamic/regex?label=version&url=https%3A%2F%2Fraw.githubusercontent.com%2Fyusufkaracaburun%2Fai-kit%2Fmaster%2FVERSION&pattern=%5E(.%2B)%24)](VERSION)
+[![Version](https://img.shields.io/github/package-json/v/yusufkaracaburun/ai-kit?filename=mcp%2Fpackage.json&label=version)](VERSION)
 
 **The agile lifecycle as Claude Code + Cursor primitives.** Stack-agnostic. One kit ships skills, subagents, slash commands, hooks, rules, a plugin manifest, and an MCP server — pick whichever your host speaks.
 
