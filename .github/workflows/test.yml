@@ -31,7 +31,7 @@ jobs:
         with:
           severity: warning
           scandir: ./bin
-          additional_files: tests/bin/run-tests.sh
+          additional_files: tests/bin/run-tests.sh install.sh
       - name: yamllint workflows
         run: |
           pip install --quiet yamllint

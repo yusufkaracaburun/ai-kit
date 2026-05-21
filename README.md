@@ -28,25 +28,33 @@ Working in the ai-kit clone itself or want doctor to ignore global checks by def
 
 ## Quick start
 
-**Usual flow:** paste the [project setup prompt](context/prompts/setup-project.md). Default is **Tier A (~5 min)**: one setup-mode question, bootstrap, dev-environment.
-
-**ai-kit root** is resolved automatically (no hardcoded path):
-
-1. `$AI_KIT_ROOT` environment variable
-2. `~/.config/ai-kit/root` (written by `install-global.sh`)
-3. Script location when run from the ai-kit clone
+**One-line install** (clones into `~/.local/share/ai-kit` and links skills globally):
 
 ```bash
-export AI_KIT_ROOT="${AI_KIT_ROOT:-$(cat "${HOME}/.config/ai-kit/root" 2>/dev/null)}"
-
-# 1. Install skills globally (once)
-$AI_KIT_ROOT/bin/install-global.sh
-
-# 2. Open any project and run /setup (or paste the setup prompt)
-/setup
+curl -fsSL https://raw.githubusercontent.com/yusufkaracaburun/ai-kit/master/install.sh | bash
 ```
 
-New machine? See [install-global prompt](context/prompts/install-global.md).
+Project-only install (no host pollution): `... | bash -s -- --no-global`.
+Pin a release: `... | AI_KIT_REF=v1.2.0 bash`.
+Update later: `... | bash -s -- --update` (or `$AI_KIT_ROOT/install.sh --update`).
+
+Then in any project:
+
+```bash
+/setup    # in Claude Code or Cursor — runs bootstrap + dev-environment
+```
+
+<details>
+<summary>Manual install (or already cloned)</summary>
+
+```bash
+git clone https://github.com/yusufkaracaburun/ai-kit.git ~/.local/share/ai-kit
+~/.local/share/ai-kit/bin/install-global.sh   # optional: link skills to ~/.claude, ~/.agents, ~/.cursor
+```
+
+`ai-kit root` is resolved automatically: `$AI_KIT_ROOT` env → `~/.config/ai-kit/root` → script location. See [install-global prompt](context/prompts/install-global.md) for the agent-driven variant.
+
+</details>
 
 ## Agile lifecycle
 

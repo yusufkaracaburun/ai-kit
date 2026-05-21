@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+**Feature**
+- `install.sh` at repo root: one-line curl installer. Clones ai-kit into
+  `~/.local/share/ai-kit` (configurable) and runs `bin/install-global.sh`
+  by default. Flags: `--dir`, `--repo`, `--branch`, `--ref`, `--no-global`,
+  `--update`, `--quiet`. All flags also work as `AI_KIT_*` env vars for
+  curl-pipe use. Idempotent: rerun detects existing clones; refuses to
+  clobber non-aikit directories.
+- README quick-start leads with the one-liner; manual install moved to
+  a collapsed section.
+- Tests: 7 new assertions covering clone, idempotent rerun, clobber
+  refusal, `--no-global`, unknown-flag exit code, and help output.
+- CI: `install.sh` added to shellcheck scope.
+
 ## 1.2.0 — opt-in automation recommender handoff
 
 **Feature**

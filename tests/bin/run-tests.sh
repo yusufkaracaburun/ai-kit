@@ -463,6 +463,43 @@ CLI_OUT="$("$AIKIT/bin/ai-kit-root.sh")"
 assert "ai-kit-root.sh CLI" '[ "$CLI_OUT" = "$AIKIT" ]'
 
 echo ""
+echo "=== install.sh ==="
+# Help text
+OUT_INSTALL_HELP="$("$AIKIT/install.sh" --help 2>&1)"
+assert "install: help text" 'echo "$OUT_INSTALL_HELP" | grep -q "ai-kit installer"'
+assert "install: lists --no-global" 'echo "$OUT_INSTALL_HELP" | grep -q -- "--no-global"'
+
+# Clone from local repo with --no-global (end-to-end without touching ~/.claude).
+TMP_HOME_INSTALL="$(mktemp -d)"
+TMP_DIR_INSTALL="$TMP_HOME_INSTALL/.local/share/ai-kit"
+HOME="$TMP_HOME_INSTALL" "$AIKIT/install.sh" --repo="$AIKIT" --dir="$TMP_DIR_INSTALL" --no-global --quiet
+assert "install: clones into target dir" '[ -f "$TMP_DIR_INSTALL/VERSION" ]'
+assert "install: writes ~/.config/ai-kit/root" '[ -f "$TMP_HOME_INSTALL/.config/ai-kit/root" ]'
+assert "install: --no-global skips ~/.claude/skills" '[ ! -d "$TMP_HOME_INSTALL/.claude/skills" ]'
+
+# Idempotent rerun — should detect existing install, not re-clone.
+OUT_RERUN="$(HOME="$TMP_HOME_INSTALL" "$AIKIT/install.sh" --repo="$AIKIT" --dir="$TMP_DIR_INSTALL" --no-global 2>&1)"
+assert "install: rerun detects existing" 'echo "$OUT_RERUN" | grep -q "already installed"'
+
+# Refuse to clobber a non-aikit directory.
+BAD_DIR_INSTALL="$(mktemp -d)"
+touch "$BAD_DIR_INSTALL/foo.txt"
+set +e
+OUT_BAD="$(HOME="$TMP_HOME_INSTALL" "$AIKIT/install.sh" --dir="$BAD_DIR_INSTALL" --no-global 2>&1)"
+BAD_EXIT=$?
+set -e
+assert "install: refuses to clobber non-aikit dir" '[ "$BAD_EXIT" -ne 0 ] && echo "$OUT_BAD" | grep -q "not an ai-kit clone"'
+
+# Unknown flag exits 2.
+set +e
+"$AIKIT/install.sh" --bogus 2>/dev/null
+INSTALL_BAD_FLAG_EXIT=$?
+set -e
+assert "install: unknown flag exits 2" '[ "$INSTALL_BAD_FLAG_EXIT" -eq 2 ]'
+
+rm -rf "$TMP_HOME_INSTALL" "$BAD_DIR_INSTALL"
+
+echo ""
 echo "=== skills count ==="
 SKILL_COUNT=$(find "$AIKIT/workflow/skills" -name SKILL.md | wc -l | tr -d ' ')
 assert "16 skills" '[ "$SKILL_COUNT" -eq 16 ]'
