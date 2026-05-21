@@ -13,6 +13,7 @@ Release a working increment. Stack-agnostic — derive deploy commands from `doc
    - Run or confirm `review` passed (no open blockers)
    - CI green on the release branch (`gh run list`, GitHub Actions, GitLab CI, etc.)
    - All related issues linked to the PR/release
+   - Commit messages + PR title follow [git-hygiene rule](../../../standards/rules/git-hygiene.mini.md) (conventional commits, scoped, imperative); PR body uses the project's `.github/pull_request_template.md` if present
 
 2. **Release notes**
    - Summarise changes from commits or PR description

@@ -9,6 +9,8 @@ Break a plan into independently-grabbable issues using vertical slices (tracer b
 
 The issue tracker and triage label vocabulary should have been provided to you — run `/setup-matt-pocock-skills` if not.
 
+Issue titles, branch names, and commit messages follow the [git-hygiene rule](../../../standards/rules/git-hygiene.mini.md). Default branch prefix per type: AFK + feature → `feat/`, AFK + bug → `fix/`, HITL → ask first.
+
 ## Process
 
 ### 1. Gather context

@@ -46,6 +46,12 @@ For high-signal skills, also add at least one fixture under `tests/eval/prompts/
 
 Open against `master`. Use the PR template. Keep PRs ≤ 400 lines of diff where possible — split if larger.
 
+**Approval policy**: solo maintainer project — author may self-merge once CI is green and `./tests/bin/run-tests.sh` + `shellcheck` pass locally. External contributors: one maintainer approval required before merge.
+
+**Merge strategy**: **squash + merge**. The squash commit subject must follow Conventional Commits (`feat(scope): subject`). Avoid plain merge commits unless preserving multiple intentional commits is the explicit point of the PR.
+
+The full set of branch/commit/PR conventions lives in [`standards/rules/git-hygiene.mini.md`](standards/rules/git-hygiene.mini.md) — that file is the source of truth used by `/ship`, `/to-issues`, and other agent skills.
+
 ## Releases
 
 Maintainers only. `VERSION` + tag + GitHub release in one commit; CHANGELOG.md follows Keep a Changelog conventions.
