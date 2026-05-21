@@ -38,6 +38,7 @@ done
 WARN=0
 ERR=0
 ok()   { echo "  ok    $*"; }
+info() { echo "  info  $*"; }
 warn() { echo "  warn  $*"; WARN=$((WARN + 1)); }
 err()  { echo "  ERR   $*"; ERR=$((ERR + 1)); }
 
@@ -56,7 +57,10 @@ else
   if [ -f "$HOME/.config/ai-kit/root" ]; then
     ok "AI_KIT_ROOT unset; fallback ~/.config/ai-kit/root works"
   else
-    warn "AI_KIT_ROOT unset and no ~/.config/ai-kit/root — run install-global.sh"
+    # Script-location fallback resolved AIKIT successfully — globals are
+    # optional, so this is advisory, not a warning. Counting it as a warn
+    # caused project-only setups to exit 1 even when fully functional.
+    info "AI_KIT_ROOT unset; using script-location fallback ($AIKIT). Run install-global.sh for global skill links if desired."
   fi
 fi
 
