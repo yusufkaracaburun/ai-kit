@@ -11,6 +11,7 @@ MINIMAL=true
 NO_SKILLS=false
 SKILLS_MODE="merge-skills"
 WITH_MCP=false
+EMIT_RULES=true
 
 usage() {
   echo "Usage: $0 [--minimal] /path/to/project [options]"
@@ -22,6 +23,7 @@ usage() {
   echo "  --copy-skills   Copy skills into project instead of symlink"
   echo "  --no-skills     Skip .agents/skills, .claude/skills and .cursor/skills (use global install only)"
   echo "  --with-mcp      Copy baseline .cursor/mcp.json.template to .cursor/mcp.json (opt-in)"
+  echo "  --no-rules      Skip emit-rules.sh (no universal canonical rules in this project)"
   echo ""
   echo "Configures Claude Code (.claude/skills + legacy .agents/skills) and Cursor (.cursor/skills)."
   echo "Full setup via /setup in the agent."
@@ -38,6 +40,7 @@ while [ $# -gt 0 ]; do
     --copy-skills) COPY_SKILLS=true; SKILLS_MODE="link-all"; shift ;;
     --no-skills) NO_SKILLS=true; shift ;;
     --with-mcp) WITH_MCP=true; shift ;;
+    --no-rules) EMIT_RULES=false; shift ;;
     -h | --help) usage ;;
     -*)
       echo "Unknown option: $1" >&2
@@ -137,13 +140,6 @@ else
   merge_skills "$TARGET/.cursor" ".cursor/skills"
 fi
 
-mkdir -p "$TARGET/.cursor/rules"
-
-if [ ! -f "$TARGET/.cursor/rules/ai-kit.mdc" ]; then
-  cp "$TPL/.cursor/rules/ai-kit.mdc" "$TARGET/.cursor/rules/ai-kit.mdc"
-  echo "Created .cursor/rules/ai-kit.mdc"
-fi
-
 if [ "$WITH_MCP" = true ]; then
   if [ -f "$TARGET/.cursor/mcp.json" ] || [ -f "$TARGET/.mcp.json" ] || [ -f "$TARGET/.vscode/mcp.json" ]; then
     echo "Skipped mcp.json copy (existing MCP config detected)"
@@ -153,41 +149,9 @@ if [ "$WITH_MCP" = true ]; then
   fi
 fi
 
-rule_to_mdc() {
-  local src="$1" name="$2" desc="$3"
-  local dest="$TARGET/.cursor/rules/${name}.mdc"
-  [ -f "$dest" ] && return 0
-  cat > "$dest" << EOF
----
-description: ${desc}
-globs:
-alwaysApply: false
----
-
-$(cat "$src")
-EOF
-  echo "Created .cursor/rules/${name}.mdc"
-}
-
-rule_to_mdc "$AIKIT/standards/rules/legacy-code.mini.md" "legacy-code" "Working Effectively with Legacy Code rules"
-rule_to_mdc "$AIKIT/standards/rules/ddd-distilled.mini.md" "ddd-distilled" "DDD Distilled rules"
-rule_to_mdc "$AIKIT/standards/rules/refactoring.mini.md" "refactoring" "Refactoring rules"
-rule_to_mdc "$AIKIT/standards/rules/aposd.mini.md" "aposd" "A Philosophy of Software Design rules"
-rule_to_mdc "$AIKIT/standards/rules/release-it.mini.md" "release-it" "Release It production rules"
-rule_to_mdc "$AIKIT/standards/rules/git-hygiene.mini.md" "git-hygiene" "Branch naming, commit format, PR conventions, merge strategy"
-rule_to_mdc "$AIKIT/standards/rules/context-discipline.mini.md" "context-discipline" "Token-budget discipline: grep before read, delegate wide exploration, lean on CONTEXT.md and ADRs"
-
-if [ ! -f "$TARGET/.cursor/rules/pragmatic-baseline.mdc" ]; then
-  cat > "$TARGET/.cursor/rules/pragmatic-baseline.mdc" << EOF
----
-description: Pragmatic Programmer baseline (optional always-on)
-globs:
-alwaysApply: false
----
-
-$(cat "$AIKIT/standards/rules/pragmatic.nano.md")
-EOF
-  echo "Created .cursor/rules/pragmatic-baseline.mdc"
+if [ "$EMIT_RULES" = true ]; then
+  echo ""
+  "$AIKIT/bin/emit-rules.sh" "$TARGET" || echo "warn: emit-rules.sh failed (non-fatal)"
 fi
 
 echo ""

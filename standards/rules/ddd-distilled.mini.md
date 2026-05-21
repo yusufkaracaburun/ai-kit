@@ -1,3 +1,16 @@
+---
+name: ddd-distilled
+description: DDD Distilled — bounded contexts, aggregates, ubiquitous language
+applies_to:
+  frameworks: [laravel, rails, spring, dotnet, nestjs, django]
+  languages: []
+  architectures: [domain-driven, hexagonal, clean, layered]
+universal: false
+default_mode: on-demand
+weight: high
+repo_age_min_years: 0
+---
+
 # OBEY Domain-Driven Design Distilled by Vaughn Vernon
 
 ## When to use

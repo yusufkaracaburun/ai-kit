@@ -310,9 +310,30 @@ detect_architecture() {
   fi
 }
 
-# Known ai-kit Cursor rule basenames (without .mdc)
+# Historical ai-kit Cursor rule basenames (without .mdc). ai-kit no longer
+# generates these — list kept so legacy installs are classified correctly and
+# users can identify leftover files to delete.
 _aikit_rule_names() {
-  echo "ai-kit legacy-code ddd-distilled refactoring aposd release-it pragmatic-baseline"
+  echo "ai-kit legacy-code ddd-distilled refactoring aposd release-it pragmatic-baseline git-hygiene context-discipline"
+}
+
+# Detect which AI agents are configured in a target project.
+# Sets DETECTED_AGENTS array (e.g. "cursor" "claude-code" "aider").
+# An agent counts as "present" when its config dir/file exists OR a parent
+# project marker (AGENTS.md / CLAUDE.md) names it. Empty array = no agents.
+detect_agents() {
+  local target="$1"
+  DETECTED_AGENTS=()
+
+  [ -d "$target/.cursor" ] && DETECTED_AGENTS+=("cursor")
+  { [ -d "$target/.claude" ] || [ -f "$target/CLAUDE.md" ]; } \
+    && DETECTED_AGENTS+=("claude-code")
+  [ -f "$target/.aider.conf.yml" ] && DETECTED_AGENTS+=("aider")
+  [ -f "$target/.clinerules" ] && DETECTED_AGENTS+=("cline")
+  { [ -f "$target/.continue/config.json" ] || [ -d "$target/.continue" ]; } \
+    && DETECTED_AGENTS+=("continue")
+  [ -d "$target/.sourcegraph" ] && DETECTED_AGENTS+=("cody")
+  return 0
 }
 
 # Classify entries in a skills directory; sets _CLASS_AIKIT and _CLASS_CUSTOM arrays

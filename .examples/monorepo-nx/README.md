@@ -79,7 +79,7 @@ $AI_KIT_ROOT/bin/verify-setup.sh . --strict --minimal
 
 - `.agents/skills/` created with 16 ai-kit skill symlinks.
 - `.cursor/skills/` populated alongside the (none-yet) custom skills bucket.
-- `.cursor/rules/` got the 6 ai-kit book rules + `ai-kit.mdc`. The nested `playwright/.cursor/rules/*` was **not touched** — Cursor loads both.
+- `.cursor/rules/` was **not touched** — including the nested `playwright/.cursor/rules/*`.
 - `.cursor/mcp.json` and `.vscode/mcp.json` are untouched.
 - `docs/agents/agent-stack.md` documents the 11 playwright rules and 2 MCP configs that coexist.
 - `docs/agents/dev-environment.md` lists Nx + npm docs URLs.

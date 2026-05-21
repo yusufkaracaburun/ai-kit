@@ -12,5 +12,4 @@
 
 ## Cursor
 
-Same skills and docs as Claude Code. Skills also live in `.cursor/skills/` (project) or `~/.cursor/skills/` (global).
-The `ai-kit.mdc` rule loads this project's agent instructions.
+Same skills and docs as Claude Code. Skills also live in `.cursor/skills/` (project) or `~/.cursor/skills/` (global). Read `AGENTS.md` as the entry point — Cursor rules emitted under `.cursor/rules/` mirror `docs/agents/active-rules.md`.

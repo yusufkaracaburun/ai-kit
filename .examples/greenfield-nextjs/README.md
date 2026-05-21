@@ -77,15 +77,7 @@ my-next-app/
 │       ├── tdd      -> .../ai-kit/workflow/skills/tdd
 │       └── ... (16 total)
 ├── .cursor/
-│   ├── skills/        # parallel symlinks
-│   └── rules/
-│       ├── ai-kit.mdc
-│       ├── aposd.mdc
-│       ├── ddd-distilled.mdc
-│       ├── legacy-code.mdc
-│       ├── pragmatic-baseline.mdc
-│       ├── refactoring.mdc
-│       └── release-it.mdc
+│   └── skills/        # parallel symlinks
 ├── docs/
 │   ├── adr/
 │   │   └── ADR-template.md

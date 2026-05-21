@@ -1,3 +1,16 @@
+---
+name: aposd
+description: A Philosophy of Software Design — depth, complexity, naming, abstraction
+applies_to:
+  frameworks: []
+  languages: []
+  architectures: []
+universal: true
+default_mode: on-demand
+weight: medium
+repo_age_min_years: 0
+---
+
 # OBEY A Philosophy of Software Design by John Ousterhout
 
 ## When to use

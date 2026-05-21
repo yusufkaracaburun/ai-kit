@@ -1,3 +1,16 @@
+---
+name: context-discipline
+description: Token-budget discipline — grep before read, delegate wide exploration, lean on CONTEXT.md
+applies_to:
+  frameworks: []
+  languages: []
+  architectures: []
+universal: true
+default_mode: always-on
+weight: high
+repo_age_min_years: 0
+---
+
 # Context discipline
 
 Token budget is a real cost. Agents that drown in context get measurably worse — vaguer answers, missed details, slower turns. Apply this rule always, not just when the window is "almost full."

@@ -1,3 +1,16 @@
+---
+name: git-hygiene
+description: Branch naming, Conventional Commits, PR conventions, merge strategy
+applies_to:
+  frameworks: []
+  languages: []
+  architectures: []
+universal: true
+default_mode: always-on
+weight: high
+repo_age_min_years: 0
+---
+
 # Git hygiene
 
 Conventions every commit, branch, and PR in an ai-kit project should follow. Agent-readable so `/ship`, `/to-issues`, and `/tdd` apply them without the user reminding them.

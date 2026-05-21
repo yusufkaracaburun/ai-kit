@@ -129,9 +129,6 @@ else
   check ".cursor/skills skipped (solo-global)" true
 fi
 
-check ".cursor/rules/ai-kit.mdc" \
-  "$(bool [ -f "$TARGET/.cursor/rules/ai-kit.mdc" ])"
-
 check ".ai-kit-setup exists" "$(bool [ -f "$SETUP_FILE" ])"
 
 if [ -f "$SETUP_FILE" ]; then

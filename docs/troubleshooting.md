@@ -40,12 +40,13 @@ Run `bootstrap-project.sh` first. `verify-setup` checks the post-setup state; it
 
 ## Brownfield coexistence
 
-### Existing custom rule got "lost"
+### Existing custom skill got "lost"
 
-ai-kit never deletes rules. Two real causes:
+ai-kit never deletes skills or rules. Real cause: you ran `bootstrap-project.sh --link-all` (replaces the whole `.cursor/skills` directory). Use `--merge-skills` (default since v0.4).
 
-1. You ran `bootstrap-project.sh --link-all` (replaces the whole `.cursor/skills` directory). Use `--merge-skills` (default since v0.4).
-2. The custom rule lived at the *same path* as an ai-kit rule (e.g. `legacy-code.mdc`). Rename your version.
+### Legacy `.cursor/rules/*.mdc` from older ai-kit versions
+
+ai-kit no longer generates Cursor rules (removed for agent-agnostic refactor). If you bootstrapped before this change, leftover `ai-kit.mdc` / book-rule `.mdc` files in `.cursor/rules/` are safe to delete — agents now route via `AGENTS.md` and skills read `standards/rules/*.mini.md` on demand.
 
 ### Two `mcp.json` files now exist
 

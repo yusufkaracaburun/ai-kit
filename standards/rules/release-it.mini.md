@@ -1,3 +1,16 @@
+---
+name: release-it
+description: Production stability — timeouts, circuit breakers, bulkheads, backpressure
+applies_to:
+  frameworks: [laravel, rails, spring, dotnet, nestjs, django, nextjs, fastapi]
+  languages: []
+  architectures: [microservices, distributed, service-oriented]
+universal: false
+default_mode: on-demand
+weight: high
+repo_age_min_years: 0
+---
+
 # OBEY Release It! by Michael T. Nygard
 
 ## When to use

@@ -11,11 +11,11 @@ What coexists with ai-kit in this repo — **brownfield only**. Skip this file o
 | `.cursor/skills/` | [list or "via merge"] | [list] |
 | `.agents/skills/` | via merge | n/a |
 
-## Rules
+## Rules (Cursor `.cursor/rules/*.mdc`)
 
-| ai-kit rules | Custom rules |
-| ------------ | ------------ |
-| [e.g. ai-kit.mdc] | [e.g. coding-standards.mdc] |
+ai-kit does not generate Cursor rules. Any rules below are user-managed.
+
+**Custom rules:** [e.g. coding-standards.mdc]
 
 ## Commands and MCP
 

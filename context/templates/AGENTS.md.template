@@ -2,7 +2,7 @@
 
 This project uses the ai-kit workflow (Claude Code + Cursor).
 
-**Context budget**: lean on `CONTEXT.md` and `docs/adr/` as cached truth — don't re-derive what's already documented. For wide codebase sweeps, delegate to a sub-agent (`Explore`, `Plan`) so raw output stays out of the main conversation. Full rule: `.cursor/rules/context-discipline.mdc` (or `standards/rules/context-discipline.mini.md` in ai-kit).
+**Context budget**: lean on `CONTEXT.md` and `docs/adr/` as cached truth — don't re-derive what's already documented. For wide codebase sweeps, delegate to a sub-agent (`Explore`, `Plan`) so raw output stays out of the main conversation. Full rule: `docs/agents/active-rules.md` → `context-discipline` (canonical source: `~/.local/share/ai-kit/standards/rules/context-discipline.mini.md`).
 
 ## Agile lifecycle
 
@@ -31,7 +31,7 @@ Setup status: `.ai-kit-setup` (committed after `/setup`).
 
 ### Agent stack
 
-See `docs/agents/agent-stack.md` when present (brownfield) — coexistence with custom rules, MCP, skills.
+See `docs/agents/agent-stack.md` when present (brownfield) — coexistence with custom skills, MCP, agent config.
 
 ### Dev environment
 
@@ -67,7 +67,7 @@ Run relevant tests before claiming work complete. Derive commands from repo scri
 
 ## Standards
 
-Book-derived rules in `.cursor/rules/` (on-demand). `ai-kit.mdc` points here.
+Canonical book-derived rules live in `~/.local/share/ai-kit/standards/rules/*.mini.md`. Emitted per detected agent during `/setup` (or via `bin/emit-rules.sh`). The current active set for this project is listed in `docs/agents/active-rules.md`. Refine with `/recommend-rules` (project-aware scoring + optional web-search for stack-specific community rules).
 
 ## Where facts live
 
@@ -75,4 +75,5 @@ Book-derived rules in `.cursor/rules/` (on-demand). `ai-kit.mdc` points here.
 - Decisions → `docs/adr/`
 - Agent config → `AGENTS.md`, `docs/agents/`
 - Setup state → `.ai-kit-setup`
-- Team standards → `.cursor/rules/`
+- Active rules → `docs/agents/active-rules.md`
+- Canonical book rules → `~/.local/share/ai-kit/standards/rules/`

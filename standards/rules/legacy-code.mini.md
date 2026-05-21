@@ -1,3 +1,16 @@
+---
+name: legacy-code
+description: Seam-finding, characterization tests, refactoring under a safety net
+applies_to:
+  frameworks: []
+  languages: []
+  architectures: []
+universal: false
+default_mode: on-demand
+weight: high
+repo_age_min_years: 2
+---
+
 # OBEY Working Effectively with Legacy Code by Michael Feathers
 
 ## When to use

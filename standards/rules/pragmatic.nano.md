@@ -1,3 +1,16 @@
+---
+name: pragmatic
+description: Pragmatic Programmer baseline — DRY, orthogonality, broken windows, tracer bullets
+applies_to:
+  frameworks: []
+  languages: []
+  architectures: []
+universal: true
+default_mode: on-demand
+weight: low
+repo_age_min_years: 0
+---
+
 # OBEY The Pragmatic Programmer by Andrew Hunt and David Thomas
 
 ## When to use

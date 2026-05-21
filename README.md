@@ -13,14 +13,14 @@ Personal agent kit — **stack-agnostic**, full **agile lifecycle**, Claude Code
 Two things, do them in this order:
 
 1. **`install-global.sh`** *(once per machine, optional)* — symlinks the 16 ai-kit skills into `~/.claude/skills/`, `~/.agents/skills/`, `~/.cursor/skills/` so they're discoverable from anywhere. Skip this if you only ever work in one project.
-2. **`bootstrap-project.sh` + `/setup`** *(once per project)* — sets up `AGENTS.md`, `CONTEXT.md`, `.claude/skills/`, `.cursor/rules/`, and the `.ai-kit-setup` marker inside the project. **This is project-scoped — works fully without step 1.**
+2. **`bootstrap-project.sh` + `/setup`** *(once per project)* — sets up `AGENTS.md`, `CONTEXT.md`, `.claude/skills/`, `.cursor/skills/`, and the `.ai-kit-setup` marker inside the project. **This is project-scoped — works fully without step 1.**
 
 | Setup mode | Step 1 (global) | Step 2 (project) | When |
 | ---------- | --------------- | ---------------- | ---- |
 | `solo-both` | yes | merge-skills | greenfield default |
 | `solo-global` | yes | no-skills | machine-wide only |
 | `project-only` | **no** | merge-skills | repo isolation, no host pollution |
-| `brownfield` | optional | merge-skills + agent-stack doc | project already has rules/MCP/custom skills |
+| `brownfield` | optional | merge-skills + agent-stack doc | project already has MCP/custom skills/agent-config |
 
 ai-kit is **standalone**: no package-install, no network at runtime, no required global state. `bin/ai-kit-doctor.sh` validates whichever path you chose.
 
@@ -78,13 +78,14 @@ Not sure which skill fits? `bin/ai-kit-which.sh "I want to ship this to producti
 | Claude Code | `~/.agents/skills/` | `.agents/skills/` |
 | Cursor | `~/.cursor/skills/` | `.cursor/skills/` |
 
-Bootstrap symlinks both project paths. `ai-kit.mdc` rule points agents to `AGENTS.md`.
+Bootstrap symlinks both project paths. `AGENTS.md` is the single agent-agnostic entry point — skills route from there.
 
 ## Structure
 
 ```
 workflow/skills/   18 skills incl. setup, ship, retro
-standards/rules/   Book rules (on-demand)
+standards/rules/   Book rules (plain markdown — read on-demand by skills)
+docs/roadmap.md    Forward-looking work (agent-agnostic refactor, smart rule recommender)
 orchestration/     Sandcastle templates
 context/templates/ Per-project doc templates
 context/prompts/   Copy-paste agent prompts (setup)

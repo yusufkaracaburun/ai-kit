@@ -85,16 +85,9 @@ project/
 ├── .cursor/
 │   ├── mcp.json                   # untouched
 │   ├── rules/
-│   │   ├── ai-kit.mdc             # added — points agents at AGENTS.md
 │   │   ├── inertia.mdc            # preserved
 │   │   ├── laravel.mdc            # preserved
-│   │   ├── tailwind.mdc           # preserved
-│   │   ├── aposd.mdc              # added (ai-kit book rule)
-│   │   ├── ddd-distilled.mdc      # added
-│   │   ├── legacy-code.mdc        # added
-│   │   ├── pragmatic-baseline.mdc # added
-│   │   ├── refactoring.mdc        # added
-│   │   └── release-it.mdc         # added
+│   │   └── tailwind.mdc           # preserved
 │   └── skills/
 │       ├── my-team-skill/         # preserved (custom)
 │       ├── diagnose  -> .../ai-kit/workflow/skills/diagnose
