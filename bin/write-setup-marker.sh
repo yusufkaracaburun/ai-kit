@@ -19,6 +19,7 @@ usage() {
   echo "  --workflow=scrum|kanban|informal|skipped"
   echo "  --architecture=documented|follow-existing|skipped"
   echo "  --sandcastle=true|false"
+  echo "  --automation-recommender=skipped|deferred|completed"
   exit 1
 }
 
@@ -34,6 +35,7 @@ TRACKER=""
 WORKFLOW=""
 ARCHITECTURE=""
 SANDCASTLE=""
+AUTOMATION_RECOMMENDER=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -45,6 +47,7 @@ while [ $# -gt 0 ]; do
     --workflow=*) WORKFLOW="${1#*=}"; shift ;;
     --architecture=*) ARCHITECTURE="${1#*=}"; shift ;;
     --sandcastle=*) SANDCASTLE="${1#*=}"; shift ;;
+    --automation-recommender=*) AUTOMATION_RECOMMENDER="${1#*=}"; shift ;;
     -h | --help) usage ;;
     *) echo "Unknown option: $1" >&2; usage ;;
   esac
@@ -61,11 +64,12 @@ SETUP_FILE="$TARGET/.ai-kit-setup"
 COMPLETED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
 python3 - "$SETUP_FILE" "$VERSION" "$COMPLETED_AT" \
-  "$SETUP_MODE" "$SETUP_TIER" "$DOCKER" "$TRACKER" "$WORKFLOW" "$ARCHITECTURE" "$SANDCASTLE" <<'PY'
+  "$SETUP_MODE" "$SETUP_TIER" "$DOCKER" "$TRACKER" "$WORKFLOW" "$ARCHITECTURE" "$SANDCASTLE" \
+  "$AUTOMATION_RECOMMENDER" <<'PY'
 import json, sys, os
 
 path, version, completed = sys.argv[1:4]
-setup_mode, tier, docker, tracker, workflow, architecture, sandcastle = sys.argv[4:11]
+setup_mode, tier, docker, tracker, workflow, architecture, sandcastle, automation_recommender = sys.argv[4:12]
 
 data = {}
 if os.path.isfile(path):
@@ -96,6 +100,8 @@ if architecture:
     branches["architecture"] = architecture
 if sandcastle:
     branches["sandcastle"] = sandcastle.lower() == "true"
+if automation_recommender:
+    branches["automation_recommender"] = automation_recommender
 
 data["branches"] = branches
 

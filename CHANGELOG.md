@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.2.0 — opt-in automation recommender handoff
+
+**Feature**
+- `/setup` Tier B branch 10: propose-but-defer the `claude-automation-recommender`
+  skill (from the `claude-code-setup` plugin). ai-kit surfaces the option once,
+  records the user's choice in `.ai-kit-setup`, and never invokes the external
+  skill. Pattern mirrors `diagnose` → `/improve-codebase-architecture` handoff.
+- `bin/write-setup-marker.sh`: new `--automation-recommender=skipped|deferred|completed`
+  flag; persisted under `branches.automation_recommender`.
+
+**Backward compatibility**
+- Existing markers without the key remain valid; `verify-setup.sh --strict`
+  ignores missing keys (lenient `.get(...)` reads). No migration required.
+
 ## 1.1.1 — Claude Code skills discovery fix
 
 **Bug fix**

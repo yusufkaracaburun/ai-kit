@@ -95,6 +95,20 @@ Verify official doc URLs live.
 | 7 | Architecture | skip simple CRUD; else document-existing |
 | 8 | Sandcastle | skip brownfield |
 | 9 | Agile workflow | informal solo default |
+| 10 | Automation recommender | propose-but-defer (brownfield default: skipped) |
+
+### Branch 10 — Automation recommender (propose-but-defer)
+
+Surface, don't run. ai-kit installs noch invokeert de recommender. Stel één keer voor en leg de keuze vast in de marker:
+
+> Optional: a separate plugin (`claude-code-setup`) ships an automation
+> recommender that scans this repo and proposes hooks/subagents/skills/MCP
+> servers. I won't run it — just record your choice.
+> [1] Yes, I'll run it now    → `completed`
+> [2] Later, remind me        → `deferred`
+> [3] No thanks               → `skipped`
+
+Defaults: brownfield → `skipped`, greenfield → `deferred`. Schrijf de keuze naar `branches.automation_recommender`; roep nooit de externe skill aan. Pattern follows `diagnose` → `/improve-codebase-architecture` handoff.
 
 Full setup Done:
 
@@ -102,7 +116,8 @@ Full setup Done:
 $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" \
   --setup-mode=... --tier=full \
   --docker=... --tracker=... --workflow=... \
-  --architecture=... --sandcastle=...
+  --architecture=... --sandcastle=... \
+  --automation-recommender=skipped|deferred|completed
 $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict
 ```
 
@@ -121,7 +136,8 @@ $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict
     "issue_tracker": "skipped",
     "architecture": "skipped",
     "workflow": "skipped",
-    "sandcastle": false
+    "sandcastle": false,
+    "automation_recommender": "skipped"
   }
 }
 ```

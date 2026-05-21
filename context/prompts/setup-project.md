@@ -32,8 +32,12 @@ Done Tier A:
     --architecture=skipped --sandcastle=false
   verify-setup --strict --minimal
 
-Tier B only if I ask: docker, tracker, labels, domain, architecture, sandcastle, workflow.
+Tier B only if I ask: docker, tracker, labels, domain, architecture, sandcastle, workflow, automation-recommender.
 Then --tier=full and verify-setup --strict (no --minimal).
+
+Branch 10 (automation-recommender) is propose-but-defer: surface the option for
+the `claude-code-setup` plugin's `claude-automation-recommender` skill, record the
+user's choice (`skipped|deferred|completed`), but never invoke the skill yourself.
 
 Do not claim done until verify exits 0.
 ```

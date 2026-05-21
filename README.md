@@ -81,6 +81,8 @@ $AI_KIT_ROOT/bin/verify-setup.sh . --strict --minimal  # Tier A done
 $AI_KIT_ROOT/bin/ai-kit-root.sh               # print resolved root
 ```
 
+Tier B branch 10 surfaces the `claude-automation-recommender` skill (from `claude-code-setup`) as an opt-in handoff — choice recorded in `.ai-kit-setup`, never auto-run.
+
 ## Tests
 
 ```bash

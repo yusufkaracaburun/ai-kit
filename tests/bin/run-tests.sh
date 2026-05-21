@@ -146,9 +146,22 @@ assert "setup_mode solo-both" 'grep -q "\"setup_mode\": \"solo-both\"" "$TMP_M/.
 assert "tier minimal" 'grep -q "\"setup_tier\": \"minimal\"" "$TMP_M/.ai-kit-setup"'
 EXPECTED_VERSION="$(tr -d '[:space:]' < "$AIKIT/VERSION")"
 assert "marker carries current version" 'grep -q "\"ai_kit_version\": \"$EXPECTED_VERSION\"" "$TMP_M/.ai-kit-setup"'
+assert "no key without flag (backward compat)" '! grep -q "automation_recommender" "$TMP_M/.ai-kit-setup"'
 "$AIKIT/bin/write-setup-marker.sh" "$TMP_M" --architecture=skipped
 assert "architecture merge skip" 'grep -q "\"architecture\": \"skipped\"" "$TMP_M/.ai-kit-setup"'
 rm -rf "$TMP_M"
+
+echo ""
+echo "=== automation-recommender flag ==="
+TMP_AR=$(mktemp -d)
+for VAL in skipped deferred completed; do
+  "$AIKIT/bin/write-setup-marker.sh" "$TMP_AR" --setup-mode=solo-both --tier=minimal --automation-recommender="$VAL"
+  assert "round-trip $VAL" 'grep -q "\"automation_recommender\": \"'"$VAL"'\"" "$TMP_AR/.ai-kit-setup"'
+done
+"$AIKIT/bin/write-setup-marker.sh" "$TMP_AR" --architecture=documented
+assert "idempotent: recommender preserved across re-write" 'grep -q "\"automation_recommender\": \"completed\"" "$TMP_AR/.ai-kit-setup"'
+assert "idempotent: architecture added" 'grep -q "\"architecture\": \"documented\"" "$TMP_AR/.ai-kit-setup"'
+rm -rf "$TMP_AR"
 
 echo ""
 echo "=== verify-setup minimal ==="
@@ -182,7 +195,7 @@ cp "$AIKIT/context/templates/docs/agents/triage-labels.md" "$TMP_V/docs/agents/"
 cp "$AIKIT/context/templates/docs/agents/domain.md" "$TMP_V/docs/agents/"
 cp "$AIKIT/context/templates/docs/agents/workflow.md" "$TMP_V/docs/agents/"
 "$AIKIT/bin/apply-docker.sh" "$TMP_V" none
-"$AIKIT/bin/write-setup-marker.sh" "$TMP_V" --setup-mode=solo-both --tier=full --architecture=skipped --docker=none --tracker=github --workflow=informal --sandcastle=false
+"$AIKIT/bin/write-setup-marker.sh" "$TMP_V" --setup-mode=solo-both --tier=full --architecture=skipped --docker=none --tracker=github --workflow=informal --sandcastle=false --automation-recommender=deferred
 if "$AIKIT/bin/verify-setup.sh" "$TMP_V" >/dev/null 2>&1; then
   assert "verify skipped arch passes" true
 else
