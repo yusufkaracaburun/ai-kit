@@ -4,7 +4,18 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/dynamic/regex?label=version&url=https%3A%2F%2Fraw.githubusercontent.com%2Fyusufkaracaburun%2Fai-kit%2Fmaster%2FVERSION&pattern=%5E(.%2B)%24)](VERSION)
 
-Personal agent kit — **stack-agnostic**, full **agile lifecycle**, Claude Code + Cursor.
+**The agile lifecycle as Claude Code + Cursor primitives.** Stack-agnostic. One kit ships skills, subagents, slash commands, hooks, rules, a plugin manifest, and an MCP server — pick whichever your host speaks.
+
+| Primitive | Count | Reaches |
+| --------- | -----:| ------- |
+| Skills | 19 | Claude Code · Cursor |
+| Subagents | 2 | Claude Code |
+| Slash commands | 5 | Claude Code · Cursor |
+| Hooks | 1 | Claude Code |
+| Rules | 8 canonical books | Cursor · Claude Code · Aider · Cline · Continue · Cody (via emitter) |
+| MCP server | 5 tools | Cline · Continue · Zed · Claude Desktop · anything MCP |
+
+See [docs/architecture.md](docs/architecture.md) for how the layers fit together, [docs/primitives.md](docs/primitives.md) for "I want to add X — which primitive?".
 
 **Version:** see [VERSION](VERSION) · [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md)
 
@@ -12,7 +23,7 @@ Personal agent kit — **stack-agnostic**, full **agile lifecycle**, Claude Code
 
 Two things, do them in this order:
 
-1. **`install-global.sh`** *(once per machine, optional)* — symlinks the 16 ai-kit skills into `~/.claude/skills/`, `~/.agents/skills/`, `~/.cursor/skills/` so they're discoverable from anywhere. Skip this if you only ever work in one project.
+1. **`install-global.sh`** *(once per machine, optional)* — symlinks ai-kit's skills, subagents, slash commands, and the MCP wrapper into `~/.claude/`, `~/.agents/`, `~/.cursor/`, and `~/.local/bin/` so they're discoverable from anywhere. Skip this if you only ever work in one project.
 2. **`bootstrap-project.sh` + `/setup`** *(once per project)* — sets up `AGENTS.md`, `CONTEXT.md`, `.claude/skills/`, `.cursor/skills/`, and the `.ai-kit-setup` marker inside the project. **This is project-scoped — works fully without step 1.**
 
 | Setup mode | Step 1 (global) | Step 2 (project) | When |
