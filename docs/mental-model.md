@@ -1,6 +1,8 @@
 # Mental model
 
-How the 16 skills fit together. Read this once; refer back when picking the right skill for a turn.
+How the 19 skills fit together, plus the 2 subagents and 5 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
+
+For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossary.md). For "I want to add X — which primitive?" see [primitives.md](primitives.md).
 
 ## The lifecycle loop
 
@@ -57,6 +59,29 @@ How the 16 skills fit together. Read this once; refer back when picking the righ
 | Save context for a fresh session | `handoff` |
 | Configure ai-kit in a new repo | `setup` |
 | Reshape the codebase architecture | `improve-codebase-architecture` |
+| Save context for `/clear`, resume later | `checkpoint` ↔ `resume` |
+| Recommend canonical rules for the detected stack | `recommend-rules` |
+
+## Subagents (Claude Code only)
+
+| You are running … | Delegate to … |
+| ----------------- | -------------- |
+| `review` skill on Claude Code | `aikit-reviewer` (full pre-merge review with structured markdown report) |
+| Cross-file impact analysis from any skill | `aikit-explore` (read-only sweeps, ≤300 lines, structured return) |
+
+Subagents are Claude Code-only. Cursor and other hosts fall back to the inline checklist inside the calling skill — single source of truth.
+
+## Slash commands (IDE-native diagnostics)
+
+| You want to … | Use this slash command |
+| ------------- | ----------------------- |
+| Check ai-kit install health from inside the chat | `/aikit-doctor` |
+| Route an intent to the right skill | `/aikit-which "<your intent>"` |
+| Show project ai-kit status (version, marker, drift) | `/aikit-status` |
+| Toggle the global-check opt-out | `/aikit-no-globals on\|off\|status` |
+| Re-stamp the project marker after pulling new ai-kit | `/aikit-upgrade` |
+
+Slash commands wrap `bin/ai-kit-*.sh` scripts. They're optional — you can always run the underlying script directly.
 
 ## Dependencies between skills
 
@@ -80,4 +105,4 @@ How the 16 skills fit together. Read this once; refer back when picking the righ
 - It does not lock you to a stack — there are no curated lists of "good" frameworks. `dev-environment.md` is filled from your repo's detected tooling.
 - It does not impose a methodology — Scrum and Kanban are both supported as optional Tier B.
 
-See [eval.md](eval.md) for how to verify the skills haven't drifted, and the [examples](../.examples/) for setup walkthroughs.
+See [architecture.md](architecture.md) for how primitives reach the host, [eval.md](eval.md) for how to verify the skills haven't drifted, and the [examples](../.examples/) for setup walkthroughs.

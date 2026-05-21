@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+**Docs**
+- **Roadmap section 3 + mental-model refresh** (`docs/roadmap.md`,
+  `docs/mental-model.md`):
+  - `docs/roadmap.md` gains a new section "Primitives-uitbreiding"
+    documenting the four landed PRs (architecture/glossary, subagents +
+    slash commands, plugin, MCP) with status, motivation, and open
+    follow-ups. Surfaces the trade-off behind v1 gaps (Cursor
+    `.cursor/commands/` runtime verification, hook-in-plugin, npm
+    publish, subagent source-of-truth, broader skill→subagent migration)
+    so future passes pick them up without re-deriving context.
+  - `docs/mental-model.md` updated from "16 skills" to 19 skills, with
+    new "Subagents (Claude Code only)" and "Slash commands (IDE-native
+    diagnostics)" tables. Links to the PR 0 architecture and glossary
+    docs. The "which skill, when" table now covers checkpoint/resume
+    and recommend-rules.
+
 **Feature**
 - **MCP server — `@yusufkaracaburun/ai-kit-mcp`** (new `mcp/` directory):
   - Node + TypeScript stdio MCP server that exposes ai-kit assets to
