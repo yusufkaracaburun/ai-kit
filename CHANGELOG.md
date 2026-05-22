@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.0.0 — 2026-05-22
 
 **Breaking**
 - **Every skill is now prefixed `aikit-`** (`workflow/skills/`, ADR-0004):
