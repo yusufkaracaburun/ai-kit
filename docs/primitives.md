@@ -92,6 +92,11 @@ Start: "I want to add X to ai-kit"
 - Source: `bin/hooks/post-format.sh`
 - Wired in: `.claude/settings.json`
 
+### "Nudge me when I edit code the docs describe"
+- Fires on a tool event (after Edit/Write/MultiEdit) → **HOOK** (PostToolUse matcher `Edit|Write|MultiEdit`)
+- Deterministic shell — greps `CONTEXT.md` / `docs/adr/` for the edited path, no LLM
+- Source: `bin/hooks/context-drift-check.sh`; installed by `bin/apply-context-drift-hook.sh` (ADR-0005)
+
 ### "Show me which skill fits my current task"
 - User wants explicit `/` invocation → **SLASH COMMAND**
 - Wraps an existing script (`bin/ai-kit-which.sh`) → fits the wrapper case

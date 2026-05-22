@@ -19,6 +19,12 @@ patch_agents_section() {
   file="$(agents_file "$target")"
   [ -n "$file" ] || return 0
 
+  # Never patch a Laravel Boost-managed file — Boost regenerates AGENTS.md on
+  # every `artisan boost:*` run and would silently wipe ai-kit's section.
+  if grep -q '<laravel-boost-guidelines>' "$file" 2>/dev/null; then
+    return 0
+  fi
+
   local header="### ${section}"
   local tmp
   tmp="$(mktemp)"

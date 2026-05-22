@@ -41,6 +41,8 @@ detect_bootstrap_state "$TARGET"
 detect_npm_scripts "$TARGET"
 detect_architecture "$TARGET"
 detect_agent_stack "$TARGET" "$AIKIT"
+detect_monorepo "$TARGET"
+detect_boost "$TARGET"
 
 needs_doc_json="false"
 [ "$AGENT_STACK_NEEDS_DOC" = true ] && needs_doc_json="true"
@@ -197,6 +199,13 @@ if [ "$JSON" = true ]; then
   monorepo_json="false"
   [ "$ARCH_MONOREPO" = true ] && monorepo_json="true"
 
+  mono_detected_json="false"
+  [ "$MONOREPO_DETECTED" = true ] && mono_detected_json="true"
+  mono_apps_json="$(_json_array ${MONOREPO_APPS[@]+"${MONOREPO_APPS[@]}"})"
+  boost_detected_json="false"
+  [ "$BOOST_DETECTED" = true ] && boost_detected_json="true"
+  boost_files_json="$(_json_array ${BOOST_MANAGED_FILES[@]+"${BOOST_MANAGED_FILES[@]}"})"
+
   docs_json="["
   first_doc=true
   for fw in ${FRAMEWORKS[@]+"${FRAMEWORKS[@]}"}; do
@@ -254,6 +263,14 @@ if [ "$JSON" = true ]; then
     "monorepo": ${monorepo_json},
     "recommendation": "${ARCH_RECOMMENDATION}"
   },
+  "monorepo": {
+    "detected": ${mono_detected_json},
+    "apps": ${mono_apps_json}
+  },
+  "boost": {
+    "detected": ${boost_detected_json},
+    "managed_files": ${boost_files_json}
+  },
   "agent_stack": {
     "project_skills": {
       "cursor": { "ai_kit": ${ast_cursor_aikit}, "custom": ${ast_cursor_custom} },
@@ -295,6 +312,14 @@ if [ -n "$ARCH_FE" ] || [ -n "$ARCH_BE" ]; then
   echo "- **Architecture:** FE=${ARCH_FE:-none} BE=${ARCH_BE:-none} → recommend ${ARCH_RECOMMENDATION}"
   [ "${#ARCH_FE_PATHS[@]}" -gt 0 ] && echo "  - FE paths: $(IFS=', '; echo "${ARCH_FE_PATHS[*]}")"
   [ "${#ARCH_BE_PATHS[@]}" -gt 0 ] && echo "  - BE paths: $(IFS=', '; echo "${ARCH_BE_PATHS[*]}")"
+fi
+if [ "$MONOREPO_DETECTED" = true ]; then
+  echo "- **Monorepo:** $(IFS=', '; echo "${MONOREPO_APPS[*]}")"
+fi
+if [ "$BOOST_DETECTED" = true ]; then
+  echo "- **Laravel Boost:** detected"
+  [ "${#BOOST_MANAGED_FILES[@]}" -gt 0 ] && \
+    echo "  - manages (ai-kit will not patch): $(IFS=', '; echo "${BOOST_MANAGED_FILES[*]}")"
 fi
 echo "- **Setup mode:** ${AGENT_STACK_RECOMMENDATION} (needs agent-stack doc: ${AGENT_STACK_NEEDS_DOC})"
 [ "${#AGENT_STACK_CURSOR_SKILLS_CUSTOM[@]}" -gt 0 ] && \

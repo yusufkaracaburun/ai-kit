@@ -75,6 +75,30 @@ assert "with-mcp preserves existing" 'grep -q "existing" "$TMP_MCP_KEEP/.cursor/
 rm -rf "$TMP_MCP_KEEP"
 
 echo ""
+echo "=== detect_monorepo + detect_boost ==="
+detect_monorepo "$AIKIT/tests/fixtures/monorepo-laravel-boost"
+assert "monorepo detected" '[ "$MONOREPO_DETECTED" = true ]'
+assert "monorepo lists 3 apps" '[ "${#MONOREPO_APPS[@]}" -eq 3 ]'
+assert "monorepo includes backend" '[[ " ${MONOREPO_APPS[*]} " == *" backend "* ]]'
+
+detect_monorepo "$AIKIT/tests/fixtures/architecture-laravel"
+assert "single-app repo not flagged monorepo" '[ "$MONOREPO_DETECTED" = false ]'
+
+detect_boost "$AIKIT/tests/fixtures/monorepo-laravel-boost"
+assert "boost detected" '[ "$BOOST_DETECTED" = true ]'
+assert "boost managed file is backend/AGENTS.md" '[[ " ${BOOST_MANAGED_FILES[*]} " == *" backend/AGENTS.md "* ]]'
+
+detect_boost "$AIKIT/tests/fixtures/architecture-laravel"
+assert "no boost in plain laravel fixture" '[ "$BOOST_DETECTED" = false ]'
+
+JSON_MONO="$("$AIKIT/bin/detect-tooling.sh" "$AIKIT/tests/fixtures/monorepo-laravel-boost" --json)"
+assert "json monorepo.detected true" 'echo "$JSON_MONO" | python3 -c "import json,sys; assert json.load(sys.stdin)[\"monorepo\"][\"detected\"] is True"'
+assert "json monorepo lists backend" 'echo "$JSON_MONO" | python3 -c "import json,sys; assert \"backend\" in json.load(sys.stdin)[\"monorepo\"][\"apps\"]"'
+assert "json boost.detected true" 'echo "$JSON_MONO" | python3 -c "import json,sys; assert json.load(sys.stdin)[\"boost\"][\"detected\"] is True"'
+assert "json boost managed file" 'echo "$JSON_MONO" | python3 -c "import json,sys; assert \"backend/AGENTS.md\" in json.load(sys.stdin)[\"boost\"][\"managed_files\"]"'
+assert "json still valid overall" 'echo "$JSON_MONO" | python3 -c "import json,sys; json.load(sys.stdin)"'
+
+echo ""
 echo "=== detect_bootstrap_state ==="
 TMP_BS_MERGE=$(mktemp -d)
 "$AIKIT/bin/bootstrap-project.sh" --minimal --merge-skills "$TMP_BS_MERGE" >/dev/null
@@ -489,6 +513,13 @@ patch_agents_docker_section "$TMP_P"
 assert "idempotent patch" '[ "$(grep -c "### Docker" "$TMP_P/AGENTS.md")" -eq 1 ]'
 rm -rf "$TMP_P"
 
+# Boost-managed files must never be patched — Boost would wipe the section.
+TMP_BOOST=$(mktemp -d)
+printf '# AGENTS\n\n<laravel-boost-guidelines>\nboost-owned\n</laravel-boost-guidelines>\n' > "$TMP_BOOST/AGENTS.md"
+patch_agents_docker_section "$TMP_BOOST"
+assert "boost-managed AGENTS.md left untouched" '! grep -q "### Docker" "$TMP_BOOST/AGENTS.md"'
+rm -rf "$TMP_BOOST"
+
 echo ""
 echo "=== ai-kit-root ==="
 # shellcheck source=/dev/null
@@ -809,6 +840,55 @@ echo '{"tool_name":"Skill","tool_input":{"args":"x"}}' \
 assert "hook handles missing skill field" '[ ! -f "$HOOK_STATE/ai-kit/usage.jsonl" ]'
 
 rm -rf "$HOOK_STATE"
+
+echo ""
+echo "=== hook: context-drift ==="
+CD_HOOK="$AIKIT/bin/hooks/context-drift-check.sh"
+assert "context-drift hook is executable" '[ -x "$CD_HOOK" ]'
+
+CD_PROJ=$(mktemp -d)
+mkdir -p "$CD_PROJ/src"
+echo "code" > "$CD_PROJ/src/session.ts"
+echo "Session logic lives in src/session.ts and handles auth." > "$CD_PROJ/CONTEXT.md"
+
+OUT_CD="$(echo "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$CD_PROJ/src/session.ts\"}}" | CLAUDE_PROJECT_DIR="$CD_PROJ" "$CD_HOOK")"
+assert "context-drift fires for a doc-referenced file" 'echo "$OUT_CD" | grep -q "context-drift"'
+assert "context-drift names the doc" 'echo "$OUT_CD" | grep -q "CONTEXT.md"'
+assert "context-drift emits valid JSON" 'echo "$OUT_CD" | python3 -c "import json,sys; json.load(sys.stdin)"'
+
+echo "unrelated" > "$CD_PROJ/src/other.ts"
+OUT_CD_NONE="$(echo "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$CD_PROJ/src/other.ts\"}}" | CLAUDE_PROJECT_DIR="$CD_PROJ" "$CD_HOOK")"
+assert "context-drift silent for an unreferenced file" '[ -z "$OUT_CD_NONE" ]'
+
+OUT_CD_EMPTY="$(: | CLAUDE_PROJECT_DIR="$CD_PROJ" "$CD_HOOK")"
+assert "context-drift handles empty stdin" '[ -z "$OUT_CD_EMPTY" ]'
+rm -rf "$CD_PROJ"
+
+CD_NODOCS=$(mktemp -d)
+echo "x" > "$CD_NODOCS/foo.ts"
+OUT_CD_NODOCS="$(echo "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$CD_NODOCS/foo.ts\"}}" | CLAUDE_PROJECT_DIR="$CD_NODOCS" "$CD_HOOK")"
+assert "context-drift silent when no docs exist" '[ -z "$OUT_CD_NODOCS" ]'
+rm -rf "$CD_NODOCS"
+
+echo ""
+echo "=== apply-context-drift-hook ==="
+TMP_CDH=$(mktemp -d)
+"$AIKIT/bin/apply-context-drift-hook.sh" "$TMP_CDH" >/dev/null
+assert "hook copied into project" '[ -x "$TMP_CDH/.claude/hooks/context-drift-check.sh" ]'
+assert "settings.json created" '[ -f "$TMP_CDH/.claude/settings.json" ]'
+assert "settings.json is valid JSON" 'python3 -c "import json; json.load(open(\"$TMP_CDH/.claude/settings.json\"))"'
+assert "PostToolUse entry wired" 'python3 -c "import json; d=json.load(open(\"$TMP_CDH/.claude/settings.json\")); assert any(h[\"command\"].endswith(\"context-drift-check.sh\") for b in d[\"hooks\"][\"PostToolUse\"] for h in b[\"hooks\"])"'
+"$AIKIT/bin/apply-context-drift-hook.sh" "$TMP_CDH" >/dev/null
+assert "apply is idempotent (no duplicate)" 'python3 -c "import json; d=json.load(open(\"$TMP_CDH/.claude/settings.json\")); n=sum(1 for b in d[\"hooks\"][\"PostToolUse\"] for h in b[\"hooks\"] if h[\"command\"].endswith(\"context-drift-check.sh\")); assert n==1, n"'
+rm -rf "$TMP_CDH"
+
+TMP_CDH2=$(mktemp -d)
+mkdir -p "$TMP_CDH2/.claude"
+printf '{\n  "hooks": {\n    "PostToolUse": [\n      { "matcher": "^Skill$", "hooks": [{ "type": "command", "command": "existing.sh" }] }\n    ]\n  }\n}\n' > "$TMP_CDH2/.claude/settings.json"
+"$AIKIT/bin/apply-context-drift-hook.sh" "$TMP_CDH2" >/dev/null
+assert "apply preserves a pre-existing hook" 'grep -q "existing.sh" "$TMP_CDH2/.claude/settings.json"'
+assert "apply adds context-drift alongside" 'grep -q "context-drift-check.sh" "$TMP_CDH2/.claude/settings.json"'
+rm -rf "$TMP_CDH2"
 
 echo ""
 echo "=== privacy ==="

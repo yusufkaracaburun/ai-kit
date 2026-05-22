@@ -43,6 +43,23 @@
     README, `docs/architecture.md`, `docs/glossary.md`,
     `docs/mental-model.md`, `docs/install-plugin.md`, both plugin
     manifests, and the test suite.
+- **Brownfield monorepo + Laravel Boost support** (`bin/lib/detect-lib.sh`,
+  `bin/detect-tooling.sh`, `bin/lib/agents-patch.sh`, ADR-0005):
+  - `detect_monorepo()` — generic, non-Nx monorepo detection: a depth-1
+    scan for `composer.json` / `package.json` / `go.mod` / `pyproject.toml`
+    / `Cargo.toml`. `detect-tooling.sh --json` gains `monorepo: { detected,
+    apps[] }`. Fixes `/aikit-setup` detecting "no stack" in repos whose
+    manifests live in `backend/`, `admin/`, … subdirs.
+  - `detect_boost()` — reports `boost: { detected, managed_files[] }`.
+    `agents-patch.sh` now refuses to patch any `AGENTS.md` carrying the
+    `<laravel-boost-guidelines>` marker, so ai-kit and Boost stop fighting
+    over a regenerated file.
+  - New `context-drift` hook (`bin/hooks/context-drift-check.sh`) — a
+    `PostToolUse(Edit|Write|MultiEdit)` hook that nudges you to update
+    `CONTEXT.md` / `docs/adr/` when you edit code those docs name.
+    Stack-agnostic, deterministic, opt-in. `bin/apply-context-drift-hook.sh`
+    wires it into a target project non-destructively and idempotently.
+    Hook count 1 → 2.
   - `.gitignore` now excludes `.agents/`, `.claude/skills/`, and
     `skills-lock.json` — artifacts a companion tool's own installer
     drops into this clone. ai-kit recommends companion tools; it does not

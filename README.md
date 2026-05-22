@@ -5,7 +5,7 @@
 [![Version](https://img.shields.io/github/package-json/v/yusufkaracaburun/ai-kit?filename=mcp%2Fpackage.json&label=version)](VERSION)
 
 **The agile lifecycle as Claude Code + Cursor primitives.** Stack-agnostic. One kit
-ships skills, subagents, slash commands, a hook, rules, a plugin manifest, and an
+ships skills, subagents, slash commands, hooks, rules, a plugin manifest, and an
 MCP server — pick whichever your host speaks.
 
 | Primitive | Count | Reaches |
@@ -13,7 +13,7 @@ MCP server — pick whichever your host speaks.
 | Skills | 20 | Claude Code · Cursor |
 | Subagents | 2 | Claude Code |
 | Slash commands | 5 | Claude Code · Cursor |
-| Hooks | 1 | Claude Code |
+| Hooks | 2 | Claude Code |
 | Rules | 8 canonical books | Cursor · Claude Code · Aider · Cline · Continue · Cody (via emitter) |
 | MCP server | 5 tools | Cline · Continue · Zed · Claude Desktop · anything MCP |
 
@@ -190,6 +190,11 @@ var. To add it to a downstream project, copy this into its `.claude/settings.jso
 ```
 
 </details>
+
+The second hook, `bin/hooks/context-drift-check.sh`, is opt-in per project —
+`/aikit-setup` wires it on request via `bin/apply-context-drift-hook.sh`. After
+an edit it nudges you to update `CONTEXT.md` or an ADR when you change code those
+docs name. Deterministic shell, no LLM, silent when no such docs exist.
 
 ## Contributing
 

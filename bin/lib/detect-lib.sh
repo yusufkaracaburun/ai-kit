@@ -310,6 +310,71 @@ detect_architecture() {
   fi
 }
 
+# Detect a generic (non-Nx) monorepo: depth-1 child directories that each carry
+# a package manifest. Two or more such app dirs = monorepo. detect_architecture
+# only flags Nx workspaces (nx.json); this catches everything else — a Laravel
+# backend beside React/Next frontends, Go services, etc. Sets MONOREPO_DETECTED
+# and MONOREPO_APPS (relative dir names).
+detect_monorepo() {
+  local target="$1"
+  MONOREPO_DETECTED=false
+  MONOREPO_APPS=()
+
+  local d name
+  for d in "$target"/*/; do
+    [ -d "$d" ] || continue
+    name="$(basename "$d")"
+    case "$name" in
+      node_modules | vendor | dist | build | tmp | coverage) continue ;;
+    esac
+    if [ -f "${d}composer.json" ] || [ -f "${d}package.json" ] \
+      || [ -f "${d}go.mod" ] || [ -f "${d}pyproject.toml" ] \
+      || [ -f "${d}Cargo.toml" ]; then
+      MONOREPO_APPS+=("$name")
+    fi
+  done
+
+  if [ "${#MONOREPO_APPS[@]}" -ge 2 ]; then
+    MONOREPO_DETECTED=true
+  fi
+}
+
+# Detect Laravel Boost. Boost ships as the laravel/boost composer package and
+# regenerates an AGENTS.md carrying a <laravel-boost-guidelines> block. Scans
+# the target root and depth-1 child dirs (monorepos keep the Laravel app in a
+# subdir). Sets BOOST_DETECTED and BOOST_MANAGED_FILES — relative paths of
+# AGENTS.md files ai-kit must never patch, since Boost overwrites them.
+detect_boost() {
+  local target="$1"
+  BOOST_DETECTED=false
+  BOOST_MANAGED_FILES=()
+
+  local dirs d name rel
+  dirs=("$target")
+  for d in "$target"/*/; do
+    [ -d "$d" ] || continue
+    name="$(basename "$d")"
+    case "$name" in
+      node_modules | vendor | dist | build | tmp | coverage) continue ;;
+    esac
+    dirs+=("${d%/}")
+  done
+
+  for d in "${dirs[@]}"; do
+    if [ -f "$d/composer.json" ] \
+      && grep -q '"laravel/boost"' "$d/composer.json" 2>/dev/null; then
+      BOOST_DETECTED=true
+    fi
+    if [ -f "$d/AGENTS.md" ] \
+      && grep -q '<laravel-boost-guidelines>' "$d/AGENTS.md" 2>/dev/null; then
+      BOOST_DETECTED=true
+      rel="$d/AGENTS.md"
+      rel="${rel#"$target"/}"
+      BOOST_MANAGED_FILES+=("$rel")
+    fi
+  done
+}
+
 # Historical ai-kit Cursor rule basenames (without .mdc). ai-kit no longer
 # generates these — list kept so legacy installs are classified correctly and
 # users can identify leftover files to delete.

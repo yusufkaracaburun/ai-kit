@@ -1,0 +1,7 @@
+{
+  "name": "fixture/backend",
+  "require": {
+    "laravel/framework": "^13.0",
+    "laravel/boost": "^1.0"
+  }
+}
