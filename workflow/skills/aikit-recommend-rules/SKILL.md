@@ -42,6 +42,22 @@ For each rule, include the `reason` field — it explains *why* this rule fits (
 
 If the user wants more than canonical rules, do a focused web search for community-curated rules matching the detected stack. Use the **frameworks** from detect-tooling as the seed query.
 
+**Check the cache first.** Web searches are slow and re-fetch the same packs every invocation. Before searching, ask the cache helper whether we already have a fresh result for this exact stack:
+
+```bash
+KEY="$($AI_KIT_ROOT/bin/recommend-rules-cache.sh key "$PWD")"
+if CACHED="$($AI_KIT_ROOT/bin/recommend-rules-cache.sh read "$KEY" 2>/dev/null)"; then
+  # Cache hit (≤7 days old). Parse $CACHED as the candidate JSON and skip the
+  # search. Tell the user the list was cached and offer `--refresh` to bypass.
+  :
+else
+  # Cache miss or stale. Do the live search below, then write the result.
+  :
+fi
+```
+
+If the user asks to refresh (says "re-search", "refresh", or passes `--refresh`), bypass the read with `--no-cache` and re-run the live search.
+
 Examples of useful queries:
 
 - `"laravel cursor rules" OR "laravel agents.md"` for a Laravel repo
@@ -56,6 +72,34 @@ Filter results by:
 - Source reputation (framework's own team > community > random gist)
 
 **Do not auto-install.** Surface ≤5 candidates with: name, URL, last-updated, license, one-line summary, "why it might apply here". The user picks.
+
+After surfacing live results, persist them so the next invocation on the same stack skips the search:
+
+```bash
+echo "$CANDIDATES_JSON" | $AI_KIT_ROOT/bin/recommend-rules-cache.sh write "$KEY"
+```
+
+Use a JSON shape the next invocation can re-render directly, e.g.:
+
+```json
+{
+  "stack_fingerprint": "<key>",
+  "generated_at": "2026-05-23T12:34:56Z",
+  "queries": ["laravel cursor rules", "laravel agents.md"],
+  "candidates": [
+    {
+      "name": "PatrickJS/awesome-cursorrules",
+      "url": "https://github.com/PatrickJS/awesome-cursorrules",
+      "last_updated": "2026-04-18",
+      "license": "CC0-1.0",
+      "summary": "Curated Cursor rule packs by framework.",
+      "why_applies": "Laravel detected; ships a Laravel PHP 8.3 rule pack."
+    }
+  ]
+}
+```
+
+Cache lives at `${XDG_CACHE_HOME:-~/.cache}/ai-kit/recommend-rules/<key>.json`, TTL 7 days, keyed by the sorted detected frameworks + frontend/backend architecture. The user can clear it with `bin/recommend-rules-cache.sh clear [<key>]`.
 
 ### Phase 3 — Emit chosen rules
 

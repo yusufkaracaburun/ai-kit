@@ -109,7 +109,7 @@ Install canonical (y/n/preview each)? Install external (per-item)?
 - [x] Vendoring convention documented in the skill (provenance frontmatter, pin-by-SHA, preview-before-write).
 - [x] Wired `/aikit-recommend-rules` into `/aikit-setup` as Tier B Branch 12 (2026-05-22); the choice is recorded in the marker via `write-setup-marker.sh --rule-recommendation`.
 - [x] First external rule vendored — `standards/rules/external/laravel-php-83.mini.md` from `PatrickJS/awesome-cursorrules` (CC0-1.0), pinned to SHA `4467ad4` (2026-05-22). Validates the Phase 2 → Phase 3 trust flow.
-- [ ] **Open:** (#11) caching strategy for repeated web searches (no current caching — every invocation re-fetches).
+- [x] **Cache web-search results.** (#11, 2026-05-23) `bin/recommend-rules-cache.sh` is a fingerprint-keyed cache for Phase 2 community-rule discovery. Cache key is a sha256 over sorted detected frameworks + frontend/backend architecture; default TTL 7 days; lives under `${XDG_CACHE_HOME:-~/.cache}/ai-kit/recommend-rules/`. Subcommands: `key`, `read`, `write`, `path`, `clear`, with `--ttl N` and `--no-cache` flags. The skill calls `read` before searching and `write` after, bypasses with `--no-cache` on user refresh. 13 regression tests cover hit/miss/TTL/refresh/invalid-JSON-rejection.
 
 ---
 

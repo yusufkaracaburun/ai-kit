@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+**Added**
+- **`/aikit-recommend-rules` Phase 2 web-search cache** (#11, roadmap §2):
+  `bin/recommend-rules-cache.sh` is a fingerprint-keyed cache so repeated
+  invocations on the same stack skip the live community-rule search.
+  - Cache key: sha256 over sorted detected frameworks + frontend/backend
+    architecture from `detect-tooling.sh`. Stable per stack regardless of
+    repo path.
+  - Location: `${XDG_CACHE_HOME:-~/.cache}/ai-kit/recommend-rules/<key>.json`
+    — user-level so multiple repos with the same stack share the cache.
+  - Default TTL: 7 days. Override with `--ttl N` or `AIKIT_CACHE_TTL_DAYS`.
+  - Subcommands: `key`, `read`, `write` (stdin), `path`, `clear`.
+  - Flags: `--no-cache` short-circuits both read and write (used by the
+    skill's `--refresh` / "re-search" path).
+  - Invalid JSON is rejected, never persisted. Atomic writes via tmpfile +
+    `mv`.
+  - `SKILL.md` Phase 2 now reads the cache before searching and writes
+    candidates back after a live search, with a documented JSON shape
+    (`stack_fingerprint`, `generated_at`, `queries`, `candidates[]`).
+  - 13 regression tests in `tests/bin/run-tests.sh` cover key stability,
+    hit/miss, TTL expiry, `--ttl` override, `--no-cache` short-circuit,
+    invalid-JSON rejection, and `clear`.
+
 **Removed**
 - **ai-kit scoped to Claude Code + Cursor — MCP server and non-CC/Cursor
   emitters deleted** (ADR-0006, roadmap §4):

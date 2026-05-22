@@ -156,6 +156,65 @@ assert "json has architecture.frontend" 'echo "$JSON_OUT" | grep -q "\"detected\
 assert "json has architecture.backend" 'echo "$JSON_OUT" | grep -q "\"detected\": \"laravel-default\""'
 
 echo ""
+echo "=== recommend-rules-cache ==="
+# Isolate the cache dir per-test so we don't clobber a real ~/.cache entry.
+CACHE_XDG="$(mktemp -d)"
+CACHE_HELPER="$AIKIT/bin/recommend-rules-cache.sh"
+
+KEY_LARAVEL="$(XDG_CACHE_HOME="$CACHE_XDG" "$CACHE_HELPER" key "$AIKIT/tests/fixtures/architecture-laravel")"
+KEY_FSD="$(XDG_CACHE_HOME="$CACHE_XDG" "$CACHE_HELPER" key "$AIKIT/tests/fixtures/architecture-fsd")"
+KEY_LARAVEL2="$(XDG_CACHE_HOME="$CACHE_XDG" "$CACHE_HELPER" key "$AIKIT/tests/fixtures/architecture-laravel")"
+assert "cache key is 64-char sha256 hex" '[[ "$KEY_LARAVEL" =~ ^[0-9a-f]{64}$ ]]'
+assert "cache key stable across runs" '[ "$KEY_LARAVEL" = "$KEY_LARAVEL2" ]'
+assert "cache key differs by stack" '[ "$KEY_LARAVEL" != "$KEY_FSD" ]'
+
+set +e
+XDG_CACHE_HOME="$CACHE_XDG" "$CACHE_HELPER" read "$KEY_LARAVEL" >/dev/null 2>&1
+MISS_EXIT=$?
+set -e
+assert "cache miss when empty" '[ "$MISS_EXIT" -ne 0 ]'
+
+echo '{"candidates":[{"name":"laravel-boost","url":"x"}],"ts":1}' | \
+  XDG_CACHE_HOME="$CACHE_XDG" "$CACHE_HELPER" write "$KEY_LARAVEL"
+HIT_OUT="$(XDG_CACHE_HOME="$CACHE_XDG" "$CACHE_HELPER" read "$KEY_LARAVEL")"
+assert "cache hit after write" 'echo "$HIT_OUT" | grep -q "laravel-boost"'
+assert "cache hit is valid JSON" 'echo "$HIT_OUT" | python3 -c "import json,sys; json.load(sys.stdin)"'
+
+# Backdate the file past the TTL — should now miss.
+CACHE_FILE="$(XDG_CACHE_HOME="$CACHE_XDG" "$CACHE_HELPER" path "$KEY_LARAVEL")"
+touch -t 202001010000 "$CACHE_FILE"
+set +e
+XDG_CACHE_HOME="$CACHE_XDG" "$CACHE_HELPER" read "$KEY_LARAVEL" >/dev/null 2>&1
+STALE_EXIT=$?
+set -e
+assert "cache miss when older than TTL" '[ "$STALE_EXIT" -ne 0 ]'
+# But a long --ttl recovers it.
+assert "--ttl override revives stale entry" 'XDG_CACHE_HOME="$CACHE_XDG" "$CACHE_HELPER" read "$KEY_LARAVEL" --ttl 999999 | grep -q "laravel-boost"'
+
+# --no-cache short-circuits both directions.
+set +e
+XDG_CACHE_HOME="$CACHE_XDG" "$CACHE_HELPER" read "$KEY_LARAVEL" --no-cache --ttl 999999 >/dev/null 2>&1
+NC_EXIT=$?
+set -e
+assert "--no-cache forces miss" '[ "$NC_EXIT" -ne 0 ]'
+echo '{"candidates":[]}' | XDG_CACHE_HOME="$CACHE_XDG" "$CACHE_HELPER" write "$KEY_LARAVEL" --no-cache
+assert "--no-cache write is a no-op" 'XDG_CACHE_HOME="$CACHE_XDG" "$CACHE_HELPER" read "$KEY_LARAVEL" --ttl 999999 | grep -q "laravel-boost"'
+
+# Invalid JSON must be rejected, not persisted.
+set +e
+echo 'not json' | XDG_CACHE_HOME="$CACHE_XDG" "$CACHE_HELPER" write "${KEY_LARAVEL}-bad" 2>/dev/null
+BAD_EXIT=$?
+set -e
+assert "write rejects invalid JSON" '[ "$BAD_EXIT" -ne 0 ]'
+assert "rejected JSON not persisted" '[ ! -f "$(XDG_CACHE_HOME="$CACHE_XDG" "$CACHE_HELPER" path "${KEY_LARAVEL}-bad")" ]'
+
+# clear <key> wipes a single entry.
+XDG_CACHE_HOME="$CACHE_XDG" "$CACHE_HELPER" clear "$KEY_LARAVEL"
+assert "clear removes entry" '[ ! -f "$CACHE_FILE" ]'
+
+rm -rf "$CACHE_XDG"
+
+echo ""
 echo "=== bootstrap ==="
 TMP_BOOT=$(mktemp -d)
 "$AIKIT/bin/bootstrap-project.sh" --minimal "$TMP_BOOT"
