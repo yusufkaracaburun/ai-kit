@@ -45,7 +45,7 @@ bin/emit-rules.sh                  ← NEW: takes detected agents + rule names �
 - [x] `AGENTS.md.template` no longer mentions Cursor-specific `.cursor/rules/`; agent-agnostic phrasing.
 - [x] emeq/admin migrated by hand (commit `51accea` "chore: drop ai-kit Cursor rule shims").
 - [x] Stub emitters finished — `aider.sh`, `cline.sh`, `continue.sh`, `cody.sh` (2026-05-22). Each writes per-rule files to the agent's conventional rules dir; a legacy single-file `.clinerules` is skipped (with a reason), not clobbered.
-- [ ] **Open:** broader migration guide in `docs/troubleshooting.md` for non-emeq legacy installs.
+- [ ] **Open:** (#10) broader migration guide in `docs/troubleshooting.md` for non-emeq legacy installs.
 
 ---
 
@@ -107,7 +107,7 @@ Install canonical (y/n/preview each)? Install external (per-item)?
 - [x] Vendoring convention documented in the skill (provenance frontmatter, pin-by-SHA, preview-before-write).
 - [x] Wired `/aikit-recommend-rules` into `/aikit-setup` as Tier B Branch 12 (2026-05-22); the choice is recorded in the marker via `write-setup-marker.sh --rule-recommendation`.
 - [x] First external rule vendored — `standards/rules/external/laravel-php-83.mini.md` from `PatrickJS/awesome-cursorrules` (CC0-1.0), pinned to SHA `4467ad4` (2026-05-22). Validates the Phase 2 → Phase 3 trust flow.
-- [ ] **Open:** caching strategy for repeated web searches (no current caching — every invocation re-fetches).
+- [ ] **Open:** (#11) caching strategy for repeated web searches (no current caching — every invocation re-fetches).
 
 ---
 
@@ -124,12 +124,12 @@ Install canonical (y/n/preview each)? Install external (per-item)?
 - [x] **PR 3** — MCP server (`mcp/`): Node + TypeScript, stdio transport, 5 read-only tools (`ai_kit_which`, `ai_kit_skill`, `ai_kit_rule`, `ai_kit_doctor`, `ai_kit_list`). Security: `execFile` not `exec`, zod-validated inputs, 10s timeout, 1 MB output cap, stderr-only logging. CI matrix Node 20 + 22. Reaches Cline / Continue / Zed / Claude Desktop users that the symlink-install and plugin path don't cover.
 
 **Open follow-ups (PR 4 territory — not blocking).**
-- [ ] **Hook in the plugin.** v1 plugin doesn't ship the PostToolUse skill-logging hook (path resolution from plugin context is shaky). If we want plugin-only users to get usage stats, bundle a copy of `post-skill-log.sh` inside `workflow/hooks/` and add `hooks/hooks.json`. Opt-in via `AI_KIT_USAGE=1` either way.
-- [ ] **Subagent source-of-truth.** PR 1 duplicates the review checklist in both `workflow/skills/aikit-review/SKILL.md` (Cursor inline path) and `workflow/agents/aikit-reviewer/AGENT.md` (Claude Code delegate). Acceptable for v1; v2 should add an emitter (like `bin/emit-rules.sh`) that derives the agent prompt from the skill body. Avoids drift.
-- [ ] **Migrate more skills to subagent delegation.** Today only `aikit-review` delegates. Candidates: `aikit-qa`, `aikit-diagnose`, `aikit-improve-codebase-architecture`, `aikit-to-issues` — all do heavy reads that would benefit from isolation. Apply the same `## Run mode` block + inline-fallback pattern.
+- [ ] **Hook in the plugin.** (#8) v1 plugin doesn't ship the PostToolUse skill-logging hook (path resolution from plugin context is shaky). If we want plugin-only users to get usage stats, bundle a copy of `post-skill-log.sh` inside `workflow/hooks/` and add `hooks/hooks.json`. Opt-in via `AI_KIT_USAGE=1` either way.
+- [ ] **Subagent source-of-truth.** (#12) PR 1 duplicates the review checklist in both `workflow/skills/aikit-review/SKILL.md` (Cursor inline path) and `workflow/agents/aikit-reviewer/AGENT.md` (Claude Code delegate). Acceptable for v1; v2 should add an emitter (like `bin/emit-rules.sh`) that derives the agent prompt from the skill body. Avoids drift.
+- [ ] **Migrate more skills to subagent delegation.** (#3) Today only `aikit-review` delegates. Candidates: `aikit-qa`, `aikit-diagnose`, `aikit-improve-codebase-architecture`, `aikit-to-issues` — all do heavy reads that would benefit from isolation. Apply the same `## Run mode` block + inline-fallback pattern.
 - [x] **`mental-model.md` refresh.** Landed in PR 4 — now documents 19 skills with the matching table, plus dedicated subagent and slash-command tables linking `architecture.md` / `glossary.md` / `primitives.md`.
-- [ ] **MCP server: publish to npm.** Day-one path is "node /path/to/clone/mcp/dist/server.js" after `npm install && npm run build`. `npm install -g @yusufkaracaburun/ai-kit-mcp` becomes available after first publish — no functional blocker, just packaging.
-- [ ] **MCP v2 additions.** `ai_kit_recommend_rules` (when cwd arg lands), file-writing tools with consent flow, HTTP transport for remote clients.
+- [ ] **MCP server: publish to npm.** (#4) Day-one path is "node /path/to/clone/mcp/dist/server.js" after `npm install && npm run build`. `npm install -g @yusufkaracaburun/ai-kit-mcp` becomes available after first publish — no functional blocker, just packaging.
+- [ ] **MCP v2 additions.** (#13) `ai_kit_recommend_rules` (when cwd arg lands), file-writing tools with consent flow, HTTP transport for remote clients.
 
 ---
 
