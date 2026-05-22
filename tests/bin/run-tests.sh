@@ -283,6 +283,10 @@ assert "marker carries current version" 'grep -q "\"ai_kit_version\": \"$EXPECTE
 assert "no key without flag (backward compat)" '! grep -q "automation_recommender" "$TMP_M/.ai-kit-setup"'
 "$AIKIT/bin/write-setup-marker.sh" "$TMP_M" --architecture=skipped
 assert "architecture merge skip" 'grep -q "\"architecture\": \"skipped\"" "$TMP_M/.ai-kit-setup"'
+assert "no context_drift_hook key without flag" '! grep -q "context_drift_hook" "$TMP_M/.ai-kit-setup"'
+"$AIKIT/bin/write-setup-marker.sh" "$TMP_M" --context-drift-hook=wired
+assert "context-drift-hook round-trips" 'grep -q "\"context_drift_hook\": \"wired\"" "$TMP_M/.ai-kit-setup"'
+assert "context-drift-hook write preserves setup_mode" 'grep -q "\"setup_mode\": \"solo-both\"" "$TMP_M/.ai-kit-setup"'
 rm -rf "$TMP_M"
 
 echo ""

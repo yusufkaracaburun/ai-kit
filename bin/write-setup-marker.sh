@@ -20,6 +20,7 @@ usage() {
   echo "  --architecture=documented|follow-existing|skipped"
   echo "  --sandcastle=true|false"
   echo "  --automation-recommender=skipped|deferred|completed"
+  echo "  --context-drift-hook=wired|skipped"
   exit 1
 }
 
@@ -36,6 +37,7 @@ WORKFLOW=""
 ARCHITECTURE=""
 SANDCASTLE=""
 AUTOMATION_RECOMMENDER=""
+CONTEXT_DRIFT_HOOK=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -48,6 +50,7 @@ while [ $# -gt 0 ]; do
     --architecture=*) ARCHITECTURE="${1#*=}"; shift ;;
     --sandcastle=*) SANDCASTLE="${1#*=}"; shift ;;
     --automation-recommender=*) AUTOMATION_RECOMMENDER="${1#*=}"; shift ;;
+    --context-drift-hook=*) CONTEXT_DRIFT_HOOK="${1#*=}"; shift ;;
     -h | --help) usage ;;
     *) echo "Unknown option: $1" >&2; usage ;;
   esac
@@ -65,11 +68,11 @@ COMPLETED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
 python3 - "$SETUP_FILE" "$VERSION" "$COMPLETED_AT" \
   "$SETUP_MODE" "$SETUP_TIER" "$DOCKER" "$TRACKER" "$WORKFLOW" "$ARCHITECTURE" "$SANDCASTLE" \
-  "$AUTOMATION_RECOMMENDER" <<'PY'
+  "$AUTOMATION_RECOMMENDER" "$CONTEXT_DRIFT_HOOK" <<'PY'
 import json, sys, os
 
 path, version, completed = sys.argv[1:4]
-setup_mode, tier, docker, tracker, workflow, architecture, sandcastle, automation_recommender = sys.argv[4:12]
+setup_mode, tier, docker, tracker, workflow, architecture, sandcastle, automation_recommender, context_drift_hook = sys.argv[4:13]
 
 data = {}
 if os.path.isfile(path):
@@ -102,6 +105,8 @@ if sandcastle:
     branches["sandcastle"] = sandcastle.lower() == "true"
 if automation_recommender:
     branches["automation_recommender"] = automation_recommender
+if context_drift_hook:
+    branches["context_drift_hook"] = context_drift_hook
 
 data["branches"] = branches
 

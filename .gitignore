@@ -20,8 +20,10 @@ tests/eval/results/*
 .claude/settings.local.json
 
 # Companion tools installed into this clone by their own installers
-# (caveman skills, skill lockfile). ai-kit recommends these — see
-# context/templates/companions/ — but does not vendor them.
+# (caveman skills, skill lockfile, graphify knowledge graph). ai-kit
+# recommends these — see context/templates/companions/ — but does not
+# vendor them, and their generated output is not committed.
 .agents/
 .claude/skills/
 skills-lock.json
+graphify-out/

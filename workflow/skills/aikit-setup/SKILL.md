@@ -32,6 +32,14 @@ Templates: `$AI_KIT_ROOT/context/templates/docs/agents/`
 $AI_KIT_ROOT/bin/detect-tooling.sh "$(pwd)" --json
 ```
 
+Read `monorepo` and `boost` from the JSON:
+
+- `monorepo.detected` → manifests live in subdirs (`monorepo.apps[]`). The
+  root scan is partial; handle in Branch 2.
+- `boost.detected` → Laravel Boost owns `boost.managed_files[]`. ai-kit never
+  patches those (`agents-patch.sh` skips any `<laravel-boost-guidelines>` file);
+  see Branch 1.
+
 ## Fast path (default)
 
 Ask once: **Fast (Tier A, ~5 min)** or **Full (Tier B)**?
@@ -51,7 +59,7 @@ $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" \
   --setup-mode=solo-both|solo-global|project-only|brownfield \
   --tier=minimal \
   --docker=skipped --tracker=skipped --workflow=skipped \
-  --architecture=skipped --sandcastle=false
+  --architecture=skipped --sandcastle=false --context-drift-hook=skipped
 $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict --minimal
 ```
 
@@ -76,6 +84,10 @@ Default recommendation from detect: `agent_stack.recommendation`.
 
 Run bootstrap per mode (branch 0).
 
+If `boost.detected`: ai-kit writes its sections to `CONTEXT.md` and the root
+`CLAUDE.md`, never to a Boost-managed `AGENTS.md`. Tell the user which file
+Boost owns (`boost.managed_files[]`) so they know where ai-kit's content landed.
+
 ### Branch 2 — Dev environment
 
 ```bash
@@ -83,6 +95,10 @@ $AI_KIT_ROOT/bin/detect-tooling.sh "$(pwd)" --write
 ```
 
 Verify official doc URLs live.
+
+If `monorepo.detected`: the root `--write` misses per-app stacks. List the apps
+(`monorepo.apps[]`) and ask which to scope dev-environment docs to; note the
+others so per-app docs can follow.
 
 ## Tier B branches (optional)
 
@@ -96,6 +112,7 @@ Verify official doc URLs live.
 | 8 | Sandcastle | skip brownfield |
 | 9 | Agile workflow | informal solo default |
 | 10 | Automation recommender | propose-but-defer (brownfield default: skipped) |
+| 11 | Context-drift hook | offer if `CONTEXT.md` or `docs/adr/` exist |
 
 ### Branch 10 — Automation recommender (propose-but-defer)
 
@@ -110,6 +127,28 @@ Surface, don't run. ai-kit installs noch invokeert de recommender. Stel één ke
 
 Defaults: brownfield → `skipped`, greenfield → `deferred`. Schrijf de keuze naar `branches.automation_recommender`; roep nooit de externe skill aan. Pattern follows `aikit-diagnose` → `/aikit-improve-codebase-architecture` handoff.
 
+### Branch 11 — Context-drift hook (optional)
+
+A `PostToolUse(Edit|Write|MultiEdit)` hook that nudges the user to update
+`CONTEXT.md` / `docs/adr/` when they edit code those docs name. Offer it only
+when the project has a `CONTEXT.md`, `CONTEXT-MAP.md`, or `docs/adr/` — it is a
+silent no-op otherwise.
+
+> Optional: a context-drift hook reminds you to keep `CONTEXT.md` and ADRs in
+> sync when you change documented code. Deterministic, stack-agnostic, opt-in.
+> [1] Yes, wire it    → `wired`
+> [2] No thanks       → `skipped`
+
+On `wired`:
+
+```bash
+$AI_KIT_ROOT/bin/apply-context-drift-hook.sh "$(pwd)"
+```
+
+It copies the hook into `.claude/hooks/` and merges a `PostToolUse` entry into
+`.claude/settings.json` — non-destructive and idempotent. Record the choice in
+the marker (`--context-drift-hook=wired|skipped`). See [ADR-0005](../../../docs/adr/0005-monorepo-boost-context-drift.md).
+
 Full setup Done:
 
 ```bash
@@ -117,7 +156,8 @@ $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" \
   --setup-mode=... --tier=full \
   --docker=... --tracker=... --workflow=... \
   --architecture=... --sandcastle=... \
-  --automation-recommender=skipped|deferred|completed
+  --automation-recommender=skipped|deferred|completed \
+  --context-drift-hook=wired|skipped
 $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict
 ```
 
@@ -137,7 +177,8 @@ $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict
     "architecture": "skipped",
     "workflow": "skipped",
     "sandcastle": false,
-    "automation_recommender": "skipped"
+    "automation_recommender": "skipped",
+    "context_drift_hook": "skipped"
   }
 }
 ```
