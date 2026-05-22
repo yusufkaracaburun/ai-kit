@@ -191,12 +191,15 @@ in priority order:
    no longer works. Breaking-change note in CHANGELOG. Future plugins
    register against the new catalog instead of needing their own
    marketplace.
-4. **New skill + command `/aikit-followup`** (#16) — one-shot defer
-   capture: takes a one-line lead, opens a GitHub issue in house style,
-   and appends a paragraph to `docs/roadmap.md` referencing the new
-   issue. Replaces today's "open issue + add roadmap entry" two-step
-   bookkeeping with a single agent-invokable primitive that ships
-   cross-project via the plugin. See also brainstorm seed in #15.
+4. **New skill + command `/aikit-followup`** — landed 2026-05-23 (#16).
+   One-shot defer capture: takes a one-line lead, opens a GitHub issue
+   in house style, and appends a paragraph to `docs/roadmap.md`
+   referencing the new issue. Replaces the per-project memory file
+   `feedback_followup_default.md` with a cross-project skill that ships
+   via the plugin. Decisions baked in: default label `enhancement`
+   (override with `--label`), target section is the last `## What's
+   next`, local-only mode appends the roadmap entry when `gh` is
+   unavailable.
 5. **Lift the stack → MCP / hook mapping tables** (#14) from Anthropic's
    `claude-code-setup:claude-automation-recommender` (read-only recommender
    skill) into ai-kit. Reference docs there contain dense "if codebase

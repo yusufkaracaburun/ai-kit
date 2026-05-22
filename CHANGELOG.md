@@ -82,6 +82,31 @@
   - 13 regression tests in `tests/bin/run-tests.sh` cover key stability,
     hit/miss, TTL expiry, `--ttl` override, `--no-cache` short-circuit,
     invalid-JSON rejection, and `clear`.
+- **`aikit-followup` skill + `/aikit-followup` slash command** (#16, roadmap §4):
+  one-shot defer capture. Takes a one-line lead, drafts a GitHub issue in
+  house style (`## Pain` / `## Proposed delivery` / `## Why-not` /
+  `## Roadmap pointer`), and appends a numbered paragraph to the last
+  `## What's next` section of `docs/roadmap.md` referencing the new issue.
+  - **Decisions baked in.** Default label `enhancement` (override via
+    `--label`); target section is the last `## What's next` (no topic
+    heuristics); local-only mode appends the roadmap entry when `gh` is
+    unavailable rather than refusing.
+  - **Replaces** the per-project memory file `feedback_followup_default.md`
+    with a cross-project primitive that ships via the plugin, so the
+    default applies everywhere ai-kit is installed.
+  - Skill lives at `workflow/skills/aikit-followup/SKILL.md`; command at
+    `workflow/commands/aikit-followup.md` (`allowed-tools: Bash, Read,
+    Edit, Write`). Picked up by `bootstrap-project.sh` and the plugin
+    automatically — no enrollment needed.
+  - Tests: bootstrap-link assertions for the new skill + command across
+    `.claude/` and `.cursor/`; commands count bumped 5 → 6; skills count
+    bumped 20 → 21; eval-structure fixture
+    `tests/eval/prompts/aikit-followup/defer-lead.md` covers the
+    expects-list. 303 total pass.
+  - Docs: `docs/mental-model.md` lifecycle diagram + the "Which skill,
+    when" / "Slash commands" tables; `docs/architecture.md` source-layer
+    counts; `docs/install-plugin.md` bundled-list counts;
+    `workflow/.claude-plugin/plugin.json` description.
 
 **Removed**
 - **ai-kit scoped to Claude Code + Cursor — MCP server and non-CC/Cursor

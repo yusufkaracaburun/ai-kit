@@ -1,6 +1,6 @@
 # Mental model
 
-How the 20 skills fit together, plus the 3 subagents and 5 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
+How the 21 skills fit together, plus the 3 subagents and 6 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
 
 For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossary.md). For "I want to add X — which primitive?" see [primitives.md](primitives.md).
 
@@ -20,7 +20,7 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
    │   DEPLOYMENT    aikit-ship
    │      │
    │      ▼
-   │   OPS & REVIEW  aikit-retro · aikit-handoff
+   │   OPS & REVIEW  aikit-retro · aikit-handoff · aikit-followup
    │      │
    └──────┘
 
@@ -51,6 +51,7 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
 | Save context for `/clear`, resume later | `aikit-checkpoint` ↔ `aikit-resume` |
 | Recommend canonical rules for the detected stack | `aikit-recommend-rules` |
 | Wire optional companion tools (graphify, caveman) | `aikit-recommend-tools` |
+| Defer a lead — open issue + append to roadmap | `aikit-followup` |
 
 ## Subagents (Claude Code only)
 
@@ -72,6 +73,7 @@ Subagents are Claude Code-only. Cursor and other hosts fall back to the inline c
 | Show project ai-kit status (version, marker, drift) | `/aikit-status` |
 | Toggle the global-check opt-out | `/aikit-no-globals on\|off\|status` |
 | Re-stamp the project marker after pulling new ai-kit | `/aikit-upgrade` |
+| Defer a lead in one shot (issue + roadmap entry) | `/aikit-followup "<lead>"` |
 
 Slash commands wrap `bin/ai-kit-*.sh` scripts. They're optional — you can always run the underlying script directly.
 

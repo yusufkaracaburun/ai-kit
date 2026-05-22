@@ -78,9 +78,9 @@ If you switch from symlink to plugin, run `bin/ai-kit-no-globals.sh on` to suppr
 
 Bundled (via `workflow/.claude-plugin/plugin.json`):
 
-- All 20 skills (`workflow/skills/`)
+- All 21 skills (`workflow/skills/`)
 - Both subagents (`workflow/agents/aikit-explore`, `workflow/agents/aikit-reviewer`)
-- All 5 slash commands (`workflow/commands/aikit-*.md`)
+- All 6 slash commands (`workflow/commands/aikit-*.md`)
 - The PostToolUse skill-logging hook (`workflow/hooks/post-skill-log.sh` +
   `workflow/hooks/log-skill.sh`, wired by `workflow/hooks/hooks.json`).
   Opt-in: silent no-op unless `AI_KIT_USAGE=1` is set in the env. Resolves

@@ -180,7 +180,7 @@ does not pollute the parent conversation.
 
 ## The agile lifecycle
 
-ai-kit is 20 skills covering one loop — idea to retro:
+ai-kit is 21 skills covering one loop — idea to retro:
 
 | Phase | Skills |
 | ----- | ------ |
@@ -188,7 +188,7 @@ ai-kit is 20 skills covering one loop — idea to retro:
 | Development | `aikit-to-issues` → `aikit-triage` → `aikit-tdd` |
 | Testing | `aikit-review` · `aikit-qa` · `aikit-diagnose` |
 | Deployment | `aikit-ship` |
-| Ops & review | `aikit-retro` |
+| Ops & review | `aikit-retro` · `aikit-followup` |
 | Session continuity | `aikit-checkpoint` ↔ `aikit-resume` · `aikit-handoff` |
 | Cross-cutting | `aikit-setup` · `aikit-recommend-rules` · `aikit-recommend-tools` · `aikit-improve-codebase-architecture` |
 

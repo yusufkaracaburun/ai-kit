@@ -230,6 +230,10 @@ assert ".claude/agents aikit-reviewer linked" '[ -L "$TMP_BOOT/.claude/agents/ai
 assert ".claude/commands dir" '[ -d "$TMP_BOOT/.claude/commands" ]'
 assert ".claude/commands aikit-doctor linked" '[ -L "$TMP_BOOT/.claude/commands/aikit-doctor.md" ] || [ -f "$TMP_BOOT/.claude/commands/aikit-doctor.md" ]'
 assert ".cursor/commands aikit-which linked" '[ -L "$TMP_BOOT/.cursor/commands/aikit-which.md" ] || [ -f "$TMP_BOOT/.cursor/commands/aikit-which.md" ]'
+assert ".claude/skills aikit-followup linked" '[ -L "$TMP_BOOT/.claude/skills/aikit-followup" ] || [ -d "$TMP_BOOT/.claude/skills/aikit-followup" ]'
+assert ".cursor/skills aikit-followup linked" '[ -L "$TMP_BOOT/.cursor/skills/aikit-followup" ] || [ -d "$TMP_BOOT/.cursor/skills/aikit-followup" ]'
+assert ".claude/commands aikit-followup linked" '[ -L "$TMP_BOOT/.claude/commands/aikit-followup.md" ] || [ -f "$TMP_BOOT/.claude/commands/aikit-followup.md" ]'
+assert ".cursor/commands aikit-followup linked" '[ -L "$TMP_BOOT/.cursor/commands/aikit-followup.md" ] || [ -f "$TMP_BOOT/.cursor/commands/aikit-followup.md" ]'
 assert "emit: cursor rule for git-hygiene" '[ -f "$TMP_BOOT/.cursor/rules/git-hygiene.mdc" ]'
 assert "emit: claude rule for git-hygiene" '[ -f "$TMP_BOOT/.claude/rules/git-hygiene.md" ]'
 assert "emit: active-rules index"          '[ -f "$TMP_BOOT/docs/agents/active-rules.md" ]'
@@ -686,7 +690,7 @@ echo "=== ai-kit-which ==="
 OUT_WHICH_LIST="$("$AIKIT/bin/ai-kit-which.sh" --list)"
 assert "which --list has header" 'echo "$OUT_WHICH_LIST" | head -1 | grep -q "SKILL"'
 WHICH_LIST_ROWS="$(echo "$OUT_WHICH_LIST" | tail -n +3 | wc -l | tr -d ' ')"
-assert "which --list shows all 20 skills" '[ "$WHICH_LIST_ROWS" -eq 20 ]'
+assert "which --list shows all 21 skills" '[ "$WHICH_LIST_ROWS" -eq 21 ]'
 
 # --explain dumps the SKILL.md.
 OUT_WHICH_EXP="$("$AIKIT/bin/ai-kit-which.sh" --explain aikit-ship)"
@@ -722,7 +726,7 @@ assert "which: gibberish exits 1" '[ "$WHICH_NONE_EXIT" -eq 1 ]'
 echo ""
 echo "=== skills count ==="
 SKILL_COUNT=$(find "$AIKIT/workflow/skills" -name SKILL.md | wc -l | tr -d ' ')
-assert "20 skills" '[ "$SKILL_COUNT" -eq 20 ]'
+assert "21 skills" '[ "$SKILL_COUNT" -eq 21 ]'
 assert "checkpoint skill exists" '[ -f "$AIKIT/workflow/skills/aikit-checkpoint/SKILL.md" ]'
 assert "resume skill exists" '[ -f "$AIKIT/workflow/skills/aikit-resume/SKILL.md" ]'
 
@@ -742,11 +746,11 @@ assert "aikit-qa-runner frontmatter tools" 'head -5 "$AIKIT/workflow/agents/aiki
 echo ""
 echo "=== slash commands ==="
 COMMAND_COUNT=$(find "$AIKIT/workflow/commands" -maxdepth 1 -name "*.md" | wc -l | tr -d ' ')
-assert "5 slash commands present" '[ "$COMMAND_COUNT" -eq 5 ]'
-for cmd in aikit-doctor aikit-which aikit-status aikit-no-globals aikit-upgrade; do
+assert "6 slash commands present" '[ "$COMMAND_COUNT" -eq 6 ]'
+for cmd in aikit-doctor aikit-which aikit-status aikit-no-globals aikit-upgrade aikit-followup; do
   assert "$cmd command exists"     "[ -f \"$AIKIT/workflow/commands/$cmd.md\" ]"
-  assert "$cmd has description"    "head -5 \"$AIKIT/workflow/commands/$cmd.md\" | grep -q '^description:'"
-  assert "$cmd has allowed-tools"  "head -5 \"$AIKIT/workflow/commands/$cmd.md\" | grep -q '^allowed-tools:'"
+  assert "$cmd has description"    "head -6 \"$AIKIT/workflow/commands/$cmd.md\" | grep -q '^description:'"
+  assert "$cmd has allowed-tools"  "head -6 \"$AIKIT/workflow/commands/$cmd.md\" | grep -q '^allowed-tools:'"
 done
 
 echo ""
