@@ -245,6 +245,10 @@ assert "emit-agents: aikit-reviewer AGENT.md carries the markers" \
   'grep -q "emit-agents:begin" "$AIKIT/workflow/agents/aikit-reviewer/AGENT.md" && grep -q "emit-agents:end" "$AIKIT/workflow/agents/aikit-reviewer/AGENT.md"'
 assert "emit-agents: generated region pulled the shared sections" \
   'grep -q "## Security deep pass" "$AIKIT/workflow/agents/aikit-reviewer/AGENT.md"'
+assert "emit-agents: aikit-qa-runner AGENT.md carries the markers" \
+  'grep -q "emit-agents:begin" "$AIKIT/workflow/agents/aikit-qa-runner/AGENT.md" && grep -q "emit-agents:end" "$AIKIT/workflow/agents/aikit-qa-runner/AGENT.md"'
+assert "emit-agents: aikit-qa-runner pulled the Tiers + Output sections" \
+  'grep -q "## Tiers" "$AIKIT/workflow/agents/aikit-qa-runner/AGENT.md" && grep -q "## Output" "$AIKIT/workflow/agents/aikit-qa-runner/AGENT.md"'
 # Drift detection: tweak the source skill, confirm --check catches it, restore.
 EMITA_SKILL="$AIKIT/workflow/skills/aikit-review/SKILL.md"
 EMITA_BAK=$(mktemp)
@@ -685,12 +689,15 @@ assert "resume skill exists" '[ -f "$AIKIT/workflow/skills/aikit-resume/SKILL.md
 echo ""
 echo "=== agents ==="
 AGENT_COUNT=$(find "$AIKIT/workflow/agents" -name AGENT.md | wc -l | tr -d ' ')
-assert "2 subagents present" '[ "$AGENT_COUNT" -eq 2 ]'
+assert "3 subagents present" '[ "$AGENT_COUNT" -eq 3 ]'
 assert "aikit-explore exists" '[ -f "$AIKIT/workflow/agents/aikit-explore/AGENT.md" ]'
 assert "aikit-reviewer exists" '[ -f "$AIKIT/workflow/agents/aikit-reviewer/AGENT.md" ]'
+assert "aikit-qa-runner exists" '[ -f "$AIKIT/workflow/agents/aikit-qa-runner/AGENT.md" ]'
 assert "aikit-explore frontmatter name" 'head -5 "$AIKIT/workflow/agents/aikit-explore/AGENT.md" | grep -q "^name: aikit-explore$"'
 assert "aikit-explore frontmatter tools" 'head -5 "$AIKIT/workflow/agents/aikit-explore/AGENT.md" | grep -q "^tools:"'
 assert "aikit-reviewer frontmatter name" 'head -5 "$AIKIT/workflow/agents/aikit-reviewer/AGENT.md" | grep -q "^name: aikit-reviewer$"'
+assert "aikit-qa-runner frontmatter name" 'head -5 "$AIKIT/workflow/agents/aikit-qa-runner/AGENT.md" | grep -q "^name: aikit-qa-runner$"'
+assert "aikit-qa-runner frontmatter tools" 'head -5 "$AIKIT/workflow/agents/aikit-qa-runner/AGENT.md" | grep -q "^tools:"'
 
 echo ""
 echo "=== slash commands ==="
@@ -706,6 +713,15 @@ echo ""
 echo "=== review skill delegation ==="
 assert "review skill mentions aikit-reviewer" 'grep -q "aikit-reviewer" "$AIKIT/workflow/skills/aikit-review/SKILL.md"'
 assert "review skill mentions inline fallback" 'grep -q "Cursor / hosts without subagents" "$AIKIT/workflow/skills/aikit-review/SKILL.md"'
+# The four migrated skills (#3) each carry a Run mode block + name their subagent.
+for s in aikit-qa aikit-diagnose aikit-to-issues aikit-improve-codebase-architecture; do
+  assert "$s skill has a Run mode block" 'grep -q "^## Run mode" "$AIKIT/workflow/skills/'"$s"'/SKILL.md"'
+done
+assert "qa skill delegates to aikit-qa-runner" 'grep -q "aikit-qa-runner" "$AIKIT/workflow/skills/aikit-qa/SKILL.md"'
+assert "diagnose skill delegates to aikit-explore" 'grep -q "aikit-explore" "$AIKIT/workflow/skills/aikit-diagnose/SKILL.md"'
+assert "to-issues skill delegates to aikit-explore" 'grep -q "aikit-explore" "$AIKIT/workflow/skills/aikit-to-issues/SKILL.md"'
+assert "improve-arch skill delegates to aikit-explore" 'grep -q "aikit-explore" "$AIKIT/workflow/skills/aikit-improve-codebase-architecture/SKILL.md"'
+assert "improve-arch skill dropped the generic Explore subagent" '! grep -q "subagent_type=Explore" "$AIKIT/workflow/skills/aikit-improve-codebase-architecture/SKILL.md"'
 
 echo ""
 echo "=== plugin manifest ==="

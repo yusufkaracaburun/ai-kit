@@ -9,6 +9,11 @@ A discipline for hard bugs. Skip phases only when explicitly justified.
 
 When exploring the codebase, use the project's domain glossary to get a clear mental model of the relevant modules, and check ADRs in the area you're touching.
 
+## Run mode
+
+- **Claude Code:** when you need to map the bug's code area — find callers, trace a data path, locate the seam a fix would sit at — delegate that read to the `aikit-explore` subagent via the Task tool with `subagent_type=aikit-explore`, and work from its ≤300-line summary. Keeps wide file dumps out of the diagnosis loop. The loop itself (Phases 1–6) stays in this context — it is iterative and checkpoints with the user.
+- **Hosts without subagents:** read the files inline, filtered per [`context-discipline.mini.md`](../../../standards/rules/context-discipline.mini.md).
+
 ## Phase 1 — Build a feedback loop
 
 **This is the skill.** Everything else is mechanical. If you have a fast, deterministic, agent-runnable pass/fail signal for the bug, you will find the cause — bisection, hypothesis-testing, and instrumentation all just consume that signal. If you don't have one, no amount of staring at code will save you.

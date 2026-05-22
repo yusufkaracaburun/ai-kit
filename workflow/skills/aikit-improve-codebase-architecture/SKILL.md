@@ -28,7 +28,10 @@ Key principles (see [LANGUAGE.md](LANGUAGE.md) for the full list):
 
 This skill is _informed_ by the project's domain model. The domain language gives names to good seams; ADRs record decisions the skill should not re-litigate.
 
-Wide cross-module surveys are easy to drown in. Delegate "find all callers of X" / "map this module's collaborators" to a sub-agent (`Explore`) and work from its summary. See [`context-discipline.mini.md`](../../../standards/rules/context-discipline.mini.md).
+## Run mode
+
+- **Claude Code:** delegate the codebase walk (step 1 below) to the `aikit-explore` subagent via the Task tool with `subagent_type=aikit-explore`. Ask it for callers, collaborators, and shallow modules; it returns a structured ≤300-line summary. Writing the HTML report and the grilling loop stay in this context. Wide cross-module surveys are easy to drown in — see [`context-discipline.mini.md`](../../../standards/rules/context-discipline.mini.md).
+- **Hosts without subagents:** walk the codebase inline.
 
 ## Process
 
@@ -38,7 +41,7 @@ Read `docs/agents/architecture.md` if present — repo FE/BE structure before th
 
 Read the project's domain glossary and any ADRs in the area you're touching first.
 
-Then use the Agent tool with `subagent_type=Explore` to walk the codebase. Don't follow rigid heuristics — explore organically and note where you experience friction:
+Then use the Agent tool with `subagent_type=aikit-explore` to walk the codebase (see **Run mode**). Don't follow rigid heuristics — explore organically and note where you experience friction:
 
 - Where does understanding one concept require bouncing between many small modules?
 - Where are modules **shallow** — interface nearly as complex as the implementation?

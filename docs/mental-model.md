@@ -1,6 +1,6 @@
 # Mental model
 
-How the 20 skills fit together, plus the 2 subagents and 5 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
+How the 20 skills fit together, plus the 3 subagents and 5 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
 
 For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossary.md). For "I want to add X — which primitive?" see [primitives.md](primitives.md).
 
@@ -57,7 +57,9 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
 | You are running … | Delegate to … |
 | ----------------- | -------------- |
 | `aikit-review` skill on Claude Code | `aikit-reviewer` (full pre-merge review with structured markdown report) |
-| Cross-file impact analysis from any skill | `aikit-explore` (read-only sweeps, ≤300 lines, structured return) |
+| `aikit-qa` skill on Claude Code | `aikit-qa-runner` (full QA pass — Playwright/CLI tests, structured findings report; large browser output stays isolated) |
+| Codebase walk from `aikit-diagnose`, `aikit-to-issues`, `aikit-improve-codebase-architecture` | `aikit-explore` (read-only sweeps, ≤300 lines, structured return) |
+| Cross-file impact analysis from any other skill | `aikit-explore` |
 
 Subagents are Claude Code-only. Cursor and other hosts fall back to the inline checklist inside the calling skill — single source of truth.
 

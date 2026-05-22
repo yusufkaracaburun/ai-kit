@@ -52,6 +52,21 @@
   - `aikit-reviewer/AGENT.md` now pulls `Security deep pass` + `Output
     format` from `aikit-review/SKILL.md`. CI runs `emit-agents.sh --check`
     and fails on drift.
+- **Four more skills migrated to subagent delegation** (`workflow/skills/`,
+  `workflow/agents/`, roadmap #3):
+  - Each of `aikit-qa`, `aikit-diagnose`, `aikit-to-issues`, and
+    `aikit-improve-codebase-architecture` gained a `## Run mode` block —
+    Claude Code delegates to a subagent; other hosts fall back to the
+    inline process, which stays the single source of truth.
+  - New paired subagent `aikit-qa-runner` runs the full QA pass (Playwright
+    / CLI smoke + deep tests) so large browser and console output stays out
+    of the main thread. Its `AGENT.md` single-sources `Tiers` + `Output`
+    from `aikit-qa/SKILL.md` via `emit-agents.sh`.
+  - `aikit-diagnose`, `aikit-to-issues`, and
+    `aikit-improve-codebase-architecture` delegate their codebase walk to
+    the existing `aikit-explore` subagent — the last swapped off the
+    generic `Explore`. No bespoke subagent each: they only do codebase
+    reads, already `aikit-explore`'s job.
 
 ## 2.0.0 — 2026-05-22
 

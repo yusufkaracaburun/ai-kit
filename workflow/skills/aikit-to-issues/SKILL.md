@@ -11,6 +11,11 @@ The issue tracker and triage label vocabulary should have been provided to you �
 
 Issue titles, branch names, and commit messages follow the [git-hygiene rule](../../../standards/rules/git-hygiene.mini.md). Default branch prefix per type: AFK + feature → `feat/`, AFK + bug → `fix/`, HITL → ask first.
 
+## Run mode
+
+- **Claude Code:** for the codebase exploration in step 2, delegate to the `aikit-explore` subagent via the Task tool with `subagent_type=aikit-explore` — ask it to map the area the plan touches and the current state of the code, and return a ≤300-line summary. Drafting slices, quizzing the user, and publishing issues stay in this context.
+- **Hosts without subagents:** explore inline, filtered per [`context-discipline.mini.md`](../../../standards/rules/context-discipline.mini.md).
+
 ## Process
 
 ### 1. Gather context
@@ -19,7 +24,7 @@ Work from whatever is already in the conversation context. If the user passes an
 
 ### 2. Explore the codebase (optional)
 
-If you have not already explored the codebase, do so to understand the current state of the code. Issue titles and descriptions should use the project's domain glossary vocabulary, and respect ADRs in the area you're touching.
+If you have not already explored the codebase, do so to understand the current state of the code — see **Run mode** for delegating this to `aikit-explore`. Issue titles and descriptions should use the project's domain glossary vocabulary, and respect ADRs in the area you're touching.
 
 ### 3. Draft vertical slices
 
