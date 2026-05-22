@@ -41,7 +41,7 @@ If you switch from symlink to plugin, run `bin/ai-kit-no-globals.sh on` to suppr
 
 Bundled (via `workflow/.claude-plugin/plugin.json`):
 
-- All 19 skills (`workflow/skills/`)
+- All 20 skills (`workflow/skills/`)
 - Both subagents (`workflow/agents/aikit-explore`, `workflow/agents/aikit-reviewer`)
 - All 5 slash commands (`workflow/commands/aikit-*.md`)
 

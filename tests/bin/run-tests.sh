@@ -554,7 +554,7 @@ echo "=== ai-kit-which ==="
 OUT_WHICH_LIST="$("$AIKIT/bin/ai-kit-which.sh" --list)"
 assert "which --list has header" 'echo "$OUT_WHICH_LIST" | head -1 | grep -q "SKILL"'
 WHICH_LIST_ROWS="$(echo "$OUT_WHICH_LIST" | tail -n +3 | wc -l | tr -d ' ')"
-assert "which --list shows all 19 skills" '[ "$WHICH_LIST_ROWS" -eq 19 ]'
+assert "which --list shows all 20 skills" '[ "$WHICH_LIST_ROWS" -eq 20 ]'
 
 # --explain dumps the SKILL.md.
 OUT_WHICH_EXP="$("$AIKIT/bin/ai-kit-which.sh" --explain ship)"
@@ -590,7 +590,7 @@ assert "which: gibberish exits 1" '[ "$WHICH_NONE_EXIT" -eq 1 ]'
 echo ""
 echo "=== skills count ==="
 SKILL_COUNT=$(find "$AIKIT/workflow/skills" -name SKILL.md | wc -l | tr -d ' ')
-assert "19 skills" '[ "$SKILL_COUNT" -eq 19 ]'
+assert "20 skills" '[ "$SKILL_COUNT" -eq 20 ]'
 assert "checkpoint skill exists" '[ -f "$AIKIT/workflow/skills/checkpoint/SKILL.md" ]'
 assert "resume skill exists" '[ -f "$AIKIT/workflow/skills/resume/SKILL.md" ]'
 

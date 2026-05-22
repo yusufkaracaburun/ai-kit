@@ -12,7 +12,7 @@ Read this before adding a new primitive type or moving files between layers. For
 
 ```
 ┌─────────────────────── source layer ────────────────────────┐
-│  workflow/skills/        19 skills (SKILL.md)               │
+│  workflow/skills/        20 skills (SKILL.md)               │
 │  workflow/agents/        2 subagents (AGENT.md)             │
 │  workflow/commands/      5 slash commands (.md)             │
 │  standards/rules/        agent-agnostic rule books          │

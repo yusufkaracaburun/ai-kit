@@ -10,7 +10,7 @@ MCP server — pick whichever your host speaks.
 
 | Primitive | Count | Reaches |
 | --------- | -----:| ------- |
-| Skills | 19 | Claude Code · Cursor |
+| Skills | 20 | Claude Code · Cursor |
 | Subagents | 2 | Claude Code |
 | Slash commands | 5 | Claude Code · Cursor |
 | Hooks | 1 | Claude Code |
@@ -86,7 +86,7 @@ That's it — you're using ai-kit. Some first moves:
 
 ## The agile lifecycle
 
-ai-kit is 19 skills covering one loop — idea to retro:
+ai-kit is 20 skills covering one loop — idea to retro:
 
 | Phase | Skills |
 | ----- | ------ |
@@ -96,10 +96,29 @@ ai-kit is 19 skills covering one loop — idea to retro:
 | Deployment | `ship` |
 | Ops & review | `retro` |
 | Session continuity | `checkpoint` ↔ `resume` · `handoff` |
-| Cross-cutting | `setup` · `recommend-rules` · `improve-codebase-architecture` |
+| Cross-cutting | `setup` · `recommend-rules` · `recommend-tools` · `improve-codebase-architecture` |
 
 See [docs/mental-model.md](docs/mental-model.md) for the "which skill, when" table and
 the lifecycle diagram.
+
+## Companion tools
+
+ai-kit ships the agile lifecycle. Three companions pair well with it — ai-kit
+**wires them, but never vendors them**:
+
+- **graphify** — a knowledge graph of your codebase. Returns a scoped subgraph per
+  query instead of raw grep; a large token cut on multi-file repos.
+- **caveman** — token-compressed agent responses (~65% fewer output tokens). An
+  opt-in communication mode.
+- **llm-wiki** — a self-maintaining knowledge base. Ingests non-code documents
+  (specs, transcripts, research) into an interlinked wiki the agent keeps current;
+  the wiki, not the raw files, is the artifact that compounds.
+
+`/recommend-tools` detects which of these fit, then writes the integration glue —
+an `AGENTS.md` rules block, a Claude Code hook, a `wiki/` scaffold — without
+copying any upstream source into your repo. Install the tools from their own
+upstreams; ai-kit only configures them. Glue lives in
+[context/templates/companions/](context/templates/companions/).
 
 ## How it's wired
 

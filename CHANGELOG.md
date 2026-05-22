@@ -2,6 +2,35 @@
 
 ## Unreleased
 
+**Feat**
+- **`recommend-tools` skill — wire companion tools without vendoring them**
+  (`workflow/skills/recommend-tools/SKILL.md`,
+  `context/templates/companions/`):
+  - New 20th skill. Detects optional companions on the machine and in
+    the repo — **graphify** (codebase knowledge graph, optimises what
+    the AI reads), **caveman** (token-compressed responses, optimises
+    how the AI replies), and **llm-wiki** (a self-maintaining knowledge
+    base for non-code documents) — and wires whichever the user picks.
+    Same trust model as `recommend-rules`: surface, let the user choose,
+    never auto-install.
+  - ai-kit owns only the *integration glue*, never the tool source. Glue
+    templates land in `context/templates/companions/`: a `graphify`
+    `AGENTS.md` rules block, a Claude Code `PreToolUse` hook that nudges
+    `graphify query` over raw grep, a `caveman` opt-in note, and an
+    `llm-wiki/` scaffold (wiki schema + starter pages) adapting Andrej
+    Karpathy's `llm-wiki.md` pattern. caveman is never enabled by
+    default — it is a communication mode.
+  - `/setup` surfaces `/recommend-tools` as an optional follow-up
+    (propose-but-defer; setup never runs it).
+  - README gains a "Companion tools" section. Skill count 19 → 20 across
+    README, `docs/architecture.md`, `docs/glossary.md`,
+    `docs/mental-model.md`, `docs/install-plugin.md`, both plugin
+    manifests, and the test suite.
+  - `.gitignore` now excludes `.agents/`, `.claude/skills/`, and
+    `skills-lock.json` — artifacts a companion tool's own installer
+    drops into this clone. ai-kit recommends companion tools; it does not
+    commit their installed copies.
+
 **Fix**
 - **`ai-kit-mcp` wrapper — kills the absolute-path footgun in MCP client
   configs** (`bin/ai-kit-mcp`, `bin/install-global.sh`, `mcp/README.md`):

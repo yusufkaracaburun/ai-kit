@@ -144,6 +144,10 @@ $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict
 
 Summarise what was configured. Re-run `/setup` to extend Tier A → Tier B later.
 
+As an optional follow-up, mention `/recommend-tools` — it wires companion tools
+(graphify, caveman) for projects that want to push the AI setup further. Surface
+it once; do not run it.
+
 ## Usage logging (opt-in)
 
 When `AI_KIT_USAGE=1` is set, log the invocation so `retro` can spot patterns:

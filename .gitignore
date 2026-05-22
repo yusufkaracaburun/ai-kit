@@ -12,8 +12,16 @@ tests/eval/results/*
 # IDE / OS scratch
 .idea/
 .vscode/settings.json
+.obsidian/
 *.swp
 *~
 
 # Per-machine agent config
 .claude/settings.local.json
+
+# Companion tools installed into this clone by their own installers
+# (caveman skills, skill lockfile). ai-kit recommends these — see
+# context/templates/companions/ — but does not vendor them.
+.agents/
+.claude/skills/
+skills-lock.json

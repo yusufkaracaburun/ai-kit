@@ -111,7 +111,7 @@ The `/setup` skill (`workflow/skills/setup/SKILL.md`) — the user-facing entry 
 
 ### Skill
 
-A workflow with `name:` + `description:` frontmatter, auto-discovered by the host. Lives at `workflow/skills/<name>/SKILL.md`. The primary ai-kit primitive — 19 shipped today.
+A workflow with `name:` + `description:` frontmatter, auto-discovered by the host. Lives at `workflow/skills/<name>/SKILL.md`. The primary ai-kit primitive — 20 shipped today.
 
 When the host sees a user intent matching a skill's `description`, it loads the SKILL.md body on demand.
 

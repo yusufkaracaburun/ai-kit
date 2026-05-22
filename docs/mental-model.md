@@ -1,6 +1,6 @@
 # Mental model
 
-How the 19 skills fit together, plus the 2 subagents and 5 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
+How the 20 skills fit together, plus the 2 subagents and 5 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
 
 For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossary.md). For "I want to add X — which primitive?" see [primitives.md](primitives.md).
 
@@ -36,7 +36,7 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
         └──────┬───────┘                                          │
                └──────────────────────────────────────────────────┘
 
-   Cross-cutting:  setup · improve-codebase-architecture
+   Cross-cutting:  setup · recommend-rules · recommend-tools · improve-codebase-architecture
 ```
 
 ## Which skill, when
@@ -61,6 +61,7 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
 | Reshape the codebase architecture | `improve-codebase-architecture` |
 | Save context for `/clear`, resume later | `checkpoint` ↔ `resume` |
 | Recommend canonical rules for the detected stack | `recommend-rules` |
+| Wire optional companion tools (graphify, caveman) | `recommend-tools` |
 
 ## Subagents (Claude Code only)
 
