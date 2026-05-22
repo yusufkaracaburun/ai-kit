@@ -1,0 +1,14 @@
+{
+  "_comment": "Claude Code plugin hooks. Opt-in: skill invocations are logged ONLY when AI_KIT_USAGE=1 is set in the env. Hook script is silent + crash-proof by design.",
+  "PostToolUse": [
+    {
+      "matcher": "^Skill$",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "${CLAUDE_PLUGIN_ROOT}/hooks/post-skill-log.sh"
+        }
+      ]
+    }
+  ]
+}

@@ -128,7 +128,17 @@ Install canonical (y/n/preview each)? Install external (per-item)?
 - [x] **PR 3** — MCP server (`mcp/`): Node + TypeScript, stdio transport, 5 read-only tools (`ai_kit_which`, `ai_kit_skill`, `ai_kit_rule`, `ai_kit_doctor`, `ai_kit_list`). Security: `execFile` not `exec`, zod-validated inputs, 10s timeout, 1 MB output cap, stderr-only logging. CI matrix Node 20 + 22. Reaches Cline / Continue / Zed / Claude Desktop users that the symlink-install and plugin path don't cover.
 
 **Open follow-ups (PR 4 territory — not blocking).**
-- [ ] **Hook in the plugin.** (#8) v1 plugin doesn't ship the PostToolUse skill-logging hook (path resolution from plugin context is shaky). If we want plugin-only users to get usage stats, bundle a copy of `post-skill-log.sh` inside `workflow/hooks/` and add `hooks/hooks.json`. Opt-in via `AI_KIT_USAGE=1` either way.
+- [x] **Hook in the plugin.** (#8, 2026-05-23) Plugin now ships
+  `workflow/hooks/post-skill-log.sh` + `workflow/hooks/log-skill.sh` +
+  `workflow/hooks/hooks.json` (PostToolUse `^Skill$` matcher pointing at
+  `${CLAUDE_PLUGIN_ROOT}/hooks/post-skill-log.sh`). The hook script does
+  dual-location resolution — finds its sibling `log-skill.sh` in
+  `workflow/hooks/` for plugin installs, falls back to `bin/log-skill.sh`
+  for the symlink-source install. `bin/sync-plugin-hooks.sh` keeps the
+  bundled copies byte-identical to the `bin/` source-of-truth;
+  `--check` mode fails CI on drift; wired into `bin/release.sh`. Opt-in
+  is unchanged: `AI_KIT_USAGE=1` in the env. Tests cover both layouts
+  + the drift round-trip.
 - [x] **Subagent source-of-truth.** (#12, 2026-05-22) `bin/emit-agents.sh` regenerates a marked region of `workflow/agents/*/AGENT.md` from named `## ` sections of the companion `SKILL.md`. `aikit-reviewer` pulls `Security deep pass` + `Output format` from `aikit-review`. CI `--check` mode fails the build on drift. Marker-region injection chosen over full generation — agents keep bespoke framing (Contract, Inputs, What-not-to-do).
 - [x] **Migrate more skills to subagent delegation.** (#3, 2026-05-22) Four skills gained a `## Run mode` block with inline fallback. `aikit-qa` delegates the full QA pass to a new paired `aikit-qa-runner` subagent (single-sources `Tiers` + `Output` from the skill via `emit-agents.sh`). `aikit-diagnose`, `aikit-to-issues`, and `aikit-improve-codebase-architecture` delegate their codebase walk to the existing `aikit-explore` subagent — the last swapped off the generic `Explore`. A bespoke subagent each was rejected: the other three only do codebase reads, which `aikit-explore` already covers.
 - [x] **`mental-model.md` refresh.** Landed in PR 4 — now documents 19 skills with the matching table, plus dedicated subagent and slash-command tables linking `architecture.md` / `glossary.md` / `primitives.md`.
@@ -172,6 +182,14 @@ The subagent emitter is in place, four more skills now delegate to subagents,
 and ai-kit has been scoped down to Claude Code + Cursor (section 4). Remaining,
 in priority order:
 
-1. **Web-search caching** for `/aikit-recommend-rules` — every invocation re-fetches today (#11).
-2. **Hook in the plugin** — bundle the PostToolUse skill-logging hook for plugin-only users (#8).
+1. **Web-search caching** for `/aikit-recommend-rules` — landed 2026-05-23 (#11).
+2. **Hook in the plugin** — landed 2026-05-23 (#8).
 3. **Standalone plugin marketplace repo** (#9).
+4. **Lift the stack → MCP / hook mapping tables** (#14) from Anthropic's
+   `claude-code-setup:claude-automation-recommender` (read-only recommender
+   skill) into ai-kit. Reference docs there contain dense "if codebase
+   signal X then recommend MCP server / hook Y" tables that the
+   `aikit-recommend-tools` skill could mine — same shape as
+   `aikit-recommend-rules`, but for the runtime side (MCP + hooks).
+   Verdict via `/should-i-use` 2026-05-23: **adopt-as-pattern**, not
+   install — direct adoption would overlap and lower cohesion.

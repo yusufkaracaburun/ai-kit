@@ -44,12 +44,25 @@ Bundled (via `workflow/.claude-plugin/plugin.json`):
 - All 20 skills (`workflow/skills/`)
 - Both subagents (`workflow/agents/aikit-explore`, `workflow/agents/aikit-reviewer`)
 - All 5 slash commands (`workflow/commands/aikit-*.md`)
+- The PostToolUse skill-logging hook (`workflow/hooks/post-skill-log.sh` +
+  `workflow/hooks/log-skill.sh`, wired by `workflow/hooks/hooks.json`).
+  Opt-in: silent no-op unless `AI_KIT_USAGE=1` is set in the env. Resolves
+  the bundled `log-skill.sh` via `${CLAUDE_PLUGIN_ROOT}`, no project paths
+  required. Source-of-truth lives at `bin/hooks/post-skill-log.sh` +
+  `bin/log-skill.sh`; `bin/sync-plugin-hooks.sh --check` enforces no drift.
 
 **Not bundled** (intentionally):
 
 - Rules — emitted per-host at `/aikit-setup` time (`bin/emit-rules.sh`); plugin context can't write into your project repo
-- The PostToolUse skill-logging hook — install via the symlink path if you want it (`AI_KIT_USAGE=1` opt-in)
 - The `bin/` shell scripts — not exposed by the plugin; if you want `/aikit-doctor` to work you need `AI_KIT_ROOT` set in env (the slash command resolves it)
+
+### Opt-in usage logging
+
+If you want local usage stats (no network, no telemetry — JSONL in
+`${XDG_STATE_HOME:-~/.local/state}/ai-kit/usage.jsonl`), set
+`AI_KIT_USAGE=1` in the env Claude Code runs under. Inspect with
+`bin/usage-stats.sh`; wipe with `bin/usage-purge.sh`. Both plugin and
+symlink installs honour the same flag and write to the same file.
 
 ## Local development
 

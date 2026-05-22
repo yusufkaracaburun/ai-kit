@@ -3,6 +3,32 @@
 ## Unreleased
 
 **Added**
+- **PostToolUse skill-logging hook bundled in the Claude Code plugin**
+  (#8, roadmap §3):
+  - `workflow/hooks/post-skill-log.sh` + `workflow/hooks/log-skill.sh` +
+    `workflow/hooks/hooks.json` ship with the plugin. The matcher
+    (`^Skill$` → `${CLAUDE_PLUGIN_ROOT}/hooks/post-skill-log.sh`)
+    resolves via the Claude Code-supplied plugin-root env var, so
+    plugin-only users get usage stats without setting `AI_KIT_ROOT`.
+  - The hook script now resolves its sibling `log-skill.sh` with a
+    dual-location lookup: prefers `$SCRIPT_DIR/log-skill.sh` (plugin
+    layout), falls back to `$SCRIPT_DIR/../log-skill.sh` (symlink-source
+    layout). One script, both installs.
+  - `bin/sync-plugin-hooks.sh` is the new drift-guard:
+    `bin/hooks/post-skill-log.sh` + `bin/log-skill.sh` are the
+    source-of-truth; `workflow/hooks/` is regenerated from them.
+    `sync-plugin-hooks.sh --check` exits 1 on any byte-level drift and
+    is run by `bin/release.sh` on every release.
+  - Opt-in is unchanged: silent no-op unless `AI_KIT_USAGE=1` is set in
+    the env. No network calls — JSONL line per invocation to
+    `${XDG_STATE_HOME:-~/.local/state}/ai-kit/usage.jsonl`.
+  - Tests: drift round-trip on `sync-plugin-hooks.sh`, plus a "hook
+    works from plugin layout" suite that mocks an installed
+    `${CLAUDE_PLUGIN_ROOT}` tree and asserts the hook (a) writes a log
+    entry with `AI_KIT_USAGE=1`, and (b) no-ops if the sibling
+    `log-skill.sh` is missing. 15 new assertions, 299 total pass.
+  - `docs/install-plugin.md` updated — the hook is now in the
+    "Bundled" list with an explicit "opt-in usage logging" section.
 - **`/aikit-recommend-rules` Phase 2 web-search cache** (#11, roadmap §2):
   `bin/recommend-rules-cache.sh` is a fingerprint-keyed cache so repeated
   invocations on the same stack skip the live community-rule search.

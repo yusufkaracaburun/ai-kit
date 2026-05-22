@@ -809,6 +809,39 @@ assert "sync-plugin-version stamps drift away" '[ "$SYNC_STAMP_EXIT" -eq 0 ]'
 rm -rf "$TMP_PLUGIN_CHECK"
 
 echo ""
+echo "=== sync-plugin-hooks (bundled hook scripts) ==="
+BUNDLED_POST="$AIKIT/workflow/hooks/post-skill-log.sh"
+BUNDLED_LOG="$AIKIT/workflow/hooks/log-skill.sh"
+BUNDLED_JSON="$AIKIT/workflow/hooks/hooks.json"
+assert "bundled post-skill-log.sh exists + executable" '[ -x "$BUNDLED_POST" ]'
+assert "bundled log-skill.sh exists + executable" '[ -x "$BUNDLED_LOG" ]'
+assert "bundled hooks.json exists" '[ -f "$BUNDLED_JSON" ]'
+assert "hooks.json is valid JSON" 'python3 -c "import json; json.load(open(\"$BUNDLED_JSON\"))"'
+assert "hooks.json has PostToolUse Skill matcher" 'python3 -c "
+import json
+d=json.load(open(\"$BUNDLED_JSON\"))
+e=d[\"PostToolUse\"][0]
+assert e[\"matcher\"]==\"^Skill\$\"
+assert e[\"hooks\"][0][\"command\"]==\"\${CLAUDE_PLUGIN_ROOT}/hooks/post-skill-log.sh\"
+"'
+assert "bundled hook byte-identical to bin/ source" 'cmp -s "$AIKIT/bin/hooks/post-skill-log.sh" "$BUNDLED_POST"'
+assert "bundled log-skill byte-identical to bin/ source" 'cmp -s "$AIKIT/bin/log-skill.sh" "$BUNDLED_LOG"'
+assert "sync-plugin-hooks --check clean" 'bash "$AIKIT/bin/sync-plugin-hooks.sh" --check >/dev/null 2>&1'
+
+# Drift detection round-trip: mutate, --check fails, re-stamp, --check passes.
+TMP_HOOK_BAK=$(mktemp -d)
+cp "$BUNDLED_POST" "$TMP_HOOK_BAK/post-skill-log.sh"
+echo "# tampered" >> "$BUNDLED_POST"
+set +e
+bash "$AIKIT/bin/sync-plugin-hooks.sh" --check >/dev/null 2>&1
+HOOK_DRIFT_EXIT=$?
+set -e
+assert "sync-plugin-hooks --check detects drift" '[ "$HOOK_DRIFT_EXIT" -eq 1 ]'
+bash "$AIKIT/bin/sync-plugin-hooks.sh" >/dev/null
+assert "sync-plugin-hooks stamps drift away" 'bash "$AIKIT/bin/sync-plugin-hooks.sh" --check >/dev/null 2>&1'
+rm -rf "$TMP_HOOK_BAK"
+
+echo ""
 echo "=== VERSION ==="
 assert "VERSION file" '[ -f "$AIKIT/VERSION" ]'
 
@@ -921,6 +954,44 @@ assert "hook handles missing skill field" '[ ! -f "$HOOK_STATE/ai-kit/usage.json
 rm -rf "$HOOK_STATE"
 
 echo ""
+echo "=== hook: post-skill-log via plugin layout ==="
+# Simulate the Claude Code plugin install — only the workflow/hooks/ tree is
+# reachable from the hook's POV. The script must locate the sibling
+# log-skill.sh (not the bin/ copy) and still log correctly.
+PLUGIN_ROOT=$(mktemp -d)
+mkdir -p "$PLUGIN_ROOT/hooks"
+cp "$AIKIT/workflow/hooks/post-skill-log.sh" "$PLUGIN_ROOT/hooks/"
+cp "$AIKIT/workflow/hooks/log-skill.sh" "$PLUGIN_ROOT/hooks/"
+chmod +x "$PLUGIN_ROOT/hooks/"*.sh
+PLUGIN_HOOK="$PLUGIN_ROOT/hooks/post-skill-log.sh"
+PLUGIN_STATE=$(mktemp -d)
+
+unset AI_KIT_USAGE
+echo '{"tool_name":"Skill","tool_input":{"skill":"diagnose","args":""}}' \
+  | XDG_STATE_HOME="$PLUGIN_STATE" "$PLUGIN_HOOK"
+assert "plugin hook no-op without env" '[ ! -f "$PLUGIN_STATE/ai-kit/usage.jsonl" ]'
+
+echo '{"tool_name":"Skill","tool_input":{"skill":"diagnose","args":""}}' \
+  | AI_KIT_USAGE=1 XDG_STATE_HOME="$PLUGIN_STATE" "$PLUGIN_HOOK"
+assert "plugin hook writes log entry" '[ -f "$PLUGIN_STATE/ai-kit/usage.jsonl" ]'
+assert "plugin hook logs correct skill" 'grep -q "\"skill\":\"diagnose\"" "$PLUGIN_STATE/ai-kit/usage.jsonl"'
+assert "plugin hook log is valid JSON" 'python3 -c "
+import json
+for line in open(\"$PLUGIN_STATE/ai-kit/usage.jsonl\"):
+    json.loads(line)
+"'
+
+# The hook MUST resolve its sibling log-skill.sh, not the bin/ copy — prove
+# it by removing the sibling and asserting the next invocation no-ops.
+rm "$PLUGIN_ROOT/hooks/log-skill.sh"
+rm -f "$PLUGIN_STATE/ai-kit/usage.jsonl"
+echo '{"tool_name":"Skill","tool_input":{"skill":"diagnose","args":""}}' \
+  | AI_KIT_USAGE=1 XDG_STATE_HOME="$PLUGIN_STATE" "$PLUGIN_HOOK"
+assert "plugin hook no-op when sibling missing" '[ ! -f "$PLUGIN_STATE/ai-kit/usage.jsonl" ]'
+
+rm -rf "$PLUGIN_ROOT" "$PLUGIN_STATE"
+
+echo ""
 echo "=== hook: context-drift ==="
 CD_HOOK="$AIKIT/bin/hooks/context-drift-check.sh"
 assert "context-drift hook is executable" '[ -x "$CD_HOOK" ]'
@@ -971,7 +1042,7 @@ rm -rf "$TMP_CDH2"
 
 echo ""
 echo "=== privacy ==="
-NET_HITS="$(grep -REn 'curl|wget|/dev/tcp|nc ' "$AIKIT/bin/log-skill.sh" "$AIKIT/bin/usage-stats.sh" "$AIKIT/bin/usage-purge.sh" "$AIKIT/bin/hooks/post-skill-log.sh" || true)"
+NET_HITS="$(grep -REn 'curl|wget|/dev/tcp|nc ' "$AIKIT/bin/log-skill.sh" "$AIKIT/bin/usage-stats.sh" "$AIKIT/bin/usage-purge.sh" "$AIKIT/bin/hooks/post-skill-log.sh" "$AIKIT/workflow/hooks/post-skill-log.sh" "$AIKIT/workflow/hooks/log-skill.sh" || true)"
 assert "no network calls in usage scripts" '[ -z "$NET_HITS" ]'
 
 echo ""

@@ -122,8 +122,11 @@ PY
 
 # Keep plugin manifest + marketplace catalog in lockstep with VERSION.
 bash "$SCRIPT_BIN/sync-plugin-version.sh"
+# Keep plugin-bundled hook scripts byte-identical to bin/ source-of-truth.
+bash "$SCRIPT_BIN/sync-plugin-hooks.sh"
 
-git add VERSION CHANGELOG.md workflow/.claude-plugin/plugin.json .claude-plugin/marketplace.json
+git add VERSION CHANGELOG.md workflow/.claude-plugin/plugin.json .claude-plugin/marketplace.json \
+  workflow/hooks/post-skill-log.sh workflow/hooks/log-skill.sh
 git commit -m "chore(release): v$NEW_VERSION"
 
 if [ "$DO_TAG" = true ]; then
