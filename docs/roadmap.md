@@ -124,7 +124,6 @@ Install canonical (y/n/preview each)? Install external (per-item)?
 - [x] **PR 3** — MCP server (`mcp/`): Node + TypeScript, stdio transport, 5 read-only tools (`ai_kit_which`, `ai_kit_skill`, `ai_kit_rule`, `ai_kit_doctor`, `ai_kit_list`). Security: `execFile` not `exec`, zod-validated inputs, 10s timeout, 1 MB output cap, stderr-only logging. CI matrix Node 20 + 22. Reaches Cline / Continue / Zed / Claude Desktop users that the symlink-install and plugin path don't cover.
 
 **Open follow-ups (PR 4 territory — not blocking).**
-- [ ] **Cursor `.cursor/commands/` runtime verification.** `install-global.sh` and `bootstrap-project.sh` mirror slash commands there, but Cursor's command-discovery contract is less stable than skill discovery. Test in a real Cursor session, document gaps. Falls back gracefully if unsupported — no harm done.
 - [ ] **Hook in the plugin.** v1 plugin doesn't ship the PostToolUse skill-logging hook (path resolution from plugin context is shaky). If we want plugin-only users to get usage stats, bundle a copy of `post-skill-log.sh` inside `workflow/hooks/` and add `hooks/hooks.json`. Opt-in via `AI_KIT_USAGE=1` either way.
 - [ ] **Subagent source-of-truth.** PR 1 duplicates the review checklist in both `workflow/skills/aikit-review/SKILL.md` (Cursor inline path) and `workflow/agents/aikit-reviewer/AGENT.md` (Claude Code delegate). Acceptable for v1; v2 should add an emitter (like `bin/emit-rules.sh`) that derives the agent prompt from the skill body. Avoids drift.
 - [ ] **Migrate more skills to subagent delegation.** Today only `aikit-review` delegates. Candidates: `aikit-qa`, `aikit-diagnose`, `aikit-improve-codebase-architecture`, `aikit-to-issues` — all do heavy reads that would benefit from isolation. Apply the same `## Run mode` block + inline-fallback pattern.
@@ -140,6 +139,5 @@ Stub emitters, the first vendored external rule, and the `/aikit-recommend-rules
 → `/aikit-setup` wiring all shipped 2026-05-22. Remaining, in priority order:
 
 1. **Migration guide** for legacy `.cursor/rules/*.mdc` installs in `docs/troubleshooting.md` (emeq/admin already cleaned manually).
-2. **Cursor `.cursor/commands/` runtime verification** (see section 3 follow-ups).
-3. **Publish ai-kit-mcp to npm** so users don't need a clone (see section 3 follow-ups).
-4. **Web-search caching** for `/aikit-recommend-rules` — every invocation re-fetches today.
+2. **Publish ai-kit-mcp to npm** so users don't need a clone (see section 3 follow-ups).
+3. **Web-search caching** for `/aikit-recommend-rules` — every invocation re-fetches today.
