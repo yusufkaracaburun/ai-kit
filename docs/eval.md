@@ -75,7 +75,7 @@ Run locally:
 
 ## Which skills are covered
 
-v1.1.0 ships fixtures for `diagnose`, `tdd`, `ship`, `retro`, and `to-prd` — the five with the most procedural content and the highest blast radius if they regress. Open-ended skills like `grill-me`, `zoom-out`, and `handoff` are intentionally left without fixtures (their value is shape, not output).
+v1.1.0 ships fixtures for `aikit-diagnose`, `aikit-tdd`, `aikit-ship`, `aikit-retro`, and `aikit-to-prd` — the five with the most procedural content and the highest blast radius if they regress. Open-ended skills like `aikit-grill-me`, `aikit-zoom-out`, and `aikit-handoff` are intentionally left without fixtures (their value is shape, not output).
 
 ## Out of scope (today)
 

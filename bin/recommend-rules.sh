@@ -21,7 +21,7 @@ Reads detect-tooling.sh output (frameworks, architecture) + git history
 Output: ranked table (default) or JSON.
 
 For web-search-augmented recommendations (stack-specific community rules),
-invoke /recommend-rules as a skill from your AI agent — the skill calls
+invoke /aikit-recommend-rules as a skill from your AI agent — the skill calls
 this script for canonical scoring, then layers a search step on top.
 EOF
   exit 1

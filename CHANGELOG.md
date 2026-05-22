@@ -2,16 +2,33 @@
 
 ## Unreleased
 
+**Breaking**
+- **Every skill is now prefixed `aikit-`** (`workflow/skills/`, ADR-0004):
+  - All 20 skills renamed — `setup → aikit-setup`, `review → aikit-review`,
+    `tdd → aikit-tdd`, and so on through every skill. Skill directories,
+    `name:` frontmatter, eval fixtures, goldens, the test suite, docs, and
+    both plugin manifests moved in lockstep.
+  - Rationale: bare generic names (`setup`, `review`, `ship`, `qa`,
+    `resume`) collide with other plugins, the user's own skills, and Claude
+    built-ins — `review` already clashes with a built-in. The prefix makes
+    each skill's origin obvious and matches the already-prefixed slash
+    commands (`aikit-doctor`, …) and subagents (`aikit-explore`, …).
+  - **Action required:** invoke skills by their new names (`/aikit-setup`,
+    `/aikit-review`, …). Old names no longer resolve — re-pull and reload
+    skills. `bin/*.sh` script names and `standards/rules/` are unchanged.
+  - See [ADR-0004](docs/adr/0004-aikit-skill-prefix.md). Major version
+    bump to 2.0.0.
+
 **Feat**
-- **`recommend-tools` skill — wire companion tools without vendoring them**
-  (`workflow/skills/recommend-tools/SKILL.md`,
+- **`aikit-recommend-tools` skill — wire companion tools without vendoring them**
+  (`workflow/skills/aikit-recommend-tools/SKILL.md`,
   `context/templates/companions/`):
   - New 20th skill. Detects optional companions on the machine and in
     the repo — **graphify** (codebase knowledge graph, optimises what
     the AI reads), **caveman** (token-compressed responses, optimises
     how the AI replies), and **llm-wiki** (a self-maintaining knowledge
     base for non-code documents) — and wires whichever the user picks.
-    Same trust model as `recommend-rules`: surface, let the user choose,
+    Same trust model as `aikit-recommend-rules`: surface, let the user choose,
     never auto-install.
   - ai-kit owns only the *integration glue*, never the tool source. Glue
     templates land in `context/templates/companions/`: a `graphify`
@@ -20,7 +37,7 @@
     `llm-wiki/` scaffold (wiki schema + starter pages) adapting Andrej
     Karpathy's `llm-wiki.md` pattern. caveman is never enabled by
     default — it is a communication mode.
-  - `/setup` surfaces `/recommend-tools` as an optional follow-up
+  - `/aikit-setup` surfaces `/aikit-recommend-tools` as an optional follow-up
     (propose-but-defer; setup never runs it).
   - README gains a "Companion tools" section. Skill count 19 → 20 across
     README, `docs/architecture.md`, `docs/glossary.md`,

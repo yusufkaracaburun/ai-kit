@@ -42,4 +42,4 @@ user's choice (`skipped|deferred|completed`), but never invoke the skill yoursel
 Do not claim done until verify exits 0.
 ```
 
-Zie [setup SKILL](../../workflow/skills/setup/SKILL.md).
+Zie [setup SKILL](../../workflow/skills/aikit-setup/SKILL.md).

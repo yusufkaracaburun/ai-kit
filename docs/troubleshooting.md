@@ -2,7 +2,7 @@
 
 ## Setup
 
-### `/setup` not found in the agent UI
+### `/aikit-setup` not found in the agent UI
 
 The skill is not installed globally. Re-run:
 
@@ -13,10 +13,10 @@ $AI_KIT_ROOT/bin/install-global.sh
 Then verify:
 
 ```bash
-ls -la ~/.agents/skills/setup ~/.cursor/skills/setup
+ls -la ~/.agents/skills/aikit-setup ~/.cursor/skills/aikit-setup
 ```
 
-Both should resolve to `$AI_KIT_ROOT/workflow/skills/setup`. If they don't, the symlink target is stale — delete the symlinks and re-run `install-global.sh`.
+Both should resolve to `$AI_KIT_ROOT/workflow/skills/aikit-setup`. If they don't, the symlink target is stale — delete the symlinks and re-run `install-global.sh`.
 
 ### `ai-kit root not found`
 
@@ -81,7 +81,7 @@ brew install bash
 
 Read the failure message — each check is named (`description missing trigger phrase`, `missing ## Process or ## Phase heading`, …). The most common new-skill failure is a description that lacks a trigger phrase like "Use when …". Add one.
 
-For skills under 20 lines (`zoom-out`-style), the `## Process` check is skipped automatically.
+For skills under 20 lines (`aikit-zoom-out`-style), the `## Process` check is skipped automatically.
 
 ## Usage logging
 
@@ -115,11 +115,11 @@ The log is `${XDG_STATE_HOME:-~/.local/state}/ai-kit/usage.jsonl`. Nothing else,
 
 ## Reconfiguring
 
-### `/setup` says "already configured"
+### `/aikit-setup` says "already configured"
 
 The `.ai-kit-setup` marker exists. Either:
 
-- Re-run `/setup` and pick `change` per branch you want to redo.
+- Re-run `/aikit-setup` and pick `change` per branch you want to redo.
 - Delete the marker to restart from scratch: `rm .ai-kit-setup`.
 
 ### Skill behaviour changed unexpectedly

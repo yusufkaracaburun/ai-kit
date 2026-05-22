@@ -53,8 +53,8 @@ Read this before adding a new primitive type or moving files between layers. For
 | Skill | `workflow/skills/<name>/SKILL.md` | symlink (install-global.sh / bootstrap) **or** plugin manifest | `~/.claude/skills/` · `~/.cursor/skills/` · `<proj>/.claude/skills/` |
 | Subagent | `workflow/agents/<name>/AGENT.md` | same symlink pass + plugin manifest | `~/.claude/agents/` · `<proj>/.claude/agents/` |
 | Slash command | `workflow/commands/<name>.md` | same symlink pass (files, not dirs) + plugin manifest | `~/.claude/commands/` · `<proj>/.claude/commands/` |
-| Rule | `standards/rules/<name>.mini.md` | **emitter** (`bin/emit-rules.sh`) at `/setup` time — converts to host format | `<proj>/.cursor/rules/*.mdc` (Cursor) · skill text (Claude Code) |
-| Hook | `.claude/settings.json` + `bin/hooks/*.sh` | committed in the project (or emitted by `/setup`) | `<proj>/.claude/settings.json` |
+| Rule | `standards/rules/<name>.mini.md` | **emitter** (`bin/emit-rules.sh`) at `/aikit-setup` time — converts to host format | `<proj>/.cursor/rules/*.mdc` (Cursor) · skill text (Claude Code) |
+| Hook | `.claude/settings.json` + `bin/hooks/*.sh` | committed in the project (or emitted by `/aikit-setup`) | `<proj>/.claude/settings.json` |
 | MCP tool | `mcp/src/tools.ts` | end-user adds `.mcp.json` entry pointing at the `ai-kit-mcp` wrapper | client-defined |
 
 ## Two design choices that keep the kit coherent
@@ -67,7 +67,7 @@ Consequence: never write into `~/.claude/skills/<name>/` or `<proj>/.claude/skil
 
 ### 2. Emitter pattern for rules
 
-Rules are agent-agnostic markdown books (`standards/rules/`). They cannot be symlinked into a host directory because each host expects a different format (Cursor `.mdc`, Claude Code skill-text, etc). `bin/emit-rules.sh` reads the source and writes host-specific files at `/setup` time.
+Rules are agent-agnostic markdown books (`standards/rules/`). They cannot be symlinked into a host directory because each host expects a different format (Cursor `.mdc`, Claude Code skill-text, etc). `bin/emit-rules.sh` reads the source and writes host-specific files at `/aikit-setup` time.
 
 Use this pattern whenever an artifact needs per-host transformation. Don't invent a parallel system.
 
@@ -75,9 +75,9 @@ Use this pattern whenever an artifact needs per-host transformation. Don't inven
 
 - **Multiple install paths can co-exist.** A user can have symlink-install + plugin install at the same time. `bin/ai-kit-doctor.sh` detects this and warns (one channel becomes stale on update).
 - **Per-project always overrides global.** `<proj>/.claude/skills/foo/` wins over `~/.claude/skills/foo/`. Use project-scope to pin a version or override for one repo.
-- **Subagents are Claude Code-only.** Skills that delegate to a subagent must include an **inline fallback** for hosts without the Task tool (Cursor, MCP clients). See `workflow/skills/review/SKILL.md` for the canonical pattern.
+- **Subagents are Claude Code-only.** Skills that delegate to a subagent must include an **inline fallback** for hosts without the Task tool (Cursor, MCP clients). See `workflow/skills/aikit-review/SKILL.md` for the canonical pattern.
 - **Slash commands are Claude Code-first.** `~/.cursor/commands/` is mirrored opportunistically; verify per Cursor version.
-- **MCP tools are read-only.** The MCP server shells out to `bin/` scripts and never writes to the source layer. Project-bootstrap remains a `/setup` skill, not an MCP tool.
+- **MCP tools are read-only.** The MCP server shells out to `bin/` scripts and never writes to the source layer. Project-bootstrap remains a `/aikit-setup` skill, not an MCP tool.
 
 ## Versioning
 

@@ -79,7 +79,7 @@ $AI_KIT_ROOT/bin/verify-setup.sh . --strict --minimal
 ```
 project/
 ├── .agents/skills/                # new
-│   ├── diagnose -> .../ai-kit/workflow/skills/diagnose
+│   ├── diagnose -> .../ai-kit/workflow/skills/aikit-diagnose
 │   ├── ship     -> ...
 │   └── ... (16 total)
 ├── .cursor/
@@ -90,7 +90,7 @@ project/
 │   │   └── tailwind.mdc           # preserved
 │   └── skills/
 │       ├── my-team-skill/         # preserved (custom)
-│       ├── diagnose  -> .../ai-kit/workflow/skills/diagnose
+│       ├── diagnose  -> .../ai-kit/workflow/skills/aikit-diagnose
 │       └── ... (16 ai-kit skills symlinked alongside)
 ├── docs/
 │   ├── adr/ADR-template.md
@@ -111,7 +111,7 @@ The team's existing rules and MCP config are **untouched**. The custom `my-team-
 The codebase has `app/Domain/` and `app/Application/` style folders. To capture that:
 
 ```bash
-# Re-run /setup in the agent, accept "Full" path this time, only enable branch 7
+# Re-run /aikit-setup in the agent, accept "Full" path this time, only enable branch 7
 # Or run the branch manually:
 mkdir -p docs/agents
 cp $AI_KIT_ROOT/context/templates/docs/agents/architecture.md docs/agents/architecture.md
@@ -121,7 +121,7 @@ cp $AI_KIT_ROOT/context/templates/docs/agents/architecture.md docs/agents/archit
 ## What changed in the team's day-to-day
 
 - Cursor still picks up `inertia.mdc`, `laravel.mdc`, etc. — nothing regressed.
-- `/diagnose`, `/ship`, `/tdd`, `/retro` now work from ai-kit.
+- `/aikit-diagnose`, `/aikit-ship`, `/aikit-tdd`, `/aikit-retro` now work from ai-kit.
 - `my-team-skill` is still invokable.
 - New devs read `AGENTS.md` first, then `docs/agents/agent-stack.md` for the coexistence map.
 

@@ -16,7 +16,7 @@ Fixtures live at `tests/eval/prompts/<skill>/<scenario>.md` and define:
 
 ## Layer 2 — golden-output rubric (high-stakes skills)
 
-For the skills where output quality matters most (`to-prd`, `tdd`, `ship`),
+For the skills where output quality matters most (`aikit-to-prd`, `aikit-tdd`, `aikit-ship`),
 we also keep a *golden output*: a hand-written response that demonstrates
 what "good" looks like. Each golden carries a structured rubric in its
 frontmatter that can be checked deterministically (no API calls, no LLM).
@@ -51,10 +51,10 @@ max_lines: 400
 bin/eval-golden.sh --validate-all
 
 # Validate one golden against its own rubric.
-bin/eval-golden.sh to-prd recurring-tasks
+bin/eval-golden.sh aikit-to-prd recurring-tasks
 
 # Score a real model response against the rubric.
-bin/eval-golden.sh to-prd recurring-tasks path/to/response.md
+bin/eval-golden.sh aikit-to-prd recurring-tasks path/to/response.md
 ```
 
 Exit codes: `0` all checks pass, `1` one or more failed, `2` usage error.

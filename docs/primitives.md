@@ -100,12 +100,12 @@ Start: "I want to add X to ai-kit"
 ### "Run a heavy security audit on changed files before merge"
 - Multi-step workflow → skill territory
 - Heavy reading of files would pollute main context → delegate to a **SUBAGENT**
-- Source: `workflow/skills/review/SKILL.md` calls `workflow/agents/aikit-reviewer/AGENT.md`
+- Source: `workflow/skills/aikit-review/SKILL.md` calls `workflow/agents/aikit-reviewer/AGENT.md`
 
 ### "Always remind the LLM to write Conventional Commits"
 - Cross-cutting, applies everywhere → **RULE**
 - Source: `standards/rules/git-hygiene.mini.md` (already exists)
-- Emitted via `bin/emit-rules.sh` at `/setup`
+- Emitted via `bin/emit-rules.sh` at `/aikit-setup`
 
 ### "Let Cline users browse my skills"
 - Cline doesn't load `.claude/skills/`; needs MCP → **MCP TOOL**
@@ -113,7 +113,7 @@ Start: "I want to add X to ai-kit"
 
 ### "Generate a fresh PRD from a one-paragraph idea"
 - Multi-step LLM workflow, auto-discovered by intent → **SKILL**
-- Source: `workflow/skills/to-prd/SKILL.md` (already exists)
+- Source: `workflow/skills/aikit-to-prd/SKILL.md` (already exists)
 - No isolated context needed; runs in main thread
 
 ---
@@ -123,7 +123,7 @@ Start: "I want to add X to ai-kit"
 - **Skill that just runs one shell command** — should be a slash command (or bin script). Skills are for multi-step LLM workflows, not aliases.
 - **Hook that calls the LLM** — hooks are deterministic shell. If you need LLM logic on an event, the hook should *invoke a skill via slash command* or just leave it as a skill the user runs explicitly.
 - **Rule that's project-specific** — rules are cross-cutting. Project-specific guidance belongs in `CONTEXT.md` or `docs/adr/`.
-- **MCP tool that writes files** — v1 MCP is read-only. File-writing operations belong in `/setup` or in bin scripts. Reconsider in v2 with proper auth.
+- **MCP tool that writes files** — v1 MCP is read-only. File-writing operations belong in `/aikit-setup` or in bin scripts. Reconsider in v2 with proper auth.
 - **Subagent for a one-shot task in main context** — if you don't actually need isolation, just do it inline. Subagents add a hop; don't pay for it gratuitously.
 - **Slash command duplicating a skill** — pick one. If the workflow is multi-step and discovery-by-description matters, it's a skill. If it's "run this script and summarize," it's a slash command.
 

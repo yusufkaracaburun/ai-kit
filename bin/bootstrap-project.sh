@@ -30,7 +30,7 @@ usage() {
   echo "  --no-rules      Skip emit-rules.sh (no universal canonical rules in this project)"
   echo ""
   echo "Configures Claude Code (.claude/skills + legacy .agents/skills) and Cursor (.cursor/skills)."
-  echo "Full setup via /setup in the agent."
+  echo "Full setup via /aikit-setup in the agent."
   exit 1
 }
 
@@ -205,4 +205,4 @@ fi
 
 echo ""
 echo "Bootstrap complete: $TARGET"
-echo "Run /setup to configure dev environment, Docker, tracker, and agile workflow."
+echo "Run /aikit-setup to configure dev environment, Docker, tracker, and agile workflow."

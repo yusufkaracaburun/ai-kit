@@ -24,10 +24,10 @@ ai-kit does not generate Cursor rules. Any rules below are user-managed.
 
 ## Coexistence
 
-- ai-kit leads: `/setup`, agile lifecycle, `docs/agents/*`
+- ai-kit leads: `/aikit-setup`, agile lifecycle, `docs/agents/*`
 - Keep separate: [custom skills, plugins, project rules — from user answers]
 - Do not overwrite: [list items user chose to preserve]
 
 ## Re-run
 
-Run `/setup` branch 0 to change mode. See `.ai-kit-setup` → `branches.setup_mode`.
+Run `/aikit-setup` branch 0 to change mode. See `.ai-kit-setup` → `branches.setup_mode`.

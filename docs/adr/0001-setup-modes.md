@@ -6,7 +6,7 @@ Accepted (v1.0.0)
 
 ## Context
 
-`/setup` needs to ask the user the smallest number of questions that still picks the right configuration. Earlier drafts (v0.3) had six modes covering every permutation of "global skills yes/no", "project skills yes/no", "rules yes/no", and "brownfield yes/no". The branch tree was so deep that the interactive setup felt like a survey instead of an onboarding.
+`/aikit-setup` needs to ask the user the smallest number of questions that still picks the right configuration. Earlier drafts (v0.3) had six modes covering every permutation of "global skills yes/no", "project skills yes/no", "rules yes/no", and "brownfield yes/no". The branch tree was so deep that the interactive setup felt like a survey instead of an onboarding.
 
 ## Decision
 

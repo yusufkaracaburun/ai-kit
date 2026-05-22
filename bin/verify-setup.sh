@@ -181,7 +181,7 @@ if [ "$STRICT" = true ]; then
   DEV_ENV="$TARGET/docs/agents/dev-environment.md"
   if [ -f "$DEV_ENV" ]; then
     check "dev-environment: no setup placeholder" \
-      "$( ! grep -q 'Filled by /setup' "$DEV_ENV" 2>/dev/null && echo true || echo false)"
+      "$( ! grep -q 'Filled by /aikit-setup' "$DEV_ENV" 2>/dev/null && echo true || echo false)"
     check "dev-environment: docs table has URL" \
       "$(grep -qE 'https?://' "$DEV_ENV" 2>/dev/null && echo true || echo false)"
   fi

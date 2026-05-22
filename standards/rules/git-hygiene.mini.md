@@ -13,7 +13,7 @@ repo_age_min_years: 0
 
 # Git hygiene
 
-Conventions every commit, branch, and PR in an ai-kit project should follow. Agent-readable so `/ship`, `/to-issues`, and `/tdd` apply them without the user reminding them.
+Conventions every commit, branch, and PR in an ai-kit project should follow. Agent-readable so `/aikit-ship`, `/aikit-to-issues`, and `/aikit-tdd` apply them without the user reminding them.
 
 ## Branch names
 
@@ -43,7 +43,7 @@ Conventional Commits with scope. One line subject, imperative, ≤72 chars:
 
 - Open against the project's main branch (default: `main` or `master` per repo convention).
 - Use the project's PR template if present. If not, include: **Summary** (what + why), **Test plan** (how reviewer can verify), **Out of scope** (what this PR explicitly does not do).
-- Keep diff ≤ 400 lines where possible. Split big PRs into vertical slices (see `/to-issues`).
+- Keep diff ≤ 400 lines where possible. Split big PRs into vertical slices (see `/aikit-to-issues`).
 - Link issues with `Fixes #N` / `Closes #N` so they auto-close on merge.
 - Title follows the same Conventional Commits format as the squash-merge commit would.
 

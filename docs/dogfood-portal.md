@@ -52,7 +52,7 @@ $AI_KIT_ROOT/bin/verify-setup.sh . --strict --minimal
 - Nested `.cursor/rules` (under `playwright/`) is supported but not commonly documented. Detection picks it up via the recursive scan in `detect-lib.sh`.
 - Two MCP files coexist (Cursor + VS Code) because the team uses both editors. ai-kit lists both and modifies neither.
 
-Extend to Tier B later with `/setup` Full path.
+Extend to Tier B later with `/aikit-setup` Full path.
 
 ---
 

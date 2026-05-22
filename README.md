@@ -68,10 +68,10 @@ script location.
 In any project, inside Claude Code or Cursor:
 
 ```bash
-/setup
+/aikit-setup
 ```
 
-`/setup` writes `AGENTS.md` + `CONTEXT.md`, symlinks the skills into the project,
+`/aikit-setup` writes `AGENTS.md` + `CONTEXT.md`, symlinks the skills into the project,
 drops a `.ai-kit-setup` marker, and detects your stack. The default mode
 (`solo-both`) needs no input; three other modes exist for repo-isolation or
 brownfield repos — see [ADR-0001](docs/adr/0001-setup-modes.md).
@@ -79,8 +79,8 @@ brownfield repos — see [ADR-0001](docs/adr/0001-setup-modes.md).
 That's it — you're using ai-kit. Some first moves:
 
 - `/aikit-status` — confirm the install is healthy.
-- `/grill-me` — stress-test your next idea before you build it.
-- `/review` — second pass on a diff before you open the PR.
+- `/aikit-grill-me` — stress-test your next idea before you build it.
+- `/aikit-review` — second pass on a diff before you open the PR.
 - Not sure which skill fits? `/aikit-which "I want to ship to production"` ranks the
   best matches.
 
@@ -90,13 +90,13 @@ ai-kit is 20 skills covering one loop — idea to retro:
 
 | Phase | Skills |
 | ----- | ------ |
-| Ideation | `grill-me` · `grill-with-docs` · `to-prd` · `prototype` · `zoom-out` |
-| Development | `to-issues` → `triage` → `tdd` |
-| Testing | `review` · `qa` · `diagnose` |
-| Deployment | `ship` |
-| Ops & review | `retro` |
-| Session continuity | `checkpoint` ↔ `resume` · `handoff` |
-| Cross-cutting | `setup` · `recommend-rules` · `recommend-tools` · `improve-codebase-architecture` |
+| Ideation | `aikit-grill-me` · `aikit-grill-with-docs` · `aikit-to-prd` · `aikit-prototype` · `aikit-zoom-out` |
+| Development | `aikit-to-issues` → `aikit-triage` → `aikit-tdd` |
+| Testing | `aikit-review` · `aikit-qa` · `aikit-diagnose` |
+| Deployment | `aikit-ship` |
+| Ops & review | `aikit-retro` |
+| Session continuity | `aikit-checkpoint` ↔ `aikit-resume` · `aikit-handoff` |
+| Cross-cutting | `aikit-setup` · `aikit-recommend-rules` · `aikit-recommend-tools` · `aikit-improve-codebase-architecture` |
 
 See [docs/mental-model.md](docs/mental-model.md) for the "which skill, when" table and
 the lifecycle diagram.
@@ -114,7 +114,7 @@ ai-kit ships the agile lifecycle. Three companions pair well with it — ai-kit
   (specs, transcripts, research) into an interlinked wiki the agent keeps current;
   the wiki, not the raw files, is the artifact that compounds.
 
-`/recommend-tools` detects which of these fit, then writes the integration glue —
+`/aikit-recommend-tools` detects which of these fit, then writes the integration glue —
 an `AGENTS.md` rules block, a Claude Code hook, a `wiki/` scaffold — without
 copying any upstream source into your repo. Install the tools from their own
 upstreams; ai-kit only configures them. Glue lives in
@@ -129,7 +129,7 @@ state. Two install layers, run in this order:
    subagents, slash commands, and the MCP wrapper into `~/.claude/`, `~/.cursor/`,
    etc. The one-line installer does this for you; skip it with `--no-global` if you
    only work in one repo.
-2. **Project** *(once per repo)* — `/setup` bootstraps `AGENTS.md`, `CONTEXT.md`,
+2. **Project** *(once per repo)* — `/aikit-setup` bootstraps `AGENTS.md`, `CONTEXT.md`,
    project skills, and the `.ai-kit-setup` marker. Works fully without step 1.
 
 `AGENTS.md` is the single agent-agnostic entry point; skills route from there. Skill
@@ -149,10 +149,10 @@ primitive?" see [docs/primitives.md](docs/primitives.md).
 
 | Issue | First thing to try |
 | ----- | ------------------ |
-| `/setup` not found | Re-run `install-global.sh`; verify the `setup` symlinks |
+| `/aikit-setup` not found | Re-run `install-global.sh`; verify the `aikit-setup` symlinks |
 | ai-kit root unknown | Set `AI_KIT_ROOT` or run `install-global.sh` once |
 | Skills missing in Cursor | Reload the window, check `.cursor/skills` resolves |
-| Re-configure a project | `/setup` again (keep/change/skip per branch) or `rm .ai-kit-setup` |
+| Re-configure a project | `/aikit-setup` again (keep/change/skip per branch) or `rm .ai-kit-setup` |
 | Usage log empty | `export AI_KIT_USAGE=1` and open a new shell |
 
 Full list: [docs/troubleshooting.md](docs/troubleshooting.md).
@@ -163,7 +163,7 @@ ai-kit makes **no network calls** and ships **no telemetry**. It writes three lo
 files at most: the project `.ai-kit-setup` marker, `~/.config/ai-kit/root`, and —
 only when you set `AI_KIT_USAGE=1` — an opt-in skill-usage log at
 `~/.local/state/ai-kit/usage.jsonl` (skill name, event, project basename — never
-paths, prompts, or file contents). `retro` reads it to ground its questions in
+paths, prompts, or file contents). `aikit-retro` reads it to ground its questions in
 observed behaviour; `bin/usage-purge.sh` wipes it. Full data contract:
 [SECURITY.md](SECURITY.md).
 

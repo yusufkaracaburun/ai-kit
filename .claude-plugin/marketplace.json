@@ -9,8 +9,8 @@
     {
       "name": "ai-kit",
       "source": "./workflow",
-      "description": "20 skills (setup, ship, tdd, retro, …), 2 subagents (aikit-explore, aikit-reviewer), 5 slash commands (/aikit-doctor, /aikit-which, /aikit-status, /aikit-no-globals, /aikit-upgrade).",
-      "version": "1.2.0",
+      "description": "20 skills (aikit-setup, aikit-ship, aikit-tdd, aikit-retro, …), 2 subagents (aikit-explore, aikit-reviewer), 5 slash commands (/aikit-doctor, /aikit-which, /aikit-status, /aikit-no-globals, /aikit-upgrade).",
+      "version": "2.0.0",
       "author": {
         "name": "Yusuf Karacaburun",
         "email": "info@emeq.nl"

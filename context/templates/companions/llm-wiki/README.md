@@ -1,7 +1,7 @@
 # llm-wiki glue
 
 Scaffold for a **self-maintaining knowledge base** — the LLM Wiki pattern.
-`recommend-tools` copies this skeleton into a project when the user wants to
+`aikit-recommend-tools` copies this skeleton into a project when the user wants to
 ingest **non-code documents** (specs, transcripts, research, PDFs) into an
 interlinked wiki the agent keeps current.
 

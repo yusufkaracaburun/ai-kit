@@ -55,7 +55,7 @@ bin/emit-rules.sh                  ← NEW: takes detected agents + rule names �
 
 **Problem.** Today, bootstrap *used to* emit all 7-9 ai-kit book rules to every project regardless of stack. A Laravel monolith and a React+Vite SPA got identical rules. That's noise — refactoring/legacy-code rules are valuable for a 10-year-old codebase, less so for a greenfield prototype. Worse: ai-kit has no awareness of *stack-specific* community rules that already exist (Laravel Boost rules, Next.js conventions, Rails idioms, Django patterns).
 
-**Direction.** A new step in `/setup` (or standalone `/recommend-rules` skill) that:
+**Direction.** A new step in `/aikit-setup` (or standalone `/aikit-recommend-rules` skill) that:
 
 1. **Reads detection.** `detect-tooling.sh --json` → frameworks, package manager, language, architecture, repo age (commit count / first-commit date).
 2. **Scores canonical rules.** Mapping table: `legacy-code` → high score for repos with >2y history; `ddd-distilled` → high for backend-with-domain-folders; `release-it` → high for repos with deployment config; `aposd` → universal; `pragmatic-baseline` → universal. Filter out low-score rules.
@@ -66,7 +66,7 @@ bin/emit-rules.sh                  ← NEW: takes detected agents + rule names �
 **Sketch.**
 
 ```bash
-$ /setup
+$ /aikit-setup
 …
 Detected: Laravel 11, Inertia, Vue 3, PHP 8.3, Composer, MySQL.
 Repo age: 4 years (1842 commits).
@@ -95,7 +95,7 @@ Install canonical (y/n/preview each)? Install external (per-item)?
 
 **Open design questions.**
 - Where does the "stack → rule score" mapping live? Pure heuristic in `bin/lib/recommend-lib.sh`, or in `standards/rules/<name>.mini.md` frontmatter? (Lean: frontmatter — keeps the rule self-describing.)
-- Web search dependency: which agent does the search? Probably done by Claude inside the `/recommend-rules` skill, not a bash script — keeps ai-kit dependency-free.
+- Web search dependency: which agent does the search? Probably done by Claude inside the `/aikit-recommend-rules` skill, not a bash script — keeps ai-kit dependency-free.
 - Trust model for external rules: ai-kit shouldn't auto-install arbitrary markdown from the internet. Always preview-then-confirm, never silently fetch + emit.
 - Caching / pinning: do we vendor external rules into `standards/rules/external/` after first install, or keep them as live fetches? (Lean: vendor — reproducibility, offline-friendly, version pinning.)
 
@@ -103,9 +103,9 @@ Install canonical (y/n/preview each)? Install external (per-item)?
 - [x] Frontmatter schema on all 8 canonical rules: `universal`, `default_mode`, `weight`, `applies_to.{frameworks,architectures}`, `repo_age_min_years`.
 - [x] `bin/lib/recommend-lib.sh` — bash + tiny inline python for JSON parsing. Scores against detect-tooling output + repo age.
 - [x] `bin/recommend-rules.sh` CLI with `--json`.
-- [x] `workflow/skills/recommend-rules/SKILL.md` — Phase 1 (canonical scoring) + Phase 2 (web search) + Phase 3 (emit) flow with trust model.
+- [x] `workflow/skills/aikit-recommend-rules/SKILL.md` — Phase 1 (canonical scoring) + Phase 2 (web search) + Phase 3 (emit) flow with trust model.
 - [x] Vendoring convention documented in the skill (provenance frontmatter, pin-by-SHA, preview-before-write).
-- [ ] **Open:** wire `/recommend-rules` into `/setup` as an optional refinement step (today: only standalone invocation).
+- [ ] **Open:** wire `/aikit-recommend-rules` into `/aikit-setup` as an optional refinement step (today: only standalone invocation).
 - [ ] **Open:** first end-to-end web-vendored rule entry under `standards/rules/external/` to validate the vendoring flow on a real source.
 - [ ] **Open:** caching strategy for repeated web searches (no current caching — every invocation re-fetches).
 
@@ -126,8 +126,8 @@ Install canonical (y/n/preview each)? Install external (per-item)?
 **Open follow-ups (PR 4 territory — not blocking).**
 - [ ] **Cursor `.cursor/commands/` runtime verification.** `install-global.sh` and `bootstrap-project.sh` mirror slash commands there, but Cursor's command-discovery contract is less stable than skill discovery. Test in a real Cursor session, document gaps. Falls back gracefully if unsupported — no harm done.
 - [ ] **Hook in the plugin.** v1 plugin doesn't ship the PostToolUse skill-logging hook (path resolution from plugin context is shaky). If we want plugin-only users to get usage stats, bundle a copy of `post-skill-log.sh` inside `workflow/hooks/` and add `hooks/hooks.json`. Opt-in via `AI_KIT_USAGE=1` either way.
-- [ ] **Subagent source-of-truth.** PR 1 duplicates the review checklist in both `workflow/skills/review/SKILL.md` (Cursor inline path) and `workflow/agents/aikit-reviewer/AGENT.md` (Claude Code delegate). Acceptable for v1; v2 should add an emitter (like `bin/emit-rules.sh`) that derives the agent prompt from the skill body. Avoids drift.
-- [ ] **Migrate more skills to subagent delegation.** Today only `review` delegates. Candidates: `qa`, `diagnose`, `improve-codebase-architecture`, `to-issues` — all do heavy reads that would benefit from isolation. Apply the same `## Run mode` block + inline-fallback pattern.
+- [ ] **Subagent source-of-truth.** PR 1 duplicates the review checklist in both `workflow/skills/aikit-review/SKILL.md` (Cursor inline path) and `workflow/agents/aikit-reviewer/AGENT.md` (Claude Code delegate). Acceptable for v1; v2 should add an emitter (like `bin/emit-rules.sh`) that derives the agent prompt from the skill body. Avoids drift.
+- [ ] **Migrate more skills to subagent delegation.** Today only `aikit-review` delegates. Candidates: `aikit-qa`, `aikit-diagnose`, `aikit-improve-codebase-architecture`, `aikit-to-issues` — all do heavy reads that would benefit from isolation. Apply the same `## Run mode` block + inline-fallback pattern.
 - [x] **`mental-model.md` refresh.** Landed in PR 4 — now documents 19 skills with the matching table, plus dedicated subagent and slash-command tables linking `architecture.md` / `glossary.md` / `primitives.md`.
 - [ ] **MCP server: publish to npm.** Day-one path is "node /path/to/clone/mcp/dist/server.js" after `npm install && npm run build`. `npm install -g @yusufkaracaburun/ai-kit-mcp` becomes available after first publish — no functional blocker, just packaging.
 - [ ] **MCP v2 additions.** `ai_kit_recommend_rules` (when cwd arg lands), file-writing tools with consent flow, HTTP transport for remote clients.
@@ -140,7 +140,7 @@ Both rule-related items have working skeletons. Next steps in priority order:
 
 1. **Finish stub emitters** (aider, cline, continue, cody) — small, mechanical. Each needs its file format + a test.
 2. **First external rule vendored** (e.g. Laravel Boost) — validates the Phase 2 → Phase 3 trust flow end-to-end.
-3. **`/setup` integration of `/recommend-rules`** as an optional Tier B branch — currently standalone only.
+3. **`/aikit-setup` integration of `/aikit-recommend-rules`** as an optional Tier B branch — currently standalone only.
 4. **Migration guide** for legacy `.cursor/rules/*.mdc` installs in `docs/troubleshooting.md` (emeq/admin already cleaned manually).
 5. **Cursor `.cursor/commands/` runtime verification** (see section 3 follow-ups).
 6. **Publish ai-kit-mcp to npm** so users don't need a clone (see section 3 follow-ups).

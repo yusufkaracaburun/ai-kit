@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Toggle the machine-wide "skip global checks" opt-out used by ai-kit-doctor.sh.
-# Does NOT affect /setup, bootstrap-project.sh, or any other script — those
+# Does NOT affect /aikit-setup, bootstrap-project.sh, or any other script — those
 # still let each project pick its own setup-mode (solo-both, project-only,
 # etc.) independently.
 set -euo pipefail

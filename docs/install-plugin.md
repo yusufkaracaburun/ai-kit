@@ -47,7 +47,7 @@ Bundled (via `workflow/.claude-plugin/plugin.json`):
 
 **Not bundled** (intentionally):
 
-- Rules — emitted per-host at `/setup` time (`bin/emit-rules.sh`); plugin context can't write into your project repo
+- Rules — emitted per-host at `/aikit-setup` time (`bin/emit-rules.sh`); plugin context can't write into your project repo
 - The PostToolUse skill-logging hook — install via the symlink path if you want it (`AI_KIT_USAGE=1` opt-in)
 - The `bin/` shell scripts — not exposed by the plugin; if you want `/aikit-doctor` to work you need `AI_KIT_ROOT` set in env (the slash command resolves it)
 

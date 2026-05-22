@@ -37,7 +37,7 @@ case "$MODE" in
     ;;
   existing)
     echo "existing" > "$TARGET/.ai-kit-docker"
-    echo "Docker: existing — write docs/agents/docker.md from compose/Dockerfile/Sail in /setup"
+    echo "Docker: existing — write docs/agents/docker.md from compose/Dockerfile/Sail in /aikit-setup"
     ;;
   *) usage ;;
 esac

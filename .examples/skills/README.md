@@ -28,8 +28,8 @@ Each `<scenario>.md` contains:
 
 | Skill | Showcase(s) |
 | ----- | ----------- |
-| `grill-with-docs` | [library-saas](grill-with-docs/library-saas.md) |
-| `setup` | see [`.examples/`](../README.md) walkthroughs |
+| `aikit-grill-with-docs` | [library-saas](grill-with-docs/library-saas.md) |
+| `aikit-setup` | see [`.examples/`](../README.md) walkthroughs |
 | (others) | _open — contribute one_ |
 
 To contribute a showcase: copy an existing entry as a template, redact, and PR. Showcases are reviewed against the `expects[]` rubric in `tests/eval/prompts/<skill>/`.

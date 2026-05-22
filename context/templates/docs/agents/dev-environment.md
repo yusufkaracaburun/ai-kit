@@ -4,7 +4,7 @@ Stack-agnostic — agents detect tooling from this repo and consult **official d
 
 ## Detected in this repo
 
-<!-- Filled by /setup from package.json, composer.json, lockfiles, README, etc. -->
+<!-- Filled by /aikit-setup from package.json, composer.json, lockfiles, README, etc. -->
 
 ## How to find commands
 
@@ -24,7 +24,7 @@ When install, test, build, or deploy commands are unclear:
 
 ## Official documentation
 
-<!-- Filled by /setup with verified links for detected tools -->
+<!-- Filled by /aikit-setup with verified links for detected tools -->
 
 | Tool | Documentation |
 | ---- | ------------- |

@@ -137,10 +137,10 @@ TMP_BOOT=$(mktemp -d)
 "$AIKIT/bin/bootstrap-project.sh" --minimal "$TMP_BOOT"
 assert "AGENTS.md" '[ -f "$TMP_BOOT/AGENTS.md" ]'
 assert ".claude/skills dir" '[ -d "$TMP_BOOT/.claude/skills" ]'
-assert ".claude/skills setup linked" '[ -L "$TMP_BOOT/.claude/skills/setup" ] || [ -d "$TMP_BOOT/.claude/skills/setup" ]'
+assert ".claude/skills setup linked" '[ -L "$TMP_BOOT/.claude/skills/aikit-setup" ] || [ -d "$TMP_BOOT/.claude/skills/aikit-setup" ]'
 assert ".agents/skills dir" '[ -d "$TMP_BOOT/.agents/skills" ]'
 assert ".cursor/skills dir" '[ -d "$TMP_BOOT/.cursor/skills" ]'
-assert "setup skill linked" '[ -L "$TMP_BOOT/.cursor/skills/setup" ] || [ -d "$TMP_BOOT/.cursor/skills/setup" ]'
+assert "setup skill linked" '[ -L "$TMP_BOOT/.cursor/skills/aikit-setup" ] || [ -d "$TMP_BOOT/.cursor/skills/aikit-setup" ]'
 assert ".claude/agents dir" '[ -d "$TMP_BOOT/.claude/agents" ]'
 assert ".claude/agents aikit-explore linked" '[ -L "$TMP_BOOT/.claude/agents/aikit-explore" ] || [ -d "$TMP_BOOT/.claude/agents/aikit-explore" ]'
 assert ".claude/agents aikit-reviewer linked" '[ -L "$TMP_BOOT/.claude/agents/aikit-reviewer" ] || [ -d "$TMP_BOOT/.claude/agents/aikit-reviewer" ]'
@@ -206,8 +206,8 @@ TMP_MERGE=$(mktemp -d)
 cp -R "$AIKIT/tests/fixtures/brownfield-custom-skills/.cursor" "$TMP_MERGE/"
 "$AIKIT/bin/bootstrap-project.sh" --minimal --merge-skills "$TMP_MERGE"
 assert "merge keeps custom skill" '[ -d "$TMP_MERGE/.cursor/skills/my-custom-skill" ] || [ -L "$TMP_MERGE/.cursor/skills/my-custom-skill" ]'
-assert "merge adds setup" '[ -e "$TMP_MERGE/.cursor/skills/setup" ]'
-assert "merge adds .claude/skills/setup" '[ -e "$TMP_MERGE/.claude/skills/setup" ]'
+assert "merge adds setup" '[ -e "$TMP_MERGE/.cursor/skills/aikit-setup" ]'
+assert "merge adds .claude/skills/aikit-setup" '[ -e "$TMP_MERGE/.claude/skills/aikit-setup" ]'
 rm -rf "$TMP_MERGE"
 
 TMP_NO_SK=$(mktemp -d)
@@ -331,8 +331,8 @@ assert "doctor: skills resolve" 'echo "$OUT_DOC_PROJ" | grep -q ".claude/skills.
 assert "doctor: marker absent flagged" 'echo "$OUT_DOC_PROJ" | grep -q ".ai-kit-setup absent"'
 
 # Broken symlink — simulate ai-kit moved.
-rm -f "$TMP_DOC/.claude/skills/setup"
-ln -s /nonexistent-aikit-target "$TMP_DOC/.claude/skills/setup"
+rm -f "$TMP_DOC/.claude/skills/aikit-setup"
+ln -s /nonexistent-aikit-target "$TMP_DOC/.claude/skills/aikit-setup"
 set +e
 OUT_DOC_BROKEN="$("$AIKIT/bin/ai-kit-doctor.sh" "$TMP_DOC" 2>&1)"
 DOC_BROKEN_EXIT=$?
@@ -423,8 +423,8 @@ TMP_MIN=$(mktemp -d)
 "$AIKIT/bin/bootstrap-project.sh" --minimal "$TMP_MIN"
 mkdir -p "$TMP_MIN/docs/agents"
 cp "$AIKIT/context/templates/docs/agents/dev-environment.md" "$TMP_MIN/docs/agents/"
-sed -i '' '/Filled by \/setup/d' "$TMP_MIN/docs/agents/dev-environment.md" 2>/dev/null \
-  || sed -i '/Filled by \/setup/d' "$TMP_MIN/docs/agents/dev-environment.md"
+sed -i '' '/Filled by \/aikit-setup/d' "$TMP_MIN/docs/agents/dev-environment.md" 2>/dev/null \
+  || sed -i '/Filled by \/aikit-setup/d' "$TMP_MIN/docs/agents/dev-environment.md"
 printf '\n| Tool | Documentation |\n| ---- | ------------- |\n| nx | https://nx.dev |\n' >> "$TMP_MIN/docs/agents/dev-environment.md"
 "$AIKIT/bin/write-setup-marker.sh" "$TMP_MIN" --setup-mode=solo-both --tier=minimal \
   --docker=skipped --tracker=skipped --workflow=skipped --architecture=skipped --sandcastle=false
@@ -441,8 +441,8 @@ TMP_V=$(mktemp -d)
 "$AIKIT/bin/bootstrap-project.sh" --minimal "$TMP_V"
 mkdir -p "$TMP_V/docs/agents"
 cp "$AIKIT/context/templates/docs/agents/dev-environment.md" "$TMP_V/docs/agents/"
-sed -i '' '/Filled by \/setup/d' "$TMP_V/docs/agents/dev-environment.md" 2>/dev/null \
-  || sed -i '/Filled by \/setup/d' "$TMP_V/docs/agents/dev-environment.md"
+sed -i '' '/Filled by \/aikit-setup/d' "$TMP_V/docs/agents/dev-environment.md" 2>/dev/null \
+  || sed -i '/Filled by \/aikit-setup/d' "$TMP_V/docs/agents/dev-environment.md"
 printf '\n| Tool | Documentation |\n| ---- | ------------- |\n| ai-kit | https://github.com |\n' >> "$TMP_V/docs/agents/dev-environment.md"
 cp "$AIKIT/context/templates/docs/agents/issue-tracker-github.md" "$TMP_V/docs/agents/issue-tracker.md"
 cp "$AIKIT/context/templates/docs/agents/triage-labels.md" "$TMP_V/docs/agents/"
@@ -557,8 +557,8 @@ WHICH_LIST_ROWS="$(echo "$OUT_WHICH_LIST" | tail -n +3 | wc -l | tr -d ' ')"
 assert "which --list shows all 20 skills" '[ "$WHICH_LIST_ROWS" -eq 20 ]'
 
 # --explain dumps the SKILL.md.
-OUT_WHICH_EXP="$("$AIKIT/bin/ai-kit-which.sh" --explain ship)"
-assert "which --explain ship shows frontmatter" 'echo "$OUT_WHICH_EXP" | grep -q "^name: ship$"'
+OUT_WHICH_EXP="$("$AIKIT/bin/ai-kit-which.sh" --explain aikit-ship)"
+assert "which --explain aikit-ship shows frontmatter" 'echo "$OUT_WHICH_EXP" | grep -q "^name: aikit-ship$"'
 
 set +e
 "$AIKIT/bin/ai-kit-which.sh" --explain nonexistent-skill >/dev/null 2>&1
@@ -568,16 +568,16 @@ assert "which --explain unknown exits non-zero" '[ "$WHICH_BAD_EXIT" -ne 0 ]'
 
 # Free-text recommendations: each priority intent must surface its skill at rank 1.
 OUT_WHICH_PRD="$("$AIKIT/bin/ai-kit-which.sh" "I want to write a PRD for the new feature")"
-assert "which: PRD intent -> to-prd at rank 1" 'echo "$OUT_WHICH_PRD" | grep -q "^1\. /to-prd"'
+assert "which: PRD intent -> to-prd at rank 1" 'echo "$OUT_WHICH_PRD" | grep -q "^1\. /aikit-to-prd"'
 
 OUT_WHICH_TDD="$("$AIKIT/bin/ai-kit-which.sh" "I want to write tests first using red-green-refactor")"
-assert "which: TDD intent -> tdd at rank 1" 'echo "$OUT_WHICH_TDD" | grep -q "^1\. /tdd"'
+assert "which: TDD intent -> tdd at rank 1" 'echo "$OUT_WHICH_TDD" | grep -q "^1\. /aikit-tdd"'
 
 OUT_WHICH_SHIP="$("$AIKIT/bin/ai-kit-which.sh" "deploy to production and write release notes")"
-assert "which: ship intent -> ship at rank 1" 'echo "$OUT_WHICH_SHIP" | grep -q "^1\. /ship"'
+assert "which: ship intent -> ship at rank 1" 'echo "$OUT_WHICH_SHIP" | grep -q "^1\. /aikit-ship"'
 
 OUT_WHICH_REVIEW="$("$AIKIT/bin/ai-kit-which.sh" "review my code before merging")"
-assert "which: review intent -> review at rank 1" 'echo "$OUT_WHICH_REVIEW" | grep -q "^1\. /review"'
+assert "which: review intent -> review at rank 1" 'echo "$OUT_WHICH_REVIEW" | grep -q "^1\. /aikit-review"'
 
 # Gibberish intent returns the no-match message instead of a false positive.
 set +e
@@ -591,8 +591,8 @@ echo ""
 echo "=== skills count ==="
 SKILL_COUNT=$(find "$AIKIT/workflow/skills" -name SKILL.md | wc -l | tr -d ' ')
 assert "20 skills" '[ "$SKILL_COUNT" -eq 20 ]'
-assert "checkpoint skill exists" '[ -f "$AIKIT/workflow/skills/checkpoint/SKILL.md" ]'
-assert "resume skill exists" '[ -f "$AIKIT/workflow/skills/resume/SKILL.md" ]'
+assert "checkpoint skill exists" '[ -f "$AIKIT/workflow/skills/aikit-checkpoint/SKILL.md" ]'
+assert "resume skill exists" '[ -f "$AIKIT/workflow/skills/aikit-resume/SKILL.md" ]'
 
 echo ""
 echo "=== agents ==="
@@ -616,8 +616,8 @@ done
 
 echo ""
 echo "=== review skill delegation ==="
-assert "review skill mentions aikit-reviewer" 'grep -q "aikit-reviewer" "$AIKIT/workflow/skills/review/SKILL.md"'
-assert "review skill mentions inline fallback" 'grep -q "Cursor / hosts without subagents" "$AIKIT/workflow/skills/review/SKILL.md"'
+assert "review skill mentions aikit-reviewer" 'grep -q "aikit-reviewer" "$AIKIT/workflow/skills/aikit-review/SKILL.md"'
+assert "review skill mentions inline fallback" 'grep -q "Cursor / hosts without subagents" "$AIKIT/workflow/skills/aikit-review/SKILL.md"'
 
 echo ""
 echo "=== plugin manifest ==="
@@ -728,15 +728,15 @@ id: cart-checkout
 Some words here.
 BADRESP
 set +e
-"$AIKIT/bin/eval-golden.sh" tdd cart-checkout "$TMP_BAD_RESP" > /tmp/eval-golden-bad.out 2>&1
+"$AIKIT/bin/eval-golden.sh" aikit-tdd cart-checkout "$TMP_BAD_RESP" > /tmp/eval-golden-bad.out 2>&1
 BAD_EXIT=$?
 set -e
 assert "bad response fails (exit 1)" '[ "$BAD_EXIT" -eq 1 ]'
 assert "bad response reports failed checks" 'grep -q "FAIL" /tmp/eval-golden-bad.out'
 rm -f "$TMP_BAD_RESP"
 
-# Coverage: each priority skill (to-prd, tdd, ship) has a golden.
-for prio in to-prd tdd ship; do
+# Coverage: each priority skill (aikit-to-prd, aikit-tdd, aikit-ship) has a golden.
+for prio in aikit-to-prd aikit-tdd aikit-ship; do
   assert "golden exists: $prio" '[ -f "$AIKIT/tests/eval/goldens/$prio"/*.md ] || ls "$AIKIT/tests/eval/goldens/$prio"/*.md >/dev/null 2>&1'
 done
 

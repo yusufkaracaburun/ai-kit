@@ -32,4 +32,4 @@ How this repo is structured — for agents navigating frontend and backend code.
 
 - Monorepo boundaries: [apps/libs if applicable, else n/a]
 - New features go: [where to add FE + BE code]
-- Deeper reviews: use `improve-codebase-architecture`; new patterns → ADR via `grill-with-docs`
+- Deeper reviews: use `aikit-improve-codebase-architecture`; new patterns → ADR via `aikit-grill-with-docs`

@@ -8,4 +8,4 @@ Refresh the project's `.ai-kit-setup` marker after pulling a new ai-kit version.
 
 !`bash "${AI_KIT_ROOT:-$(cat "${HOME}/.config/ai-kit/root" 2>/dev/null)}/bin/ai-kit-upgrade.sh" "${ARGUMENTS:-$(pwd)}"`
 
-Confirm the marker version moved to the expected value. If the script fails with "No .ai-kit-setup", the project isn't bootstrapped — point the user at `bin/bootstrap-project.sh` and `/setup` instead.
+Confirm the marker version moved to the expected value. If the script fails with "No .ai-kit-setup", the project isn't bootstrapped — point the user at `bin/bootstrap-project.sh` and `/aikit-setup` instead.

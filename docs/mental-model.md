@@ -7,67 +7,56 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
 ## The lifecycle loop
 
 ```
-                ┌─────────────────────────────────────────────────┐
-                │                                                 │
-                ▼                                                 │
-        ┌──────────────┐                                          │
-        │  IDEATION    │   grill-me · grill-with-docs             │
-        │              │   zoom-out · to-prd · prototype          │
-        └──────┬───────┘                                          │
-               │                                                  │
-               ▼                                                  │
-        ┌──────────────┐                                          │
-        │ DEVELOPMENT  │   to-issues → triage → tdd               │
-        └──────┬───────┘                                          │
-               │                                                  │
-               ▼                                                  │
-        ┌──────────────┐                                          │
-        │   TESTING    │   review · qa · diagnose                 │
-        └──────┬───────┘                                          │
-               │                                                  │
-               ▼                                                  │
-        ┌──────────────┐                                          │
-        │ DEPLOYMENT   │   ship                                   │
-        └──────┬───────┘                                          │
-               │                                                  │
-               ▼                                                  │
-        ┌──────────────┐                                          │
-        │   OPS/OPS    │   retro · handoff                        │
-        └──────┬───────┘                                          │
-               └──────────────────────────────────────────────────┘
+   ┌─→ IDEATION      aikit-grill-me · aikit-grill-with-docs · aikit-zoom-out ·
+   │                 aikit-to-prd · aikit-prototype
+   │      │
+   │      ▼
+   │   DEVELOPMENT   aikit-to-issues → aikit-triage → aikit-tdd
+   │      │
+   │      ▼
+   │   TESTING       aikit-review · aikit-qa · aikit-diagnose
+   │      │
+   │      ▼
+   │   DEPLOYMENT    aikit-ship
+   │      │
+   │      ▼
+   │   OPS & REVIEW  aikit-retro · aikit-handoff
+   │      │
+   └──────┘
 
-   Cross-cutting:  setup · recommend-rules · recommend-tools · improve-codebase-architecture
+   Cross-cutting:   aikit-setup · aikit-recommend-rules · aikit-recommend-tools ·
+                    aikit-improve-codebase-architecture
 ```
 
 ## Which skill, when
 
 | You are about to … | Use this skill |
 | ------------------ | -------------- |
-| Stress-test an idea by being interviewed | `grill-me` |
-| Read external docs deeply and apply them | `grill-with-docs` |
-| Understand unfamiliar code at a layer up | `zoom-out` |
-| Turn a vague idea into a PRD | `to-prd` |
-| Throw a quick prototype together | `prototype` |
-| Turn a PRD into actionable tickets | `to-issues` |
-| Pick the next ticket to work on | `triage` |
-| Build a feature via red-green-refactor | `tdd` |
-| Get a second pass on a diff before PR | `review` |
-| Smoke-test a running web app | `qa` |
-| Hunt a hard bug or perf regression | `diagnose` |
-| Open the PR and prepare to merge | `ship` |
-| Close a sprint or cycle | `retro` |
-| Save context for a fresh session | `handoff` |
-| Configure ai-kit in a new repo | `setup` |
-| Reshape the codebase architecture | `improve-codebase-architecture` |
-| Save context for `/clear`, resume later | `checkpoint` ↔ `resume` |
-| Recommend canonical rules for the detected stack | `recommend-rules` |
-| Wire optional companion tools (graphify, caveman) | `recommend-tools` |
+| Stress-test an idea by being interviewed | `aikit-grill-me` |
+| Read external docs deeply and apply them | `aikit-grill-with-docs` |
+| Understand unfamiliar code at a layer up | `aikit-zoom-out` |
+| Turn a vague idea into a PRD | `aikit-to-prd` |
+| Throw a quick prototype together | `aikit-prototype` |
+| Turn a PRD into actionable tickets | `aikit-to-issues` |
+| Pick the next ticket to work on | `aikit-triage` |
+| Build a feature via red-green-refactor | `aikit-tdd` |
+| Get a second pass on a diff before PR | `aikit-review` |
+| Smoke-test a running web app | `aikit-qa` |
+| Hunt a hard bug or perf regression | `aikit-diagnose` |
+| Open the PR and prepare to merge | `aikit-ship` |
+| Close a sprint or cycle | `aikit-retro` |
+| Save context for a fresh session | `aikit-handoff` |
+| Configure ai-kit in a new repo | `aikit-setup` |
+| Reshape the codebase architecture | `aikit-improve-codebase-architecture` |
+| Save context for `/clear`, resume later | `aikit-checkpoint` ↔ `aikit-resume` |
+| Recommend canonical rules for the detected stack | `aikit-recommend-rules` |
+| Wire optional companion tools (graphify, caveman) | `aikit-recommend-tools` |
 
 ## Subagents (Claude Code only)
 
 | You are running … | Delegate to … |
 | ----------------- | -------------- |
-| `review` skill on Claude Code | `aikit-reviewer` (full pre-merge review with structured markdown report) |
+| `aikit-review` skill on Claude Code | `aikit-reviewer` (full pre-merge review with structured markdown report) |
 | Cross-file impact analysis from any skill | `aikit-explore` (read-only sweeps, ≤300 lines, structured return) |
 
 Subagents are Claude Code-only. Cursor and other hosts fall back to the inline checklist inside the calling skill — single source of truth.
@@ -86,16 +75,16 @@ Slash commands wrap `bin/ai-kit-*.sh` scripts. They're optional — you can alwa
 
 ## Dependencies between skills
 
-- `tdd` reads ADRs in the area you're touching (uses domain glossary from `CONTEXT.md`).
-- `review` checks alignment with `CONTEXT.md` and recent ADRs — it expects them to exist.
-- `ship` runs after `review` is clean.
-- `retro` reads usage-stats (opt-in) from `bin/usage-stats.sh` to ground questions in observed behaviour.
-- `diagnose` builds its feedback loop *first*; everything else is mechanical.
+- `aikit-tdd` reads ADRs in the area you're touching (uses domain glossary from `CONTEXT.md`).
+- `aikit-review` checks alignment with `CONTEXT.md` and recent ADRs — it expects them to exist.
+- `aikit-ship` runs after `aikit-review` is clean.
+- `aikit-retro` reads usage-stats (opt-in) from `bin/usage-stats.sh` to ground questions in observed behaviour.
+- `aikit-diagnose` builds its feedback loop *first*; everything else is mechanical.
 
 ## The three habits the kit encodes
 
-1. **Vertical slices over horizontal.** One test → one impl → repeat. Don't write all tests then all code. Encoded in `tdd`.
-2. **Build the feedback loop first.** A failing test, a curl, a Playwright script — *something* that gives pass/fail in seconds. Encoded in `diagnose`.
+1. **Vertical slices over horizontal.** One test → one impl → repeat. Don't write all tests then all code. Encoded in `aikit-tdd`.
+2. **Build the feedback loop first.** A failing test, a curl, a Playwright script — *something* that gives pass/fail in seconds. Encoded in `aikit-diagnose`.
 3. **Make decisions visible.** Domain in `CONTEXT.md`, decisions in `docs/adr/`, agent config in `docs/agents/`. The skills lean on these; if they're missing, the skills get vaguer.
 
 ## What ai-kit deliberately does NOT do

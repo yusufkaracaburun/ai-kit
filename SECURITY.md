@@ -8,7 +8,7 @@ ai-kit ships **Bash scripts and Markdown only**. No runtime daemon, no network l
 
 | File | When | What |
 | ---- | ---- | ---- |
-| `.ai-kit-setup` (per project) | `/setup` runs | Setup mode + branch choices. No paths outside the project. |
+| `.ai-kit-setup` (per project) | `/aikit-setup` runs | Setup mode + branch choices. No paths outside the project. |
 | `~/.config/ai-kit/root` | `install-global.sh` | Absolute path to the ai-kit clone. |
 | `~/.local/state/ai-kit/usage.jsonl` | only when `AI_KIT_USAGE=1` | One JSON line per skill invocation: `ts`, `skill`, `event`, `project` (basename), `cwd_hash` (sha1). **No absolute paths, no prompt contents, no file contents.** |
 
