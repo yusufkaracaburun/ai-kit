@@ -129,18 +129,45 @@ Install canonical (y/n/preview each)? Install external (per-item)?
 - [x] **Migrate more skills to subagent delegation.** (#3, 2026-05-22) Four skills gained a `## Run mode` block with inline fallback. `aikit-qa` delegates the full QA pass to a new paired `aikit-qa-runner` subagent (single-sources `Tiers` + `Output` from the skill via `emit-agents.sh`). `aikit-diagnose`, `aikit-to-issues`, and `aikit-improve-codebase-architecture` delegate their codebase walk to the existing `aikit-explore` subagent — the last swapped off the generic `Explore`. A bespoke subagent each was rejected: the other three only do codebase reads, which `aikit-explore` already covers.
 - [x] **`mental-model.md` refresh.** Landed in PR 4 — now documents 19 skills with the matching table, plus dedicated subagent and slash-command tables linking `architecture.md` / `glossary.md` / `primitives.md`.
 - [x] **MCP server: published to npm.** (#4, 2026-05-22) `npm install -g @yusufkaracaburun/ai-kit-mcp`. package.json hardened (`publishConfig.access=public`, `prepublishOnly` clean+build+test, repository object + `directory`). Tag-gated CI publish: `.github/workflows/mcp-publish.yml` publishes on `v*` push, version-guarded against the tag.
-- [ ] **MCP v2 additions.** (#13) `ai_kit_recommend_rules` (when cwd arg lands), file-writing tools with consent flow, HTTP transport for remote clients.
+- [x] **MCP server + non-CC/Cursor emitters removed.** (2026-05-22) Superseded by section 4 — ai-kit scoped to Claude Code + Cursor.
+
+---
+
+## 4. Scope reduction — Claude Code + Cursor only
+
+**Status:** **landed** 2026-05-22. See [ADR-0006](adr/0006-scope-claude-code-cursor-only.md).
+
+Sections 1 and 3 above built multi-host reach: rule emitters for Aider, Cline,
+Continue, and Cody, and an MCP server for Cline / Continue / Zed / Claude
+Desktop. In practice ai-kit is developed and used only on Claude Code and
+Cursor, and the multi-host surface cost more than it returned — extra CI, an
+npm package, doc surface, and a test matrix for hosts nobody here runs.
+
+**Removed.**
+- `mcp/` — the entire MCP server (Node + TypeScript, 5 tools) and its CI
+  (`mcp.yml`, `mcp-publish.yml`). The `@yusufkaracaburun/ai-kit-mcp` npm
+  package is deprecated.
+- `bin/lib/emitters/{aider,cline,cody,continue}.sh` — the four non-CC/Cursor
+  rule emitters. `emit-rules.sh` now dispatches to `cursor`, `claude-code`,
+  and `generic` (the always-on rule index) only.
+- `bin/ai-kit-mcp` wrapper and its `install-global.sh` symlink step.
+
+**Kept.** Cursor and Claude Code emitters; the `generic` emitter (it maintains
+the canonical `docs/agents/active-rules.md` index — not a host); user-project
+MCP detection in `detect-tooling.sh` / `detect-lib.sh` (a Cursor project can
+still run its own MCP servers); `bootstrap --with-mcp` (seeds `.cursor/mcp.json`).
+
+The historical "landed" entries in sections 1 and 3 are kept intact as a
+record — they describe what was shipped, then deliberately removed here.
 
 ---
 
 ## What's next
 
-Stub emitters, the first vendored external rule, the `/aikit-recommend-rules`
-→ `/aikit-setup` wiring, and the pre-2.0 migration guide all shipped 2026-05-22.
-The MCP server is on npm, the subagent emitter is in place, and four more
-skills now delegate to subagents. Remaining, in priority order:
+The subagent emitter is in place, four more skills now delegate to subagents,
+and ai-kit has been scoped down to Claude Code + Cursor (section 4). Remaining,
+in priority order:
 
 1. **Web-search caching** for `/aikit-recommend-rules` — every invocation re-fetches today (#11).
-2. **MCP v2 additions** — `ai_kit_recommend_rules`, file-writing tools with consent, HTTP transport (#13).
-3. **Hook in the plugin** — bundle the PostToolUse skill-logging hook for plugin-only users (#8).
-4. **Standalone plugin marketplace repo** (#9).
+2. **Hook in the plugin** — bundle the PostToolUse skill-logging hook for plugin-only users (#8).
+3. **Standalone plugin marketplace repo** (#9).

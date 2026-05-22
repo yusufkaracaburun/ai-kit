@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
-# Re-stamp the plugin manifest, marketplace catalog, and MCP package with
-# the current ai-kit VERSION. Idempotent; safe to run on every release.
+# Re-stamp the plugin manifest and marketplace catalog with the current
+# ai-kit VERSION. Idempotent; safe to run on every release.
 #
-# VERSION is the single source of truth. Three derived locations must
+# VERSION is the single source of truth. Two derived locations must
 # stay in sync:
 #   1. workflow/.claude-plugin/plugin.json:version
 #   2. .claude-plugin/marketplace.json:plugins[0].version
-#   3. mcp/package.json:version
 #
 # Usage:
 #   sync-plugin-version.sh           # stamp from VERSION
@@ -21,7 +20,6 @@ AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
 VERSION_FILE="$AIKIT/VERSION"
 PLUGIN_JSON="$AIKIT/workflow/.claude-plugin/plugin.json"
 MARKET_JSON="$AIKIT/.claude-plugin/marketplace.json"
-MCP_PKG_JSON="$AIKIT/mcp/package.json"
 
 if [ ! -f "$VERSION_FILE" ]; then
   echo "VERSION file missing at $VERSION_FILE" >&2
@@ -33,7 +31,7 @@ MODE="stamp"
 case "${1:-}" in
   --check) MODE="check" ;;
   -h|--help)
-    sed -n '1,15p' "$0"
+    sed -n '1,12p' "$0"
     exit 0
     ;;
   "") ;;
@@ -90,10 +88,6 @@ with open('$file','w') as f:
 
 CURRENT_PLUGIN="$(extract_version "$PLUGIN_JSON" "version")"
 CURRENT_MARKET="$(extract_version "$MARKET_JSON" "plugins[0].version")"
-CURRENT_MCP=""
-if [ -f "$MCP_PKG_JSON" ]; then
-  CURRENT_MCP="$(extract_version "$MCP_PKG_JSON" "version")"
-fi
 
 case "$MODE" in
   check)
@@ -106,12 +100,8 @@ case "$MODE" in
       echo "DRIFT: VERSION=$VERSION but marketplace.json:plugins[0].version=$CURRENT_MARKET" >&2
       DRIFT=1
     fi
-    if [ -n "$CURRENT_MCP" ] && [ "$VERSION" != "$CURRENT_MCP" ]; then
-      echo "DRIFT: VERSION=$VERSION but mcp/package.json:version=$CURRENT_MCP" >&2
-      DRIFT=1
-    fi
     if [ "$DRIFT" -eq 0 ]; then
-      echo "OK: VERSION/plugin.json/marketplace.json${CURRENT_MCP:+/mcp.package.json} all at $VERSION"
+      echo "OK: VERSION/plugin.json/marketplace.json all at $VERSION"
     fi
     exit "$DRIFT"
     ;;
@@ -119,7 +109,6 @@ case "$MODE" in
     NEEDS_STAMP=false
     [ "$VERSION" != "$CURRENT_PLUGIN" ] && NEEDS_STAMP=true
     [ "$VERSION" != "$CURRENT_MARKET" ] && NEEDS_STAMP=true
-    [ -n "$CURRENT_MCP" ] && [ "$VERSION" != "$CURRENT_MCP" ] && NEEDS_STAMP=true
     if [ "$NEEDS_STAMP" = false ]; then
       echo "Already at $VERSION (no changes)"
       exit 0
@@ -129,9 +118,5 @@ case "$MODE" in
     echo "Stamped $VERSION into:"
     echo "  $PLUGIN_JSON"
     echo "  $MARKET_JSON"
-    if [ -f "$MCP_PKG_JSON" ]; then
-      set_version "$MCP_PKG_JSON" "version" "$VERSION"
-      echo "  $MCP_PKG_JSON"
-    fi
     ;;
 esac

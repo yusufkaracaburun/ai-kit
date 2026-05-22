@@ -20,15 +20,14 @@ emit_<agent>() {
 
 ## Existing emitters
 
+ai-kit targets two hosts — Cursor and Claude Code. The `generic` emitter is
+not a host; it always runs to maintain the canonical rule index.
+
 | Agent | File | Emits to | Auto-load |
 | ----- | ---- | -------- | --------- |
 | Cursor | `cursor.sh` | `.cursor/rules/<name>.mdc` | `alwaysApply` frontmatter |
 | Claude Code | `claude-code.sh` | `.claude/rules/<name>.md` | Skill discovery / explicit read |
-| Generic (AGENTS.md) | `generic.sh` | `docs/agents/active-rules.md` index | Manual read by agent |
-| Aider | `aider.sh` | `.aider/rules/<name>.md` | `read:` list in `.aider.conf.yml` |
-| Cline | `cline.sh` | `.clinerules/<name>.md` | Auto-loads `.clinerules/` dir |
-| Continue | `continue.sh` | `.continue/rules/<name>.md` | Auto-loads `.continue/rules/` |
-| Cody | `cody.sh` | `.sourcegraph/cody/<name>.md` | Context fetcher |
+| Generic (index) | `generic.sh` | `docs/agents/active-rules.md` index | Always emitted — canonical rule list |
 
 ## Adding a new emitter
 

@@ -2,20 +2,18 @@
 
 [![CI](https://github.com/yusufkaracaburun/ai-kit/actions/workflows/test.yml/badge.svg)](https://github.com/yusufkaracaburun/ai-kit/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/github/package-json/v/yusufkaracaburun/ai-kit?filename=mcp%2Fpackage.json&label=version)](VERSION)
 
 **The agile lifecycle as Claude Code + Cursor primitives.** Stack-agnostic. One kit
-ships skills, subagents, slash commands, hooks, rules, a plugin manifest, and an
-MCP server — pick whichever your host speaks.
+ships skills, subagents, slash commands, hooks, rules, and a Claude Code plugin
+manifest — for the two hosts ai-kit supports: Claude Code and Cursor.
 
 | Primitive | Count | Reaches |
 | --------- | -----:| ------- |
 | Skills | 20 | Claude Code · Cursor |
-| Subagents | 2 | Claude Code |
+| Subagents | 3 | Claude Code |
 | Slash commands | 5 | Claude Code · Cursor |
 | Hooks | 2 | Claude Code |
-| Rules | 8 canonical books | Cursor · Claude Code · Aider · Cline · Continue · Cody (via emitter) |
-| MCP server | 5 tools | Cline · Continue · Zed · Claude Desktop · anything MCP |
+| Rules | 8 canonical books | Cursor · Claude Code (via emitter) |
 
 [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Architecture](docs/architecture.md)
 
@@ -24,8 +22,6 @@ MCP server — pick whichever your host speaks.
 - **Claude Code or Cursor** — the host that loads the skills. Everything starts here.
 - **macOS or Linux** with `git` and Bash (the built-in macOS Bash is fine). No build
   step, no package install, no network at runtime.
-- **Node 20+** — *only* if you want the MCP server (for Cline / Continue / Zed /
-  Claude Desktop). Skip it otherwise.
 
 ## Install
 
@@ -126,9 +122,9 @@ ai-kit is **standalone** — no runtime daemon, no network calls, no required gl
 state. Two install layers, run in this order:
 
 1. **Global** *(once per machine, optional)* — `install-global.sh` symlinks skills,
-   subagents, slash commands, and the MCP wrapper into `~/.claude/`, `~/.cursor/`,
-   etc. The one-line installer does this for you; skip it with `--no-global` if you
-   only work in one repo.
+   subagents, and slash commands into `~/.claude/`, `~/.cursor/`, etc. The one-line
+   installer does this for you; skip it with `--no-global` if you only work in one
+   repo.
 2. **Project** *(once per repo)* — `/aikit-setup` bootstraps `AGENTS.md`, `CONTEXT.md`,
    project skills, and the `.ai-kit-setup` marker. Works fully without step 1.
 

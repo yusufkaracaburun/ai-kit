@@ -15,14 +15,6 @@ source "$AIKIT/bin/lib/emitters/cursor.sh"
 source "$AIKIT/bin/lib/emitters/claude-code.sh"
 # shellcheck source=lib/emitters/generic.sh
 source "$AIKIT/bin/lib/emitters/generic.sh"
-# shellcheck source=lib/emitters/aider.sh
-source "$AIKIT/bin/lib/emitters/aider.sh"
-# shellcheck source=lib/emitters/cline.sh
-source "$AIKIT/bin/lib/emitters/cline.sh"
-# shellcheck source=lib/emitters/continue.sh
-source "$AIKIT/bin/lib/emitters/continue.sh"
-# shellcheck source=lib/emitters/cody.sh
-source "$AIKIT/bin/lib/emitters/cody.sh"
 
 VERSION_FILE="$AIKIT/VERSION"
 [ -f "$VERSION_FILE" ] || { echo "ai-kit VERSION file missing" >&2; exit 2; }
@@ -33,11 +25,11 @@ usage() {
 Usage: $0 <project> [options]
 
 Emit canonical rules from \$AI_KIT_ROOT/standards/rules/*.mini.md to the
-target project in formats appropriate for each detected AI agent.
+target project in formats appropriate for Cursor and Claude Code.
 
 Options:
   --rules NAME[,NAME...]  Rules to emit. Default: every universal rule.
-  --agents A[,A...]       Override detection (cursor, claude-code, aider, …).
+  --agents A[,A...]       Override detection (cursor, claude-code).
   --mode MODE             always-on | on-demand. Default: rule-frontmatter.
   --dry-run               Print what would be emitted, don't write.
   --list                  List available rules + their universal flag, exit.
@@ -147,10 +139,6 @@ dispatch() {
     cursor)       emit_cursor       "$target" "$rule_path" "$rule_name" "$mode" "$version" ;;
     claude-code)  emit_claude_code  "$target" "$rule_path" "$rule_name" "$mode" "$version" ;;
     generic|agents-md) emit_generic "$target" "$rule_path" "$rule_name" "$mode" "$version" ;;
-    aider)        emit_aider        "$target" "$rule_path" "$rule_name" "$mode" "$version" ;;
-    cline)        emit_cline        "$target" "$rule_path" "$rule_name" "$mode" "$version" ;;
-    continue)     emit_continue     "$target" "$rule_path" "$rule_name" "$mode" "$version" ;;
-    cody)         emit_cody         "$target" "$rule_path" "$rule_name" "$mode" "$version" ;;
     *) echo "skip:${agent}  (unknown agent)" ;;
   esac
 }

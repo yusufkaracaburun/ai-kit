@@ -8,7 +8,7 @@ For how the terms fit together see [architecture.md](architecture.md); for "whic
 
 ### Agent
 
-The host that runs Claude — the IDE or CLI loading ai-kit's artifacts. Examples: Claude Code, Cursor, Cline, Continue, Zed.
+The host that runs Claude — the IDE or CLI loading ai-kit's artifacts. ai-kit supports two: Claude Code and Cursor.
 
 **Not** a synonym for *subagent*. A subagent is a child context spawned *by* the agent. When ai-kit docs say "agent-agnostic" they mean "works in any host," not "works in any subagent."
 
@@ -69,18 +69,6 @@ Event types: `PreToolUse`, `PostToolUse`, `SessionStart`, `UserPromptSubmit`, `N
 
 Synonym for *Agent* in the "IDE / CLI" sense. This glossary uses *agent* for that meaning and reserves *host* for ambiguous contexts where "agent" could be misread as "subagent."
 
-### MCP (Model Context Protocol)
-
-The JSON-RPC protocol that lets external tools expose functions to any MCP-speaking client. ai-kit ships an MCP server (`mcp/dist/server.js`) to reach non-Claude/non-Cursor hosts.
-
-### MCP server
-
-A process that speaks MCP, registered in a client's `.mcp.json`. ai-kit's server transport is **stdio** (local-only) in v1.
-
-### MCP tool
-
-A single named function exposed by an MCP server. ai-kit v1 ships five: `ai_kit_which`, `ai_kit_skill`, `ai_kit_rule`, `ai_kit_doctor`, `ai_kit_list`.
-
 ### Marker
 
 The `.ai-kit-setup` file at a project root. Indicates the project has been bootstrapped and records the setup mode (`solo-both`, `project-only`, `brownfield`, etc.). Written by `bin/write-setup-marker.sh`.
@@ -95,7 +83,7 @@ A hook event firing after a tool call completes. ai-kit's current hook matches `
 
 ### Primitive
 
-Any first-class artifact type that the host loads: skill, subagent, slash command, hook, rule, MCP tool. The two non-host primitives are *emitter* and *template*.
+Any first-class artifact type that the host loads: skill, subagent, slash command, hook, rule. The two non-host primitives are *emitter* and *template*.
 
 ### Project-only install
 
@@ -135,7 +123,7 @@ A file under `context/templates/` (or `orchestration/`) that `bootstrap-project.
 
 ### VERSION
 
-The single-source-of-truth version file at the repo root. All derived version fields (plugin manifest, marketplace catalog, MCP package.json) must mirror it. `bin/sync-plugin-version.sh` enforces this.
+The single-source-of-truth version file at the repo root. All derived version fields (plugin manifest, marketplace catalog) must mirror it. `bin/sync-plugin-version.sh` enforces this.
 
 ---
 

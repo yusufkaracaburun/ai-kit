@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+**Removed**
+- **ai-kit scoped to Claude Code + Cursor — MCP server and non-CC/Cursor
+  emitters deleted** (ADR-0006, roadmap §4):
+  - Deleted `mcp/` entirely — the Node + TypeScript MCP server, its five
+    tools, tests, and the `mcp.yml` / `mcp-publish.yml` CI workflows. The
+    `@yusufkaracaburun/ai-kit-mcp` npm package is deprecated.
+  - Deleted `bin/lib/emitters/{aider,cline,cody,continue}.sh` — the four
+    non-CC/Cursor rule emitters. `bin/emit-rules.sh` now dispatches to
+    `cursor`, `claude-code`, and `generic` (the always-on rule index) only;
+    `detect_agents()` detects only Cursor and Claude Code.
+  - Deleted `bin/ai-kit-mcp` and its `install-global.sh` symlink step.
+    `sync-plugin-version.sh` / `release.sh` no longer touch `mcp/package.json`.
+  - Kept: the `generic` emitter (the rule index, not a host), and
+    user-project MCP detection (`detect-tooling.sh`, `bootstrap --with-mcp`)
+    — a Cursor project may still run its own MCP servers.
+  - Rationale: ai-kit is developed and used only on Claude Code and Cursor;
+    the multi-host surface cost CI, an npm package, and doc/test weight for
+    hosts nobody here runs. See [ADR-0006](docs/adr/0006-scope-claude-code-cursor-only.md).
+
 **Feat**
 - **Stub rule emitters finished — aider, cline, continue, cody**
   (`bin/lib/emitters/`, roadmap item #1):

@@ -58,14 +58,6 @@ Start: "I want to add X to ai-kit"
 │           Emitter: extend bin/emit-rules.sh if needed
 │           Example: git-hygiene, context-discipline
 │
-├─ Is X a function that should be callable from non-Claude/non-Cursor
-│  hosts (Cline, Continue, Zed) via standard protocol?
-│  │
-│  └─ YES → MCP TOOL
-│           Source: mcp/src/tools.ts
-│           Constraint: read-only; shells to bin/ scripts
-│           Example: ai_kit_which, ai_kit_rule
-│
 ├─ Is X a user-facing diagnostic / utility script (no LLM in the loop)?
 │  │
 │  └─ YES → BIN SCRIPT
@@ -112,10 +104,6 @@ Start: "I want to add X to ai-kit"
 - Source: `standards/rules/git-hygiene.mini.md` (already exists)
 - Emitted via `bin/emit-rules.sh` at `/aikit-setup`
 
-### "Let Cline users browse my skills"
-- Cline doesn't load `.claude/skills/`; needs MCP → **MCP TOOL**
-- Source: `mcp/src/tools.ts` defines `ai_kit_list { kind: "skills" }`
-
 ### "Generate a fresh PRD from a one-paragraph idea"
 - Multi-step LLM workflow, auto-discovered by intent → **SKILL**
 - Source: `workflow/skills/aikit-to-prd/SKILL.md` (already exists)
@@ -128,7 +116,6 @@ Start: "I want to add X to ai-kit"
 - **Skill that just runs one shell command** — should be a slash command (or bin script). Skills are for multi-step LLM workflows, not aliases.
 - **Hook that calls the LLM** — hooks are deterministic shell. If you need LLM logic on an event, the hook should *invoke a skill via slash command* or just leave it as a skill the user runs explicitly.
 - **Rule that's project-specific** — rules are cross-cutting. Project-specific guidance belongs in `CONTEXT.md` or `docs/adr/`.
-- **MCP tool that writes files** — v1 MCP is read-only. File-writing operations belong in `/aikit-setup` or in bin scripts. Reconsider in v2 with proper auth.
 - **Subagent for a one-shot task in main context** — if you don't actually need isolation, just do it inline. Subagents add a hop; don't pay for it gratuitously.
 - **Slash command duplicating a skill** — pick one. If the workflow is multi-step and discovery-by-description matters, it's a skill. If it's "run this script and summarize," it's a slash command.
 
@@ -137,6 +124,6 @@ Start: "I want to add X to ai-kit"
 ## Two questions to ask yourself
 
 1. **Constraint test.** "Could this be a more constrained primitive type?" If yes, prefer that one. A hook beats a skill beats a subagent in determinism.
-2. **Host-reach test.** "Will this need to work in Cursor / Cline / Zed?" If yes, avoid Claude Code-only primitives (subagent, plugin features). Use skills + rules + bin scripts.
+2. **Host-reach test.** "Will this need to work in Cursor?" If yes, avoid Claude Code-only primitives (subagent, plugin features). Use skills + rules + bin scripts.
 
 If you're still uncertain, write a short paragraph describing X and grep `workflow/skills/`, `bin/`, `standards/rules/` for the closest existing analog. Mirror its shape.

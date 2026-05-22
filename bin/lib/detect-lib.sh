@@ -383,9 +383,9 @@ _aikit_rule_names() {
 }
 
 # Detect which AI agents are configured in a target project.
-# Sets DETECTED_AGENTS array (e.g. "cursor" "claude-code" "aider").
-# An agent counts as "present" when its config dir/file exists OR a parent
-# project marker (AGENTS.md / CLAUDE.md) names it. Empty array = no agents.
+# Sets DETECTED_AGENTS array (e.g. "cursor" "claude-code"). ai-kit supports
+# Cursor and Claude Code; an agent counts as "present" when its config
+# dir/file exists. Empty array = no agents.
 detect_agents() {
   local target="$1"
   DETECTED_AGENTS=()
@@ -393,11 +393,6 @@ detect_agents() {
   [ -d "$target/.cursor" ] && DETECTED_AGENTS+=("cursor")
   { [ -d "$target/.claude" ] || [ -f "$target/CLAUDE.md" ]; } \
     && DETECTED_AGENTS+=("claude-code")
-  [ -f "$target/.aider.conf.yml" ] && DETECTED_AGENTS+=("aider")
-  [ -f "$target/.clinerules" ] && DETECTED_AGENTS+=("cline")
-  { [ -f "$target/.continue/config.json" ] || [ -d "$target/.continue" ]; } \
-    && DETECTED_AGENTS+=("continue")
-  [ -d "$target/.sourcegraph" ] && DETECTED_AGENTS+=("cody")
   return 0
 }
 

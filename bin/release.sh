@@ -124,7 +124,6 @@ PY
 bash "$SCRIPT_BIN/sync-plugin-version.sh"
 
 git add VERSION CHANGELOG.md workflow/.claude-plugin/plugin.json .claude-plugin/marketplace.json
-[ -f mcp/package.json ] && git add mcp/package.json
 git commit -m "chore(release): v$NEW_VERSION"
 
 if [ "$DO_TAG" = true ]; then
