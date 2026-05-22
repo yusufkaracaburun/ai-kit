@@ -6,7 +6,7 @@ Claude Code users don't need this — they get skills/agents/commands via the sy
 
 ## Install
 
-### From npm (recommended, once published)
+### From npm (recommended)
 
 ```bash
 npm install -g @yusufkaracaburun/ai-kit-mcp
@@ -106,6 +106,26 @@ npm run build     # emit dist/server.js
 ```
 
 The handshake test (`tests/handshake.test.ts`) spawns the server via `tsx`, sends JSON-RPC over stdio, and asserts the protocol contract. CI runs this on every push (`.github/workflows/mcp.yml`).
+
+## Publishing (maintainer)
+
+The package is published to npm as `@yusufkaracaburun/ai-kit-mcp` whenever a
+release tag (`v*`) is pushed — see `.github/workflows/mcp-publish.yml`. The tag
+push is the gate: `bin/release.sh` creates the tag locally but never pushes.
+
+One-time setup: add an npm **automation** token as the `NPM_TOKEN` repo secret
+(npmjs.com → Access Tokens → Generate New Token → Automation).
+
+Manual publish (fallback — needs `npm login` first):
+
+```bash
+cd mcp
+npm publish        # prepublishOnly runs clean + build + test; publishConfig makes it public
+```
+
+`mcp/package.json`'s version is kept in lockstep with the repo `VERSION` by
+`bin/sync-plugin-version.sh` (called from `bin/release.sh`). The publish workflow
+hard-fails if the package version and the tag disagree.
 
 ## Security
 

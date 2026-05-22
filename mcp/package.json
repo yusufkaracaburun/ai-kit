@@ -4,7 +4,7 @@
   "description": "MCP server that exposes ai-kit skills, rules, and diagnostics to MCP-speaking hosts (Cline, Continue, Zed, Claude Desktop).",
   "type": "module",
   "bin": {
-    "ai-kit-mcp": "./dist/server.js"
+    "ai-kit-mcp": "dist/server.js"
   },
   "main": "./dist/server.js",
   "exports": {
@@ -18,7 +18,8 @@
     "build": "tsc",
     "dev": "tsx src/server.ts",
     "test": "node --test --import tsx tests/handshake.test.ts",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build && npm test"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
@@ -37,6 +38,23 @@
     "name": "Yusuf Karacaburun",
     "email": "info@emeq.nl"
   },
-  "repository": "https://github.com/yusufkaracaburun/ai-kit",
-  "homepage": "https://github.com/yusufkaracaburun/ai-kit#readme"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yusufkaracaburun/ai-kit.git",
+    "directory": "mcp"
+  },
+  "homepage": "https://github.com/yusufkaracaburun/ai-kit/tree/master/mcp#readme",
+  "bugs": "https://github.com/yusufkaracaburun/ai-kit/issues",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ai-kit",
+    "claude",
+    "cline",
+    "continue",
+    "zed"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }

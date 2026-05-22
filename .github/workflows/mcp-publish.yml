@@ -1,0 +1,51 @@
+name: mcp-publish
+
+# Publishes @yusufkaracaburun/ai-kit-mcp to npm when a release tag is pushed.
+# The tag push IS the manual gate — bin/release.sh creates the tag locally and
+# deliberately does not push, so publishing stays a maintainer decision.
+#
+# One-time setup: add an npm automation token as the NPM_TOKEN repo secret
+# (npmjs.com → Access Tokens → Generate → "Automation").
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish:
+    name: publish ai-kit-mcp to npm
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./mcp
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Guard — package version matches the release tag
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          TAG_VERSION=${GITHUB_REF_NAME#v}
+          if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
+            echo "::error::mcp/package.json version ($PKG_VERSION) != tag ($TAG_VERSION) — run bin/sync-plugin-version.sh"
+            exit 1
+          fi
+          echo "version $PKG_VERSION matches tag $GITHUB_REF_NAME"
+
+      - name: Publish to npm
+        # `npm publish` runs prepublishOnly (clean + build + test) first.
+        # publishConfig.access=public in package.json makes the scoped
+        # package public — no --access flag needed.
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          AI_KIT_ROOT: ${{ github.workspace }}

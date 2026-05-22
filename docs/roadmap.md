@@ -128,7 +128,7 @@ Install canonical (y/n/preview each)? Install external (per-item)?
 - [ ] **Subagent source-of-truth.** (#12) PR 1 duplicates the review checklist in both `workflow/skills/aikit-review/SKILL.md` (Cursor inline path) and `workflow/agents/aikit-reviewer/AGENT.md` (Claude Code delegate). Acceptable for v1; v2 should add an emitter (like `bin/emit-rules.sh`) that derives the agent prompt from the skill body. Avoids drift.
 - [ ] **Migrate more skills to subagent delegation.** (#3) Today only `aikit-review` delegates. Candidates: `aikit-qa`, `aikit-diagnose`, `aikit-improve-codebase-architecture`, `aikit-to-issues` — all do heavy reads that would benefit from isolation. Apply the same `## Run mode` block + inline-fallback pattern.
 - [x] **`mental-model.md` refresh.** Landed in PR 4 — now documents 19 skills with the matching table, plus dedicated subagent and slash-command tables linking `architecture.md` / `glossary.md` / `primitives.md`.
-- [ ] **MCP server: publish to npm.** (#4) Day-one path is "node /path/to/clone/mcp/dist/server.js" after `npm install && npm run build`. `npm install -g @yusufkaracaburun/ai-kit-mcp` becomes available after first publish — no functional blocker, just packaging.
+- [x] **MCP server: published to npm.** (#4, 2026-05-22) `npm install -g @yusufkaracaburun/ai-kit-mcp`. package.json hardened (`publishConfig.access=public`, `prepublishOnly` clean+build+test, repository object + `directory`). Tag-gated CI publish: `.github/workflows/mcp-publish.yml` publishes on `v*` push, version-guarded against the tag.
 - [ ] **MCP v2 additions.** (#13) `ai_kit_recommend_rules` (when cwd arg lands), file-writing tools with consent flow, HTTP transport for remote clients.
 
 ---
@@ -137,9 +137,8 @@ Install canonical (y/n/preview each)? Install external (per-item)?
 
 Stub emitters, the first vendored external rule, the `/aikit-recommend-rules`
 → `/aikit-setup` wiring, and the pre-2.0 migration guide all shipped 2026-05-22.
-Remaining, in priority order:
+The MCP server is published to npm. Remaining, in priority order:
 
-1. **Publish ai-kit-mcp to npm** so users don't need a clone (see section 3 follow-ups, #4).
-2. **Subagent source-of-truth emitter** — derive agent prompt from skill body, kills review-checklist drift (#12).
-3. **Migrate more skills to subagent delegation** — qa, diagnose, improve-codebase-architecture, to-issues (#3, do after #12).
-4. **Web-search caching** for `/aikit-recommend-rules` — every invocation re-fetches today (#11).
+1. **Subagent source-of-truth emitter** — derive agent prompt from skill body, kills review-checklist drift (#12).
+2. **Migrate more skills to subagent delegation** — qa, diagnose, improve-codebase-architecture, to-issues (#3, do after #12).
+3. **Web-search caching** for `/aikit-recommend-rules` — every invocation re-fetches today (#11).
