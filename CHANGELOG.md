@@ -27,6 +27,31 @@
     as an optional refinement, never run silently.
   - `bin/write-setup-marker.sh` learns `--rule-recommendation=completed|deferred|skipped`;
     the choice round-trips in the `.ai-kit-setup` marker.
+- **Migration guide for pre-2.0 installs** (`docs/troubleshooting.md`, roadmap #10):
+  - New "Migrating from a pre-2.0 install" section — step-by-step cleanup of
+    legacy Cursor `.mdc` shims now that rules are emitted by the
+    agent-agnostic emitter. Replaces the stale claim that ai-kit "no longer
+    generates Cursor rules".
+  - Fixed the Re-emit hint in all six rule emitters — they referenced a
+    non-existent `--update` flag; `emit-rules.sh` is already idempotent.
+- **MCP server published to npm** (`mcp/`, `.github/workflows/mcp-publish.yml`,
+  roadmap #4):
+  - `@yusufkaracaburun/ai-kit-mcp` is on npm — `npm install -g
+    @yusufkaracaburun/ai-kit-mcp` instead of clone + build.
+  - `package.json` hardened: `publishConfig.access=public`, `prepublishOnly`
+    (clean + build + test), repository object with `directory`.
+  - New `mcp-publish.yml` workflow publishes on every `v*` tag push via npm
+    OIDC trusted publishing — no long-lived token, automatic provenance.
+    A guard step fails the run if the package version != the tag.
+- **`bin/emit-agents.sh` — subagent prompt single-sourced from the skill**
+  (roadmap #12):
+  - A subagent's `AGENT.md` and its companion `SKILL.md` shared the review
+    checklist and output-format spec by hand-copy — a drift hazard. The new
+    emitter regenerates a marked region of `AGENT.md` verbatim from named
+    `SKILL.md` sections.
+  - `aikit-reviewer/AGENT.md` now pulls `Security deep pass` + `Output
+    format` from `aikit-review/SKILL.md`. CI runs `emit-agents.sh --check`
+    and fails on drift.
 
 ## 2.0.0 — 2026-05-22
 

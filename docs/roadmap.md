@@ -125,7 +125,7 @@ Install canonical (y/n/preview each)? Install external (per-item)?
 
 **Open follow-ups (PR 4 territory — not blocking).**
 - [ ] **Hook in the plugin.** (#8) v1 plugin doesn't ship the PostToolUse skill-logging hook (path resolution from plugin context is shaky). If we want plugin-only users to get usage stats, bundle a copy of `post-skill-log.sh` inside `workflow/hooks/` and add `hooks/hooks.json`. Opt-in via `AI_KIT_USAGE=1` either way.
-- [ ] **Subagent source-of-truth.** (#12) PR 1 duplicates the review checklist in both `workflow/skills/aikit-review/SKILL.md` (Cursor inline path) and `workflow/agents/aikit-reviewer/AGENT.md` (Claude Code delegate). Acceptable for v1; v2 should add an emitter (like `bin/emit-rules.sh`) that derives the agent prompt from the skill body. Avoids drift.
+- [x] **Subagent source-of-truth.** (#12, 2026-05-22) `bin/emit-agents.sh` regenerates a marked region of `workflow/agents/*/AGENT.md` from named `## ` sections of the companion `SKILL.md`. `aikit-reviewer` pulls `Security deep pass` + `Output format` from `aikit-review`. CI `--check` mode fails the build on drift. Marker-region injection chosen over full generation — agents keep bespoke framing (Contract, Inputs, What-not-to-do).
 - [ ] **Migrate more skills to subagent delegation.** (#3) Today only `aikit-review` delegates. Candidates: `aikit-qa`, `aikit-diagnose`, `aikit-improve-codebase-architecture`, `aikit-to-issues` — all do heavy reads that would benefit from isolation. Apply the same `## Run mode` block + inline-fallback pattern.
 - [x] **`mental-model.md` refresh.** Landed in PR 4 — now documents 19 skills with the matching table, plus dedicated subagent and slash-command tables linking `architecture.md` / `glossary.md` / `primitives.md`.
 - [x] **MCP server: published to npm.** (#4, 2026-05-22) `npm install -g @yusufkaracaburun/ai-kit-mcp`. package.json hardened (`publishConfig.access=public`, `prepublishOnly` clean+build+test, repository object + `directory`). Tag-gated CI publish: `.github/workflows/mcp-publish.yml` publishes on `v*` push, version-guarded against the tag.
@@ -137,8 +137,11 @@ Install canonical (y/n/preview each)? Install external (per-item)?
 
 Stub emitters, the first vendored external rule, the `/aikit-recommend-rules`
 → `/aikit-setup` wiring, and the pre-2.0 migration guide all shipped 2026-05-22.
-The MCP server is published to npm. Remaining, in priority order:
+The MCP server is on npm and the subagent emitter is in place. Remaining,
+in priority order:
 
-1. **Subagent source-of-truth emitter** — derive agent prompt from skill body, kills review-checklist drift (#12).
-2. **Migrate more skills to subagent delegation** — qa, diagnose, improve-codebase-architecture, to-issues (#3, do after #12).
-3. **Web-search caching** for `/aikit-recommend-rules` — every invocation re-fetches today (#11).
+1. **Migrate more skills to subagent delegation** — qa, diagnose, improve-codebase-architecture, to-issues (#3). `bin/emit-agents.sh` now exists, so new paired subagents single-source their shared sections from day one.
+2. **Web-search caching** for `/aikit-recommend-rules` — every invocation re-fetches today (#11).
+3. **MCP v2 additions** — `ai_kit_recommend_rules`, file-writing tools with consent, HTTP transport (#13).
+4. **Hook in the plugin** — bundle the PostToolUse skill-logging hook for plugin-only users (#8).
+5. **Standalone plugin marketplace repo** (#9).

@@ -237,6 +237,28 @@ rm -rf "$EMIT_LEGACY" "$EMIT_LEGACY_OUT"
 rm -rf "$EMIT_TMP"
 
 echo ""
+echo "=== emit-agents ==="
+# The generated region of AGENT.md must stay in sync with its source SKILL.md.
+assert "emit-agents: --check passes (AGENT.md in sync)" \
+  '"$AIKIT/bin/emit-agents.sh" --check >/dev/null 2>&1'
+assert "emit-agents: aikit-reviewer AGENT.md carries the markers" \
+  'grep -q "emit-agents:begin" "$AIKIT/workflow/agents/aikit-reviewer/AGENT.md" && grep -q "emit-agents:end" "$AIKIT/workflow/agents/aikit-reviewer/AGENT.md"'
+assert "emit-agents: generated region pulled the shared sections" \
+  'grep -q "## Security deep pass" "$AIKIT/workflow/agents/aikit-reviewer/AGENT.md"'
+# Drift detection: tweak the source skill, confirm --check catches it, restore.
+EMITA_SKILL="$AIKIT/workflow/skills/aikit-review/SKILL.md"
+EMITA_BAK=$(mktemp)
+cp "$EMITA_SKILL" "$EMITA_BAK"
+perl -0pi -e 's/APPROVE \| REQUEST CHANGES/APPROVE | REQUEST CHANGES | DRIFTMARK/' "$EMITA_SKILL"
+if "$AIKIT/bin/emit-agents.sh" --check >/dev/null 2>&1; then EMITA_DRIFT=missed; else EMITA_DRIFT=caught; fi
+cp "$EMITA_BAK" "$EMITA_SKILL"
+rm -f "$EMITA_BAK"
+assert "emit-agents: --check catches SKILL.md drift" '[ "$EMITA_DRIFT" = caught ]'
+# Unknown agent name is an error, not a silent no-op.
+if "$AIKIT/bin/emit-agents.sh" --check no-such-agent >/dev/null 2>&1; then EMITA_BOGUS=ok; else EMITA_BOGUS=err; fi
+assert "emit-agents: unknown agent name errors" '[ "$EMITA_BOGUS" = err ]'
+
+echo ""
 echo "=== recommend-rules ==="
 REC_TMP=$(mktemp -d)
 cp -R "$AIKIT/tests/fixtures/architecture-laravel/." "$REC_TMP/"

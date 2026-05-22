@@ -44,9 +44,9 @@ The per-project context file: domain model, stack, recent ADRs index. Skills rea
 
 ### Emitter
 
-A script in `bin/` that converts a single agent-agnostic source into one or more host-specific files. Canonical example: `bin/emit-rules.sh` turns `standards/rules/*.mini.md` into Cursor `.mdc` files or Claude Code skill text.
+A script in `bin/` that converts a single canonical source into one or more derived files. `bin/emit-rules.sh` turns `standards/rules/*.mini.md` into host-specific rule files (Cursor `.mdc`, Claude Code skill text). `bin/emit-agents.sh` keeps a marked region of a subagent's `AGENT.md` generated from named sections of its source `SKILL.md`, so shared reference content has one home.
 
-Use this pattern whenever an artifact needs per-host translation that cannot be solved by a symlink.
+Use this pattern whenever an artifact needs per-host translation, or shares content with another artifact, in a way a symlink cannot solve.
 
 ### Frontmatter
 

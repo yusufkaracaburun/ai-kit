@@ -5,7 +5,7 @@ description: Pre-merge code review on the current branch diff. Checks correctnes
 
 # Code Review
 
-Review the diff against the base branch before merge.
+Review the diff against the base branch before merge. Inspired by [gstack /aikit-review](https://github.com/garrytan/gstack), stripped of gstack-specific tooling.
 
 Read `CONTEXT.md` and relevant ADRs first; they're cached truth. See [`context-discipline.mini.md`](../../../standards/rules/context-discipline.mini.md).
 
@@ -52,20 +52,29 @@ Add security findings under **Blockers** or a separate **Security** section with
 ## Output format
 
 ```markdown
+## Scope
+- Base: <branch>
+- Target: <ref>
+- Mode: <daily|comprehensive>
+- Files: <count>
+- Security depth: <default|deep>
+
 ## Blockers
+- `path/to/file.ext:42` — <one-line description>
 - ...
 
 ## Security
+- `path/to/file.ext:n` — **<severity>** <one-line description>
+- (deep mode: `package@version` — **<severity>** CVE-XXXX-NNNNN)
 - ...
 
 ## Suggestions
+- `path/to/file.ext:n` — <one-line description>
 - ...
 
 ## Verdict
 APPROVE | REQUEST CHANGES
 ```
-
-Inspired by [gstack /aikit-review](https://github.com/garrytan/gstack) — stripped of gstack-specific tooling.
 
 ## Usage logging (opt-in)
 

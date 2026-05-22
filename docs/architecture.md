@@ -65,11 +65,15 @@ Read this before adding a new primitive type or moving files between layers. For
 
 Consequence: never write into `~/.claude/skills/<name>/` or `<proj>/.claude/skills/<name>/` directly — that path is a symlink. Edit the source under `workflow/skills/`.
 
-### 2. Emitter pattern for rules
+### 2. Emitter pattern: one source, derived artifacts
 
-Rules are agent-agnostic markdown books (`standards/rules/`). They cannot be symlinked into a host directory because each host expects a different format (Cursor `.mdc`, Claude Code skill-text, etc). `bin/emit-rules.sh` reads the source and writes host-specific files at `/aikit-setup` time.
+An emitter reads one canonical source and writes derived files that cannot simply be symlinked.
 
-Use this pattern whenever an artifact needs per-host transformation. Don't invent a parallel system.
+**`bin/emit-rules.sh`** — rules are agent-agnostic markdown books (`standards/rules/`). Each host expects a different rule format (Cursor `.mdc`, Claude Code skill-text, etc.), so the emitter writes host-specific files into the *target project* at `/aikit-setup` time.
+
+**`bin/emit-agents.sh`** — a subagent prompt (`workflow/agents/<name>/AGENT.md`) and its companion skill (`workflow/skills/<name>/SKILL.md`) share reference content: the review checklist, the output-format spec. The emitter keeps a marked region of `AGENT.md` generated verbatim from named `SKILL.md` sections, so the shared text has a single home. It runs at *authoring* time inside ai-kit's own tree; CI runs `emit-agents.sh --check` and fails the build on drift.
+
+Use this pattern whenever an artifact needs per-host transformation, or shares content with another artifact. Don't invent a parallel system.
 
 ## Primitive co-existence rules
 
