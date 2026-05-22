@@ -113,8 +113,11 @@ The package is published to npm as `@yusufkaracaburun/ai-kit-mcp` whenever a
 release tag (`v*`) is pushed — see `.github/workflows/mcp-publish.yml`. The tag
 push is the gate: `bin/release.sh` creates the tag locally but never pushes.
 
-One-time setup: add an npm **automation** token as the `NPM_TOKEN` repo secret
-(npmjs.com → Access Tokens → Generate New Token → Automation).
+Auth is npm **OIDC trusted publishing** — no token, no repo secret. One-time
+setup on npmjs.com → the package → Settings → Trusted Publisher: publisher
+`GitHub Actions`, repo `yusufkaracaburun/ai-kit`, workflow filename
+`mcp-publish.yml`, allowed action `npm publish`. CI then authenticates with a
+short-lived OIDC token and npm records build provenance automatically.
 
 Manual publish (fallback — needs `npm login` first):
 

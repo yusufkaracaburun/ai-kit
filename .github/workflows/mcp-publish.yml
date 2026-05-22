@@ -4,8 +4,10 @@ name: mcp-publish
 # The tag push IS the manual gate — bin/release.sh creates the tag locally and
 # deliberately does not push, so publishing stays a maintainer decision.
 #
-# One-time setup: add an npm automation token as the NPM_TOKEN repo secret
-# (npmjs.com → Access Tokens → Generate → "Automation").
+# Auth: npm OIDC trusted publishing (no NPM_TOKEN secret). One-time setup on
+# npmjs.com → package → Settings → Trusted Publisher:
+#   Publisher = GitHub Actions, repo = yusufkaracaburun/ai-kit,
+#   workflow filename = mcp-publish.yml, allowed action = npm publish.
 
 on:
   push:
@@ -16,6 +18,9 @@ jobs:
   publish:
     name: publish ai-kit-mcp to npm
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write          # required for npm OIDC trusted publishing
     defaults:
       run:
         working-directory: ./mcp
@@ -27,6 +32,10 @@ jobs:
         with:
           node-version: '22'
           registry-url: 'https://registry.npmjs.org'
+
+      - name: Upgrade npm
+        # Trusted publishing (OIDC) needs npm >= 11.5.1; Node 22 ships npm 10.
+        run: npm install -g npm@latest
 
       - name: Install dependencies
         run: npm ci
@@ -42,10 +51,9 @@ jobs:
           echo "version $PKG_VERSION matches tag $GITHUB_REF_NAME"
 
       - name: Publish to npm
-        # `npm publish` runs prepublishOnly (clean + build + test) first.
-        # publishConfig.access=public in package.json makes the scoped
-        # package public — no --access flag needed.
+        # OIDC auth is detected automatically — no token. prepublishOnly runs
+        # clean + build + test first; publishConfig.access=public keeps the
+        # scoped package public. Trusted publishing adds provenance for free.
         run: npm publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           AI_KIT_ROOT: ${{ github.workspace }}
