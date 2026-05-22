@@ -45,7 +45,7 @@ bin/emit-rules.sh                  ← NEW: takes detected agents + rule names �
 - [x] `AGENTS.md.template` no longer mentions Cursor-specific `.cursor/rules/`; agent-agnostic phrasing.
 - [x] emeq/admin migrated by hand (commit `51accea` "chore: drop ai-kit Cursor rule shims").
 - [x] Stub emitters finished — `aider.sh`, `cline.sh`, `continue.sh`, `cody.sh` (2026-05-22). Each writes per-rule files to the agent's conventional rules dir; a legacy single-file `.clinerules` is skipped (with a reason), not clobbered.
-- [ ] **Open:** (#10) broader migration guide in `docs/troubleshooting.md` for non-emeq legacy installs.
+- [x] Migration guide for pre-2.0 legacy installs — `docs/troubleshooting.md` "Migrating from a pre-2.0 install" (2026-05-22, closes #10).
 
 ---
 
@@ -135,9 +135,11 @@ Install canonical (y/n/preview each)? Install external (per-item)?
 
 ## What's next
 
-Stub emitters, the first vendored external rule, and the `/aikit-recommend-rules`
-→ `/aikit-setup` wiring all shipped 2026-05-22. Remaining, in priority order:
+Stub emitters, the first vendored external rule, the `/aikit-recommend-rules`
+→ `/aikit-setup` wiring, and the pre-2.0 migration guide all shipped 2026-05-22.
+Remaining, in priority order:
 
-1. **Migration guide** for legacy `.cursor/rules/*.mdc` installs in `docs/troubleshooting.md` (emeq/admin already cleaned manually).
-2. **Publish ai-kit-mcp to npm** so users don't need a clone (see section 3 follow-ups).
-3. **Web-search caching** for `/aikit-recommend-rules` — every invocation re-fetches today.
+1. **Publish ai-kit-mcp to npm** so users don't need a clone (see section 3 follow-ups, #4).
+2. **Subagent source-of-truth emitter** — derive agent prompt from skill body, kills review-checklist drift (#12).
+3. **Migrate more skills to subagent delegation** — qa, diagnose, improve-codebase-architecture, to-issues (#3, do after #12).
+4. **Web-search caching** for `/aikit-recommend-rules` — every invocation re-fetches today (#11).
