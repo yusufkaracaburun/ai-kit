@@ -7,7 +7,7 @@
   emitters deleted** (ADR-0006, roadmap §4):
   - Deleted `mcp/` entirely — the Node + TypeScript MCP server, its five
     tools, tests, and the `mcp.yml` / `mcp-publish.yml` CI workflows. The
-    `@yusufkaracaburun/ai-kit-mcp` npm package is deprecated.
+    `@yusufkaracaburun/ai-kit-mcp` npm package has been removed from npm.
   - Deleted `bin/lib/emitters/{aider,cline,cody,continue}.sh` — the four
     non-CC/Cursor rule emitters. `bin/emit-rules.sh` now dispatches to
     `cursor`, `claude-code`, and `generic` (the always-on rule index) only;

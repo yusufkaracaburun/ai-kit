@@ -46,7 +46,7 @@ Examples of useful queries:
 
 - `"laravel cursor rules" OR "laravel agents.md"` for a Laravel repo
 - `"nextjs app-router rules" OR "react server components rules"` for Next.js
-- `"rails .clinerules" OR "rails cursor mdc"` for Rails
+- `"rails cursor rules" OR "rails agents.md"` for Rails
 
 Filter results by:
 

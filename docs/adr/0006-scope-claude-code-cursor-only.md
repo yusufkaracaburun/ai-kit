@@ -41,8 +41,8 @@ multi-host surface.
 
 - **`mcp/`** — the entire MCP server (server, tools, resolve-root, tests,
   `package.json`) and its CI (`.github/workflows/mcp.yml`,
-  `mcp-publish.yml`). The `@yusufkaracaburun/ai-kit-mcp` npm package is
-  deprecated by the maintainer; ai-kit no longer publishes it.
+  `mcp-publish.yml`). The `@yusufkaracaburun/ai-kit-mcp` npm package has
+  been removed from npm by the maintainer; ai-kit no longer publishes it.
 - **`bin/lib/emitters/{aider,cline,cody,continue}.sh`** — the four
   non-CC/Cursor rule emitters, plus their `source` and dispatch wiring in
   `bin/emit-rules.sh` and their detection in `detect_agents()`.
@@ -80,8 +80,8 @@ record of what was shipped and then deliberately removed.
 
 - ai-kit is no longer usable from Cline, Continue, Zed, or Claude Desktop.
   This is accepted: nobody using ai-kit runs those.
-- The `@yusufkaracaburun/ai-kit-mcp@2.0.0` package remains on npm as a
-  deprecated tombstone; npm does not allow true un-publishing after 72h.
+- The `@yusufkaracaburun/ai-kit-mcp` package has been unpublished from npm
+  by the maintainer.
 - A future need to support another host means re-introducing an emitter (or
   an MCP server) rather than extending an existing multi-host abstraction.
   Judged unlikely enough to not pay for in advance.

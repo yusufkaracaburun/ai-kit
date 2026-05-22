@@ -4,6 +4,8 @@ Forward-looking work. Not commitments — directions. ADRs land here once decide
 
 ## 1. Agent-agnostic refactor
 
+> **Partly superseded by section 4.** The Aider / Cline / Continue / Cody emitters were removed 2026-05-22 — `emit-rules.sh` now targets Cursor + Claude Code only. This section is kept as a historical record.
+
 **Status:** **landed** 2026-05-22. All six emitters (Cursor, Claude Code, generic, Aider, Cline, Continue, Cody) work; bootstrap wires it up; tests cover each. Only the legacy-install migration guide (task below) is still open.
 
 **Problem.** ai-kit currently treats Cursor as a privileged target: book rules are emitted as `.mdc` shims with Cursor frontmatter, `AGENTS.md` references `.cursor/rules/`, and `_aikit_rule_names()` knows Cursor file conventions. Other agents (Claude Code, Aider, Cline, Continue, Cody, etc.) only get skills via symlink — no rule layer.
@@ -113,6 +115,8 @@ Install canonical (y/n/preview each)? Install external (per-item)?
 
 ## 3. Primitives-uitbreiding (subagents, slash commands, plugin, MCP)
 
+> **Partly superseded by section 4.** The MCP server (PR 3) was removed 2026-05-22. This section is kept as a historical record.
+
 **Status:** **landed** 2026-05-21. PR 0 through PR 3 shipped on master. Triggered by an inventory against the "12 Must-Use Claude Code Features" listicle — gap analysis showed ai-kit was using 4 of the 7 actionable primitives (CLAUDE.md, Rules, Skills, Hooks); this round added the other 4 actionable ones (Subagents, Slash commands, Plugin, MCP). The 3 N/A items (Permissions, Plan Mode, Voice, Rewind) are Claude Code built-ins.
 
 **Direction.** Claude Code voorop, Cursor pariteit waar haalbaar. PR 0 ships an architecture doc + glossary + decision-tree as anti-drift foundation BEFORE adding primitives, so future contributors know which primitive type fits which problem (see `docs/architecture.md`, `docs/glossary.md`, `docs/primitives.md`).
@@ -146,7 +150,7 @@ npm package, doc surface, and a test matrix for hosts nobody here runs.
 **Removed.**
 - `mcp/` — the entire MCP server (Node + TypeScript, 5 tools) and its CI
   (`mcp.yml`, `mcp-publish.yml`). The `@yusufkaracaburun/ai-kit-mcp` npm
-  package is deprecated.
+  package has been removed from npm.
 - `bin/lib/emitters/{aider,cline,cody,continue}.sh` — the four non-CC/Cursor
   rule emitters. `emit-rules.sh` now dispatches to `cursor`, `claude-code`,
   and `generic` (the always-on rule index) only.
