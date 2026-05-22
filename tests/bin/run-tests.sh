@@ -766,21 +766,20 @@ assert "improve-arch skill dropped the generic Explore subagent" '! grep -q "sub
 echo ""
 echo "=== plugin manifest ==="
 PLUGIN_JSON="$AIKIT/workflow/.claude-plugin/plugin.json"
-MARKET_JSON="$AIKIT/.claude-plugin/marketplace.json"
 assert "plugin.json exists" '[ -f "$PLUGIN_JSON" ]'
 assert "plugin.json is valid JSON" 'python3 -c "import json; json.load(open(\"$PLUGIN_JSON\"))"'
 assert "plugin.json name is ai-kit" 'python3 -c "import json; d=json.load(open(\"$PLUGIN_JSON\")); assert d[\"name\"]==\"ai-kit\""'
 assert "plugin.json has description" 'python3 -c "import json; d=json.load(open(\"$PLUGIN_JSON\")); assert d.get(\"description\")"'
 assert "plugin.json has version" 'python3 -c "import json; d=json.load(open(\"$PLUGIN_JSON\")); assert d.get(\"version\")"'
 
-assert "marketplace.json exists" '[ -f "$MARKET_JSON" ]'
-assert "marketplace.json is valid JSON" 'python3 -c "import json; json.load(open(\"$MARKET_JSON\"))"'
-assert "marketplace.json has owner" 'python3 -c "import json; d=json.load(open(\"$MARKET_JSON\")); assert d.get(\"owner\", {}).get(\"name\")"'
-assert "marketplace lists ai-kit plugin" 'python3 -c "import json; d=json.load(open(\"$MARKET_JSON\")); assert any(p[\"name\"]==\"ai-kit\" for p in d[\"plugins\"])"'
-assert "marketplace plugin source is ./workflow" 'python3 -c "import json; d=json.load(open(\"$MARKET_JSON\")); p=[x for x in d[\"plugins\"] if x[\"name\"]==\"ai-kit\"][0]; assert p[\"source\"]==\"./workflow\""'
+# The marketplace catalog moved to the standalone yusufkaracaburun/marketplace
+# repo on 2026-05-23 (closes #9). The in-repo `.claude-plugin/marketplace.json`
+# must NOT come back — its presence would resurrect the legacy install path.
+assert "in-repo marketplace.json is removed" '[ ! -f "$AIKIT/.claude-plugin/marketplace.json" ]'
+assert "no .claude-plugin/ directory at repo root" '[ ! -d "$AIKIT/.claude-plugin" ]'
 
-# Three-way version equality: VERSION = plugin.json:version = marketplace.json:plugins[0].version
-assert "version triple equality (VERSION/plugin/marketplace)" \
+# plugin.json:version equals VERSION.
+assert "VERSION/plugin.json version equality" \
   'bash "$AIKIT/bin/sync-plugin-version.sh" --check >/dev/null 2>&1'
 
 echo ""
@@ -788,7 +787,6 @@ echo "=== sync-plugin-version drift ==="
 # sync-plugin-version.sh stamps drift away.
 TMP_PLUGIN_CHECK=$(mktemp -d)
 cp "$PLUGIN_JSON" "$TMP_PLUGIN_CHECK/plugin.json"
-cp "$MARKET_JSON" "$TMP_PLUGIN_CHECK/marketplace.json"
 # Deliberately corrupt the manifest version, verify --check spots it, then restore.
 python3 -c "
 import json

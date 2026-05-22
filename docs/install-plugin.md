@@ -7,22 +7,59 @@ A third install channel (alongside the symlink-install and project-bootstrap). P
 Inside Claude Code:
 
 ```text
-/plugin marketplace add yusufkaracaburun/ai-kit
-/plugin install ai-kit@ai-kit
+/plugin marketplace add yusufkaracaburun/marketplace
+/plugin install ai-kit@yusufkaracaburun
 ```
 
-The first command registers the marketplace catalog at `https://github.com/yusufkaracaburun/ai-kit/blob/master/.claude-plugin/marketplace.json`. The second installs the `ai-kit` plugin from that marketplace.
+The first command registers the catalog at `https://github.com/yusufkaracaburun/marketplace/blob/master/.claude-plugin/marketplace.json` — a standalone marketplace listing ai-kit (and any future plugins under `yusufkaracaburun`). The second installs the `ai-kit` plugin from that marketplace; `source.url` in the catalog points back at `https://github.com/yusufkaracaburun/ai-kit.git`, subdir `workflow`, pinned to the latest release tag.
 
-After install, Claude Code namespace-prefixes plugin skills: `/ai-kit:setup`, `/ai-kit:ship`, `/ai-kit:tdd`, etc. Slash commands likewise get the prefix: `/ai-kit:aikit-doctor`. Subagents (`aikit-explore`, `aikit-reviewer`) become discoverable via the Task tool.
+After install, Claude Code namespace-prefixes plugin skills: `/ai-kit:setup`, `/ai-kit:ship`, `/ai-kit:tdd`, etc. Slash commands likewise get the prefix: `/ai-kit:aikit-doctor`. Subagents (`aikit-explore`, `aikit-reviewer`, `aikit-qa-runner`) become discoverable via the Task tool.
+
+> **Pre-3.0 deprecation.** Until ai-kit 3.0, the legacy install path
+> (`/plugin marketplace add yusufkaracaburun/ai-kit` →
+> `/plugin install ai-kit@ai-kit`) used to work — the marketplace catalog
+> lived inside the ai-kit repo. The catalog was moved to the standalone
+> `yusufkaracaburun/marketplace` repo on 2026-05-23. The in-repo catalog
+> has been removed; the only supported install path is the one above.
 
 ## Update
 
 ```text
-/plugin marketplace update yusufkaracaburun/ai-kit
+/plugin marketplace update yusufkaracaburun/marketplace
 /plugin update ai-kit
 ```
 
-Or skip the marketplace step and rely on the version field: `VERSION` is mirrored into `.claude-plugin/marketplace.json` and `workflow/.claude-plugin/plugin.json` by `bin/sync-plugin-version.sh` on every release. Claude Code only fetches a new copy when the version field changes.
+The catalog repo pins `source.ref` to a release tag. After each ai-kit
+release, the catalog repo's `.claude-plugin/marketplace.json` is bumped
+to the new tag (see `bin/release.sh` — it prints a copy-paste reminder).
+Claude Code only fetches a new copy when the version or `ref` changes.
+
+## Uninstall
+
+`marketplace remove` does **not** auto-uninstall plugins it cataloged —
+uninstall them first, then drop the catalog:
+
+```text
+/plugin uninstall ai-kit@yusufkaracaburun
+/plugin marketplace remove yusufkaracaburun
+```
+
+List what you have before removing anything:
+
+```text
+/plugin                              # installed plugins + their marketplace
+/plugin marketplace list             # registered catalogs
+```
+
+### Filesystem fallback
+
+If `/plugin marketplace remove` errors, nuke on disk and restart Claude
+Code so it refreshes its plugin state:
+
+```bash
+rm -rf ~/.claude/plugins/marketplaces/yusufkaracaburun/
+rm -rf ~/.claude/plugins/cache/yusufkaracaburun/
+```
 
 ## Plugin vs symlink-install — pick one
 

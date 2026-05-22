@@ -2,6 +2,39 @@
 
 ## Unreleased
 
+**Breaking**
+- **Plugin marketplace moved out of the ai-kit repo** (#9, roadmap §3).
+  The catalog now lives in its own repo,
+  https://github.com/yusufkaracaburun/marketplace, so that one stable
+  address can list ai-kit + future plugins under `yusufkaracaburun`.
+  - **New install path** (the only supported one going forward):
+    ```text
+    /plugin marketplace add yusufkaracaburun/marketplace
+    /plugin install ai-kit@yusufkaracaburun
+    ```
+  - **Removed**: `.claude-plugin/marketplace.json` at the ai-kit repo
+    root. The legacy install path
+    (`/plugin marketplace add yusufkaracaburun/ai-kit` then
+    `/plugin install ai-kit@ai-kit`) **no longer works** — Claude Code
+    will 404 trying to fetch the marketplace catalog from the ai-kit
+    repo. Users on the legacy path must re-run the new install
+    commands above. (Plugin data on disk is preserved — they will be
+    asked to re-confirm the catalog, not re-install the skills.)
+  - `bin/sync-plugin-version.sh` no longer touches a marketplace
+    catalog locally; it stamps only
+    `workflow/.claude-plugin/plugin.json`. The marketplace catalog
+    repo's `.claude-plugin/marketplace.json` must be bumped manually
+    after each ai-kit release — `bin/release.sh` now prints the
+    copy-paste reminder.
+  - `docs/install-plugin.md` updated with the new install / update /
+    uninstall flow, including a deprecation note on the legacy path
+    and a filesystem-fallback for `marketplace remove`.
+  - `docs/architecture.md` "Versioning" section updated: one in-repo
+    derived artifact (plugin.json), not two.
+  - Tests updated — three marketplace-shape assertions deleted (file
+    is gone), one assertion added that the file MUST NOT come back,
+    and another that `.claude-plugin/` no longer exists at repo root.
+
 **Added**
 - **PostToolUse skill-logging hook bundled in the Claude Code plugin**
   (#8, roadmap §3):

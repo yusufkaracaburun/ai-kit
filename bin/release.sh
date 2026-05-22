@@ -120,12 +120,12 @@ out = src[:header_end] + "\n" + new_entry + src[header_end:]
 p.write_text(out)
 PY
 
-# Keep plugin manifest + marketplace catalog in lockstep with VERSION.
+# Keep plugin manifest in lockstep with VERSION.
 bash "$SCRIPT_BIN/sync-plugin-version.sh"
 # Keep plugin-bundled hook scripts byte-identical to bin/ source-of-truth.
 bash "$SCRIPT_BIN/sync-plugin-hooks.sh"
 
-git add VERSION CHANGELOG.md workflow/.claude-plugin/plugin.json .claude-plugin/marketplace.json \
+git add VERSION CHANGELOG.md workflow/.claude-plugin/plugin.json \
   workflow/hooks/post-skill-log.sh workflow/hooks/log-skill.sh
 git commit -m "chore(release): v$NEW_VERSION"
 
@@ -139,3 +139,15 @@ else
   echo "Released v$NEW_VERSION (no tag). Push when ready:"
   echo "  git push origin master"
 fi
+
+# Cross-repo reminder: the marketplace catalog (since 2026-05-23) lives in
+# https://github.com/yusufkaracaburun/marketplace and must be bumped manually
+# after this release. release.sh cannot reach across repos.
+echo ""
+echo "Next: bump the marketplace catalog so /plugin update picks this up."
+echo "  cd /path/to/yusufkaracaburun/marketplace"
+echo "  jq '.plugins[0].version = \"$NEW_VERSION\" | .plugins[0].source.ref = \"v$NEW_VERSION\"' \\"
+echo "    .claude-plugin/marketplace.json > .claude-plugin/marketplace.tmp.json \\"
+echo "    && mv .claude-plugin/marketplace.tmp.json .claude-plugin/marketplace.json"
+echo "  git commit -am 'chore: bump ai-kit to v$NEW_VERSION'"
+echo "  git push origin master"

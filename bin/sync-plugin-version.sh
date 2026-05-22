@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
-# Re-stamp the plugin manifest and marketplace catalog with the current
-# ai-kit VERSION. Idempotent; safe to run on every release.
+# Re-stamp the plugin manifest with the current ai-kit VERSION.
+# Idempotent; safe to run on every release.
 #
-# VERSION is the single source of truth. Two derived locations must
-# stay in sync:
+# VERSION is the single source of truth. One derived location must stay in
+# sync:
 #   1. workflow/.claude-plugin/plugin.json:version
-#   2. .claude-plugin/marketplace.json:plugins[0].version
+#
+# The marketplace catalog used to live in this repo too — it has been moved
+# to the standalone https://github.com/yusufkaracaburun/marketplace repo
+# (one catalog for all yusufkaracaburun plugins). After each ai-kit release
+# tag, that repo's `.claude-plugin/marketplace.json` must also be updated;
+# release.sh prints a reminder.
 #
 # Usage:
 #   sync-plugin-version.sh           # stamp from VERSION
@@ -19,7 +24,6 @@ AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
 
 VERSION_FILE="$AIKIT/VERSION"
 PLUGIN_JSON="$AIKIT/workflow/.claude-plugin/plugin.json"
-MARKET_JSON="$AIKIT/.claude-plugin/marketplace.json"
 
 if [ ! -f "$VERSION_FILE" ]; then
   echo "VERSION file missing at $VERSION_FILE" >&2
@@ -31,7 +35,7 @@ MODE="stamp"
 case "${1:-}" in
   --check) MODE="check" ;;
   -h|--help)
-    sed -n '1,12p' "$0"
+    sed -n '1,16p' "$0"
     exit 0
     ;;
   "") ;;
@@ -41,82 +45,46 @@ case "${1:-}" in
     ;;
 esac
 
-# Extract current "version" value from a JSON file. Uses python3 (always
-# available on macOS + most CI) to avoid a jq dependency.
+# Extract / set the top-level "version" field of a JSON file via python3.
 extract_version() {
   local file="$1"
-  local jq_path="$2"
   python3 -c "
-import json,sys
-with open('$file') as f:
-    d = json.load(f)
-parts = '$jq_path'.split('.')
-obj = d
-for p in parts:
-    if p.endswith(']'):
-        key, idx = p[:-1].split('[')
-        obj = obj[key][int(idx)]
-    else:
-        obj = obj[p]
-print(obj)
+import json
+print(json.load(open('$file'))['version'])
 "
 }
 
-# Set the "version" value at $jq_path in a JSON file to $new_version.
 set_version() {
   local file="$1"
-  local jq_path="$2"
-  local new_version="$3"
+  local new_version="$2"
   python3 -c "
-import json,sys
-with open('$file') as f:
-    d = json.load(f)
-parts = '$jq_path'.split('.')
-obj = d
-for p in parts[:-1]:
-    if p.endswith(']'):
-        key, idx = p[:-1].split('[')
-        obj = obj[key][int(idx)]
-    else:
-        obj = obj[p]
-obj[parts[-1]] = '$new_version'
+import json
+d = json.load(open('$file'))
+d['version'] = '$new_version'
 with open('$file','w') as f:
     json.dump(d, f, indent=2, ensure_ascii=False)
     f.write('\n')
 "
 }
 
-CURRENT_PLUGIN="$(extract_version "$PLUGIN_JSON" "version")"
-CURRENT_MARKET="$(extract_version "$MARKET_JSON" "plugins[0].version")"
+CURRENT_PLUGIN="$(extract_version "$PLUGIN_JSON")"
 
 case "$MODE" in
   check)
-    DRIFT=0
     if [ "$VERSION" != "$CURRENT_PLUGIN" ]; then
       echo "DRIFT: VERSION=$VERSION but plugin.json:version=$CURRENT_PLUGIN" >&2
-      DRIFT=1
+      exit 1
     fi
-    if [ "$VERSION" != "$CURRENT_MARKET" ]; then
-      echo "DRIFT: VERSION=$VERSION but marketplace.json:plugins[0].version=$CURRENT_MARKET" >&2
-      DRIFT=1
-    fi
-    if [ "$DRIFT" -eq 0 ]; then
-      echo "OK: VERSION/plugin.json/marketplace.json all at $VERSION"
-    fi
-    exit "$DRIFT"
+    echo "OK: VERSION/plugin.json both at $VERSION"
+    exit 0
     ;;
   stamp)
-    NEEDS_STAMP=false
-    [ "$VERSION" != "$CURRENT_PLUGIN" ] && NEEDS_STAMP=true
-    [ "$VERSION" != "$CURRENT_MARKET" ] && NEEDS_STAMP=true
-    if [ "$NEEDS_STAMP" = false ]; then
+    if [ "$VERSION" = "$CURRENT_PLUGIN" ]; then
       echo "Already at $VERSION (no changes)"
       exit 0
     fi
-    set_version "$PLUGIN_JSON" "version" "$VERSION"
-    set_version "$MARKET_JSON" "plugins[0].version" "$VERSION"
+    set_version "$PLUGIN_JSON" "$VERSION"
     echo "Stamped $VERSION into:"
     echo "  $PLUGIN_JSON"
-    echo "  $MARKET_JSON"
     ;;
 esac

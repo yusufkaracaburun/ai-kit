@@ -62,11 +62,15 @@ curl -fsSL https://raw.githubusercontent.com/yusufkaracaburun/ai-kit/master/inst
 semantics — Claude Code only; Cursor users keep the line above:
 
 ```text
-/plugin marketplace add yusufkaracaburun/ai-kit
-/plugin install ai-kit@ai-kit
+/plugin marketplace add yusufkaracaburun/marketplace
+/plugin install ai-kit@yusufkaracaburun
 ```
 
-See [docs/install-plugin.md](docs/install-plugin.md) for the trade-offs.
+The `yusufkaracaburun/marketplace` catalog ([repo](https://github.com/yusufkaracaburun/marketplace))
+hosts ai-kit and future plugins behind one stable address — add it once.
+
+See [docs/install-plugin.md](docs/install-plugin.md) for the trade-offs and the
+deprecation note on the pre-3.0 `marketplace add yusufkaracaburun/ai-kit` path.
 
 <details>
 <summary>Manual install (or already cloned)</summary>

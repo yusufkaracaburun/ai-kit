@@ -184,8 +184,20 @@ in priority order:
 
 1. **Web-search caching** for `/aikit-recommend-rules` — landed 2026-05-23 (#11).
 2. **Hook in the plugin** — landed 2026-05-23 (#8).
-3. **Standalone plugin marketplace repo** (#9).
-4. **Lift the stack → MCP / hook mapping tables** (#14) from Anthropic's
+3. **Standalone plugin marketplace repo** — landed 2026-05-23 (#9).
+   `yusufkaracaburun/marketplace` is the new catalog
+   (https://github.com/yusufkaracaburun/marketplace). The in-repo
+   `.claude-plugin/marketplace.json` is deleted; legacy install path
+   no longer works. Breaking-change note in CHANGELOG. Future plugins
+   register against the new catalog instead of needing their own
+   marketplace.
+4. **New skill + command `/aikit-followup`** (#16) — one-shot defer
+   capture: takes a one-line lead, opens a GitHub issue in house style,
+   and appends a paragraph to `docs/roadmap.md` referencing the new
+   issue. Replaces today's "open issue + add roadmap entry" two-step
+   bookkeeping with a single agent-invokable primitive that ships
+   cross-project via the plugin. See also brainstorm seed in #15.
+5. **Lift the stack → MCP / hook mapping tables** (#14) from Anthropic's
    `claude-code-setup:claude-automation-recommender` (read-only recommender
    skill) into ai-kit. Reference docs there contain dense "if codebase
    signal X then recommend MCP server / hook Y" tables that the

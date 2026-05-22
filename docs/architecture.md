@@ -76,12 +76,18 @@ Use this pattern whenever an artifact needs per-host transformation, or shares c
 
 ## Versioning
 
-`VERSION` is the single authority. Two derived artifacts must stay in sync:
+`VERSION` is the single authority. One derived artifact must stay in sync
+in-repo:
 
 - `workflow/.claude-plugin/plugin.json:version`
-- `.claude-plugin/marketplace.json` entries
 
-`bin/sync-plugin-version.sh` re-stamps both from `VERSION`. CI asserts equality.
+`bin/sync-plugin-version.sh` re-stamps it from `VERSION`. CI asserts equality.
+
+The plugin marketplace catalog lives in a **separate repo**
+(`yusufkaracaburun/marketplace`) since 2026-05-23 — one catalog for all
+`yusufkaracaburun` plugins. Its `.claude-plugin/marketplace.json` pins each
+plugin's `source.ref` to a release tag and must be bumped manually after
+every ai-kit release; `bin/release.sh` prints the copy-paste command.
 
 ## Where to put new things
 
