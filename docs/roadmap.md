@@ -4,7 +4,7 @@ Forward-looking work. Not commitments — directions. ADRs land here once decide
 
 ## 1. Agent-agnostic refactor
 
-**Status:** **landed (skeleton)** 2026-05-21. Cursor + Claude Code + generic emitters work; bootstrap wires it up; tests cover the happy path. Aider, Cline, Continue, Cody emitters are stubs that print `skip:<agent>` — finish them when the first user asks.
+**Status:** **landed** 2026-05-22. All six emitters (Cursor, Claude Code, generic, Aider, Cline, Continue, Cody) work; bootstrap wires it up; tests cover each. Only the legacy-install migration guide (task below) is still open.
 
 **Problem.** ai-kit currently treats Cursor as a privileged target: book rules are emitted as `.mdc` shims with Cursor frontmatter, `AGENTS.md` references `.cursor/rules/`, and `_aikit_rule_names()` knows Cursor file conventions. Other agents (Claude Code, Aider, Cline, Continue, Cody, etc.) only get skills via symlink — no rule layer.
 
@@ -38,20 +38,20 @@ bin/emit-rules.sh                  ← NEW: takes detected agents + rule names �
 
 **Tasks.**
 - [x] `detect_agents()` in `bin/lib/detect-lib.sh` (cursor, claude-code, aider, cline, continue, cody).
-- [x] `bin/lib/emitters/` per agent. Cursor + Claude Code + generic implemented; aider/cline/continue/cody are stubs.
+- [x] `bin/lib/emitters/` per agent — all six implemented (cursor, claude-code, generic, aider, cline, continue, cody).
 - [x] `bin/emit-rules.sh <project> [--rules X,Y] [--agents A,B] [--mode] [--dry-run] [--list]`.
 - [x] `bootstrap-project.sh` wires `emit-rules.sh` after skill linking; `--no-rules` to opt out.
 - [x] Tests in `tests/bin/run-tests.sh` cover emit + idempotency + filtering.
 - [x] `AGENTS.md.template` no longer mentions Cursor-specific `.cursor/rules/`; agent-agnostic phrasing.
 - [x] emeq/admin migrated by hand (commit `51accea` "chore: drop ai-kit Cursor rule shims").
-- [ ] **Open:** finish stub emitters (aider, cline, continue, cody). Each needs ~10–20 lines + one test.
+- [x] Stub emitters finished — `aider.sh`, `cline.sh`, `continue.sh`, `cody.sh` (2026-05-22). Each writes per-rule files to the agent's conventional rules dir; a legacy single-file `.clinerules` is skipped (with a reason), not clobbered.
 - [ ] **Open:** broader migration guide in `docs/troubleshooting.md` for non-emeq legacy installs.
 
 ---
 
 ## 2. Project-aware rule recommendation (with optional web search)
 
-**Status:** **landed (skeleton)** 2026-05-21. Canonical scorer + frontmatter schema + skill scaffolding done. Web-search-driven external rule vendoring is documented in the skill but not yet exercised end-to-end (no `standards/rules/external/` entries yet).
+**Status:** **landed** 2026-05-22. Canonical scorer + frontmatter schema + skill scaffolding done. The vendoring flow is now exercised end-to-end — `standards/rules/external/laravel-php-83.mini.md` is the first web-vendored rule, pinned by SHA. `/aikit-recommend-rules` is wired into `/aikit-setup` as Tier B Branch 12. Only web-search caching remains open.
 
 **Problem.** Today, bootstrap *used to* emit all 7-9 ai-kit book rules to every project regardless of stack. A Laravel monolith and a React+Vite SPA got identical rules. That's noise — refactoring/legacy-code rules are valuable for a 10-year-old codebase, less so for a greenfield prototype. Worse: ai-kit has no awareness of *stack-specific* community rules that already exist (Laravel Boost rules, Next.js conventions, Rails idioms, Django patterns).
 
@@ -105,8 +105,8 @@ Install canonical (y/n/preview each)? Install external (per-item)?
 - [x] `bin/recommend-rules.sh` CLI with `--json`.
 - [x] `workflow/skills/aikit-recommend-rules/SKILL.md` — Phase 1 (canonical scoring) + Phase 2 (web search) + Phase 3 (emit) flow with trust model.
 - [x] Vendoring convention documented in the skill (provenance frontmatter, pin-by-SHA, preview-before-write).
-- [ ] **Open:** wire `/aikit-recommend-rules` into `/aikit-setup` as an optional refinement step (today: only standalone invocation).
-- [ ] **Open:** first end-to-end web-vendored rule entry under `standards/rules/external/` to validate the vendoring flow on a real source.
+- [x] Wired `/aikit-recommend-rules` into `/aikit-setup` as Tier B Branch 12 (2026-05-22); the choice is recorded in the marker via `write-setup-marker.sh --rule-recommendation`.
+- [x] First external rule vendored — `standards/rules/external/laravel-php-83.mini.md` from `PatrickJS/awesome-cursorrules` (CC0-1.0), pinned to SHA `4467ad4` (2026-05-22). Validates the Phase 2 → Phase 3 trust flow.
 - [ ] **Open:** caching strategy for repeated web searches (no current caching — every invocation re-fetches).
 
 ---
@@ -136,11 +136,10 @@ Install canonical (y/n/preview each)? Install external (per-item)?
 
 ## What's next
 
-Both rule-related items have working skeletons. Next steps in priority order:
+Stub emitters, the first vendored external rule, and the `/aikit-recommend-rules`
+→ `/aikit-setup` wiring all shipped 2026-05-22. Remaining, in priority order:
 
-1. **Finish stub emitters** (aider, cline, continue, cody) — small, mechanical. Each needs its file format + a test.
-2. **First external rule vendored** (e.g. Laravel Boost) — validates the Phase 2 → Phase 3 trust flow end-to-end.
-3. **`/aikit-setup` integration of `/aikit-recommend-rules`** as an optional Tier B branch — currently standalone only.
-4. **Migration guide** for legacy `.cursor/rules/*.mdc` installs in `docs/troubleshooting.md` (emeq/admin already cleaned manually).
-5. **Cursor `.cursor/commands/` runtime verification** (see section 3 follow-ups).
-6. **Publish ai-kit-mcp to npm** so users don't need a clone (see section 3 follow-ups).
+1. **Migration guide** for legacy `.cursor/rules/*.mdc` installs in `docs/troubleshooting.md` (emeq/admin already cleaned manually).
+2. **Cursor `.cursor/commands/` runtime verification** (see section 3 follow-ups).
+3. **Publish ai-kit-mcp to npm** so users don't need a clone (see section 3 follow-ups).
+4. **Web-search caching** for `/aikit-recommend-rules` — every invocation re-fetches today.

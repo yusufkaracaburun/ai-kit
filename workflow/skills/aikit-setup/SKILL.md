@@ -113,6 +113,7 @@ others so per-app docs can follow.
 | 9 | Agile workflow | informal solo default |
 | 10 | Automation recommender | propose-but-defer (brownfield default: skipped) |
 | 11 | Context-drift hook | offer if `CONTEXT.md` or `docs/adr/` exist |
+| 12 | Rule recommendation | offer if `detect-tooling` finds a framework |
 
 ### Branch 10 — Automation recommender (propose-but-defer)
 
@@ -149,6 +150,25 @@ It copies the hook into `.claude/hooks/` and merges a `PostToolUse` entry into
 `.claude/settings.json` — non-destructive and idempotent. Record the choice in
 the marker (`--context-drift-hook=wired|skipped`). See [ADR-0005](../../../docs/adr/0005-monorepo-boost-context-drift.md).
 
+### Branch 12 — Rule recommendation (optional refinement)
+
+Bootstrap (Branch 1) emits every `universal: true` canonical rule. For a
+brownfield repo on a specific stack, [`/aikit-recommend-rules`](../aikit-recommend-rules/SKILL.md)
+tailors the set — it scores canonical rules against the detected frameworks and
+can surface community rule packs from the web.
+
+Offer it once. The skill is interactive (and may search the web), so never run
+it silently:
+
+> Optional: `/aikit-recommend-rules` scores canonical rules against this stack
+> and can surface community rule packs. Refine the rule set now?
+> [1] Refine now    → run `/aikit-recommend-rules`, then record `completed`
+> [2] Later         → `deferred`
+> [3] Keep default  → `skipped`
+
+Default: brownfield with a framework in `detect-tooling` → offer; otherwise
+`skipped`. Record the choice in the marker (`--rule-recommendation=...`).
+
 Full setup Done:
 
 ```bash
@@ -157,7 +177,8 @@ $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" \
   --docker=... --tracker=... --workflow=... \
   --architecture=... --sandcastle=... \
   --automation-recommender=skipped|deferred|completed \
-  --context-drift-hook=wired|skipped
+  --context-drift-hook=wired|skipped \
+  --rule-recommendation=completed|deferred|skipped
 $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict
 ```
 
@@ -178,7 +199,8 @@ $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict
     "workflow": "skipped",
     "sandcastle": false,
     "automation_recommender": "skipped",
-    "context_drift_hook": "skipped"
+    "context_drift_hook": "skipped",
+    "rule_recommendation": "skipped"
   }
 }
 ```

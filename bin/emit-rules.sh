@@ -15,6 +15,14 @@ source "$AIKIT/bin/lib/emitters/cursor.sh"
 source "$AIKIT/bin/lib/emitters/claude-code.sh"
 # shellcheck source=lib/emitters/generic.sh
 source "$AIKIT/bin/lib/emitters/generic.sh"
+# shellcheck source=lib/emitters/aider.sh
+source "$AIKIT/bin/lib/emitters/aider.sh"
+# shellcheck source=lib/emitters/cline.sh
+source "$AIKIT/bin/lib/emitters/cline.sh"
+# shellcheck source=lib/emitters/continue.sh
+source "$AIKIT/bin/lib/emitters/continue.sh"
+# shellcheck source=lib/emitters/cody.sh
+source "$AIKIT/bin/lib/emitters/cody.sh"
 
 VERSION_FILE="$AIKIT/VERSION"
 [ -f "$VERSION_FILE" ] || { echo "ai-kit VERSION file missing" >&2; exit 2; }
@@ -139,8 +147,10 @@ dispatch() {
     cursor)       emit_cursor       "$target" "$rule_path" "$rule_name" "$mode" "$version" ;;
     claude-code)  emit_claude_code  "$target" "$rule_path" "$rule_name" "$mode" "$version" ;;
     generic|agents-md) emit_generic "$target" "$rule_path" "$rule_name" "$mode" "$version" ;;
-    aider|cline|continue|cody)
-      echo "skip:${agent}  (emitter not yet implemented — see docs/roadmap.md item #1)" ;;
+    aider)        emit_aider        "$target" "$rule_path" "$rule_name" "$mode" "$version" ;;
+    cline)        emit_cline        "$target" "$rule_path" "$rule_name" "$mode" "$version" ;;
+    continue)     emit_continue     "$target" "$rule_path" "$rule_name" "$mode" "$version" ;;
+    cody)         emit_cody         "$target" "$rule_path" "$rule_name" "$mode" "$version" ;;
     *) echo "skip:${agent}  (unknown agent)" ;;
   esac
 }

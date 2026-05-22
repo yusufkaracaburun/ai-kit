@@ -23,8 +23,12 @@ emit_<agent>() {
 | Agent | File | Emits to | Auto-load |
 | ----- | ---- | -------- | --------- |
 | Cursor | `cursor.sh` | `.cursor/rules/<name>.mdc` | `alwaysApply` frontmatter |
-| Claude Code | `claude-code.sh` | `.claude/rules/<name>.md` + reference in `AGENTS.md` | Skill discovery / explicit read |
-| Generic (AGENTS.md) | `generic.sh` | Appends to `AGENTS.md` rule index | Manual read by agent |
+| Claude Code | `claude-code.sh` | `.claude/rules/<name>.md` | Skill discovery / explicit read |
+| Generic (AGENTS.md) | `generic.sh` | `docs/agents/active-rules.md` index | Manual read by agent |
+| Aider | `aider.sh` | `.aider/rules/<name>.md` | `read:` list in `.aider.conf.yml` |
+| Cline | `cline.sh` | `.clinerules/<name>.md` | Auto-loads `.clinerules/` dir |
+| Continue | `continue.sh` | `.continue/rules/<name>.md` | Auto-loads `.continue/rules/` |
+| Cody | `cody.sh` | `.sourcegraph/cody/<name>.md` | Context fetcher |
 
 ## Adding a new emitter
 

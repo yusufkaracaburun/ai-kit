@@ -1,5 +1,33 @@
 # Changelog
 
+## Unreleased
+
+**Feat**
+- **Stub rule emitters finished — aider, cline, continue, cody**
+  (`bin/lib/emitters/`, roadmap item #1):
+  - `bin/emit-rules.sh` previously printed `skip:<agent>` for these four
+    agents. Each now has a real emitter that writes per-rule Markdown to the
+    agent's conventional rules directory: `.aider/rules/`, `.clinerules/`,
+    `.continue/rules/`, `.sourcegraph/cody/`.
+  - A legacy single-file `.clinerules` cannot also be a directory, so the
+    Cline emitter skips it (with a reason) rather than clobbering it.
+  - All six emitters (cursor, claude-code, generic + the four new ones) are
+    covered by `tests/bin/run-tests.sh`.
+- **First external rule vendored** (`standards/rules/external/`, roadmap item #2):
+  - `standards/rules/external/laravel-php-83.mini.md` — vendored from
+    `PatrickJS/awesome-cursorrules` (CC0-1.0), pinned to commit
+    `4467ad4`. Validates the `/aikit-recommend-rules` Phase 2 → Phase 3
+    vendoring + trust flow end-to-end on a real source.
+  - New `standards/rules/external/README.md` documents the provenance
+    frontmatter schema (`source_url`, `source_license`, `pinned_sha`,
+    `vendored_at`) and the pin-by-SHA trust model.
+- **`/aikit-recommend-rules` wired into `/aikit-setup`** (roadmap item #3):
+  - New Tier B Branch 12 — "Rule recommendation". Offered when
+    `detect-tooling` finds a framework; surfaces `/aikit-recommend-rules`
+    as an optional refinement, never run silently.
+  - `bin/write-setup-marker.sh` learns `--rule-recommendation=completed|deferred|skipped`;
+    the choice round-trips in the `.ai-kit-setup` marker.
+
 ## 2.0.0 — 2026-05-22
 
 **Breaking**
