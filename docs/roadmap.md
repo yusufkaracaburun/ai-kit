@@ -443,3 +443,22 @@ in priority order:
     tuning extensions `audit-architecture-laravel` / `-react` /
     `-go` etc. that layer stack-specific heuristics on top of the
     stack-agnostic core).
+
+20. **triage↔autonomous Agent Brief contract** (#36) — landed
+    2026-05-23 in v1.14.1 (PR #37). Surfaced on a live naschool run
+    (#42/#43/#44, EPIC #41 backend refactor): `/ai:triage` produced
+    `## Triage outcome` comments referencing an external plan-doc,
+    while `/ai:autonomous` searches for `## Agent Brief` literally and
+    does not follow links. Three issues labeled `ready-for-agent` were
+    invisible to the drainer despite triage formally succeeding.
+    `triage/SKILL.md` now requires the brief comment atomically with
+    the label (no label-only state), the literal `## Agent Brief`
+    header (not `## Triage outcome`, which is reserved for
+    `needs-info`), and inline acceptance criteria (plan-doc references
+    rejected — cold-start contract). Quick-state override no longer
+    makes the brief optional. `autonomous/SKILL.md` `exit-gate
+    brief-thin` now carries a diagnostic detail string —
+    `header-mismatch` / `body-not-promoted` / `no-brief` — each
+    recommending `/ai:triage <n>` to re-emit. Body-fallback in
+    autonomous was considered and rejected: it would have broken the
+    "brief = contract" durability principle in `AGENT-BRIEF.md`.
