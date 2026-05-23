@@ -360,7 +360,7 @@ in priority order:
     **Tier 2 still open**: new `docs-drift` skill wrapping the full
     10-check audit, generalised via `detect-tooling.sh` with project-
     local overrides in `docs/agents/docs-drift.yml`. Wired into
-    `aikit-setup` as a Tier-B branch parallel to Branch 11. Sequencing
+    `/ai:setup` as a Tier-B branch parallel to Branch 11. Sequencing
     risk — skill-vs-companion call (recommend-tools vs core) needed
     first. Migration path: naschool keeps local override until Tier 2
     lands, then re-bootstraps and drops the project-specific bits into

@@ -59,7 +59,7 @@
   - **New install path** (the only supported one going forward):
     ```text
     /plugin marketplace add yusufkaracaburun/marketplace
-    /plugin install ai-kit@yusufkaracaburun
+    /plugin install ai@yusufkaracaburun
     ```
   - **Removed**: `.claude-plugin/marketplace.json` at the ai-kit repo
     root. The legacy install path

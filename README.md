@@ -10,11 +10,11 @@ runtime daemon, no network calls, no telemetry.
 
 | Primitive | Count | Reaches |
 | --------- | -----:| ------- |
-| Skills | 21 | Claude Code · Cursor |
+| Skills | 22 | Claude Code · Cursor |
 | Subagents | 3 | Claude Code |
 | Slash commands | 6 | Claude Code · Cursor |
 | Hooks | 2 | Claude Code |
-| Rules | 8 canonical books | Cursor · Claude Code (via emitter) |
+| Rules | 7 canonical books | Cursor · Claude Code (via emitter) |
 
 [Mental model](docs/mental-model.md) · [Architecture](docs/architecture.md) · [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md)
 
@@ -35,7 +35,7 @@ semantics — Claude Code only:
 
 ```text
 /plugin marketplace add yusufkaracaburun/marketplace
-/plugin install ai-kit@yusufkaracaburun
+/plugin install ai@yusufkaracaburun
 ```
 
 The `yusufkaracaburun/marketplace` catalog ([repo](https://github.com/yusufkaracaburun/marketplace))
@@ -65,7 +65,7 @@ First moves:
 
 ## The agile lifecycle
 
-21 skills covering one loop — idea to retro:
+22 skills covering one loop — idea to retro:
 
 | Phase | Skills |
 | ----- | ------ |
@@ -76,6 +76,7 @@ First moves:
 | Ops & review | `retro` · `followup` |
 | Session continuity | `checkpoint` ↔ `resume` · `handoff` |
 | Cross-cutting | `setup` · `recommend-rules` · `recommend-tools` · `improve-codebase-architecture` |
+| Experimental | `autonomous` (spike — autonomous-loop variant of `tdd`, opt-in) |
 
 See [docs/mental-model.md](docs/mental-model.md) for the "which skill, when" table and lifecycle diagram.
 

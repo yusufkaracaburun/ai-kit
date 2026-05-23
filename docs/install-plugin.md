@@ -1,6 +1,6 @@
 # Install ai-kit as a Claude Code plugin
 
-A third install channel (alongside the symlink-install and project-bootstrap). Plugin install gives you marketplace-style discovery and `/plugin update ai-kit` updates inside Claude Code, but **only for Claude Code** — Cursor users keep using the symlink-install.
+A third install channel (alongside the symlink-install and project-bootstrap). Plugin install gives you marketplace-style discovery and `/plugin update ai` updates inside Claude Code, but **only for Claude Code** — Cursor users keep using the symlink-install.
 
 ## Install
 
@@ -8,25 +8,25 @@ Inside Claude Code:
 
 ```text
 /plugin marketplace add yusufkaracaburun/marketplace
-/plugin install ai-kit@yusufkaracaburun
+/plugin install ai@yusufkaracaburun
 ```
 
-The first command registers the catalog at `https://github.com/yusufkaracaburun/marketplace/blob/master/.claude-plugin/marketplace.json` — a standalone marketplace listing ai-kit (and any future plugins under `yusufkaracaburun`). The second installs the `ai-kit` plugin from that marketplace; `source.url` in the catalog points back at `https://github.com/yusufkaracaburun/ai-kit.git`, subdir `workflow`, pinned to the latest release tag.
+The first command registers the catalog at `https://github.com/yusufkaracaburun/marketplace/blob/master/.claude-plugin/marketplace.json` — a standalone marketplace listing ai-kit (and any future plugins under `yusufkaracaburun`). The second installs the `ai` plugin from that marketplace; `source.url` in the catalog points back at `https://github.com/yusufkaracaburun/ai-kit.git`, subdir `workflow`, pinned to the latest release tag.
 
-After install, Claude Code namespace-prefixes plugin skills: `/ai-kit:setup`, `/ai-kit:ship`, `/ai-kit:tdd`, etc. Slash commands likewise get the prefix: `/ai-kit:doctor`. Subagents (`explore`, `reviewer`, `qa-runner`) become discoverable via the Task tool.
+After install, Claude Code namespace-prefixes plugin skills: `/ai:setup`, `/ai:ship`, `/ai:tdd`, etc. Slash commands likewise get the prefix: `/ai:doctor`. Subagents (`explore`, `reviewer`, `qa-runner`) become discoverable via the Task tool.
 
-> **Pre-3.0 deprecation.** Until ai-kit 3.0, the legacy install path
-> (`/plugin marketplace add yusufkaracaburun/ai-kit` →
-> `/plugin install ai-kit@ai-kit`) used to work — the marketplace catalog
-> lived inside the ai-kit repo. The catalog was moved to the standalone
-> `yusufkaracaburun/marketplace` repo on 2026-05-23. The in-repo catalog
-> has been removed; the only supported install path is the one above.
+> **3.0 rename.** Until ai-kit 3.0 (2026-05-23) the plugin was named
+> `ai-kit` and skills were prefixed `aikit-` — `/plugin install
+> ai-kit@yusufkaracaburun` then `/aikit-setup`. The plugin is now
+> named `ai` and skills lost the prefix — `/plugin install
+> ai@yusufkaracaburun` then `/ai:setup`. Users on the legacy path
+> must re-run the new install commands.
 
 ## Update
 
 ```text
 /plugin marketplace update yusufkaracaburun/marketplace
-/plugin update ai-kit
+/plugin update ai
 ```
 
 The catalog repo pins `source.ref` to a release tag. After each ai-kit
@@ -40,7 +40,7 @@ Claude Code only fetches a new copy when the version or `ref` changes.
 uninstall them first, then drop the catalog:
 
 ```text
-/plugin uninstall ai-kit@yusufkaracaburun
+/plugin uninstall ai@yusufkaracaburun
 /plugin marketplace remove yusufkaracaburun
 ```
 
@@ -78,7 +78,7 @@ If you switch from symlink to plugin, run `bin/ai-kit-no-globals.sh on` to suppr
 
 Bundled (via `workflow/.claude-plugin/plugin.json`):
 
-- All 21 skills (`workflow/skills/`)
+- All 22 skills (`workflow/skills/`)
 - Both subagents (`workflow/agents/explore`, `workflow/agents/reviewer`)
 - All 6 slash commands (`workflow/commands/ai:*.md`)
 - The PostToolUse skill-logging hook (`workflow/hooks/post-skill-log.sh` +
