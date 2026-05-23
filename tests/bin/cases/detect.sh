@@ -117,8 +117,8 @@ rm -rf "$TMP_BS_EMPTY"
 echo "=== detect-tooling-json ==="
 # section: detect-tooling-json
 JSON_OUT="$("$AIKIT/bin/detect-tooling.sh" "$AIKIT/tests/fixtures/architecture-laravel" --json)"
-assert "json has architecture.frontend" 'echo "$JSON_OUT" | grep -q "\"detected\": \"laravel-inertia\""'
-assert "json has architecture.backend" 'echo "$JSON_OUT" | grep -q "\"detected\": \"laravel-default\""'
+assert "json has architecture.frontend" 'grep -q "\"detected\": \"laravel-inertia\"" <<<"$JSON_OUT"'
+assert "json has architecture.backend" 'grep -q "\"detected\": \"laravel-default\"" <<<"$JSON_OUT"'
 
 
 print_summary_and_exit
