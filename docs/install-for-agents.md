@@ -20,42 +20,80 @@ Plan (run in order; stop on the first failure and report it):
 2. Detect existing install. If `~/.local/share/ai-kit/` already exists and
    `~/.local/share/ai-kit/VERSION` is readable, skip step 3 and go to step 4.
 
-3. Install ai-kit globally (one line, no sudo, no build step, no network at
-   runtime after this):
+3. Install ai-kit. Pick ONE path based on the detected host(s):
 
-       curl -fsSL https://raw.githubusercontent.com/yusufkaracaburun/ai-kit/master/install.sh | bash
+   3a. (Claude Code, recommended for the /ai:* namespace) Install via the
+       plugin marketplace — surfaces every primitive under /ai:*:
 
-   This clones to `~/.local/share/ai-kit/` and links the skills so every
-   project finds them. If `curl` is unavailable, fall back to:
+           /plugin marketplace add yusufkaracaburun/marketplace
+           /plugin install ai@yusufkaracaburun
 
-       git clone https://github.com/yusufkaracaburun/ai-kit.git ~/.local/share/ai-kit
-       ~/.local/share/ai-kit/bin/install-global.sh
+       After plugin install, also clone the repo so the local bin/ scripts
+       are reachable for steps 4 + 6:
+
+           git clone https://github.com/yusufkaracaburun/ai-kit.git ~/.local/share/ai-kit
+
+   3b. (Cursor, or Claude Code if the user prefers symlinks) Install via the
+       installer (clones the repo + symlinks skills/commands/agents into
+       ~/.claude and ~/.cursor). Primitives surface WITHOUT a /ai: prefix
+       (`/setup`, `/ship`, `/grill-me`, …) — substitute `/ai:foo` → `/foo`
+       in steps 5, 6, 7.
+
+           curl -fsSL https://raw.githubusercontent.com/yusufkaracaburun/ai-kit/master/install.sh | bash
+
+       If `curl` is unavailable, fall back to:
+
+           git clone https://github.com/yusufkaracaburun/ai-kit.git ~/.local/share/ai-kit
+           ~/.local/share/ai-kit/bin/install-global.sh
 
 4. Verify the install. Run:
 
        ~/.local/share/ai-kit/bin/ai-kit-doctor.sh
 
-   Expect exit code 0 and no `BLOCKER` lines. If `BLOCKER` lines exist, surface
-   them verbatim to the human and stop.
+   Expect exit code 0 and no `BLOCKER` lines. If the doctor reports a
+   "Legacy gsd" section with N > 0 artifacts, the user has the
+   predecessor `get-shit-done` co-installed; ai-kit will still work but
+   `/gsd-*` will keep competing with `/ai:*`. Surface this to the user
+   and offer to run:
 
-5. Bootstrap the current project. From the project root, invoke the
-   `/ai:setup` skill (Claude Code: `/ai:setup`; Cursor: invoke the
-   `setup` skill). Default mode (`solo-both`) is correct unless the
-   human has already specified another mode. After it completes, confirm
-   `.ai-kit-setup` exists in the project root.
+       ~/.local/share/ai-kit/bin/ai-kit-migrate-gsd.sh --project "$(pwd)"
 
-6. Confirm health. Run `/ai:status` (or `~/.local/share/ai-kit/bin/ai-kit-status.sh`)
-   and report the version, the host(s) it detected, and the rule emission
-   summary back to the human.
+   (dry-run; pass `--apply` after confirming).
 
-7. Suggest two next moves, picked from the human's intent:
-   - If they want to ship: `/ai:ship` flow.
-   - If they want to plan: `/ai:grill-me` to stress-test the plan first.
-   - If they are unsure: `/ai:which "<one-line intent>"` to pick a skill.
+5. Detect command surface. The host install path determines whether
+   primitives carry the /ai: prefix. Pick the right variant for steps
+   6 + 7 below:
+
+       PLUGIN_PRESENT=false
+       [ -d "$HOME/.claude/plugins/marketplaces" ] && \
+         grep -q '"name": "ai"' "$HOME/.claude/plugins"/**/plugin.json 2>/dev/null && \
+         PLUGIN_PRESENT=true
+
+   - If PLUGIN_PRESENT=true OR `~/.claude/commands/ai:*` exists → use
+     `/ai:setup`, `/ai:ship`, `/ai:grill-me`, `/ai:which`, `/ai:status`.
+   - Else (symlink/legacy install) → use `/setup`, `/ship`, `/grill-me`,
+     `/which`, `/status` (no prefix).
+
+6. Bootstrap the current project. From the project root, invoke the
+   setup skill (Claude Code: the variant from step 5; Cursor: invoke
+   the `setup` skill). Default mode (`solo-both`) is correct unless the
+   human has already specified another mode. After it completes,
+   confirm `.ai-kit-setup` exists in the project root.
+
+7. Confirm health. Run the status command (variant from step 5, or
+   `~/.local/share/ai-kit/bin/ai-kit-status.sh`) and report the
+   version, the host(s) it detected, and the rule emission summary
+   back to the human.
+
+8. Suggest two next moves, picked from the human's intent (using the
+   right prefix variant from step 5):
+   - If they want to ship: the `ship` flow.
+   - If they want to plan: `grill-me` to stress-test the plan first.
+   - If they are unsure: `which "<one-line intent>"` to pick a skill.
 
 Rules:
 - Do not modify the human's existing `CLAUDE.md`, `AGENTS.md`, `CONTEXT.md`,
-  `.claude/`, or `.cursor/` content beyond what `/ai:setup` does itself.
+  `.claude/`, or `.cursor/` content beyond what the setup skill does itself.
 - No telemetry, no network calls beyond the initial clone — ai-kit is shell +
   markdown only at runtime.
 - Opt-in usage logging is OFF unless the human explicitly asks for it (then
@@ -63,8 +101,9 @@ Rules:
 - If any step writes outside `~/.local/share/ai-kit/` or the current project,
   stop and ask the human first.
 
-Report at the end: install version, host(s) detected, skills/subagents/commands
-counted, any blockers, and the two suggested next moves.
+Report at the end: install version, host(s) detected, install path used
+(plugin vs. symlink), skills/subagents/commands counted, any blockers
+(including legacy gsd), and the two suggested next moves.
 ````
 
 If your model supports it, hand the prompt above to a sub-agent so its output

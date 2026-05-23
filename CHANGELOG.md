@@ -2,6 +2,40 @@
 
 ## Unreleased
 
+**Added**
+- **`bin/ai-kit-migrate-gsd.sh`** — detect + remove ai-kit's predecessor
+  ("get-shit-done" / `gsd`) from `~/.claude/` and an optional `--project`
+  directory. Dry-run by default; `--apply` prompts "Keep a backup? [Y/n]"
+  on a tty, or honour `--backup` / `--no-backup` non-interactively. The
+  prior co-install kept injecting every `gsd-*` skill via gsd's
+  SessionStart hook, so chats routed to `/gsd-*` even after ai-kit was
+  installed. Also wired into `/ai:setup` (before branch 0) and
+  `ai-kit-doctor.sh` (new `Legacy gsd` section).
+
+**Changed**
+- **`bin/install-global.sh`** — the `prefer-plugin` opt-out marker now
+  also skips linking `~/.claude/skills/` and `~/.claude/agents/` (was:
+  slash commands only). With the plugin route giving `/ai:*` to all
+  three primitives, this enables a fully plugin-only Claude Code
+  install via a single toggle (`ai-kit-prefer-plugin.sh on`).
+- **`tests/bin/run-tests.sh` → `tests/bin/run-all.sh`** (refactor) —
+  monolithic 1345-LOC sequential runner split into 9 grouped
+  case files under `tests/bin/cases/*.sh` + a shared
+  `tests/bin/lib/harness.sh`. Dispatched in parallel by
+  `tests/bin/run-all.sh`. Same 374 assertions; wall-time 237s → 67s
+  (3.5×). CI workflow + PR template + CONTRIBUTING.md updated to call
+  `run-all.sh`.
+
+**Fixed**
+- **`docs/install-for-agents.md`** — the prompt now branches step 3
+  on host (plugin route gives `/ai:*`; curl-installer gives bare
+  names) and includes a step 5 that detects the surface so steps 6–8
+  use the right command form. Previously the prompt promised
+  `/ai:setup` etc. after a curl install that doesn't deliver them,
+  causing "command not found" on legacy installs.
+- **`docs/troubleshooting.md`** — added entries for "Chats still
+  trigger /gsd-*" and "Slash menu shows mixed /ai:foo and bare /foo".
+
 ## 3.0.0 — 2026-05-23
 
 **Breaking**

@@ -68,6 +68,28 @@ $AI_KIT_ROOT/bin/ai-kit-migrate-gsd.sh --apply --no-backup   # skip prompt + ski
 After removal, **restart Claude Code** — the gsd SessionStart hook only stops
 firing once the new `settings.json` is re-read.
 
+### Slash menu shows mixed `/ai:foo` and bare `/foo`
+
+You installed ai-kit via both routes — the marketplace plugin (gives the
+`/ai:*` namespace) and the legacy curl installer (symlinks bare-name skills
++ commands into `~/.claude/`). Both work, but the menu duplicates entries
+and the agent has to guess which surface to use.
+
+Pick one route. To go plugin-only:
+
+```bash
+$AI_KIT_ROOT/bin/ai-kit-prefer-plugin.sh on
+```
+
+…then drop the bare-name symlinks the previous install left behind (the
+script prints the exact `rm -f` snippet). `install-global.sh` will then
+skip linking skills + agents + commands into `~/.claude/` on future runs,
+leaving the plugin as the single source. Cursor is unaffected — Cursor has
+no plugin-namespace concept, so the symlinks stay.
+
+To go symlink-only instead, `/plugin uninstall ai@yusufkaracaburun` and
+leave `prefer-plugin` OFF.
+
 ## Brownfield coexistence
 
 ### Existing custom skill got "lost"
