@@ -18,9 +18,9 @@ LAST="$(git tag --list 'v*' --sort=-v:refname | head -1)"
 LOG="$(git log --format='%s%n%b' "$LAST..HEAD")"
 [ -z "$LOG" ] && { echo "No commits since $LAST"; exit 0; }
 
-if   echo "$LOG" | grep -qE '^(feat|fix)(\([^)]*\))?!:|BREAKING CHANGE'; then BUMP=major
-elif echo "$LOG" | grep -qE '^feat(\([^)]*\))?:';                        then BUMP=minor
-elif echo "$LOG" | grep -qE '^(fix|perf)(\([^)]*\))?:';                  then BUMP=patch
+if   echo "$LOG" | grep -qE '^(feat|fix)(\([^)]*\))?!:|BREAKING CHANGE'; then BUMP="major"
+elif echo "$LOG" | grep -qE '^feat(\([^)]*\))?:';                        then BUMP="minor"
+elif echo "$LOG" | grep -qE '^(fix|perf)(\([^)]*\))?:';                  then BUMP="patch"
 else echo "No feat/fix/perf since $LAST — skipping"; exit 0
 fi
 
