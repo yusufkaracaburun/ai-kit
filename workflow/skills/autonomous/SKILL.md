@@ -57,8 +57,19 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
    abandoned iteration; surface it and stop.
 2. **Pick next issue.** `gh issue list --label ready-for-agent --json number,title,updatedAt --jq 'sort_by(.updatedAt) | .[0]'`. Oldest first. Queue empty → write `exit-empty`, stop.
 3. **Read Agent Brief.** `gh issue view <n> --comments` — find the
-   `## Agent Brief` comment. Missing or thin (no acceptance criteria)
-   → write `exit-gate brief-thin`, stop.
+   comment whose header is the literal `## Agent Brief`. If missing or
+   thin (no acceptance criteria inline), write `exit-gate brief-thin`
+   with one of these diagnostic detail strings, then stop:
+   - `header-mismatch` — a comment with a different header is present
+     (e.g. `## Triage outcome`). The triage skill produced a comment
+     but used the wrong header; recommend `/ai:triage <n>` to re-emit.
+   - `body-not-promoted` — no brief comment, but the issue body looks
+     promotable (contains the word "acceptance" or a checkbox list).
+     Recommend `/ai:triage <n>` to formalise the body into a brief.
+   - `no-brief` — neither a brief comment nor a promotable body. The
+     issue needs human triage before any agent can pick it up.
+   Never read linked file paths from the comment; the brief is a
+   cold-start contract.
 4. **Branch.** `git switch -c agent/issue-<n>-<slug>` from the
    project's default branch. Fail-fast if dirty working tree.
 5. **TDD.** Invoke `tdd` against the Agent Brief's acceptance
@@ -80,7 +91,7 @@ Always exit with a one-line `exit-*` entry in `progress.txt`:
 | Trigger | Event tag | Action |
 | ------- | --------- | ------ |
 | Queue empty | `exit-empty` | Normal termination |
-| Brief missing / thin | `exit-gate brief-thin` | Human re-triage |
+| Brief missing / thin | `exit-gate brief-thin <detail>` | Human re-triage (`detail` ∈ `header-mismatch`, `body-not-promoted`, `no-brief`) |
 | TDD cap (≤3 attempts per cycle) | `exit-gate tdd-stuck` | Human implementation |
 | Review blockers | `exit-gate review-blocked` | Human review |
 | Security ≥ high | `exit-gate security` | Human review |
