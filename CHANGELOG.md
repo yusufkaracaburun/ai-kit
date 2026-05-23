@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.11.0 — 2026-05-23
+
+`/ai:setup` now offers the v1.9.0 repo template pack as an optional Tier B
+branch — per-file consent, default skip when a file already exists, no new
+bin script (skill prompt drives a plain `cp`).
+
+- **Updated** `workflow/skills/setup/SKILL.md` — adds Branch 13 "Repo
+  templates" to the Tier B table, a full section with source/destination
+  table + per-file copy contract, marker shape extension
+  (`repo_templates: skipped|all|picked`), and the Done-step marker
+  invocation now passes `--repo-templates=...`.
+- **Updated** `bin/write-setup-marker.sh` — accepts
+  `--repo-templates=all|picked|skipped` and persists it under
+  `branches.repo_templates`. Backward-compatible: the flag is optional,
+  marker JSON omits the field when not passed.
+
+No new skills/commands/rules. Test count stays at 407.
+
 ## 1.10.2 — 2026-05-23
 
 Regression-lock for v1.3.0–v1.10.0 surface changes. All tests green

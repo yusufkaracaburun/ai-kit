@@ -137,6 +137,7 @@ others so per-app docs can follow.
 | 10 | Automation recommender | propose-but-defer (brownfield default: skipped) |
 | 11 | Context-drift hook | offer if `CONTEXT.md` or `docs/adr/` exist |
 | 12 | Rule recommendation | offer if `detect-tooling` finds a framework |
+| 13 | Repo templates | offer per-file; default skip per file when one already exists |
 
 ### Branch 6 — Domain docs (optional)
 
@@ -218,6 +219,46 @@ it silently:
 Default: brownfield with a framework in `detect-tooling` → offer; otherwise
 `skipped`. Record the choice in the marker (`--rule-recommendation=...`).
 
+### Branch 13 — Repo templates (optional)
+
+Drop-in baseline hygiene files live at `$AI_KIT_ROOT/context/templates/repo/`.
+Offer the set; for each file the user picks, ai-kit copies it into the repo —
+**per-file consent, default skip when the file already exists.** No new bin
+script; this branch is a plain `cp` driven by the skill prompt.
+
+> Optional: ai-kit ships baseline repo hygiene files (`.editorconfig`,
+> `.gitattributes`, `CODEOWNERS`, `renovate.json`, `.envrc`). Pull any in?
+> [1] All missing ones    → copy every file that does not already exist
+> [2] Pick per file       → ask once per file (`keep / copy`)
+> [3] Skip                → record `skipped`
+
+| Source | Destination | Note |
+| ------ | ----------- | ---- |
+| `context/templates/repo/.editorconfig` | `./.editorconfig` | charset + line-ending defaults |
+| `context/templates/repo/.gitattributes` | `./.gitattributes` | LF normalisation + binary markers |
+| `context/templates/repo/CODEOWNERS` | `./.github/CODEOWNERS` | empty template — user MUST fill in handles before committing |
+| `context/templates/repo/renovate.json` | `./renovate.json` | Renovate Bot defaults |
+| `context/templates/repo/.envrc` | `./.envrc` | direnv stub |
+
+For each chosen file:
+
+```bash
+# Example for .editorconfig — repeat per chosen file.
+if [ -e ./.editorconfig ]; then
+  echo "keep / overwrite / skip?"   # default: keep
+else
+  cp "$AI_KIT_ROOT/context/templates/repo/.editorconfig" ./.editorconfig
+fi
+```
+
+`CODEOWNERS` lands in `.github/CODEOWNERS` — `mkdir -p .github` first. After
+copying, flag the file to the user: it ships with placeholder `@your-org/...`
+handles and must be edited before commit.
+
+Record the aggregate choice in the marker
+(`--repo-templates=all|picked|skipped`). Re-runs are idempotent: any file that
+already exists is left alone unless the user explicitly chose `overwrite`.
+
 Full setup Done:
 
 ```bash
@@ -228,7 +269,8 @@ $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" \
   --architecture=... --sandcastle=... \
   --automation-recommender=skipped|deferred|completed \
   --context-drift-hook=wired|skipped \
-  --rule-recommendation=completed|deferred|skipped
+  --rule-recommendation=completed|deferred|skipped \
+  --repo-templates=all|picked|skipped
 $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict
 ```
 
@@ -250,7 +292,8 @@ $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict
     "sandcastle": false,
     "automation_recommender": "skipped",
     "context_drift_hook": "skipped",
-    "rule_recommendation": "skipped"
+    "rule_recommendation": "skipped",
+    "repo_templates": "skipped"
   }
 }
 ```
