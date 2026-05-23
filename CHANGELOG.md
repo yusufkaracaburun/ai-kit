@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.10.1 — 2026-05-23
+
+Docs sync — README + architecture + install-plugin + mental-model
+all referenced stale counts from the v1.0 release (23 skills, 7
+commands, 7 rule books). No surface or behaviour change.
+
+Updated counts in README to current totals: 26 skills, 8 slash
+commands, 23 canonical mini-rules, 21 MCP + 25 hooks + 12 plugins
+curated, 5 repo templates. Added Feedback Loop section (`/ai:feedback`
++ `/ai:contribute-eval`). Pin-release example bumped to v1.10.0.
+
 ## 1.10.0 — 2026-05-23
 
 Stack-specific micro-rules pack — 5 new rules gated on detected stack.

@@ -1,6 +1,6 @@
 # Mental model
 
-How the 23 skills fit together, plus the 3 subagents and 7 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
+How the 26 skills fit together, plus the 3 subagents and 8 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
 
 For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossary.md). For "I want to add X — which primitive?" see [primitives.md](primitives.md).
 
