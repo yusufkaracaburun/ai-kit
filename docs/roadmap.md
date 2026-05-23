@@ -310,3 +310,24 @@ in priority order:
     pattern already credited in the companion's README provenance
     table. Defer-rationale: sequencing behind #22, which will re-audit
     the same `context/templates/companions/` surface.
+13. **Surface context7 more prominently in aikit-recommend-tools** (#24)
+    — small refinement to the recommend-tools companion catalog.
+    `context7` is in `standards/external/mcp-servers.json` but its
+    `signals` block matches a narrow curated framework list
+    (react/vue/angular/nextjs/nuxt/svelte/express/fastify/fastapi/
+    django/rails/laravel/spring) + a few LLM-SDK deps — so bash
+    tooling, Go services, Rust CLIs, Phoenix/Elixir, Astro, and any
+    niche-framework app never see it, even though context7's value
+    (live docs vs training-data hallucinations) is universal for any
+    project depending on libraries. Two-file fix: add a companion-table
+    row in `workflow/skills/aikit-recommend-tools/SKILL.md` alongside
+    graphify/caveman/llm-wiki, and broaden the JSON `signals` to a
+    `package_managers` axis (npm/pnpm/bun/composer/pip/poetry/uv/
+    cargo/gem/go.mod) so any dependency-manifest hit scores it.
+    Trust model unchanged — preview-then-confirm. Surfaced by
+    `/should-i-use context7` 2026-05-23 — verdict on the meta-tool was
+    **Ignore** (already wired globally via `~/.claude/rules/context7.md`
+    + already in the catalog) but the discoverability gap in
+    `aikit-recommend-tools` output was the real artifact. Defer-
+    rationale: bundle with or after #19's broader signal-table
+    restructure to avoid merge conflict.
