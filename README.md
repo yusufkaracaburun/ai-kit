@@ -136,8 +136,9 @@ shell, no LLM, silent when no such docs exist.
 
 ## Contributing
 
-Pure Bash + Markdown, no build step. `./tests/bin/run-tests.sh` runs the suite; CI
-runs the same on every push. See [CONTRIBUTING.md](CONTRIBUTING.md) for
+Pure Bash + Markdown, no build step. `./tests/bin/run-all.sh` runs the suite in
+parallel (≈3.5× faster than the legacy sequential `run-tests.sh`); CI runs the
+same on every push. See [CONTRIBUTING.md](CONTRIBUTING.md) for
 skill-authoring rules and [docs/eval.md](docs/eval.md) for the eval harness.
 
 ## License & provenance

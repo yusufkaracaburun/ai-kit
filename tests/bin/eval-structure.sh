@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Structural checks across all workflow/skills/*/SKILL.md and tests/eval/prompts/.
-# Pure, deterministic, no network. Run from ai-kit clone root or via run-tests.sh.
+# Pure, deterministic, no network. Run from ai-kit clone root or via run-all.sh.
 set -euo pipefail
 
 AIKIT="$(cd "$(dirname "$0")/../.." && pwd)"

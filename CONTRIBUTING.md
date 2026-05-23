@@ -6,7 +6,7 @@ Thanks for your interest. ai-kit is a personal agent kit; contributions stay sma
 
 - [ ] Branch from `master`: `feat/<area>-<short-desc>` or `fix/<area>-<short-desc>`
 - [ ] Commit style: imperative + scope (e.g. `feat(setup): add tier-A fast path`)
-- [ ] `./tests/bin/run-tests.sh` passes locally
+- [ ] `./tests/bin/run-all.sh` passes locally
 - [ ] If you touched any `workflow/skills/*/SKILL.md`: `./tests/bin/eval-structure.sh` passes
 - [ ] If you touched a SKILL.md with a paired subagent (a generated region in `workflow/agents/*/AGENT.md`): re-run `./bin/emit-agents.sh`
 - [ ] CHANGELOG.md updated under the unreleased section
@@ -17,7 +17,7 @@ Thanks for your interest. ai-kit is a personal agent kit; contributions stay sma
 ```bash
 git clone git@github.com:yusufkaracaburun/ai-kit.git
 cd ai-kit
-./tests/bin/run-tests.sh
+./tests/bin/run-all.sh
 ```
 
 No build step. Pure Bash + Markdown. macOS and Linux supported (Bash 4+).
@@ -41,13 +41,13 @@ For high-signal skills, also add at least one fixture under `tests/eval/prompts/
 
 - Run `shellcheck bin/**/*.sh tests/bin/*.sh` before pushing — CI enforces zero warnings.
 - Source `bin/lib/ai-kit-root.sh` to resolve `AI_KIT_ROOT` portably; never hardcode paths.
-- New tests go in `tests/bin/run-tests.sh` using the existing `assert "name" 'condition'` helper.
+- New tests go in `tests/bin/cases/<group>.sh` using the shared `assert "name" 'condition'` helper from `tests/bin/lib/harness.sh`. Pick the case file matching your area (`detect`, `recommend`, `lifecycle`, `structure`, `hooks-usage`, etc.) or add a new `cases/<name>.sh` — `tests/bin/run-all.sh` discovers cases automatically.
 
 ## Pull requests
 
 Open against `master`. Use the PR template. Keep PRs ≤ 400 lines of diff where possible — split if larger.
 
-**Approval policy**: solo maintainer project — author may self-merge once CI is green and `./tests/bin/run-tests.sh` + `shellcheck` pass locally. External contributors: one maintainer approval required before merge.
+**Approval policy**: solo maintainer project — author may self-merge once CI is green and `./tests/bin/run-all.sh` + `shellcheck` pass locally. External contributors: one maintainer approval required before merge.
 
 **Merge strategy**: **squash + merge**. The squash commit subject must follow Conventional Commits (`feat(scope): subject`). Avoid plain merge commits unless preserving multiple intentional commits is the explicit point of the PR.
 

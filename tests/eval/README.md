@@ -86,7 +86,7 @@ gives a sharper signal than reading prose `expects:` items one by one.
 2. Hand-write the ideal response at `tests/eval/goldens/<skill>/<scenario>.md`
    with a rubric in the frontmatter.
 3. Run `bin/eval-golden.sh <skill> <scenario>` — it must pass its own rubric.
-4. Run `./tests/bin/run-tests.sh` — `eval-golden --validate-all` must stay
+4. Run `./tests/bin/run-all.sh` — `eval-golden --validate-all` must stay
    green, and the per-priority-skill existence assertions must still pass.
 
 Keep goldens realistic in length (200–500 lines of body is plenty); a

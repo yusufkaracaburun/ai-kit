@@ -115,7 +115,7 @@ Package-manager detection couldn't find a lockfile. Either the project has none,
 
 ## Tests
 
-### `run-tests.sh` fails with "unbound variable" on macOS
+### `run-all.sh` fails with "unbound variable" on macOS
 
 Bash 3.2 (macOS default) is sensitive to empty arrays under `set -u`. We already use the safe-expansion pattern (`${ARR[@]+"${ARR[@]}"}`) at every call site. If a NEW failure surfaces:
 

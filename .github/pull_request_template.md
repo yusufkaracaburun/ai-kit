@@ -12,7 +12,7 @@
 
 ## Checklist
 
-- [ ] `./tests/bin/run-tests.sh` passes locally
+- [ ] `./tests/bin/run-all.sh` passes locally
 - [ ] If touched any SKILL.md: `./tests/bin/eval-structure.sh` passes
 - [ ] If touched any `bin/*.sh`: `shellcheck` clean
 - [ ] CHANGELOG.md updated

@@ -34,4 +34,4 @@ not a host; it always runs to maintain the canonical rule index.
 1. Create `<agent>.sh` exposing `emit_<agent>()`.
 2. Register in `bin/lib/detect-lib.sh::detect_agents()` so detection finds it.
 3. Add a case branch in `bin/emit-rules.sh`.
-4. Add a fixture + test in `tests/bin/run-tests.sh`.
+4. Add a fixture + test in `tests/bin/cases/<area>.sh` (typically `cases/bootstrap-emit.sh`).

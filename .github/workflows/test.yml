@@ -19,7 +19,9 @@ jobs:
       - name: Bash version
         run: bash --version
       - name: Run script tests
-        run: ./tests/bin/run-tests.sh
+        run: ./tests/bin/run-all.sh
+      - name: Eval-structure lint
+        run: ./tests/bin/eval-structure.sh
 
   lint:
     name: lint
@@ -31,7 +33,7 @@ jobs:
         with:
           severity: warning
           scandir: ./bin
-          additional_files: tests/bin/run-tests.sh install.sh
+          additional_files: tests/bin/run-all.sh tests/bin/lib/harness.sh install.sh
       - name: yamllint workflows
         run: |
           pip install --quiet yamllint

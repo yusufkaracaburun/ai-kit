@@ -4,7 +4,7 @@ ai-kit ships with a lightweight, two-layer eval harness for the skills themselve
 
 | Layer | What | Where | When |
 | ----- | ---- | ----- | ---- |
-| **Structural** | Deterministic checks across every `SKILL.md` and fixture | `tests/bin/eval-structure.sh` | Every CI run, every `run-tests.sh` |
+| **Structural** | Deterministic checks across every `SKILL.md` and fixture | `tests/bin/eval-structure.sh` | Every CI run, every `run-all.sh` |
 | **Behavioural** | Rubric-rated runs against scenario prompts | `tests/eval/prompts/` → `tests/eval/results/` | Manual — by you, after a skill change |
 
 There is **no LLM judge** and no A/B harness. The deliberate trade-off: deterministic checks catch drift in skill *shape*; rubric ratings catch drift in *behaviour*, but only when you actually run them. See ADR 0002 for why.
