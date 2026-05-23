@@ -58,7 +58,7 @@ $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" \
   --setup-mode=solo-both|solo-global|project-only|brownfield \
   --tier=minimal \
   --docker=skipped --tracker=skipped --workflow=skipped \
-  --architecture=skipped --sandcastle=false --context-drift-hook=skipped
+  --domain-docs=skipped --architecture=skipped --sandcastle=false --context-drift-hook=skipped
 $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict --minimal
 ```
 
@@ -113,6 +113,32 @@ others so per-app docs can follow.
 | 10 | Automation recommender | propose-but-defer (brownfield default: skipped) |
 | 11 | Context-drift hook | offer if `CONTEXT.md` or `docs/adr/` exist |
 | 12 | Rule recommendation | offer if `detect-tooling` finds a framework |
+
+### Branch 6 — Domain docs (optional)
+
+`CONTEXT.md` (single context) or `CONTEXT-MAP.md` + per-context `CONTEXT.md`
+files (multi-context repos) carry the project's domain language — glossary,
+boundaries, invariants. Agents read these before acting so they don't drift to
+synonyms.
+
+Bootstrap (Branch 1) already copies `CONTEXT.md.template` to the repo root when
+no `CONTEXT.md` exists. This branch is the **fill / extend / skip** decision on
+top of that scaffold — independent of the issue tracker.
+
+> Optional: `CONTEXT.md` holds the project's domain glossary, boundaries, and
+> invariants. Bootstrap left a template at the root.
+> [1] Walk me through filling it (`grill-with-docs`)  → `filled`
+> [2] Keep the scaffold for later                     → `scaffolded`
+> [3] Skip — no domain language to capture yet        → `skipped`
+
+For monorepos or repos with multiple bounded contexts: offer to write
+`CONTEXT-MAP.md` at the root that points at one `CONTEXT.md` per context. See
+`context/templates/docs/agents/domain.md` for the layout convention.
+
+Default: brownfield with domain-shaped folders (`app/Domain/`,
+`src/domain/`, `lib/<domain>/`) → offer `filled`; greenfield → `scaffolded`;
+no domain signal → `skipped`. Record the choice in the marker
+(`--domain-docs=scaffolded|filled|skipped`).
 
 ### Branch 10 — Automation recommender (propose-but-defer)
 
@@ -174,6 +200,7 @@ Full setup Done:
 $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" \
   --setup-mode=... --tier=full \
   --docker=... --tracker=... --workflow=... \
+  --domain-docs=scaffolded|filled|skipped \
   --architecture=... --sandcastle=... \
   --automation-recommender=skipped|deferred|completed \
   --context-drift-hook=wired|skipped \

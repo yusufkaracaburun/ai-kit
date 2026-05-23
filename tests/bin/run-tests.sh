@@ -416,6 +416,18 @@ assert "no rule_recommendation key without flag" '! grep -q "rule_recommendation
 "$AIKIT/bin/write-setup-marker.sh" "$TMP_M" --rule-recommendation=deferred
 assert "rule-recommendation round-trips" 'grep -q "\"rule_recommendation\": \"deferred\"" "$TMP_M/.ai-kit-setup"'
 assert "rule-recommendation write preserves setup_mode" 'grep -q "\"setup_mode\": \"solo-both\"" "$TMP_M/.ai-kit-setup"'
+assert "no domain_docs key without flag (decoupled from tracker)" '! grep -q "domain_docs" "$TMP_M/.ai-kit-setup"'
+"$AIKIT/bin/write-setup-marker.sh" "$TMP_M" --domain-docs=scaffolded
+assert "domain-docs round-trips scaffolded" 'grep -q "\"domain_docs\": \"scaffolded\"" "$TMP_M/.ai-kit-setup"'
+"$AIKIT/bin/write-setup-marker.sh" "$TMP_M" --domain-docs=filled
+assert "domain-docs round-trips filled" 'grep -q "\"domain_docs\": \"filled\"" "$TMP_M/.ai-kit-setup"'
+"$AIKIT/bin/write-setup-marker.sh" "$TMP_M" --domain-docs=skipped
+assert "domain-docs round-trips skipped" 'grep -q "\"domain_docs\": \"skipped\"" "$TMP_M/.ai-kit-setup"'
+TMP_DD=$(mktemp -d)
+"$AIKIT/bin/write-setup-marker.sh" "$TMP_DD" --setup-mode=solo-both --tier=full --tracker=github
+assert "tracker=github no longer auto-sets domain_docs" '! grep -q "domain_docs" "$TMP_DD/.ai-kit-setup"'
+assert "tracker=github still sets triage_labels" 'grep -q "\"triage_labels\": true" "$TMP_DD/.ai-kit-setup"'
+rm -rf "$TMP_DD"
 rm -rf "$TMP_M"
 
 echo ""

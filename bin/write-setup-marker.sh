@@ -17,6 +17,7 @@ usage() {
   echo "  --docker=none|minimal|existing|skipped"
   echo "  --tracker=github|gitlab|local|other|skipped"
   echo "  --workflow=scrum|kanban|informal|skipped"
+  echo "  --domain-docs=scaffolded|filled|skipped"
   echo "  --architecture=documented|follow-existing|skipped"
   echo "  --sandcastle=true|false"
   echo "  --automation-recommender=skipped|deferred|completed"
@@ -35,6 +36,7 @@ SETUP_TIER=""
 DOCKER=""
 TRACKER=""
 WORKFLOW=""
+DOMAIN_DOCS=""
 ARCHITECTURE=""
 SANDCASTLE=""
 AUTOMATION_RECOMMENDER=""
@@ -49,6 +51,7 @@ while [ $# -gt 0 ]; do
     --docker=*) DOCKER="${1#*=}"; shift ;;
     --tracker=*) TRACKER="${1#*=}"; shift ;;
     --workflow=*) WORKFLOW="${1#*=}"; shift ;;
+    --domain-docs=*) DOMAIN_DOCS="${1#*=}"; shift ;;
     --architecture=*) ARCHITECTURE="${1#*=}"; shift ;;
     --sandcastle=*) SANDCASTLE="${1#*=}"; shift ;;
     --automation-recommender=*) AUTOMATION_RECOMMENDER="${1#*=}"; shift ;;
@@ -70,12 +73,12 @@ SETUP_FILE="$TARGET/.ai-kit-setup"
 COMPLETED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
 python3 - "$SETUP_FILE" "$VERSION" "$COMPLETED_AT" \
-  "$SETUP_MODE" "$SETUP_TIER" "$DOCKER" "$TRACKER" "$WORKFLOW" "$ARCHITECTURE" "$SANDCASTLE" \
+  "$SETUP_MODE" "$SETUP_TIER" "$DOCKER" "$TRACKER" "$WORKFLOW" "$DOMAIN_DOCS" "$ARCHITECTURE" "$SANDCASTLE" \
   "$AUTOMATION_RECOMMENDER" "$CONTEXT_DRIFT_HOOK" "$RULE_RECOMMENDATION" <<'PY'
 import json, sys, os
 
 path, version, completed = sys.argv[1:4]
-setup_mode, tier, docker, tracker, workflow, architecture, sandcastle, automation_recommender, context_drift_hook, rule_recommendation = sys.argv[4:14]
+setup_mode, tier, docker, tracker, workflow, domain_docs, architecture, sandcastle, automation_recommender, context_drift_hook, rule_recommendation = sys.argv[4:15]
 
 data = {}
 if os.path.isfile(path):
@@ -99,9 +102,10 @@ if docker:
 if tracker:
     branches["issue_tracker"] = tracker
     branches["triage_labels"] = tracker != "skipped"
-    branches["domain_docs"] = tracker != "skipped"
 if workflow:
     branches["workflow"] = workflow
+if domain_docs:
+    branches["domain_docs"] = domain_docs
 if architecture:
     branches["architecture"] = architecture
 if sandcastle:
