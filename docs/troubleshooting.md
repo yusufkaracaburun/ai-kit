@@ -38,6 +38,32 @@ export AI_KIT_ROOT="/path/to/your/ai-kit/clone"
 
 Run `bootstrap-project.sh` first. `verify-setup` checks the post-setup state; it doesn't create files.
 
+### Chats still trigger `/gsd-*` after installing ai-kit
+
+ai-kit's predecessor — `get-shit-done` (gsd) — installs itself under
+`~/.claude/` with its own subagents, SessionStart hooks, and statusline.
+Installing ai-kit on top **does not remove** that footprint: the gsd
+SessionStart hook keeps injecting every `gsd-*` skill into Claude Code's
+available-skills list at session start, so the agent keeps preferring
+`/gsd-…` over `/ai:…`.
+
+Inspect (read-only, dry-run by default):
+
+```bash
+$AI_KIT_ROOT/bin/ai-kit-migrate-gsd.sh
+$AI_KIT_ROOT/bin/ai-kit-migrate-gsd.sh --project /path/to/repo   # add per-project artifacts
+```
+
+Remove (with timestamped backup under `~/.cache/ai-kit/migrate-gsd-<ts>/`):
+
+```bash
+$AI_KIT_ROOT/bin/ai-kit-migrate-gsd.sh --apply --project /path/to/repo
+```
+
+`ai-kit-doctor.sh` also reports the count under its `Legacy gsd` section.
+After removal, **restart Claude Code** — the gsd SessionStart hook only stops
+firing once the new `settings.json` is re-read.
+
 ## Brownfield coexistence
 
 ### Existing custom skill got "lost"

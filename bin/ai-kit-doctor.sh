@@ -123,6 +123,40 @@ else
   echo ""
 fi
 
+echo "Legacy gsd"
+# Detect a co-installed "get-shit-done" footprint — ai-kit's predecessor.
+# Its SessionStart hooks inject `gsd-*` skills into Claude Code's available-
+# skills list even after ai-kit is installed, so they keep competing with
+# `/ai:*` until the user runs `bin/ai-kit-migrate-gsd.sh --apply`.
+#
+# In project-only mode the user has opted out of machine-wide concerns, so
+# downgrade the message from warn (exit 1) to info — don't break their CI.
+GSD_HITS=0
+for p in \
+  "$HOME/.claude/get-shit-done" \
+  "$HOME/.claude/gsd-file-manifest.json" \
+  "$HOME/.claude/gsd-install-state.json" \
+; do
+  [ -e "$p" ] && GSD_HITS=$((GSD_HITS + 1))
+done
+if [ -d "$HOME/.claude/agents" ]; then
+  GSD_HITS=$((GSD_HITS + $(find "$HOME/.claude/agents" -maxdepth 1 -iname "gsd-*" 2>/dev/null | wc -l | tr -d ' ')))
+fi
+if [ -d "$HOME/.claude/hooks" ]; then
+  GSD_HITS=$((GSD_HITS + $(find "$HOME/.claude/hooks" -maxdepth 1 -iname "gsd-*" 2>/dev/null | wc -l | tr -d ' ')))
+fi
+if [ -f "$HOME/.claude/settings.json" ] && grep -q "gsd-" "$HOME/.claude/settings.json"; then
+  GSD_HITS=$((GSD_HITS + 1))
+fi
+if [ "$GSD_HITS" -eq 0 ]; then
+  ok "no legacy gsd footprint detected"
+elif [ "$EFFECTIVE_MODE" = "project-only" ]; then
+  info "$GSD_HITS gsd artifact(s) under ~/.claude — run bin/ai-kit-migrate-gsd.sh to remove (informational; project-only mode does not gate on this)"
+else
+  warn "$GSD_HITS gsd artifact(s) co-installed under ~/.claude — run bin/ai-kit-migrate-gsd.sh to inspect, then --apply to remove"
+fi
+echo ""
+
 echo "Plugin install"
 PLUGIN_MANIFEST="$AIKIT/workflow/.claude-plugin/plugin.json"
 if [ -f "$PLUGIN_MANIFEST" ]; then
