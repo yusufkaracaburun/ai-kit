@@ -24,6 +24,8 @@ Do **not** invoke when the user is asking to fix the thing now — `followup` is
 
 **Not this skill** — use [`to-issues`](../to-issues/SKILL.md) when the user wants to *break down* an already-planned chunk of work into N independently-grabbable tracer-bullet tickets. `followup` is for ONE surfaced lead → ONE issue + ONE roadmap paragraph. `to-issues` is for ONE plan → N issues.
 
+**Also not this skill** — use [`to-prd`](../to-prd/SKILL.md) when the user wants to *commit to build* a feature and needs a formal PRD body (problem, goals, non-goals, acceptance, plan link). `followup` is light parking ("not now, don't forget"); `to-prd` is heavy scope-lock ("this is happening, lock requirements before we start"). Both create a GH issue; pick by intent + body-shape.
+
 ## Inputs
 
 - **Lead** (required): one-line summary of the deferred work. From the user's prompt or the most recent agent turn.

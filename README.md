@@ -10,9 +10,9 @@ runtime daemon, no network calls, no telemetry.
 
 | Primitive | Count | Reaches |
 | --------- | -----:| ------- |
-| Skills | 23 | Claude Code · Cursor |
+| Skills | 24 | Claude Code · Cursor |
 | Subagents | 3 | Claude Code |
-| Slash commands | 7 | Claude Code · Cursor |
+| Slash commands | 8 | Claude Code · Cursor |
 | Hooks | 2 | Claude Code |
 | Rules | 7 canonical books | Cursor · Claude Code (via emitter) |
 
@@ -65,7 +65,7 @@ First moves:
 
 ## The agile lifecycle
 
-23 skills covering one loop — idea to retro:
+24 skills covering one loop — idea to retro:
 
 | Phase | Skills |
 | ----- | ------ |

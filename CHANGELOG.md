@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+## 3.2.0 — 2026-05-23
+
+**Added**
+- **`/ai:next`** — ranked "what's next" backlog for the current project.
+  Combines three sources into one prioritized list: open GitHub issues
+  (P0-P3 + status:in-progress + ready-for-agent labels), open `- [ ]`
+  task checkboxes in `docs/roadmap.md`, and `.ai-kit-setup` deferred
+  branches. Deterministic scoring (P-label + status + freshness +
+  branch-area match). Trigger phrases: "wat is open", "what's next",
+  "openstaande taken", "wat moet ik nu doen", `/ai:next`.
+  - `bin/ai-kit-next.sh` — ranker (`[--limit N] [--no-gh] [--no-roadmap] [--json]`).
+  - `workflow/skills/next/SKILL.md` + `workflow/commands/next.md`.
+  - 14-assert test case under `tests/bin/cases/next.sh`.
+
+**Changed**
+- **README primitive counts**: skills 23 → 24, slash commands 7 → 8 (covers `/ai:next`).
+- **`workflow/skills/{followup,to-prd}/SKILL.md`** — added bidirectional
+  "Also not this skill" disambiguation. Both create a GH issue; followup
+  is light parking ("remember this, not now"), to-prd is heavy scope-lock
+  ("commit to build — lock requirements before start"). Pick by intent +
+  body-shape.
+
 ## 3.1.0 — 2026-05-23
 
 **Added**
