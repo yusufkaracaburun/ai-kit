@@ -14,7 +14,7 @@ usage() {
   echo ""
   echo "Re-stamps .ai-kit-setup with the current ai-kit VERSION."
   echo "All existing branch choices are preserved verbatim."
-  echo "Fails if no marker exists — run /aikit-setup first."
+  echo "Fails if no marker exists — run /ai:setup first."
   exit 1
 }
 
@@ -26,7 +26,7 @@ MARKER="$TARGET/.ai-kit-setup"
 
 if [ ! -f "$MARKER" ]; then
   echo "No .ai-kit-setup at $TARGET" >&2
-  echo "Run $AIKIT/bin/bootstrap-project.sh + /aikit-setup first." >&2
+  echo "Run $AIKIT/bin/bootstrap-project.sh + /ai:setup first." >&2
   exit 2
 fi
 

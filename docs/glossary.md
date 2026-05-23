@@ -20,7 +20,7 @@ The agent-agnostic project entry-point in every ai-kit-bootstrapped repo. Templa
 
 ### Bootstrap
 
-The act of initializing ai-kit in a project: `bin/bootstrap-project.sh` or running `/aikit-setup` in the host. Produces `AGENTS.md`, `CONTEXT.md`, the `.ai-kit-setup` marker, and symlinked skills/agents/commands.
+The act of initializing ai-kit in a project: `bin/bootstrap-project.sh` or running `/ai:setup` in the host. Produces `AGENTS.md`, `CONTEXT.md`, the `.ai-kit-setup` marker, and symlinked skills/agents/commands.
 
 ### CHANGELOG.md
 
@@ -95,7 +95,7 @@ Agent-agnostic guidance derived from canonical books, stored in `standards/rules
 
 ### Setup
 
-The `/aikit-setup` skill (`workflow/skills/aikit-setup/SKILL.md`) — the user-facing entry point for project initialization. Wraps `bootstrap-project.sh` and `detect-tooling.sh`.
+The `/ai:setup` skill (`workflow/skills/setup/SKILL.md`) — the user-facing entry point for project initialization. Wraps `bootstrap-project.sh` and `detect-tooling.sh`.
 
 ### Skill
 

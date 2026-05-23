@@ -1,6 +1,6 @@
 # External rules
 
-Stack-specific rules vendored from the web by `/aikit-recommend-rules`
+Stack-specific rules vendored from the web by `/ai:recommend-rules`
 (Phase 2 → Phase 3). Unlike the canonical rules one level up, these are **not
 authored by ai-kit** — they are pinned copies of community sources.
 
@@ -29,4 +29,4 @@ Every file carries, in addition to the normal rule frontmatter:
 - Re-vendoring (re-fetch + re-pin) requires explicit user confirmation.
 - Do not edit a vendored body in place; it must stay faithful to its source.
 
-See [`workflow/skills/aikit-recommend-rules/SKILL.md`](../../../workflow/skills/aikit-recommend-rules/SKILL.md).
+See [`workflow/skills/recommend-rules/SKILL.md`](../../../workflow/skills/recommend-rules/SKILL.md).

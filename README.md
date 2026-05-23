@@ -49,19 +49,19 @@ hosts ai-kit and future plugins behind one stable address. See
 In any project, inside Claude Code or Cursor:
 
 ```bash
-/aikit-setup
+/ai:setup
 ```
 
-`/aikit-setup` writes `AGENTS.md` + `CONTEXT.md`, symlinks the skills into the project,
+`/ai:setup` writes `AGENTS.md` + `CONTEXT.md`, symlinks the skills into the project,
 drops a `.ai-kit-setup` marker, and detects your stack. The default mode
 (`solo-both`) needs no input.
 
 First moves:
 
-- `/aikit-status` — confirm install is healthy.
-- `/aikit-grill-me` — stress-test your next idea before you build it.
-- `/aikit-review` — second pass on a diff before opening the PR.
-- `/aikit-which "<intent>"` — pick a skill if unsure.
+- `/ai:status` — confirm install is healthy.
+- `/ai:grill-me` — stress-test your next idea before you build it.
+- `/ai:review` — second pass on a diff before opening the PR.
+- `/ai:which "<intent>"` — pick a skill if unsure.
 
 ## The agile lifecycle
 
@@ -69,19 +69,19 @@ First moves:
 
 | Phase | Skills |
 | ----- | ------ |
-| Ideation | `aikit-grill-me` · `aikit-grill-with-docs` · `aikit-to-prd` · `aikit-prototype` · `aikit-zoom-out` |
-| Development | `aikit-to-issues` → `aikit-triage` → `aikit-tdd` |
-| Testing | `aikit-review` · `aikit-qa` · `aikit-diagnose` |
-| Deployment | `aikit-ship` |
-| Ops & review | `aikit-retro` · `aikit-followup` |
-| Session continuity | `aikit-checkpoint` ↔ `aikit-resume` · `aikit-handoff` |
-| Cross-cutting | `aikit-setup` · `aikit-recommend-rules` · `aikit-recommend-tools` · `aikit-improve-codebase-architecture` |
+| Ideation | `grill-me` · `grill-with-docs` · `to-prd` · `prototype` · `zoom-out` |
+| Development | `to-issues` → `triage` → `tdd` |
+| Testing | `review` · `qa` · `diagnose` |
+| Deployment | `ship` |
+| Ops & review | `retro` · `followup` |
+| Session continuity | `checkpoint` ↔ `resume` · `handoff` |
+| Cross-cutting | `setup` · `recommend-rules` · `recommend-tools` · `improve-codebase-architecture` |
 
 See [docs/mental-model.md](docs/mental-model.md) for the "which skill, when" table and lifecycle diagram.
 
 ## Companion tools
 
-ai-kit **wires** three companions without vendoring them. `/aikit-recommend-tools`
+ai-kit **wires** three companions without vendoring them. `/ai:recommend-tools`
 detects which fit and writes the integration glue (`AGENTS.md` block, Claude Code
 hook, `wiki/` scaffold); install the tools from their own upstreams.
 
@@ -98,7 +98,7 @@ Two install layers, both optional:
 1. **Global** — `install-global.sh` symlinks skills, subagents, and commands into
    `~/.claude/` and `~/.cursor/`. The one-line installer does this; skip with
    `--no-global` if you only work in one repo.
-2. **Project** — `/aikit-setup` bootstraps `AGENTS.md`, `CONTEXT.md`, project skills,
+2. **Project** — `/ai:setup` bootstraps `AGENTS.md`, `CONTEXT.md`, project skills,
    and the `.ai-kit-setup` marker. Works fully without step 1.
 
 `AGENTS.md` is the agent-agnostic entry point; skills route from there. Three-layer
@@ -110,10 +110,10 @@ see [docs/primitives.md](docs/primitives.md).
 
 | Issue | First thing to try |
 | ----- | ------------------ |
-| `/aikit-setup` not found | Re-run `install-global.sh`; verify the `aikit-setup` symlinks |
+| `/ai:setup` not found | Re-run `install-global.sh`; verify the `setup` symlinks |
 | ai-kit root unknown | Set `AI_KIT_ROOT` or run `install-global.sh` once |
 | Skills missing in Cursor | Reload the window, check `.cursor/skills` resolves |
-| Re-configure a project | `/aikit-setup` again (keep/change/skip per branch) or `rm .ai-kit-setup` |
+| Re-configure a project | `/ai:setup` again (keep/change/skip per branch) or `rm .ai-kit-setup` |
 | Usage log empty | `export AI_KIT_USAGE=1` and open a new shell |
 
 Full list: [docs/troubleshooting.md](docs/troubleshooting.md).
@@ -124,12 +124,12 @@ No network calls, no telemetry. ai-kit writes three local files at most: the
 project `.ai-kit-setup` marker, `~/.config/ai-kit/root`, and — only when
 `AI_KIT_USAGE=1` is set — an opt-in skill-usage log at
 `~/.local/state/ai-kit/usage.jsonl` (skill name, event, project basename — never
-paths, prompts, or file contents). `aikit-retro` reads it; `bin/usage-purge.sh`
+paths, prompts, or file contents). `retro` reads it; `bin/usage-purge.sh`
 wipes it. Full data contract + the Claude Code auto-log hook JSON snippet:
 [SECURITY.md](SECURITY.md).
 
 The second hook, `bin/hooks/context-drift-check.sh`, is opt-in per project —
-`/aikit-setup` wires it on request. After an edit it nudges you to update
+`/ai:setup` wires it on request. After an edit it nudges you to update
 `CONTEXT.md` or an ADR when you change code those docs name. Deterministic
 shell, no LLM, silent when no such docs exist.
 

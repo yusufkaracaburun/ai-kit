@@ -8,7 +8,7 @@ Accepted (Unreleased)
 
 Evaluating ai-kit against a real target — a Laravel 13 monorepo (`backend/`
 plus three frontends) running Laravel Boost — surfaced three gaps that would
-make `/aikit-setup` misbehave there:
+make `/ai:setup` misbehave there:
 
 1. **Monorepo blindness.** `detect-tooling.sh` inspects a single root.
    `detect_package_manager` and `detect_frameworks` read only
@@ -23,8 +23,8 @@ make `/aikit-setup` misbehave there:
    file; Boost would silently overwrite the patch on its next run.
 
 3. **No drift signal.** ai-kit centres `CONTEXT.md` and `docs/adr/`, but nothing
-   reminds you when an edit makes the code diverge from them. `aikit-review` and
-   `aikit-grill-with-docs` catch drift only when explicitly invoked. The target
+   reminds you when an edit makes the code diverge from them. `review` and
+   `grill-with-docs` catch drift only when explicitly invoked. The target
    project had hand-rolled a Laravel-specific `docs-drift-check.sh` hook — a
    pattern worth generalising.
 
@@ -64,14 +64,14 @@ the script under `.claude/hooks/` (referenced via a portable
 `PostToolUse` entry into `.claude/settings.json` non-destructively and
 idempotently.
 
-Opt-in: ai-kit does not auto-wire it. `/aikit-setup` offers it; the project
+Opt-in: ai-kit does not auto-wire it. `/ai:setup` offers it; the project
 decides.
 
 ## Consequences
 
 **Positive**
 
-- `/aikit-setup` produces a true picture of a non-Nx monorepo instead of
+- `/ai:setup` produces a true picture of a non-Nx monorepo instead of
   reporting an empty repo.
 - ai-kit and Boost — or any `<laravel-boost-guidelines>`-style generator —
   coexist without a clobber loop.
@@ -84,7 +84,7 @@ decides.
   lists the app dirs and leaves per-app detection to a follow-up. Enough to stop
   the "no stack" failure; not yet a full per-app picture.
 - `apply-context-drift-hook.sh` *copies* the hook script into the target rather
-  than symlinking. The script is tiny and stable; `/aikit-upgrade` can re-copy.
+  than symlinking. The script is tiny and stable; `/ai:upgrade` can re-copy.
   Copying avoids baking an absolute ai-kit path into a committed `settings.json`.
 - The drift hook matches with a fixed-string path test — it can miss a renamed
   reference or fire on a coincidental substring. It is a nudge, not a gate; a
@@ -94,5 +94,5 @@ decides.
 
 - Per-app stack detection inside `detect_monorepo` (frameworks, package manager,
   Laravel version per app).
-- `/aikit-setup` branch wiring: surface the context-drift hook and the
+- `/ai:setup` branch wiring: surface the context-drift hook and the
   Boost / monorepo findings in the brownfield flow.

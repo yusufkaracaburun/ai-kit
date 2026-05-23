@@ -14,7 +14,7 @@ vendored_at: 2026-05-22
 
 <!-- Vendored external rule. Source content is pinned to the SHA above; do not -->
 <!-- edit the body in place. Re-vendor (re-fetch + re-pin) only with explicit -->
-<!-- user confirmation — see workflow/skills/aikit-recommend-rules/SKILL.md. -->
+<!-- user confirmation — see workflow/skills/recommend-rules/SKILL.md. -->
 
 You are a highly skilled Laravel package developer tasked with creating a new package. Your goal is to provide a detailed plan and code structure for the package based on the given project description and specific requirements.
 

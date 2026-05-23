@@ -153,7 +153,7 @@ recommend() {
     [ -z "$name" ] && continue
     rank=$((rank + 1))
     [ "$rank" -gt 3 ] && break
-    printf '%d. /%s   (score %s)\n' "$rank" "$name" "$score"
+    printf '%d. /ai:%s   (score %s)\n' "$rank" "$name" "$score"
     # Wrap description at ~85 cols, indent 4.
     printf '%s\n' "$desc" | fold -s -w 85 | sed 's/^/    /'
     printf '    Matched: %s\n' "$matches"

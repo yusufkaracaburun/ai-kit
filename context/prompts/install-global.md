@@ -21,11 +21,11 @@ Run:
 This saves the path to ~/.config/ai-kit/root for future runs.
 
 Verify both exist:
-  ~/.agents/skills/aikit-setup   (Claude Code)
-  ~/.cursor/skills/aikit-setup   (Cursor)
+  ~/.agents/skills/setup   (Claude Code)
+  ~/.cursor/skills/setup   (Cursor)
 
-Skills will be available in any project via /aikit-setup without project-local symlinks.
-When I open a repo, I will use the project setup prompt or run /aikit-setup directly.
+Skills will be available in any project via /ai:setup without project-local symlinks.
+When I open a repo, I will use the project setup prompt or run /ai:setup directly.
 ```
 
 ---

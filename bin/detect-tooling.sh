@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Report detected tooling for /aikit-setup. Human report by default; --json or --write.
+# Report detected tooling for /ai:setup. Human report by default; --json or --write.
 set -euo pipefail
 
 SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"
@@ -142,7 +142,7 @@ if build:
 detected.append("")
 block = "\n".join(detected)
 text = re.sub(
-    r"## Detected in this repo\n\n<!-- Filled by /aikit-setup[^>]*-->",
+    r"## Detected in this repo\n\n<!-- Filled by /ai:setup[^>]*-->",
     block,
     text,
     count=1,
@@ -160,12 +160,12 @@ if pm and pm in docs_urls:
 if rows:
     table = "\n".join(["| Tool | Documentation |", "| ---- | ------------- |"] + rows)
     text = re.sub(
-        r"## Official documentation\n\n<!-- Filled by /aikit-setup[^>]*-->\n\n\| Tool \| Documentation \|\n\| ---- \| ------------- \|\n\| \| \|",
+        r"## Official documentation\n\n<!-- Filled by /ai:setup[^>]*-->\n\n\| Tool \| Documentation \|\n\| ---- \| ------------- \|\n\| \| \|",
         "## Official documentation\n\n" + table,
         text,
         count=1,
     )
-text = re.sub(r"<!-- Filled by /aikit-setup[^>]*-->\n?", "", text)
+text = re.sub(r"<!-- Filled by /ai:setup[^>]*-->\n?", "", text)
 out.write_text(text)
 PY
 

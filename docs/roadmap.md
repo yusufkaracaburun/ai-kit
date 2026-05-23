@@ -53,11 +53,11 @@ bin/emit-rules.sh                  ← NEW: takes detected agents + rule names �
 
 ## 2. Project-aware rule recommendation (with optional web search)
 
-**Status:** **landed** 2026-05-22. Canonical scorer + frontmatter schema + skill scaffolding done. The vendoring flow is now exercised end-to-end — `standards/rules/external/laravel-php-83.mini.md` is the first web-vendored rule, pinned by SHA. `/aikit-recommend-rules` is wired into `/aikit-setup` as Tier B Branch 12. Only web-search caching remains open.
+**Status:** **landed** 2026-05-22. Canonical scorer + frontmatter schema + skill scaffolding done. The vendoring flow is now exercised end-to-end — `standards/rules/external/laravel-php-83.mini.md` is the first web-vendored rule, pinned by SHA. `/ai:recommend-rules` is wired into `/ai:setup` as Tier B Branch 12. Only web-search caching remains open.
 
 **Problem.** Today, bootstrap *used to* emit all 7-9 ai-kit book rules to every project regardless of stack. A Laravel monolith and a React+Vite SPA got identical rules. That's noise — refactoring/legacy-code rules are valuable for a 10-year-old codebase, less so for a greenfield prototype. Worse: ai-kit has no awareness of *stack-specific* community rules that already exist (Laravel Boost rules, Next.js conventions, Rails idioms, Django patterns).
 
-**Direction.** A new step in `/aikit-setup` (or standalone `/aikit-recommend-rules` skill) that:
+**Direction.** A new step in `/ai:setup` (or standalone `/ai:recommend-rules` skill) that:
 
 1. **Reads detection.** `detect-tooling.sh --json` → frameworks, package manager, language, architecture, repo age (commit count / first-commit date).
 2. **Scores canonical rules.** Mapping table: `legacy-code` → high score for repos with >2y history; `ddd-distilled` → high for backend-with-domain-folders; `release-it` → high for repos with deployment config; `aposd` → universal; `pragmatic-baseline` → universal. Filter out low-score rules.
@@ -68,7 +68,7 @@ bin/emit-rules.sh                  ← NEW: takes detected agents + rule names �
 **Sketch.**
 
 ```bash
-$ /aikit-setup
+$ /ai:setup
 …
 Detected: Laravel 11, Inertia, Vue 3, PHP 8.3, Composer, MySQL.
 Repo age: 4 years (1842 commits).
@@ -97,7 +97,7 @@ Install canonical (y/n/preview each)? Install external (per-item)?
 
 **Open design questions.**
 - Where does the "stack → rule score" mapping live? Pure heuristic in `bin/lib/recommend-lib.sh`, or in `standards/rules/<name>.mini.md` frontmatter? (Lean: frontmatter — keeps the rule self-describing.)
-- Web search dependency: which agent does the search? Probably done by Claude inside the `/aikit-recommend-rules` skill, not a bash script — keeps ai-kit dependency-free.
+- Web search dependency: which agent does the search? Probably done by Claude inside the `/ai:recommend-rules` skill, not a bash script — keeps ai-kit dependency-free.
 - Trust model for external rules: ai-kit shouldn't auto-install arbitrary markdown from the internet. Always preview-then-confirm, never silently fetch + emit.
 - Caching / pinning: do we vendor external rules into `standards/rules/external/` after first install, or keep them as live fetches? (Lean: vendor — reproducibility, offline-friendly, version pinning.)
 
@@ -105,9 +105,9 @@ Install canonical (y/n/preview each)? Install external (per-item)?
 - [x] Frontmatter schema on all 8 canonical rules: `universal`, `default_mode`, `weight`, `applies_to.{frameworks,architectures}`, `repo_age_min_years`.
 - [x] `bin/lib/recommend-lib.sh` — bash + tiny inline python for JSON parsing. Scores against detect-tooling output + repo age.
 - [x] `bin/recommend-rules.sh` CLI with `--json`.
-- [x] `workflow/skills/aikit-recommend-rules/SKILL.md` — Phase 1 (canonical scoring) + Phase 2 (web search) + Phase 3 (emit) flow with trust model.
+- [x] `workflow/skills/recommend-rules/SKILL.md` — Phase 1 (canonical scoring) + Phase 2 (web search) + Phase 3 (emit) flow with trust model.
 - [x] Vendoring convention documented in the skill (provenance frontmatter, pin-by-SHA, preview-before-write).
-- [x] Wired `/aikit-recommend-rules` into `/aikit-setup` as Tier B Branch 12 (2026-05-22); the choice is recorded in the marker via `write-setup-marker.sh --rule-recommendation`.
+- [x] Wired `/ai:recommend-rules` into `/ai:setup` as Tier B Branch 12 (2026-05-22); the choice is recorded in the marker via `write-setup-marker.sh --rule-recommendation`.
 - [x] First external rule vendored — `standards/rules/external/laravel-php-83.mini.md` from `PatrickJS/awesome-cursorrules` (CC0-1.0), pinned to SHA `4467ad4` (2026-05-22). Validates the Phase 2 → Phase 3 trust flow.
 - [x] **Cache web-search results.** (#11, 2026-05-23) `bin/recommend-rules-cache.sh` is a fingerprint-keyed cache for Phase 2 community-rule discovery. Cache key is a sha256 over sorted detected frameworks + frontend/backend architecture; default TTL 7 days; lives under `${XDG_CACHE_HOME:-~/.cache}/ai-kit/recommend-rules/`. Subcommands: `key`, `read`, `write`, `path`, `clear`, with `--ttl N` and `--no-cache` flags. The skill calls `read` before searching and `write` after, bypasses with `--no-cache` on user refresh. 13 regression tests cover hit/miss/TTL/refresh/invalid-JSON-rejection.
 
@@ -123,7 +123,7 @@ Install canonical (y/n/preview each)? Install external (per-item)?
 
 **Landed.**
 - [x] **PR 0** — `docs/architecture.md` (three-layer model: source → distribution → host, per-primitive routing table), `docs/glossary.md` (alphabetical terms with explicit aliases), `docs/primitives.md` (decision tree + worked examples + anti-patterns). Skill-count drift fixed (was "16" in `ai-kit-which.sh`, now tense-agnostic).
-- [x] **PR 1** — Two subagents (`workflow/agents/aikit-explore`, `workflow/agents/aikit-reviewer`) with the inline-fallback delegation pattern. Five slash commands (`workflow/commands/aikit-{doctor,which,status,no-globals,upgrade}.md`). `install-global.sh` refactored to `install_dir_to` + `install_files_to` (skills + agents + commands). `bootstrap-project.sh` learns `merge_agents` + `merge_commands` with `--no-agents` / `--no-commands` opt-outs.
+- [x] **PR 1** — Two subagents (`workflow/agents/explore`, `workflow/agents/reviewer`) with the inline-fallback delegation pattern. Five slash commands (`workflow/commands/ai:{doctor,which,status,no-globals,upgrade}.md`). `install-global.sh` refactored to `install_dir_to` + `install_files_to` (skills + agents + commands). `bootstrap-project.sh` learns `merge_agents` + `merge_commands` with `--no-agents` / `--no-commands` opt-outs.
 - [x] **PR 2** — Plugin distribution: `workflow/.claude-plugin/plugin.json` + `.claude-plugin/marketplace.json`. Users install via `/plugin marketplace add yusufkaracaburun/ai-kit` then `/plugin install ai-kit@ai-kit`. `bin/sync-plugin-version.sh` keeps VERSION / plugin / marketplace / mcp/package.json in lockstep; called from `bin/release.sh` on every tag. Doctor warns on plugin+symlink co-existence. `docs/install-plugin.md` walks through the three install paths and trade-offs.
 - [x] **PR 3** — MCP server (`mcp/`): Node + TypeScript, stdio transport, 5 read-only tools (`ai_kit_which`, `ai_kit_skill`, `ai_kit_rule`, `ai_kit_doctor`, `ai_kit_list`). Security: `execFile` not `exec`, zod-validated inputs, 10s timeout, 1 MB output cap, stderr-only logging. CI matrix Node 20 + 22. Reaches Cline / Continue / Zed / Claude Desktop users that the symlink-install and plugin path don't cover.
 
@@ -139,8 +139,8 @@ Install canonical (y/n/preview each)? Install external (per-item)?
   `--check` mode fails CI on drift; wired into `bin/release.sh`. Opt-in
   is unchanged: `AI_KIT_USAGE=1` in the env. Tests cover both layouts
   + the drift round-trip.
-- [x] **Subagent source-of-truth.** (#12, 2026-05-22) `bin/emit-agents.sh` regenerates a marked region of `workflow/agents/*/AGENT.md` from named `## ` sections of the companion `SKILL.md`. `aikit-reviewer` pulls `Security deep pass` + `Output format` from `aikit-review`. CI `--check` mode fails the build on drift. Marker-region injection chosen over full generation — agents keep bespoke framing (Contract, Inputs, What-not-to-do).
-- [x] **Migrate more skills to subagent delegation.** (#3, 2026-05-22) Four skills gained a `## Run mode` block with inline fallback. `aikit-qa` delegates the full QA pass to a new paired `aikit-qa-runner` subagent (single-sources `Tiers` + `Output` from the skill via `emit-agents.sh`). `aikit-diagnose`, `aikit-to-issues`, and `aikit-improve-codebase-architecture` delegate their codebase walk to the existing `aikit-explore` subagent — the last swapped off the generic `Explore`. A bespoke subagent each was rejected: the other three only do codebase reads, which `aikit-explore` already covers.
+- [x] **Subagent source-of-truth.** (#12, 2026-05-22) `bin/emit-agents.sh` regenerates a marked region of `workflow/agents/*/AGENT.md` from named `## ` sections of the companion `SKILL.md`. `reviewer` pulls `Security deep pass` + `Output format` from `review`. CI `--check` mode fails the build on drift. Marker-region injection chosen over full generation — agents keep bespoke framing (Contract, Inputs, What-not-to-do).
+- [x] **Migrate more skills to subagent delegation.** (#3, 2026-05-22) Four skills gained a `## Run mode` block with inline fallback. `qa` delegates the full QA pass to a new paired `qa-runner` subagent (single-sources `Tiers` + `Output` from the skill via `emit-agents.sh`). `diagnose`, `to-issues`, and `improve-codebase-architecture` delegate their codebase walk to the existing `explore` subagent — the last swapped off the generic `Explore`. A bespoke subagent each was rejected: the other three only do codebase reads, which `explore` already covers.
 - [x] **`mental-model.md` refresh.** Landed in PR 4 — now documents 19 skills with the matching table, plus dedicated subagent and slash-command tables linking `architecture.md` / `glossary.md` / `primitives.md`.
 - [x] **MCP server: published to npm.** (#4, 2026-05-22) `npm install -g @yusufkaracaburun/ai-kit-mcp`. package.json hardened (`publishConfig.access=public`, `prepublishOnly` clean+build+test, repository object + `directory`). Tag-gated CI publish: `.github/workflows/mcp-publish.yml` publishes on `v*` push, version-guarded against the tag.
 - [x] **MCP server + non-CC/Cursor emitters removed.** (2026-05-22) Superseded by section 4 — ai-kit scoped to Claude Code + Cursor.
@@ -182,7 +182,7 @@ The subagent emitter is in place, four more skills now delegate to subagents,
 and ai-kit has been scoped down to Claude Code + Cursor (section 4). Remaining,
 in priority order:
 
-1. **Web-search caching** for `/aikit-recommend-rules` — landed 2026-05-23 (#11).
+1. **Web-search caching** for `/ai:recommend-rules` — landed 2026-05-23 (#11).
 2. **Hook in the plugin** — landed 2026-05-23 (#8).
 3. **Standalone plugin marketplace repo** — landed 2026-05-23 (#9).
    `yusufkaracaburun/marketplace` is the new catalog
@@ -191,7 +191,7 @@ in priority order:
    no longer works. Breaking-change note in CHANGELOG. Future plugins
    register against the new catalog instead of needing their own
    marketplace.
-4. **New skill + command `/aikit-followup`** — landed 2026-05-23 (#16).
+4. **New skill + command `/ai:followup`** — landed 2026-05-23 (#16).
    One-shot defer capture: takes a one-line lead, opens a GitHub issue
    in house style, and appends a paragraph to `docs/roadmap.md`
    referencing the new issue. Replaces the per-project memory file
@@ -206,24 +206,24 @@ in priority order:
    `anthropics/claude-plugins-official @ claude-code-setup/skills/claude-automation-recommender`
    (Apache-2.0, pinned SHA `3449c10c`). `bin/recommend-tools.sh` scores
    them against `detect-tooling.sh` output and file presence; the
-   `aikit-recommend-tools` skill surfaces the ranked list with the same
-   trust model as `/aikit-recommend-rules` (never auto-install, never
+   `recommend-tools` skill surfaces the ranked list with the same
+   trust model as `/ai:recommend-rules` (never auto-install, never
    write `.claude/settings.json` without per-hook approval). Verdict
    via `/should-i-use` 2026-05-23 was **adopt-as-pattern** — the
    mapping tables, not the upstream skill itself, were the reusable
    artifact.
-6. **Spike: autonomous-loop variant of `aikit-tdd`** — landed
+6. **Spike: autonomous-loop variant of `tdd`** — landed
    2026-05-23 (#17). See
-   [docs/spikes/aikit-autonomous-ralph.md](spikes/aikit-autonomous-ralph.md).
-   Verdict: ship as a **sibling skill** (`aikit-autonomous`), not a
+   [docs/spikes/ai:autonomous-ralph.md](spikes/ai:autonomous-ralph.md).
+   Verdict: ship as a **sibling skill** (`autonomous`), not a
    flag on existing skills and not a separate plugin. **Complementary,
    not competing** with `/loop` — `/loop` is the scheduler,
-   `aikit-autonomous` is the worker (one issue per fire, exits clean).
-   Draft skill landed at `workflow/skills/aikit-autonomous/SKILL.md`
+   `autonomous` is the worker (one issue per fire, exits clean).
+   Draft skill landed at `workflow/skills/autonomous/SKILL.md`
    with `dry-run` as default mode, explicit stop conditions (TDD cap,
    review blockers, security ≥ high, git conflicts), and
    `.ai-kit/autonomous/progress.txt` as cold-start state. **Not wired
-   into `aikit-setup`** — opt-in, hand-installed during validation
+   into `setup`** — opt-in, hand-installed during validation
    period. Promotion from spike → released gated on first successful
    real-queue drain (currently 0 issues labeled `ready-for-agent`).
 7. **Brainstorm: second plugin under `yusufkaracaburun/marketplace`** (#15).
@@ -235,17 +235,17 @@ in priority order:
    (graphify + caveman + llm-wiki bundle). Exit criterion: pick one,
    decide fork-vs-fresh-start, open implementation issue against the new
    repo.
-8. **Stack-aware tool recommendations during setup** (#19) — `/aikit-setup`
+8. **Stack-aware tool recommendations during setup** (#19) — `/ai:setup`
    today configures rules + skills but does not proactively *propose
-   companion tools* tied to the detected stack. `/aikit-recommend-tools`
+   companion tools* tied to the detected stack. `/ai:recommend-tools`
    (#14) is standalone and limited to MCP servers + Claude Code hooks;
    broader categories — vector stores / RAG (Qdrant, pgvector, Chroma,
    Weaviate), observability (Sentry, OpenTelemetry), dev tooling
    (linters, formatters, runtime managers), CLI helpers, and AI agent
    memory (Mem0, Letta, Zep) — get no nudge during setup. Two-part
    delivery: (a) broaden the signal tables under `standards/external/`
-   to cover the missing categories, (b) wire `/aikit-recommend-tools`
-   into `/aikit-setup` as a Tier B branch parallel to rule
+   to cover the missing categories, (b) wire `/ai:recommend-tools`
+   into `/ai:setup` as a Tier B branch parallel to rule
    recommendations. Trust model unchanged — preview-then-confirm,
    never auto-install. Gap surfaced by `/should-i-use` Qdrant
    2026-05-23 — the verdict on Qdrant itself was **Ignore** (wrong
@@ -264,7 +264,7 @@ in priority order:
    for ai-kit-the-repo (wrong category + AGPL-3.0 incompatible with
    MIT), but the downstream-project deploy advisory is missing.
 10. **Research OpenHands runtime patterns before promoting
-    `aikit-autonomous` spike** (#21) — research-arc input for closing
+    `autonomous` spike** (#21) — research-arc input for closing
     the three contract gaps the spike walkthrough (#18) flagged
     (precondition checks, per-project `AI_KIT_ROOT` pinning, merge-
     policy detection). OpenHands (73.2k★) is a mature autonomous
@@ -273,8 +273,8 @@ in priority order:
     persistent state. Read their source, map each finding back to one
     of the spike's gaps, decide adopt-as-pattern / adopt-modified /
     reject per pattern. Output: new `Research input: OpenHands patterns`
-    section in `docs/spikes/aikit-autonomous-ralph.md` + updated
-    contract in `workflow/skills/aikit-autonomous/SKILL.md`. Gap
+    section in `docs/spikes/ai:autonomous-ralph.md` + updated
+    contract in `workflow/skills/autonomous/SKILL.md`. Gap
     surfaced by `/should-i-use` OpenHands 2026-05-23 — OpenHands itself
     = **Ignore** as host target (ADR-0006 scopes ai-kit to Claude Code
     + Cursor) but **Adopt-as-pattern** for spike-research input.
@@ -303,7 +303,7 @@ in priority order:
     querying) + Web Clipper as the most polished viewer stack —
     without making Obsidian a dependency. Surfaced by `/should-i-use`
     Rusev 2026-05-23.
-13. **Surface context7 more prominently in aikit-recommend-tools** (#24)
+13. **Surface context7 more prominently in recommend-tools** (#24)
     — small refinement to the recommend-tools companion catalog.
     `context7` is in `standards/external/mcp-servers.json` but its
     `signals` block matches a narrow curated framework list
@@ -313,7 +313,7 @@ in priority order:
     niche-framework app never see it, even though context7's value
     (live docs vs training-data hallucinations) is universal for any
     project depending on libraries. Two-file fix: add a companion-table
-    row in `workflow/skills/aikit-recommend-tools/SKILL.md` alongside
+    row in `workflow/skills/recommend-tools/SKILL.md` alongside
     graphify/caveman/llm-wiki, and broaden the JSON `signals` to a
     `package_managers` axis (npm/pnpm/bun/composer/pip/poetry/uv/
     cargo/gem/go.mod) so any dependency-manifest hit scores it.
@@ -321,7 +321,7 @@ in priority order:
     `/should-i-use context7` 2026-05-23 — verdict on the meta-tool was
     **Ignore** (already wired globally via `~/.claude/rules/context7.md`
     + already in the catalog) but the discoverability gap in
-    `aikit-recommend-tools` output was the real artifact. Defer-
+    `recommend-tools` output was the real artifact. Defer-
     rationale: bundle with or after #19's broader signal-table
     restructure to avoid merge conflict.
 14. **Re-evaluate book-to-skill as catalog candidate after #22** (#25)

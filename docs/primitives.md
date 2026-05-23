@@ -26,7 +26,7 @@ Start: "I want to add X to ai-kit"
 │  │  │
 │  │  └─ YES → SLASH COMMAND
 │  │           Source: workflow/commands/<name>.md
-│  │           Example: /aikit-doctor wraps bin/ai-kit-doctor.sh
+│  │           Example: /ai:doctor wraps bin/ai-kit-doctor.sh
 │  │
 │  └─ Does it have a multi-step workflow with instructions?
 │     │
@@ -42,7 +42,7 @@ Start: "I want to add X to ai-kit"
 │  │  ├─ YES (and Claude Code is acceptable as primary host)
 │  │  │   → SUBAGENT called from a SKILL
 │  │  │     Source: workflow/agents/<name>/AGENT.md
-│  │  │     Example: review skill delegates to aikit-reviewer
+│  │  │     Example: review skill delegates to reviewer
 │  │  │
 │  │  └─ NO → SKILL
 │  │         Source: workflow/skills/<name>/SKILL.md
@@ -92,21 +92,21 @@ Start: "I want to add X to ai-kit"
 ### "Show me which skill fits my current task"
 - User wants explicit `/` invocation → **SLASH COMMAND**
 - Wraps an existing script (`bin/ai-kit-which.sh`) → fits the wrapper case
-- Source: `workflow/commands/aikit-which.md`
+- Source: `workflow/commands/ai:which.md`
 
 ### "Run a heavy security audit on changed files before merge"
 - Multi-step workflow → skill territory
 - Heavy reading of files would pollute main context → delegate to a **SUBAGENT**
-- Source: `workflow/skills/aikit-review/SKILL.md` calls `workflow/agents/aikit-reviewer/AGENT.md`
+- Source: `workflow/skills/review/SKILL.md` calls `workflow/agents/reviewer/AGENT.md`
 
 ### "Always remind the LLM to write Conventional Commits"
 - Cross-cutting, applies everywhere → **RULE**
 - Source: `standards/rules/git-hygiene.mini.md` (already exists)
-- Emitted via `bin/emit-rules.sh` at `/aikit-setup`
+- Emitted via `bin/emit-rules.sh` at `/ai:setup`
 
 ### "Generate a fresh PRD from a one-paragraph idea"
 - Multi-step LLM workflow, auto-discovered by intent → **SKILL**
-- Source: `workflow/skills/aikit-to-prd/SKILL.md` (already exists)
+- Source: `workflow/skills/to-prd/SKILL.md` (already exists)
 - No isolated context needed; runs in main thread
 
 ---

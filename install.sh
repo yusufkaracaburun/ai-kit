@@ -51,7 +51,7 @@ Options:
 All options also work as env vars: AI_KIT_DIR, AI_KIT_REPO, AI_KIT_BRANCH,
 AI_KIT_REF, AI_KIT_NO_GLOBAL=1, AI_KIT_UPDATE=1, AI_KIT_QUIET=1.
 
-After install, run /aikit-setup in any project (Claude Code or Cursor) to bootstrap it.
+After install, run /ai:setup in any project (Claude Code or Cursor) to bootstrap it.
 EOF
 }
 
@@ -156,7 +156,7 @@ log ""
 log "Next steps:"
 log "  1. Open any project:   cd /path/to/project"
 log "  2. Bootstrap it:       $AI_KIT_DIR/bin/bootstrap-project.sh ."
-log "  3. Run /aikit-setup in Claude Code or Cursor"
+log "  3. Run /ai:setup in Claude Code or Cursor"
 log ""
 log "Docs:  $AI_KIT_DIR/README.md"
 log "Doctor: $AI_KIT_DIR/bin/ai-kit-doctor.sh"

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# autonomous-queue.sh — read the ready-for-agent issue queue for aikit-autonomous.
-# Spike: docs/spikes/aikit-autonomous-ralph.md  (tracks #17 and #18).
+# autonomous-queue.sh — read the ready-for-agent issue queue for autonomous.
+# Spike: docs/spikes/ai:autonomous-ralph.md  (tracks #17 and #18).
 set -euo pipefail
 
 usage() {

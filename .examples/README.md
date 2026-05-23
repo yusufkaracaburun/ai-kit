@@ -1,6 +1,6 @@
 # Examples
 
-Three walkthroughs of running `/aikit-setup` on real-world repo shapes. Each example documents the **detection snapshot**, the **commands ai-kit ran**, and the **before/after tree**. No live code — the examples are reproducible on paper so they don't rot when upstream tooling changes.
+Three walkthroughs of running `/ai:setup` on real-world repo shapes. Each example documents the **detection snapshot**, the **commands ai-kit ran**, and the **before/after tree**. No live code — the examples are reproducible on paper so they don't rot when upstream tooling changes.
 
 | Example | Repo shape | Setup mode | Tier |
 | ------- | ---------- | ---------- | ---- |

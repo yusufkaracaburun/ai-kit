@@ -19,9 +19,9 @@ signals are checked against the project root.
 
 Output: ranked table (default) or JSON. Filter kind with --kind.
 
-This is the deterministic scorer. The /aikit-recommend-tools skill
+This is the deterministic scorer. The /ai:recommend-tools skill
 invokes it for stack-specific MCP + hook suggestions, then surfaces the
-results to the user with the same trust model as /aikit-recommend-rules.
+results to the user with the same trust model as /ai:recommend-rules.
 EOF
   exit 1
 }

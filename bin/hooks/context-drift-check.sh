@@ -74,7 +74,7 @@ done
 [ "${#hits[@]}" -eq 0 ] && exit 0
 
 joined="$(IFS=', '; echo "${hits[*]}")"
-msg="context-drift: \`${rel}\` is referenced in ${joined}. If this edit changed documented behaviour, update the doc(s) or run /aikit-grill-with-docs."
+msg="context-drift: \`${rel}\` is referenced in ${joined}. If this edit changed documented behaviour, update the doc(s) or run /ai:grill-with-docs."
 
 if command -v jq >/dev/null 2>&1; then
   jq -n --arg ctx "$msg" \

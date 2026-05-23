@@ -31,7 +31,7 @@ echo ""
 
 if [ ! -f "$MARKER" ]; then
   echo "Marker:   absent"
-  echo "          → run /aikit-setup (or $AIKIT/bin/bootstrap-project.sh $TARGET first)"
+  echo "          → run /ai:setup (or $AIKIT/bin/bootstrap-project.sh $TARGET first)"
   echo ""
 else
   marker_version="$(python3 -c "import json; print(json.load(open('$MARKER')).get('ai_kit_version','?'))")"

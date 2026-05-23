@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Idempotent .ai-kit-setup writer for /aikit-setup Done step.
+# Idempotent .ai-kit-setup writer for /ai:setup Done step.
 set -euo pipefail
 
 SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"

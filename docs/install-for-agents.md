@@ -39,23 +39,23 @@ Plan (run in order; stop on the first failure and report it):
    them verbatim to the human and stop.
 
 5. Bootstrap the current project. From the project root, invoke the
-   `/aikit-setup` skill (Claude Code: `/aikit-setup`; Cursor: invoke the
-   `aikit-setup` skill). Default mode (`solo-both`) is correct unless the
+   `/ai:setup` skill (Claude Code: `/ai:setup`; Cursor: invoke the
+   `setup` skill). Default mode (`solo-both`) is correct unless the
    human has already specified another mode. After it completes, confirm
    `.ai-kit-setup` exists in the project root.
 
-6. Confirm health. Run `/aikit-status` (or `~/.local/share/ai-kit/bin/ai-kit-status.sh`)
+6. Confirm health. Run `/ai:status` (or `~/.local/share/ai-kit/bin/ai-kit-status.sh`)
    and report the version, the host(s) it detected, and the rule emission
    summary back to the human.
 
 7. Suggest two next moves, picked from the human's intent:
-   - If they want to ship: `/aikit-ship` flow.
-   - If they want to plan: `/aikit-grill-me` to stress-test the plan first.
-   - If they are unsure: `/aikit-which "<one-line intent>"` to pick a skill.
+   - If they want to ship: `/ai:ship` flow.
+   - If they want to plan: `/ai:grill-me` to stress-test the plan first.
+   - If they are unsure: `/ai:which "<one-line intent>"` to pick a skill.
 
 Rules:
 - Do not modify the human's existing `CLAUDE.md`, `AGENTS.md`, `CONTEXT.md`,
-  `.claude/`, or `.cursor/` content beyond what `/aikit-setup` does itself.
+  `.claude/`, or `.cursor/` content beyond what `/ai:setup` does itself.
 - No telemetry, no network calls beyond the initial clone — ai-kit is shell +
   markdown only at runtime.
 - Opt-in usage logging is OFF unless the human explicitly asks for it (then

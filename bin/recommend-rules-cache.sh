@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Cache helper for /aikit-recommend-rules Phase 2 web-search results.
+# Cache helper for /ai:recommend-rules Phase 2 web-search results.
 #
 # Phase 2 (community-rule discovery) is performed by the AI agent invoking the
 # skill, not by this script — but we want repeated invocations on the same

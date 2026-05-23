@@ -72,9 +72,9 @@ Total elapsed: <5 minutes on the first try (most time is choosing the setup mode
 my-next-app/
 ├── .agents/
 │   └── skills/        # symlinks to $AI_KIT_ROOT/workflow/skills/*
-│       ├── diagnose -> .../ai-kit/workflow/skills/aikit-diagnose
-│       ├── ship     -> .../ai-kit/workflow/skills/aikit-ship
-│       ├── tdd      -> .../ai-kit/workflow/skills/aikit-tdd
+│       ├── diagnose -> .../ai-kit/workflow/skills/diagnose
+│       ├── ship     -> .../ai-kit/workflow/skills/ship
+│       ├── tdd      -> .../ai-kit/workflow/skills/tdd
 │       └── ... (16 total)
 ├── .cursor/
 │   └── skills/        # parallel symlinks
@@ -94,7 +94,7 @@ my-next-app/
 
 ## What's not configured (Tier B leftovers)
 
-`/aikit-setup` Full path would add:
+`/ai:setup` Full path would add:
 
 - `docs/agents/docker.md` (none / existing / minimal)
 - `docs/agents/issue-tracker-*.md`
@@ -106,7 +106,7 @@ For a solo greenfield project, Tier A is usually enough until the team grows.
 
 ## What to do next
 
-1. Fill `CONTEXT.md` with your domain glossary (use `aikit-grill-with-docs` skill).
-2. Write the first PRD with `aikit-to-prd` — even rough; it gets refined.
-3. Open an issue list with `aikit-to-issues`.
-4. Pick the first ticket and run `aikit-tdd` on it.
+1. Fill `CONTEXT.md` with your domain glossary (use `grill-with-docs` skill).
+2. Write the first PRD with `to-prd` — even rough; it gets refined.
+3. Open an issue list with `to-issues`.
+4. Pick the first ticket and run `tdd` on it.

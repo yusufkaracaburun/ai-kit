@@ -62,7 +62,7 @@
     `log-skill.sh` is missing. 15 new assertions, 299 total pass.
   - `docs/install-plugin.md` updated — the hook is now in the
     "Bundled" list with an explicit "opt-in usage logging" section.
-- **`/aikit-recommend-rules` Phase 2 web-search cache** (#11, roadmap §2):
+- **`/ai:recommend-rules` Phase 2 web-search cache** (#11, roadmap §2):
   `bin/recommend-rules-cache.sh` is a fingerprint-keyed cache so repeated
   invocations on the same stack skip the live community-rule search.
   - Cache key: sha256 over sorted detected frameworks + frontend/backend
@@ -82,7 +82,7 @@
   - 13 regression tests in `tests/bin/run-tests.sh` cover key stability,
     hit/miss, TTL expiry, `--ttl` override, `--no-cache` short-circuit,
     invalid-JSON rejection, and `clear`.
-- **`aikit-followup` skill + `/aikit-followup` slash command** (#16, roadmap §4):
+- **`followup` skill + `/ai:followup` slash command** (#16, roadmap §4):
   one-shot defer capture. Takes a one-line lead, drafts a GitHub issue in
   house style (`## Pain` / `## Proposed delivery` / `## Why-not` /
   `## Roadmap pointer`), and appends a numbered paragraph to the last
@@ -94,14 +94,14 @@
   - **Replaces** the per-project memory file `feedback_followup_default.md`
     with a cross-project primitive that ships via the plugin, so the
     default applies everywhere ai-kit is installed.
-  - Skill lives at `workflow/skills/aikit-followup/SKILL.md`; command at
-    `workflow/commands/aikit-followup.md` (`allowed-tools: Bash, Read,
+  - Skill lives at `workflow/skills/followup/SKILL.md`; command at
+    `workflow/commands/ai:followup.md` (`allowed-tools: Bash, Read,
     Edit, Write`). Picked up by `bootstrap-project.sh` and the plugin
     automatically — no enrollment needed.
   - Tests: bootstrap-link assertions for the new skill + command across
     `.claude/` and `.cursor/`; commands count bumped 5 → 6; skills count
     bumped 20 → 21; eval-structure fixture
-    `tests/eval/prompts/aikit-followup/defer-lead.md` covers the
+    `tests/eval/prompts/followup/defer-lead.md` covers the
     expects-list. 303 total pass.
   - Docs: `docs/mental-model.md` lifecycle diagram + the "Which skill,
     when" / "Slash commands" tables; `docs/architecture.md` source-layer
@@ -109,7 +109,7 @@
     `workflow/.claude-plugin/plugin.json` description.
 - **Stack → MCP server / Claude Code hook recommendations** (#14, roadmap §5):
   ai-kit can now surface runtime-side recommendations (MCP servers and
-  Claude Code hooks) the same way `aikit-recommend-rules` surfaces canonical
+  Claude Code hooks) the same way `recommend-rules` surfaces canonical
   rules — deterministic, scored against `bin/detect-tooling.sh` output.
   - **Vendored signal tables.** `standards/external/mcp-servers.json` and
     `standards/external/hooks-patterns.json` are distilled from
@@ -123,7 +123,7 @@
     `issue_tracker.remote`, and file presence (e.g. `pint.json`,
     `playwright.config.ts`, `.github/workflows`). Universal hooks
     (env / lockfile protection, notification alerts) score 1 by default.
-  - **Skill integration.** `workflow/skills/aikit-recommend-tools/SKILL.md`
+  - **Skill integration.** `workflow/skills/recommend-tools/SKILL.md`
     gains an "Extended: MCP servers + Claude Code hooks" section that
     invokes the scorer, surfaces the ranked list grouped by kind, and
     documents the trust model: never auto-install an MCP server, never
@@ -174,14 +174,14 @@
 - **First external rule vendored** (`standards/rules/external/`, roadmap item #2):
   - `standards/rules/external/laravel-php-83.mini.md` — vendored from
     `PatrickJS/awesome-cursorrules` (CC0-1.0), pinned to commit
-    `4467ad4`. Validates the `/aikit-recommend-rules` Phase 2 → Phase 3
+    `4467ad4`. Validates the `/ai:recommend-rules` Phase 2 → Phase 3
     vendoring + trust flow end-to-end on a real source.
   - New `standards/rules/external/README.md` documents the provenance
     frontmatter schema (`source_url`, `source_license`, `pinned_sha`,
     `vendored_at`) and the pin-by-SHA trust model.
-- **`/aikit-recommend-rules` wired into `/aikit-setup`** (roadmap item #3):
+- **`/ai:recommend-rules` wired into `/ai:setup`** (roadmap item #3):
   - New Tier B Branch 12 — "Rule recommendation". Offered when
-    `detect-tooling` finds a framework; surfaces `/aikit-recommend-rules`
+    `detect-tooling` finds a framework; surfaces `/ai:recommend-rules`
     as an optional refinement, never run silently.
   - `bin/write-setup-marker.sh` learns `--rule-recommendation=completed|deferred|skipped`;
     the choice round-trips in the `.ai-kit-setup` marker.
@@ -207,54 +207,54 @@
     checklist and output-format spec by hand-copy — a drift hazard. The new
     emitter regenerates a marked region of `AGENT.md` verbatim from named
     `SKILL.md` sections.
-  - `aikit-reviewer/AGENT.md` now pulls `Security deep pass` + `Output
-    format` from `aikit-review/SKILL.md`. CI runs `emit-agents.sh --check`
+  - `reviewer/AGENT.md` now pulls `Security deep pass` + `Output
+    format` from `review/SKILL.md`. CI runs `emit-agents.sh --check`
     and fails on drift.
 - **Four more skills migrated to subagent delegation** (`workflow/skills/`,
   `workflow/agents/`, roadmap #3):
-  - Each of `aikit-qa`, `aikit-diagnose`, `aikit-to-issues`, and
-    `aikit-improve-codebase-architecture` gained a `## Run mode` block —
+  - Each of `qa`, `diagnose`, `to-issues`, and
+    `improve-codebase-architecture` gained a `## Run mode` block —
     Claude Code delegates to a subagent; other hosts fall back to the
     inline process, which stays the single source of truth.
-  - New paired subagent `aikit-qa-runner` runs the full QA pass (Playwright
+  - New paired subagent `qa-runner` runs the full QA pass (Playwright
     / CLI smoke + deep tests) so large browser and console output stays out
     of the main thread. Its `AGENT.md` single-sources `Tiers` + `Output`
-    from `aikit-qa/SKILL.md` via `emit-agents.sh`.
-  - `aikit-diagnose`, `aikit-to-issues`, and
-    `aikit-improve-codebase-architecture` delegate their codebase walk to
-    the existing `aikit-explore` subagent — the last swapped off the
+    from `qa/SKILL.md` via `emit-agents.sh`.
+  - `diagnose`, `to-issues`, and
+    `improve-codebase-architecture` delegate their codebase walk to
+    the existing `explore` subagent — the last swapped off the
     generic `Explore`. No bespoke subagent each: they only do codebase
-    reads, already `aikit-explore`'s job.
+    reads, already `explore`'s job.
 
 ## 2.0.0 — 2026-05-22
 
 **Breaking**
-- **Every skill is now prefixed `aikit-`** (`workflow/skills/`, ADR-0004):
-  - All 20 skills renamed — `setup → aikit-setup`, `review → aikit-review`,
-    `tdd → aikit-tdd`, and so on through every skill. Skill directories,
+- **Every skill is now prefixed ``** (`workflow/skills/`, ADR-0004):
+  - All 20 skills renamed — `setup → setup`, `review → review`,
+    `tdd → tdd`, and so on through every skill. Skill directories,
     `name:` frontmatter, eval fixtures, goldens, the test suite, docs, and
     both plugin manifests moved in lockstep.
   - Rationale: bare generic names (`setup`, `review`, `ship`, `qa`,
     `resume`) collide with other plugins, the user's own skills, and Claude
     built-ins — `review` already clashes with a built-in. The prefix makes
     each skill's origin obvious and matches the already-prefixed slash
-    commands (`aikit-doctor`, …) and subagents (`aikit-explore`, …).
-  - **Action required:** invoke skills by their new names (`/aikit-setup`,
-    `/aikit-review`, …). Old names no longer resolve — re-pull and reload
+    commands (`doctor`, …) and subagents (`explore`, …).
+  - **Action required:** invoke skills by their new names (`/ai:setup`,
+    `/ai:review`, …). Old names no longer resolve — re-pull and reload
     skills. `bin/*.sh` script names and `standards/rules/` are unchanged.
-  - See [ADR-0004](docs/adr/0004-aikit-skill-prefix.md). Major version
+  - See [ADR-0004](docs/adr/0004-skill-prefix.md). Major version
     bump to 2.0.0.
 
 **Feat**
-- **`aikit-recommend-tools` skill — wire companion tools without vendoring them**
-  (`workflow/skills/aikit-recommend-tools/SKILL.md`,
+- **`recommend-tools` skill — wire companion tools without vendoring them**
+  (`workflow/skills/recommend-tools/SKILL.md`,
   `context/templates/companions/`):
   - New 20th skill. Detects optional companions on the machine and in
     the repo — **graphify** (codebase knowledge graph, optimises what
     the AI reads), **caveman** (token-compressed responses, optimises
     how the AI replies), and **llm-wiki** (a self-maintaining knowledge
     base for non-code documents) — and wires whichever the user picks.
-    Same trust model as `aikit-recommend-rules`: surface, let the user choose,
+    Same trust model as `recommend-rules`: surface, let the user choose,
     never auto-install.
   - ai-kit owns only the *integration glue*, never the tool source. Glue
     templates land in `context/templates/companions/`: a `graphify`
@@ -263,7 +263,7 @@
     `llm-wiki/` scaffold (wiki schema + starter pages) adapting Andrej
     Karpathy's `llm-wiki.md` pattern. caveman is never enabled by
     default — it is a communication mode.
-  - `/aikit-setup` surfaces `/aikit-recommend-tools` as an optional follow-up
+  - `/ai:setup` surfaces `/ai:recommend-tools` as an optional follow-up
     (propose-but-defer; setup never runs it).
   - README gains a "Companion tools" section. Skill count 19 → 20 across
     README, `docs/architecture.md`, `docs/glossary.md`,
@@ -274,7 +274,7 @@
   - `detect_monorepo()` — generic, non-Nx monorepo detection: a depth-1
     scan for `composer.json` / `package.json` / `go.mod` / `pyproject.toml`
     / `Cargo.toml`. `detect-tooling.sh --json` gains `monorepo: { detected,
-    apps[] }`. Fixes `/aikit-setup` detecting "no stack" in repos whose
+    apps[] }`. Fixes `/ai:setup` detecting "no stack" in repos whose
     manifests live in `backend/`, `admin/`, … subdirs.
   - `detect_boost()` — reports `boost: { detected, managed_files[] }`.
     `agents-patch.sh` now refuses to patch any `AGENTS.md` carrying the
@@ -402,13 +402,13 @@
     `sync-plugin-version.sh --check` drift-detection.
 
 **Feature**
-- **Claude Code subagents — `aikit-explore` + `aikit-reviewer`** (new
+- **Claude Code subagents — `explore` + `reviewer`** (new
   `workflow/agents/`):
-  - `aikit-explore` is a read-only codebase exploration subagent. Tools:
+  - `explore` is a read-only codebase exploration subagent. Tools:
     Read, Grep, Glob, Bash. Bounded output (≤300 lines), structured return
     (Summary / Findings / Files inspected / Confidence). Spawn from any
     skill that needs cross-file sweeps without polluting main context.
-  - `aikit-reviewer` is a pre-merge code review subagent. Same tool set.
+  - `reviewer` is a pre-merge code review subagent. Same tool set.
     Returns a strict markdown report (Scope / Blockers / Security /
     Suggestions / Verdict). The `review` skill now delegates to it on
     Claude Code; Cursor and other hosts fall back to the inline checklist
@@ -422,8 +422,8 @@
     commands are now independently controllable at bootstrap.
 - **Claude Code + Cursor slash commands** (`workflow/commands/`):
   - Five thin wrappers around `bin/ai-kit-*.sh` for IDE-native UX:
-    `/aikit-doctor`, `/aikit-which`, `/aikit-status`, `/aikit-no-globals`,
-    `/aikit-upgrade`. Each runs the underlying script via `!`-prefix
+    `/ai:doctor`, `/ai:which`, `/ai:status`, `/ai:no-globals`,
+    `/ai:upgrade`. Each runs the underlying script via `!`-prefix
     (deterministic, output piped to the model), then instructs the model
     to summarise blockers and suggest the exact next-step command.
   - `install-global.sh` mirrors to both `~/.claude/commands/` and

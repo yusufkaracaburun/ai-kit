@@ -1,5 +1,5 @@
 {
-  "name": "ai-kit",
+  "name": "ai",
   "description": "Stack-agnostic agile lifecycle for Claude Code — 22 skills, 2 subagents, 6 slash commands. Ideation → development → testing → ship → retro, plus session-continuity (checkpoint/resume).",
   "version": "2.0.0",
   "author": {

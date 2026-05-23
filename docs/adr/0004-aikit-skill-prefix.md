@@ -1,4 +1,4 @@
-# ADR-0004: Prefix every skill with `aikit-`
+# ADR-0004: Prefix every skill with ``
 
 ## Status
 
@@ -8,8 +8,8 @@ Accepted (v2.0.0)
 
 ai-kit shipped 20 skills with bare, generic-verb names — `setup`, `review`,
 `ship`, `tdd`, `qa`, `triage`, `resume`, and so on. The 5 slash commands were
-already namespaced (`aikit-doctor`, `aikit-which`, …) and so were the 2
-subagents (`aikit-explore`, `aikit-reviewer`), but skills were not.
+already namespaced (`doctor`, `which`, …) and so were the 2
+subagents (`explore`, `reviewer`), but skills were not.
 
 Generic names collide. A Claude Code session routinely loads skills from
 several sources at once — other plugins (`gsd-*`, `caveman-*`, `lazyweb:*`),
@@ -24,14 +24,14 @@ namespaces as `ai-kit:<name>`, but most users take the symlink path.
 
 ## Decision
 
-Prefix every ai-kit skill with `aikit-`. All 20 skill directories, their
+Prefix every ai-kit skill with ``. All 20 skill directories, their
 `name:` frontmatter, every cross-reference, eval fixture, golden, and test
 moved in lockstep:
 
-`setup → aikit-setup`, `review → aikit-review`, `tdd → aikit-tdd`, … through
+`setup → setup`, `review → review`, `tdd → tdd`, … through
 all 20 skills.
 
-The prefix is `aikit-` (no internal hyphen) to match the existing slash
+The prefix is `` (no internal hyphen) to match the existing slash
 commands and subagents.
 
 Out of scope:
@@ -48,7 +48,7 @@ Out of scope:
 
 - No name collisions with other plugins, the user's own skills, or Claude
   built-ins.
-- A skill's origin is obvious from its name — `/aikit-ship` is unambiguously
+- A skill's origin is obvious from its name — `/ai:ship` is unambiguously
   ai-kit's.
 - Consistent with the already-prefixed slash commands and subagents, and with
   the wider ecosystem convention (`gsd-`, `caveman-`).

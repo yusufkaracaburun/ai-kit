@@ -46,8 +46,8 @@ Read this before adding a new primitive type or moving files between layers. For
 | Skill | `workflow/skills/<name>/SKILL.md` | symlink (install-global.sh / bootstrap) **or** plugin manifest | `~/.claude/skills/` · `~/.cursor/skills/` · `<proj>/.claude/skills/` |
 | Subagent | `workflow/agents/<name>/AGENT.md` | same symlink pass + plugin manifest | `~/.claude/agents/` · `<proj>/.claude/agents/` |
 | Slash command | `workflow/commands/<name>.md` | same symlink pass (files, not dirs) + plugin manifest | `~/.claude/commands/` · `<proj>/.claude/commands/` |
-| Rule | `standards/rules/<name>.mini.md` | **emitter** (`bin/emit-rules.sh`) at `/aikit-setup` time — converts to host format | `<proj>/.cursor/rules/*.mdc` (Cursor) · skill text (Claude Code) |
-| Hook | `.claude/settings.json` + `bin/hooks/*.sh` | committed in the project (or emitted by `/aikit-setup`) | `<proj>/.claude/settings.json` |
+| Rule | `standards/rules/<name>.mini.md` | **emitter** (`bin/emit-rules.sh`) at `/ai:setup` time — converts to host format | `<proj>/.cursor/rules/*.mdc` (Cursor) · skill text (Claude Code) |
+| Hook | `.claude/settings.json` + `bin/hooks/*.sh` | committed in the project (or emitted by `/ai:setup`) | `<proj>/.claude/settings.json` |
 
 ## Two design choices that keep the kit coherent
 
@@ -61,7 +61,7 @@ Consequence: never write into `~/.claude/skills/<name>/` or `<proj>/.claude/skil
 
 An emitter reads one canonical source and writes derived files that cannot simply be symlinked.
 
-**`bin/emit-rules.sh`** — rules are agent-agnostic markdown books (`standards/rules/`). Each host expects a different rule format (Cursor `.mdc`, Claude Code skill-text, etc.), so the emitter writes host-specific files into the *target project* at `/aikit-setup` time.
+**`bin/emit-rules.sh`** — rules are agent-agnostic markdown books (`standards/rules/`). Each host expects a different rule format (Cursor `.mdc`, Claude Code skill-text, etc.), so the emitter writes host-specific files into the *target project* at `/ai:setup` time.
 
 **`bin/emit-agents.sh`** — a subagent prompt (`workflow/agents/<name>/AGENT.md`) and its companion skill (`workflow/skills/<name>/SKILL.md`) share reference content: the review checklist, the output-format spec. The emitter keeps a marked region of `AGENT.md` generated verbatim from named `SKILL.md` sections, so the shared text has a single home. It runs at *authoring* time inside ai-kit's own tree; CI runs `emit-agents.sh --check` and fails the build on drift.
 
@@ -71,7 +71,7 @@ Use this pattern whenever an artifact needs per-host transformation, or shares c
 
 - **Multiple install paths can co-exist.** A user can have symlink-install + plugin install at the same time. `bin/ai-kit-doctor.sh` detects this and warns (one channel becomes stale on update).
 - **Per-project always overrides global.** `<proj>/.claude/skills/foo/` wins over `~/.claude/skills/foo/`. Use project-scope to pin a version or override for one repo.
-- **Subagents are Claude Code-only.** Skills that delegate to a subagent must include an **inline fallback** for Cursor, which has no Task tool. See `workflow/skills/aikit-review/SKILL.md` for the canonical pattern.
+- **Subagents are Claude Code-only.** Skills that delegate to a subagent must include an **inline fallback** for Cursor, which has no Task tool. See `workflow/skills/review/SKILL.md` for the canonical pattern.
 - **Slash commands are Claude Code-first.** `~/.cursor/commands/` is mirrored opportunistically; verify per Cursor version.
 
 ## Versioning

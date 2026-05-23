@@ -1,12 +1,12 @@
 # Companion tool glue
 
 Integration glue for **companion tools** — third-party AI-productivity tools that
-sit alongside ai-kit but are not part of its agile lifecycle. The `aikit-recommend-tools`
+sit alongside ai-kit but are not part of its agile lifecycle. The `recommend-tools`
 skill reads these templates and wires whichever tools the user picks.
 
 ai-kit's rule here: **wire, do not vendor.** The tool installs from its own
 upstream; ai-kit owns only the integration glue in this directory. Same pattern as
-`aikit-recommend-rules` for community rule packs — see
+`recommend-rules` for community rule packs — see
 [docs/architecture.md](../../../docs/architecture.md).
 
 | File | Companion | Goes into |
@@ -17,4 +17,4 @@ upstream; ai-kit owns only the integration glue in this directory. Same pattern 
 | `llm-wiki/` | llm-wiki | project `wiki/` + `raw/` skeleton + `AGENTS.md` pointer |
 
 Adding a new companion tool: drop its glue here and add a row to the table in
-`workflow/skills/aikit-recommend-tools/SKILL.md`.
+`workflow/skills/recommend-tools/SKILL.md`.

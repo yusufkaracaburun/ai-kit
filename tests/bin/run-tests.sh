@@ -220,20 +220,20 @@ TMP_BOOT=$(mktemp -d)
 "$AIKIT/bin/bootstrap-project.sh" --minimal "$TMP_BOOT"
 assert "AGENTS.md" '[ -f "$TMP_BOOT/AGENTS.md" ]'
 assert ".claude/skills dir" '[ -d "$TMP_BOOT/.claude/skills" ]'
-assert ".claude/skills setup linked" '[ -L "$TMP_BOOT/.claude/skills/aikit-setup" ] || [ -d "$TMP_BOOT/.claude/skills/aikit-setup" ]'
+assert ".claude/skills setup linked" '[ -L "$TMP_BOOT/.claude/skills/setup" ] || [ -d "$TMP_BOOT/.claude/skills/setup" ]'
 assert ".agents/skills dir" '[ -d "$TMP_BOOT/.agents/skills" ]'
 assert ".cursor/skills dir" '[ -d "$TMP_BOOT/.cursor/skills" ]'
-assert "setup skill linked" '[ -L "$TMP_BOOT/.cursor/skills/aikit-setup" ] || [ -d "$TMP_BOOT/.cursor/skills/aikit-setup" ]'
+assert "setup skill linked" '[ -L "$TMP_BOOT/.cursor/skills/setup" ] || [ -d "$TMP_BOOT/.cursor/skills/setup" ]'
 assert ".claude/agents dir" '[ -d "$TMP_BOOT/.claude/agents" ]'
-assert ".claude/agents aikit-explore linked" '[ -L "$TMP_BOOT/.claude/agents/aikit-explore" ] || [ -d "$TMP_BOOT/.claude/agents/aikit-explore" ]'
-assert ".claude/agents aikit-reviewer linked" '[ -L "$TMP_BOOT/.claude/agents/aikit-reviewer" ] || [ -d "$TMP_BOOT/.claude/agents/aikit-reviewer" ]'
+assert ".claude/agents explore linked" '[ -L "$TMP_BOOT/.claude/agents/explore" ] || [ -d "$TMP_BOOT/.claude/agents/explore" ]'
+assert ".claude/agents reviewer linked" '[ -L "$TMP_BOOT/.claude/agents/reviewer" ] || [ -d "$TMP_BOOT/.claude/agents/reviewer" ]'
 assert ".claude/commands dir" '[ -d "$TMP_BOOT/.claude/commands" ]'
-assert ".claude/commands aikit-doctor linked" '[ -L "$TMP_BOOT/.claude/commands/aikit-doctor.md" ] || [ -f "$TMP_BOOT/.claude/commands/aikit-doctor.md" ]'
-assert ".cursor/commands aikit-which linked" '[ -L "$TMP_BOOT/.cursor/commands/aikit-which.md" ] || [ -f "$TMP_BOOT/.cursor/commands/aikit-which.md" ]'
-assert ".claude/skills aikit-followup linked" '[ -L "$TMP_BOOT/.claude/skills/aikit-followup" ] || [ -d "$TMP_BOOT/.claude/skills/aikit-followup" ]'
-assert ".cursor/skills aikit-followup linked" '[ -L "$TMP_BOOT/.cursor/skills/aikit-followup" ] || [ -d "$TMP_BOOT/.cursor/skills/aikit-followup" ]'
-assert ".claude/commands aikit-followup linked" '[ -L "$TMP_BOOT/.claude/commands/aikit-followup.md" ] || [ -f "$TMP_BOOT/.claude/commands/aikit-followup.md" ]'
-assert ".cursor/commands aikit-followup linked" '[ -L "$TMP_BOOT/.cursor/commands/aikit-followup.md" ] || [ -f "$TMP_BOOT/.cursor/commands/aikit-followup.md" ]'
+assert ".claude/commands doctor linked" '[ -L "$TMP_BOOT/.claude/commands/doctor.md" ] || [ -f "$TMP_BOOT/.claude/commands/doctor.md" ]'
+assert ".cursor/commands which linked" '[ -L "$TMP_BOOT/.cursor/commands/which.md" ] || [ -f "$TMP_BOOT/.cursor/commands/which.md" ]'
+assert ".claude/skills followup linked" '[ -L "$TMP_BOOT/.claude/skills/followup" ] || [ -d "$TMP_BOOT/.claude/skills/followup" ]'
+assert ".cursor/skills followup linked" '[ -L "$TMP_BOOT/.cursor/skills/followup" ] || [ -d "$TMP_BOOT/.cursor/skills/followup" ]'
+assert ".claude/commands followup linked" '[ -L "$TMP_BOOT/.claude/commands/followup.md" ] || [ -f "$TMP_BOOT/.claude/commands/followup.md" ]'
+assert ".cursor/commands followup linked" '[ -L "$TMP_BOOT/.cursor/commands/followup.md" ] || [ -f "$TMP_BOOT/.cursor/commands/followup.md" ]'
 assert "emit: cursor rule for git-hygiene" '[ -f "$TMP_BOOT/.cursor/rules/git-hygiene.mdc" ]'
 assert "emit: claude rule for git-hygiene" '[ -f "$TMP_BOOT/.claude/rules/git-hygiene.md" ]'
 assert "emit: active-rules index"          '[ -f "$TMP_BOOT/docs/agents/active-rules.md" ]'
@@ -285,16 +285,16 @@ echo "=== emit-agents ==="
 # The generated region of AGENT.md must stay in sync with its source SKILL.md.
 assert "emit-agents: --check passes (AGENT.md in sync)" \
   '"$AIKIT/bin/emit-agents.sh" --check >/dev/null 2>&1'
-assert "emit-agents: aikit-reviewer AGENT.md carries the markers" \
-  'grep -q "emit-agents:begin" "$AIKIT/workflow/agents/aikit-reviewer/AGENT.md" && grep -q "emit-agents:end" "$AIKIT/workflow/agents/aikit-reviewer/AGENT.md"'
+assert "emit-agents: reviewer AGENT.md carries the markers" \
+  'grep -q "emit-agents:begin" "$AIKIT/workflow/agents/reviewer/AGENT.md" && grep -q "emit-agents:end" "$AIKIT/workflow/agents/reviewer/AGENT.md"'
 assert "emit-agents: generated region pulled the shared sections" \
-  'grep -q "## Security deep pass" "$AIKIT/workflow/agents/aikit-reviewer/AGENT.md"'
-assert "emit-agents: aikit-qa-runner AGENT.md carries the markers" \
-  'grep -q "emit-agents:begin" "$AIKIT/workflow/agents/aikit-qa-runner/AGENT.md" && grep -q "emit-agents:end" "$AIKIT/workflow/agents/aikit-qa-runner/AGENT.md"'
-assert "emit-agents: aikit-qa-runner pulled the Tiers + Output sections" \
-  'grep -q "## Tiers" "$AIKIT/workflow/agents/aikit-qa-runner/AGENT.md" && grep -q "## Output" "$AIKIT/workflow/agents/aikit-qa-runner/AGENT.md"'
+  'grep -q "## Security deep pass" "$AIKIT/workflow/agents/reviewer/AGENT.md"'
+assert "emit-agents: qa-runner AGENT.md carries the markers" \
+  'grep -q "emit-agents:begin" "$AIKIT/workflow/agents/qa-runner/AGENT.md" && grep -q "emit-agents:end" "$AIKIT/workflow/agents/qa-runner/AGENT.md"'
+assert "emit-agents: qa-runner pulled the Tiers + Output sections" \
+  'grep -q "## Tiers" "$AIKIT/workflow/agents/qa-runner/AGENT.md" && grep -q "## Output" "$AIKIT/workflow/agents/qa-runner/AGENT.md"'
 # Drift detection: tweak the source skill, confirm --check catches it, restore.
-EMITA_SKILL="$AIKIT/workflow/skills/aikit-review/SKILL.md"
+EMITA_SKILL="$AIKIT/workflow/skills/review/SKILL.md"
 EMITA_BAK=$(mktemp)
 cp "$EMITA_SKILL" "$EMITA_BAK"
 perl -0pi -e 's/APPROVE \| REQUEST CHANGES/APPROVE | REQUEST CHANGES | DRIFTMARK/' "$EMITA_SKILL"
@@ -355,8 +355,8 @@ TMP_MERGE=$(mktemp -d)
 cp -R "$AIKIT/tests/fixtures/brownfield-custom-skills/.cursor" "$TMP_MERGE/"
 "$AIKIT/bin/bootstrap-project.sh" --minimal --merge-skills "$TMP_MERGE"
 assert "merge keeps custom skill" '[ -d "$TMP_MERGE/.cursor/skills/my-custom-skill" ] || [ -L "$TMP_MERGE/.cursor/skills/my-custom-skill" ]'
-assert "merge adds setup" '[ -e "$TMP_MERGE/.cursor/skills/aikit-setup" ]'
-assert "merge adds .claude/skills/aikit-setup" '[ -e "$TMP_MERGE/.claude/skills/aikit-setup" ]'
+assert "merge adds setup" '[ -e "$TMP_MERGE/.cursor/skills/setup" ]'
+assert "merge adds .claude/skills/setup" '[ -e "$TMP_MERGE/.claude/skills/setup" ]'
 rm -rf "$TMP_MERGE"
 
 TMP_NO_SK=$(mktemp -d)
@@ -500,8 +500,8 @@ assert "doctor: skills resolve" 'echo "$OUT_DOC_PROJ" | grep -q ".claude/skills.
 assert "doctor: marker absent flagged" 'echo "$OUT_DOC_PROJ" | grep -q ".ai-kit-setup absent"'
 
 # Broken symlink — simulate ai-kit moved.
-rm -f "$TMP_DOC/.claude/skills/aikit-setup"
-ln -s /nonexistent-aikit-target "$TMP_DOC/.claude/skills/aikit-setup"
+rm -f "$TMP_DOC/.claude/skills/setup"
+ln -s /nonexistent-target "$TMP_DOC/.claude/skills/setup"
 set +e
 OUT_DOC_BROKEN="$("$AIKIT/bin/ai-kit-doctor.sh" "$TMP_DOC" 2>&1)"
 DOC_BROKEN_EXIT=$?
@@ -592,8 +592,8 @@ TMP_MIN=$(mktemp -d)
 "$AIKIT/bin/bootstrap-project.sh" --minimal "$TMP_MIN"
 mkdir -p "$TMP_MIN/docs/agents"
 cp "$AIKIT/context/templates/docs/agents/dev-environment.md" "$TMP_MIN/docs/agents/"
-sed -i '' '/Filled by \/aikit-setup/d' "$TMP_MIN/docs/agents/dev-environment.md" 2>/dev/null \
-  || sed -i '/Filled by \/aikit-setup/d' "$TMP_MIN/docs/agents/dev-environment.md"
+sed -i '' '/Filled by \/ai:setup/d' "$TMP_MIN/docs/agents/dev-environment.md" 2>/dev/null \
+  || sed -i '/Filled by \/ai:setup/d' "$TMP_MIN/docs/agents/dev-environment.md"
 printf '\n| Tool | Documentation |\n| ---- | ------------- |\n| nx | https://nx.dev |\n' >> "$TMP_MIN/docs/agents/dev-environment.md"
 "$AIKIT/bin/write-setup-marker.sh" "$TMP_MIN" --setup-mode=solo-both --tier=minimal \
   --docker=skipped --tracker=skipped --workflow=skipped --architecture=skipped --sandcastle=false
@@ -610,8 +610,8 @@ TMP_V=$(mktemp -d)
 "$AIKIT/bin/bootstrap-project.sh" --minimal "$TMP_V"
 mkdir -p "$TMP_V/docs/agents"
 cp "$AIKIT/context/templates/docs/agents/dev-environment.md" "$TMP_V/docs/agents/"
-sed -i '' '/Filled by \/aikit-setup/d' "$TMP_V/docs/agents/dev-environment.md" 2>/dev/null \
-  || sed -i '/Filled by \/aikit-setup/d' "$TMP_V/docs/agents/dev-environment.md"
+sed -i '' '/Filled by \/ai:setup/d' "$TMP_V/docs/agents/dev-environment.md" 2>/dev/null \
+  || sed -i '/Filled by \/ai:setup/d' "$TMP_V/docs/agents/dev-environment.md"
 printf '\n| Tool | Documentation |\n| ---- | ------------- |\n| ai-kit | https://github.com |\n' >> "$TMP_V/docs/agents/dev-environment.md"
 cp "$AIKIT/context/templates/docs/agents/issue-tracker-github.md" "$TMP_V/docs/agents/issue-tracker.md"
 cp "$AIKIT/context/templates/docs/agents/triage-labels.md" "$TMP_V/docs/agents/"
@@ -737,8 +737,8 @@ WHICH_LIST_ROWS="$(echo "$OUT_WHICH_LIST" | tail -n +3 | wc -l | tr -d ' ')"
 assert "which --list shows all 22 skills" '[ "$WHICH_LIST_ROWS" -eq 22 ]'
 
 # --explain dumps the SKILL.md.
-OUT_WHICH_EXP="$("$AIKIT/bin/ai-kit-which.sh" --explain aikit-ship)"
-assert "which --explain aikit-ship shows frontmatter" 'echo "$OUT_WHICH_EXP" | grep -q "^name: aikit-ship$"'
+OUT_WHICH_EXP="$("$AIKIT/bin/ai-kit-which.sh" --explain ship)"
+assert "which --explain ship shows frontmatter" 'echo "$OUT_WHICH_EXP" | grep -q "^name: ship$"'
 
 set +e
 "$AIKIT/bin/ai-kit-which.sh" --explain nonexistent-skill >/dev/null 2>&1
@@ -748,16 +748,16 @@ assert "which --explain unknown exits non-zero" '[ "$WHICH_BAD_EXIT" -ne 0 ]'
 
 # Free-text recommendations: each priority intent must surface its skill at rank 1.
 OUT_WHICH_PRD="$("$AIKIT/bin/ai-kit-which.sh" "I want to write a PRD for the new feature")"
-assert "which: PRD intent -> to-prd at rank 1" 'echo "$OUT_WHICH_PRD" | grep -q "^1\. /aikit-to-prd"'
+assert "which: PRD intent -> to-prd at rank 1" 'echo "$OUT_WHICH_PRD" | grep -q "^1\. /ai:to-prd"'
 
 OUT_WHICH_TDD="$("$AIKIT/bin/ai-kit-which.sh" "I want to write tests first using red-green-refactor")"
-assert "which: TDD intent -> tdd at rank 1" 'echo "$OUT_WHICH_TDD" | grep -q "^1\. /aikit-tdd"'
+assert "which: TDD intent -> tdd at rank 1" 'echo "$OUT_WHICH_TDD" | grep -q "^1\. /ai:tdd"'
 
 OUT_WHICH_SHIP="$("$AIKIT/bin/ai-kit-which.sh" "deploy to production and write release notes")"
-assert "which: ship intent -> ship at rank 1" 'echo "$OUT_WHICH_SHIP" | grep -q "^1\. /aikit-ship"'
+assert "which: ship intent -> ship at rank 1" 'echo "$OUT_WHICH_SHIP" | grep -q "^1\. /ai:ship"'
 
 OUT_WHICH_REVIEW="$("$AIKIT/bin/ai-kit-which.sh" "review my code before merging")"
-assert "which: review intent -> review at rank 1" 'echo "$OUT_WHICH_REVIEW" | grep -q "^1\. /aikit-review"'
+assert "which: review intent -> review at rank 1" 'echo "$OUT_WHICH_REVIEW" | grep -q "^1\. /ai:review"'
 
 # Gibberish intent returns the no-match message instead of a false positive.
 set +e
@@ -771,27 +771,27 @@ echo ""
 echo "=== skills count ==="
 SKILL_COUNT=$(find "$AIKIT/workflow/skills" -name SKILL.md | wc -l | tr -d ' ')
 assert "22 skills" '[ "$SKILL_COUNT" -eq 22 ]'
-assert "checkpoint skill exists" '[ -f "$AIKIT/workflow/skills/aikit-checkpoint/SKILL.md" ]'
-assert "resume skill exists" '[ -f "$AIKIT/workflow/skills/aikit-resume/SKILL.md" ]'
+assert "checkpoint skill exists" '[ -f "$AIKIT/workflow/skills/checkpoint/SKILL.md" ]'
+assert "resume skill exists" '[ -f "$AIKIT/workflow/skills/resume/SKILL.md" ]'
 
 echo ""
 echo "=== agents ==="
 AGENT_COUNT=$(find "$AIKIT/workflow/agents" -name AGENT.md | wc -l | tr -d ' ')
 assert "3 subagents present" '[ "$AGENT_COUNT" -eq 3 ]'
-assert "aikit-explore exists" '[ -f "$AIKIT/workflow/agents/aikit-explore/AGENT.md" ]'
-assert "aikit-reviewer exists" '[ -f "$AIKIT/workflow/agents/aikit-reviewer/AGENT.md" ]'
-assert "aikit-qa-runner exists" '[ -f "$AIKIT/workflow/agents/aikit-qa-runner/AGENT.md" ]'
-assert "aikit-explore frontmatter name" 'head -5 "$AIKIT/workflow/agents/aikit-explore/AGENT.md" | grep -q "^name: aikit-explore$"'
-assert "aikit-explore frontmatter tools" 'head -5 "$AIKIT/workflow/agents/aikit-explore/AGENT.md" | grep -q "^tools:"'
-assert "aikit-reviewer frontmatter name" 'head -5 "$AIKIT/workflow/agents/aikit-reviewer/AGENT.md" | grep -q "^name: aikit-reviewer$"'
-assert "aikit-qa-runner frontmatter name" 'head -5 "$AIKIT/workflow/agents/aikit-qa-runner/AGENT.md" | grep -q "^name: aikit-qa-runner$"'
-assert "aikit-qa-runner frontmatter tools" 'head -5 "$AIKIT/workflow/agents/aikit-qa-runner/AGENT.md" | grep -q "^tools:"'
+assert "explore exists" '[ -f "$AIKIT/workflow/agents/explore/AGENT.md" ]'
+assert "reviewer exists" '[ -f "$AIKIT/workflow/agents/reviewer/AGENT.md" ]'
+assert "qa-runner exists" '[ -f "$AIKIT/workflow/agents/qa-runner/AGENT.md" ]'
+assert "explore frontmatter name" 'head -5 "$AIKIT/workflow/agents/explore/AGENT.md" | grep -q "^name: explore$"'
+assert "explore frontmatter tools" 'head -5 "$AIKIT/workflow/agents/explore/AGENT.md" | grep -q "^tools:"'
+assert "reviewer frontmatter name" 'head -5 "$AIKIT/workflow/agents/reviewer/AGENT.md" | grep -q "^name: reviewer$"'
+assert "qa-runner frontmatter name" 'head -5 "$AIKIT/workflow/agents/qa-runner/AGENT.md" | grep -q "^name: qa-runner$"'
+assert "qa-runner frontmatter tools" 'head -5 "$AIKIT/workflow/agents/qa-runner/AGENT.md" | grep -q "^tools:"'
 
 echo ""
 echo "=== slash commands ==="
 COMMAND_COUNT=$(find "$AIKIT/workflow/commands" -maxdepth 1 -name "*.md" | wc -l | tr -d ' ')
 assert "6 slash commands present" '[ "$COMMAND_COUNT" -eq 6 ]'
-for cmd in aikit-doctor aikit-which aikit-status aikit-no-globals aikit-upgrade aikit-followup; do
+for cmd in doctor which status no-globals upgrade followup; do
   assert "$cmd command exists"     "[ -f \"$AIKIT/workflow/commands/$cmd.md\" ]"
   assert "$cmd has description"    "head -6 \"$AIKIT/workflow/commands/$cmd.md\" | grep -q '^description:'"
   assert "$cmd has allowed-tools"  "head -6 \"$AIKIT/workflow/commands/$cmd.md\" | grep -q '^allowed-tools:'"
@@ -799,24 +799,24 @@ done
 
 echo ""
 echo "=== review skill delegation ==="
-assert "review skill mentions aikit-reviewer" 'grep -q "aikit-reviewer" "$AIKIT/workflow/skills/aikit-review/SKILL.md"'
-assert "review skill mentions inline fallback" 'grep -q "Cursor / hosts without subagents" "$AIKIT/workflow/skills/aikit-review/SKILL.md"'
+assert "review skill mentions reviewer" 'grep -q "reviewer" "$AIKIT/workflow/skills/review/SKILL.md"'
+assert "review skill mentions inline fallback" 'grep -q "Cursor / hosts without subagents" "$AIKIT/workflow/skills/review/SKILL.md"'
 # The four migrated skills (#3) each carry a Run mode block + name their subagent.
-for s in aikit-qa aikit-diagnose aikit-to-issues aikit-improve-codebase-architecture; do
+for s in qa diagnose to-issues improve-codebase-architecture; do
   assert "$s skill has a Run mode block" 'grep -q "^## Run mode" "$AIKIT/workflow/skills/'"$s"'/SKILL.md"'
 done
-assert "qa skill delegates to aikit-qa-runner" 'grep -q "aikit-qa-runner" "$AIKIT/workflow/skills/aikit-qa/SKILL.md"'
-assert "diagnose skill delegates to aikit-explore" 'grep -q "aikit-explore" "$AIKIT/workflow/skills/aikit-diagnose/SKILL.md"'
-assert "to-issues skill delegates to aikit-explore" 'grep -q "aikit-explore" "$AIKIT/workflow/skills/aikit-to-issues/SKILL.md"'
-assert "improve-arch skill delegates to aikit-explore" 'grep -q "aikit-explore" "$AIKIT/workflow/skills/aikit-improve-codebase-architecture/SKILL.md"'
-assert "improve-arch skill dropped the generic Explore subagent" '! grep -q "subagent_type=Explore" "$AIKIT/workflow/skills/aikit-improve-codebase-architecture/SKILL.md"'
+assert "qa skill delegates to qa-runner" 'grep -q "qa-runner" "$AIKIT/workflow/skills/qa/SKILL.md"'
+assert "diagnose skill delegates to explore" 'grep -q "explore" "$AIKIT/workflow/skills/diagnose/SKILL.md"'
+assert "to-issues skill delegates to explore" 'grep -q "explore" "$AIKIT/workflow/skills/to-issues/SKILL.md"'
+assert "improve-arch skill delegates to explore" 'grep -q "explore" "$AIKIT/workflow/skills/improve-codebase-architecture/SKILL.md"'
+assert "improve-arch skill dropped the generic Explore subagent" '! grep -q "subagent_type=Explore" "$AIKIT/workflow/skills/improve-codebase-architecture/SKILL.md"'
 
 echo ""
 echo "=== plugin manifest ==="
 PLUGIN_JSON="$AIKIT/workflow/.claude-plugin/plugin.json"
 assert "plugin.json exists" '[ -f "$PLUGIN_JSON" ]'
 assert "plugin.json is valid JSON" 'python3 -c "import json; json.load(open(\"$PLUGIN_JSON\"))"'
-assert "plugin.json name is ai-kit" 'python3 -c "import json; d=json.load(open(\"$PLUGIN_JSON\")); assert d[\"name\"]==\"ai-kit\""'
+assert "plugin.json name is ai" 'python3 -c "import json; d=json.load(open(\"$PLUGIN_JSON\")); assert d[\"name\"]==\"ai\""'
 assert "plugin.json has description" 'python3 -c "import json; d=json.load(open(\"$PLUGIN_JSON\")); assert d.get(\"description\")"'
 assert "plugin.json has version" 'python3 -c "import json; d=json.load(open(\"$PLUGIN_JSON\")); assert d.get(\"version\")"'
 
@@ -917,15 +917,15 @@ id: cart-checkout
 Some words here.
 BADRESP
 set +e
-"$AIKIT/bin/eval-golden.sh" aikit-tdd cart-checkout "$TMP_BAD_RESP" > /tmp/eval-golden-bad.out 2>&1
+"$AIKIT/bin/eval-golden.sh" tdd cart-checkout "$TMP_BAD_RESP" > /tmp/eval-golden-bad.out 2>&1
 BAD_EXIT=$?
 set -e
 assert "bad response fails (exit 1)" '[ "$BAD_EXIT" -eq 1 ]'
 assert "bad response reports failed checks" 'grep -q "FAIL" /tmp/eval-golden-bad.out'
 rm -f "$TMP_BAD_RESP"
 
-# Coverage: each priority skill (aikit-to-prd, aikit-tdd, aikit-ship) has a golden.
-for prio in aikit-to-prd aikit-tdd aikit-ship; do
+# Coverage: each priority skill (to-prd, tdd, ship) has a golden.
+for prio in to-prd tdd ship; do
   assert "golden exists: $prio" '[ -f "$AIKIT/tests/eval/goldens/$prio"/*.md ] || ls "$AIKIT/tests/eval/goldens/$prio"/*.md >/dev/null 2>&1'
 done
 

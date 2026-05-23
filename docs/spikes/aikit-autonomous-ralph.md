@@ -1,4 +1,4 @@
-# Spike — `aikit-autonomous` (Ralph pattern)
+# Spike — `autonomous` (Ralph pattern)
 
 > **Status:** SPIKE — exploratory artifact. Not yet a shippable skill.
 > Tracks [#17](https://github.com/yusufkaracaburun/ai-kit/issues/17).
@@ -26,13 +26,13 @@ Ralph's invariants:
 
 | Ralph element | ai-kit mapping |
 | ------------- | -------------- |
-| Story queue | `gh issue list --label ready-for-agent` (already produced by `aikit-triage`) |
-| Per-story spec | Agent Brief comment (already structured per `aikit-triage/AGENT-BRIEF.md`) |
-| Implement | `aikit-tdd` invocation |
-| Verify | `aikit-review` invocation |
-| Commit + close | `aikit-ship` invocation (PR + merge per project policy) |
+| Story queue | `gh issue list --label ready-for-agent` (already produced by `triage`) |
+| Per-story spec | Agent Brief comment (already structured per `triage/AGENT-BRIEF.md`) |
+| Implement | `tdd` invocation |
+| Verify | `review` invocation |
+| Commit + close | `ship` invocation (PR + merge per project policy) |
 | Persistent log | `.ai-kit/autonomous/progress.txt` |
-| Fresh instance | `Task` tool with a dedicated `aikit-autonomous-runner` subagent, OR `/loop` scheduling fresh top-level invocations |
+| Fresh instance | `Task` tool with a dedicated `autonomous-runner` subagent, OR `/loop` scheduling fresh top-level invocations |
 
 The queue + per-story spec already exist as first-class ai-kit
 concepts. Ralph's contribution is the **discipline of cold-start
@@ -45,15 +45,15 @@ iteration** — not new primitives.
 **Verdict: sibling skill.**
 
 - *Flag on existing skill* — fragile. Which skill carries the flag?
-  `aikit-tdd --autonomous` is wrong (TDD is the inner loop, not the
+  `tdd --autonomous` is wrong (TDD is the inner loop, not the
   orchestrator). A standalone skill is the natural fit because the
   unit of work is "drain the queue", not "implement one feature".
 - *Separate plugin* — overkill for one skill. Plugin distribution
   exists for cross-cutting bundles. Revisit only if the autonomous
-  layer grows to ≥3 skills (e.g., `aikit-autonomous-status`,
-  `aikit-autonomous-resume`, `aikit-autonomous-cancel`).
+  layer grows to ≥3 skills (e.g., `autonomous-status`,
+  `autonomous-resume`, `autonomous-cancel`).
 - *Sibling skill* — matches the existing pattern. Lives at
-  `workflow/skills/aikit-autonomous/SKILL.md`. Logs via
+  `workflow/skills/autonomous/SKILL.md`. Logs via
   `bin/log-skill.sh` like every other skill.
 
 ### Q2. Conflict with `/loop`?
@@ -62,16 +62,16 @@ iteration** — not new primitives.
 
 - `/loop` is a **scheduler** — repeats a single prompt or slash command
   on an interval (or self-paced) with cache-aware wakeups.
-- `aikit-autonomous` is a **worker** — picks one issue, runs the full
+- `autonomous` is a **worker** — picks one issue, runs the full
   TDD → review → ship sequence, commits state to `progress.txt`,
   exits.
 
 Two valid composition patterns:
 
-1. **Manual driver:** user invokes `/aikit-autonomous` once per
+1. **Manual driver:** user invokes `/ai:autonomous` once per
    iteration. Skill exits after one issue; user re-invokes when ready.
 2. **Scheduled driver:** user invokes
-   `/loop 600s /aikit-autonomous` — `/loop` handles the scheduling +
+   `/loop 600s /ai:autonomous` — `/loop` handles the scheduling +
    cache-warm wakeups; the skill handles one issue per fire and exits
    cleanly. The fresh-instance invariant is preserved because each
    `/loop` fire is a fresh slash-command invocation.
@@ -86,7 +86,7 @@ fresh-context invariant.
 on this repo returns 0 results today (open issues are `#15` brainstorm
 and `#17` this spike — neither is `ready-for-agent`). The queue
 mechanic works; the queue is just empty. Real validation requires
-`aikit-triage`'ing a small issue to `ready-for-agent` and watching the
+`triage`'ing a small issue to `ready-for-agent` and watching the
 loop drain it. Defer that to the first production-use spike, not this
 design spike.
 
@@ -98,8 +98,8 @@ The skill exits — never silently continues — on any of:
 | ------- | ------ |
 | Queue empty | Normal termination |
 | Agent Brief missing or thin | Cannot proceed cold without a contract |
-| `aikit-tdd` cycle introduces a failing test that won't go green in ≤3 attempts | Tighter than human TDD because there is no human to ask "is this the right test?" |
-| `aikit-review` returns `REQUEST CHANGES` with any **Blocker** | Hand back to human |
+| `tdd` cycle introduces a failing test that won't go green in ≤3 attempts | Tighter than human TDD because there is no human to ask "is this the right test?" |
+| `review` returns `REQUEST CHANGES` with any **Blocker** | Hand back to human |
 | Security finding at `high` or above | Hand back to human |
 | Push/merge would require force-push or conflict resolution | Hand back to human |
 | `max_iterations` reached (config, default 5) | Safety cap; user re-invokes |
@@ -123,7 +123,7 @@ the next iteration to learn what already happened.
 
 ## Trust model
 
-Same posture as `/aikit-recommend-rules` and `/aikit-recommend-tools`:
+Same posture as `/ai:recommend-rules` and `/ai:recommend-tools`:
 **never auto-merge to `main`/`master`.** The skill opens a PR; the
 project's existing merge policy (CI green, human approval, branch
 protection) is the actual safety net. ai-kit does not bypass it.
@@ -132,29 +132,29 @@ For the spike, the skill draft documents `dry-run` as the default
 mode — surfaces what *would* happen across the queue without
 touching git.
 
-## Decision matrix vs. just shipping `aikit-tdd` in a loop
+## Decision matrix vs. just shipping `tdd` in a loop
 
-| Concern | `/loop /aikit-tdd` (status quo) | `aikit-autonomous` |
+| Concern | `/loop /ai:tdd` (status quo) | `autonomous` |
 | ------- | ------------------------------- | ------------------- |
 | Picks next issue automatically | No | Yes |
 | Persists cross-iteration state | No (context drift) | Yes (`progress.txt`) |
 | Explicit human-gate triggers | No | Yes |
 | Fresh-context invariant | Only if user `/clear`s between fires | Built in |
-| Integrates with `aikit-triage` queue | No | Yes |
+| Integrates with `triage` queue | No | Yes |
 
 The status quo *can't* drain a backlog unsupervised; the spike
 artifact can.
 
 ## Recommendation
 
-Ship a **draft** of `workflow/skills/aikit-autonomous/SKILL.md` with:
+Ship a **draft** of `workflow/skills/autonomous/SKILL.md` with:
 
 - `dry-run` as default mode (logs what it would do, touches nothing)
 - explicit stop conditions
 - `progress.txt` schema documented
 - complementary-not-competing note re `/loop`
 
-Do **not** wire it into the plugin or `aikit-setup` until the first
+Do **not** wire it into the plugin or `setup` until the first
 real-queue drain succeeds end-to-end. Treat as opt-in, hand-installed
 during the validation period.
 
@@ -182,12 +182,12 @@ helper end-to-end. Findings:
 1. **Repo lacked the `ready-for-agent` label entirely.** Had to
    `gh label create ready-for-agent --color 0e8a16` before triaging.
    The autonomous skill must document this precondition, and ideally
-   `aikit-triage` (or `aikit-setup`) should idempotently ensure the
+   `triage` (or `setup`) should idempotently ensure the
    triage label set exists.
 2. **Skill auto-distributes via bootstrap.** Anything in
    `workflow/skills/*/SKILL.md` gets symlinked by
    `bootstrap-project.sh:merge_skills`. A spike-status skill currently
-   has no opt-out — users who pull `master` get `aikit-autonomous`
+   has no opt-out — users who pull `master` get `autonomous`
    listed even though the contract says "do not use until validated".
    Either move spike skills to `experiments/` (and skip the symlink
    sweep), or add a `status: spike` frontmatter field + bootstrap
@@ -222,7 +222,7 @@ first try. The **contract needs three additions** before promotion:
 - per-project merge-policy detection (PR vs direct)
 
 Status remains **spike** until those three land. Then it can be wired
-into `aikit-setup` as opt-in.
+into `setup` as opt-in.
 
 ### Artifact produced
 
@@ -239,5 +239,5 @@ into `aikit-setup` as opt-in.
   the skill stabilises.
 - Parallel iteration (Ralph's `--parallel` flag) — explicitly out of
   scope per #17.
-- `aikit-autonomous-resume` companion skill — only if `progress.txt`
+- `autonomous-resume` companion skill — only if `progress.txt`
   proves insufficient for context recovery after long pauses.

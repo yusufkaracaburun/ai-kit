@@ -13,7 +13,7 @@ Inside Claude Code:
 
 The first command registers the catalog at `https://github.com/yusufkaracaburun/marketplace/blob/master/.claude-plugin/marketplace.json` — a standalone marketplace listing ai-kit (and any future plugins under `yusufkaracaburun`). The second installs the `ai-kit` plugin from that marketplace; `source.url` in the catalog points back at `https://github.com/yusufkaracaburun/ai-kit.git`, subdir `workflow`, pinned to the latest release tag.
 
-After install, Claude Code namespace-prefixes plugin skills: `/ai-kit:setup`, `/ai-kit:ship`, `/ai-kit:tdd`, etc. Slash commands likewise get the prefix: `/ai-kit:aikit-doctor`. Subagents (`aikit-explore`, `aikit-reviewer`, `aikit-qa-runner`) become discoverable via the Task tool.
+After install, Claude Code namespace-prefixes plugin skills: `/ai-kit:setup`, `/ai-kit:ship`, `/ai-kit:tdd`, etc. Slash commands likewise get the prefix: `/ai-kit:doctor`. Subagents (`explore`, `reviewer`, `qa-runner`) become discoverable via the Task tool.
 
 > **Pre-3.0 deprecation.** Until ai-kit 3.0, the legacy install path
 > (`/plugin marketplace add yusufkaracaburun/ai-kit` →
@@ -79,8 +79,8 @@ If you switch from symlink to plugin, run `bin/ai-kit-no-globals.sh on` to suppr
 Bundled (via `workflow/.claude-plugin/plugin.json`):
 
 - All 21 skills (`workflow/skills/`)
-- Both subagents (`workflow/agents/aikit-explore`, `workflow/agents/aikit-reviewer`)
-- All 6 slash commands (`workflow/commands/aikit-*.md`)
+- Both subagents (`workflow/agents/explore`, `workflow/agents/reviewer`)
+- All 6 slash commands (`workflow/commands/ai:*.md`)
 - The PostToolUse skill-logging hook (`workflow/hooks/post-skill-log.sh` +
   `workflow/hooks/log-skill.sh`, wired by `workflow/hooks/hooks.json`).
   Opt-in: silent no-op unless `AI_KIT_USAGE=1` is set in the env. Resolves
@@ -90,8 +90,8 @@ Bundled (via `workflow/.claude-plugin/plugin.json`):
 
 **Not bundled** (intentionally):
 
-- Rules — emitted per-host at `/aikit-setup` time (`bin/emit-rules.sh`); plugin context can't write into your project repo
-- The `bin/` shell scripts — not exposed by the plugin; if you want `/aikit-doctor` to work you need `AI_KIT_ROOT` set in env (the slash command resolves it)
+- Rules — emitted per-host at `/ai:setup` time (`bin/emit-rules.sh`); plugin context can't write into your project repo
+- The `bin/` shell scripts — not exposed by the plugin; if you want `/ai:doctor` to work you need `AI_KIT_ROOT` set in env (the slash command resolves it)
 
 ### Opt-in usage logging
 
@@ -121,7 +121,7 @@ claude plugin validate /Users/<you>/Sites/localhost/ws/ai-kit/workflow
 
 ```text
 /plugin                       # list installed plugins
-/aikit-doctor                 # routes through the wrapper if commands loaded
+/ai:doctor                 # routes through the wrapper if commands loaded
 ```
 
 Or via the doctor script directly:

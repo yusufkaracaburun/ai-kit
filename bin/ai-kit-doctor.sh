@@ -181,7 +181,7 @@ if [ -n "$TARGET" ]; then
         warn ".ai-kit-setup version $mver != ai-kit $KIT_VERSION — run ai-kit-upgrade.sh"
       fi
     else
-      warn ".ai-kit-setup absent — /aikit-setup not yet run"
+      warn ".ai-kit-setup absent — /ai:setup not yet run"
     fi
   fi
   echo ""

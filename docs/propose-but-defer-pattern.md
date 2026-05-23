@@ -16,7 +16,7 @@ Add a new propose-but-defer entry only when **all** of the following hold:
 
 1. The external thing solves a problem ai-kit's own skills don't cover.
 2. The thing is **opt-in** — the user must consciously choose it.
-3. ai-kit can fully complete `/aikit-setup` without ever running the thing.
+3. ai-kit can fully complete `/ai:setup` without ever running the thing.
 4. The user's decision (`skipped` / `deferred` / `completed`) is worth remembering across sessions.
 
 If only #1 holds: just write a comment in the relevant SKILL.md pointing at the thing. No marker key needed.
@@ -25,7 +25,7 @@ If only #1 holds: just write a comment in the relevant SKILL.md pointing at the 
 
 1. **Pick a marker-branch key.** Snake-case, descriptive. Example: `automation_recommender`.
 2. **Add a CLI flag to `bin/write-setup-marker.sh`**: `--<kebab-case>=skipped|deferred|completed`. Follow the existing parsing + Python-write pattern in that script.
-3. **Add a branch row to `workflow/skills/aikit-setup/SKILL.md`** Tier B table.
+3. **Add a branch row to `workflow/skills/setup/SKILL.md`** Tier B table.
 4. **Add a propose-but-defer block** under the table — three options, three values. Use the existing `automation-recommender` block as a template.
 5. **Update `context/prompts/setup-project.md`** Tier B opsomming.
 6. **Update `bin/ai-kit-status.sh`** branch-order list so the new choice surfaces in `ai-kit status`.
@@ -35,10 +35,10 @@ If only #1 holds: just write a comment in the relevant SKILL.md pointing at the 
 
 - **Don't generalise to a plugin registry.** A YAML/JSON list of "known plugins" turns ai-kit from a self-contained kit into a directory of external tools — opposite of the standalone goal. If you find yourself adding the third entry, *that's* when to design a registry — not earlier.
 - **Don't invoke the external thing**, ever. Not via shell-out, not via a subprocess, not via an HTTP call. The pattern is "remember the choice", not "act on it".
-- **Don't hard-fail when the plugin is absent.** If the user picked `completed` but doesn't have the plugin installed, that's their problem — `/aikit-setup` still exits clean.
+- **Don't hard-fail when the plugin is absent.** If the user picked `completed` but doesn't have the plugin installed, that's their problem — `/ai:setup` still exits clean.
 
 ## See also
 
 - `bin/write-setup-marker.sh` — the canonical flag-parsing + JSON-key pattern.
-- `workflow/skills/aikit-setup/SKILL.md` branch 10 — the user-facing prose.
+- `workflow/skills/setup/SKILL.md` branch 10 — the user-facing prose.
 - `CHANGELOG.md` entry `1.2.0` — the first application of the pattern.

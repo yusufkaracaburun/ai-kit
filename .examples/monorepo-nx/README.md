@@ -92,7 +92,7 @@ This monorepo benefits from Tier B in three places:
 2. **Domain branch** — for a project that has explicit bounded contexts under `libs/`, the domain glossary doc is worth it.
 3. **Workflow branch** — if the team uses Scrum/Kanban with GitHub Projects, capture it.
 
-Re-run `/aikit-setup` and pick "Full" — `.ai-kit-setup` ensures you only get prompted for branches you haven't decided yet.
+Re-run `/ai:setup` and pick "Full" — `.ai-kit-setup` ensures you only get prompted for branches you haven't decided yet.
 
 ## Two MCP gotchas
 
