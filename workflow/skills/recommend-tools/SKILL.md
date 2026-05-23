@@ -77,11 +77,16 @@ End by reporting:
 
 If a file edit or merge failed, say so. Never report a tool wired when its glue is not on disk.
 
-## Extended: MCP servers + Claude Code hooks
+## Extended: MCP servers + Claude Code hooks + Claude Code plugins
 
-A separate, deterministic recommender lifts stack-signal → MCP-server and
-stack-signal → hook-recipe tables from upstream Anthropic reference
-material (provenance-pinned in `standards/external/`). It scores them
+A separate, deterministic recommender scores three vendored tables under
+`standards/external/`:
+
+- `mcp-servers.json` — stack-signal → MCP server
+- `hooks-patterns.json` — stack-signal → hook recipe
+- `plugins.json` — stack-signal → Claude Code plugin (from the
+  marketplaces the user trusts)
+
 against the same `detect-tooling.sh` output that drives
 `/ai:recommend-rules`, so the suggestions are reproducible and never
 guessed.
@@ -92,6 +97,7 @@ Add this layer when the user wants more than companion tools:
 
 - "Which MCP servers fit this project?"
 - "Any hooks I should turn on?"
+- "Which Claude Code plugins should I install for this stack?"
 - After the companions phase, when the user is willing to spend a few
   more minutes hardening the setup.
 
@@ -102,12 +108,13 @@ Add this layer when the user wants more than companion tools:
 "$AI_KIT_ROOT"/bin/recommend-tools.sh <project-path> --json    # machine-readable
 "$AI_KIT_ROOT"/bin/recommend-tools.sh <project-path> --kind mcp
 "$AI_KIT_ROOT"/bin/recommend-tools.sh <project-path> --kind hook
+"$AI_KIT_ROOT"/bin/recommend-tools.sh <project-path> --kind plugin
 ```
 
-Output rows: `name`, `score`, `category`, `kind` (`mcp`|`hook`), `reason`.
-Higher score = stronger signal. Universal hooks (env/lockfile protection,
-notification alerts) always score 1; framework / file / git-remote matches
-push the score up.
+Output rows: `name`, `score`, `category`, `kind` (`mcp`|`hook`|`plugin`),
+`reason`. Higher score = stronger signal. Universal entries (gitleaks,
+branch-guard, claude-mem, ask-questions-if-underspecified, etc.) always
+score 1; framework / file / git-remote matches push the score up.
 
 ### Surface — never wire silently
 
@@ -124,10 +131,15 @@ to wire. Same trust posture as `/ai:recommend-rules`:
   recipe matching the entry's `event` + `matcher` and merge into the
   project's `.claude/settings.json` `hooks` block — preserve any
   existing entries.
+- **Plugins:** never auto-install. The `install` field on each entry is
+  the canonical `/plugin install <name>@<marketplace>` command — show
+  it to the user, let them paste it. ai-kit does not vendor plugin
+  source. If the marketplace is not yet registered in the user's
+  Claude Code, surface that as a separate step.
 - **No web search.** This phase is fully deterministic from the
-  vendored tables. If the user wants MCP servers / hooks beyond what is
-  vendored, they can extend `standards/external/*.json` and re-vendor
-  with provenance (source URL, license, pinned SHA).
+  vendored tables. If the user wants MCP servers / hooks / plugins
+  beyond what is vendored, they can extend `standards/external/*.json`
+  and re-vendor with provenance (source URL, license, pinned SHA).
 
 ### Re-vendoring the tables
 
@@ -144,4 +156,4 @@ not silently fetch new upstream content during a run.
 - **Never auto-install** the tool itself — surface the install pointer, the user runs it.
 - **caveman is never a default.** Opt-in only; the agent must not start compressing output unprompted.
 - The graphify hook is additive context only — it cannot block a tool call, only suggest.
-- **MCP / hook recommendations are suggestions, not installs.** The scorer ranks; the user picks per entry; only then is anything written.
+- **MCP / hook / plugin recommendations are suggestions, not installs.** The scorer ranks; the user picks per entry; only then is anything written.

@@ -1,5 +1,41 @@
 # Changelog
 
+## 1.8.0 — 2026-05-23
+
+Complete the `recommend-tools` curation triad (MCP / hook / **plugin**).
+
+- **New curation file** `standards/external/plugins.json` — 12 curated
+  third-party Claude Code plugins with stack signals and one-line install
+  commands:
+  - `claude-mem`, `tdd-guard`, `ask-questions-if-underspecified`,
+    `claude-md-management`, `skill-creator` — universal
+  - `github`, `laravel-boost`, `frontend-design`, `lazyweb`,
+    `chrome-devtools-mcp`, `typescript-lsp`, `php-lsp` — stack-gated
+  Each entry includes `marketplace` and `install` fields so the skill
+  can surface the exact `/plugin install <name>@<marketplace>` command
+  without guessing.
+- **Scorer extended** (`bin/lib/recommend-tools-lib.sh`,
+  `bin/recommend-tools.sh`) — loads `plugins.json` (optional; older
+  clones without the file skip silently), emits rows with
+  `kind="plugin"`, accepts `--kind plugin` filter alongside existing
+  `mcp` / `hook` / `all`.
+- **Skill update** `recommend-tools` — documents the third surface,
+  trust posture for plugin install ("never auto-install — show the
+  `/plugin install` command, user pastes"), marketplace-registration
+  caveat.
+
+Smoke-tested against the ai-kit repo: scorer surfaces 5 plugins,
+2 MCP servers, 7 hooks. `--kind plugin` filter works.
+
+Shipping surface at v1.8.0:
+
+- 26 skills (unchanged; 1 edited — recommend-tools)
+- 3 subagents (unchanged)
+- 8 slash commands (unchanged)
+- 18 canonical rules (unchanged)
+- 21 curated MCP servers + 25 curated hook recipes + **12 curated
+  Claude Code plugins**
+
 ## 1.7.0 — 2026-05-23
 
 Close the user feedback loop (Phase 2 of < 50-user feedback design).
