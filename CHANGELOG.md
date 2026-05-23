@@ -2,7 +2,56 @@
 
 ## Unreleased
 
+## 3.0.0 — 2026-05-23
+
 **Breaking**
+- **Plugin renamed `ai-kit` → `ai`; every skill / subagent / command lost
+  the `aikit-` prefix** (commit `8961fee`).
+  - `/aikit-checkpoint` → `/ai:checkpoint` (plugin-namespace form);
+    22 skills, 3 subagents, 6 slash commands, eval fixtures + goldens dirs
+    all renamed in lockstep; 121 referencing files updated.
+  - `workflow/.claude-plugin/plugin.json` `name`: `ai-kit` → `ai`.
+  - **Marketplace catalog (`yusufkaracaburun/marketplace`) must be bumped
+    in lockstep** — plugin name `ai-kit` → `ai`, `ref` `v2.0.0` → `v3.0.0`,
+    description + slash-command list refreshed. The 2.0.0 catalog no longer
+    matches what `/plugin install` will pull from this repo.
+  - Migration for users on `/plugin install`: re-run after the marketplace
+    bump; namespace resolution gives `/ai:foo` automatically. Symlink
+    installs (`bootstrap-project.sh`) keep bare `/foo` (colon in filename
+    is non-portable).
+  - Disambiguation hygiene shipped alongside: `followup` vs `to-issues`
+    "Not this skill" pointers in both skills' `SKILL.md`; mental-model
+    routing table sharpened.
+
+**Added**
+- **`standards/external/VETTING.md`** (#22, roadmap §11) — seven-criteria
+  bar for any candidate added to `standards/external/` catalogs:
+  storage/data-shape parity, benchmark integrity, marketing-vs-code parity,
+  license compatibility (MIT or HTTP/MCP-client-only), category-appropriate
+  maturity, data-locality disclosure, provenance pin-by-SHA. Re-audit
+  cadence: on every new entry, annually, and on any `/should-i-use`
+  finding. Initial audit log retroactively approves existing entries
+  (`mcp-servers.json` batch, `hooks-patterns.json` batch, the
+  `laravel-php-83.mini.md` vendored rule) and records a `REVISIT` row for
+  `claude-mem` (deferred until #19 lands an AI-memory catalog category).
+  Surfaced by `/should-i-use` MemPalace 2026-05-23 — verdict on the tool
+  was Ignore, but the evaluation finding (three documented false README
+  claims) was reusable as the codification trigger.
+- **Path-pattern triggers in `bin/hooks/context-drift-check.sh`**
+  (#26 Tier 1, roadmap §15) — the PostToolUse drift hook now nudges on
+  *path patterns* in addition to the existing CONTEXT.md / ADR
+  literal-filename match. Stack-aware defaults (Laravel models /
+  migrations / policies / seeders / routes; Rails models / db/migrate;
+  Next/Node app + pages/api; Django models / migrations) ship inline;
+  project override via `.ai-kit/drift-triggers.json`. Per-category
+  reminder template ("seeder (mogelijk persona-drift)", "migration
+  (mogelijk stale ref drift)", "route-definitie") replaces the single
+  generic message when a path-pattern trigger fires. Closes the gap that
+  motivated naschool's bespoke `docs-sync` hook. Tier 2 (full audit
+  skill) deferred until skill-vs-companion call lands. Non-blocking,
+  silent no-op fallback unchanged.
+
+**Breaking** (continued)
 - **Plugin marketplace moved out of the ai-kit repo** (#9, roadmap §3).
   The catalog now lives in its own repo,
   https://github.com/yusufkaracaburun/marketplace, so that one stable
