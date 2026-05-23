@@ -235,3 +235,19 @@ in priority order:
    (graphify + caveman + llm-wiki bundle). Exit criterion: pick one,
    decide fork-vs-fresh-start, open implementation issue against the new
    repo.
+8. **Stack-aware tool recommendations during setup** (#19) — `/aikit-setup`
+   today configures rules + skills but does not proactively *propose
+   companion tools* tied to the detected stack. `/aikit-recommend-tools`
+   (#14) is standalone and limited to MCP servers + Claude Code hooks;
+   broader categories — vector stores / RAG (Qdrant, pgvector, Chroma,
+   Weaviate), observability (Sentry, OpenTelemetry), dev tooling
+   (linters, formatters, runtime managers), CLI helpers, and AI agent
+   memory (Mem0, Letta, Zep) — get no nudge during setup. Two-part
+   delivery: (a) broaden the signal tables under `standards/external/`
+   to cover the missing categories, (b) wire `/aikit-recommend-tools`
+   into `/aikit-setup` as a Tier B branch parallel to rule
+   recommendations. Trust model unchanged — preview-then-confirm,
+   never auto-install. Gap surfaced by `/should-i-use` Qdrant
+   2026-05-23 — the verdict on Qdrant itself was **Ignore** (wrong
+   category for the meta-tool), but the downstream-project advisory
+   layer is missing entirely.
