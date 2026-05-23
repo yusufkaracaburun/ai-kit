@@ -1,5 +1,43 @@
 # Changelog
 
+## 1.5.0 — 2026-05-23
+
+Mini-rules pack — 8 new canonical rules under `standards/rules/`.
+
+Universal (always-on, weight high/medium/low):
+
+- `testing-pyramid.mini.md` — 70/25/5 unit/integration/E2E discipline,
+  no flaky-retry-in-CI, bug fixes ship with regression tests.
+- `error-handling.mini.md` — validate at boundaries, trust internal code,
+  never swallow errors, throw vs return guidance.
+- `observability.mini.md` — structured logs, RED/USE metrics, OpenTelemetry
+  traces, cardinality discipline.
+- `secrets-hygiene.mini.md` — never commit/log secrets, single secret store
+  per env, rotation playbook, gitleaks in pre-commit + CI.
+- `semver.mini.md` — MAJOR/MINOR/PATCH bump rules, deprecate-before-remove,
+  CHANGELOG-in-same-commit discipline.
+
+Stack-specific (fire on matching architecture):
+
+- `a11y.mini.md` — WCAG 2.2 AA baseline for frontend stacks (react, vue,
+  angular, nextjs, nuxt, svelte, remix, astro).
+- `api-design.mini.md` — REST conventions, status codes, OpenAPI as source of
+  truth for backend frameworks (express, fastify, nestjs, fastapi, django,
+  rails, laravel, spring).
+- `twelve-factor.mini.md` — 12factor.net discipline for backend services.
+
+Smoke-tested against the ai-kit repo: 6/8 new rules score in
+`recommend-rules.sh --json` (universal ones); stack-specific 3 require
+frontend/backend detection to score, working as designed.
+
+Shipping surface at v1.5.0:
+
+- 24 skills (unchanged)
+- 3 subagents (unchanged)
+- 8 slash commands (unchanged)
+- 18 canonical rules (was 10) under `standards/rules/`
+- 21 curated MCP servers + 25 curated hook recipes (unchanged)
+
 ## 1.4.1 — 2026-05-23
 
 Drop `notion`, `figma`, `mongodb` from MCP curation per maintainer
