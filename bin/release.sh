@@ -1,19 +1,26 @@
 #!/usr/bin/env bash
-# Bump VERSION, prepend a CHANGELOG entry, commit, tag. No push (deliberate —
-# the maintainer chooses when to publish).
+# Bump VERSION, prepend a CHANGELOG entry, commit, tag. Optionally push the
+# ai-kit release AND bump the downstream marketplace catalog so
+# /plugin update picks it up (a single end-to-end publish).
 set -euo pipefail
 
 SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"
 AIKIT="$(cd "$SCRIPT_BIN/.." && pwd)"
 
+MARKETPLACE_REPO_DEFAULT="git@github.com:yusufkaracaburun/marketplace.git"
+
 usage() {
   cat <<USAGE
 Usage: $0 <new-version> [--notes-file=<path>] [--no-tag] [--dry-run]
+                       [--bump-marketplace] [--marketplace-repo=<git-url>]
 
 Examples:
   $0 1.2.1                              prompt for changelog entry inline
   $0 1.3.0 --notes-file=/tmp/notes.md   use prepared notes
   $0 1.3.0 --dry-run                    print what would happen, change nothing
+  $0 1.3.0 --notes-file=/tmp/n.md --bump-marketplace
+                                        full publish: tag, push ai-kit, then
+                                        bump + push the marketplace catalog
 
 Performs:
   1. Updates VERSION
@@ -21,7 +28,15 @@ Performs:
   3. Commits the two files with subject "chore(release): vX.Y.Z"
   4. Tags vX.Y.Z (unless --no-tag)
 
-Does NOT push. Run 'git push origin master --tags' yourself once happy.
+With --bump-marketplace it also:
+  5. Pushes ai-kit master + tags to origin
+  6. Clones the marketplace repo (override URL with --marketplace-repo=...)
+  7. jq-patches .claude-plugin/marketplace.json
+     (plugins[0].version + plugins[0].source.ref → vX.Y.Z)
+  8. Commits + pushes the marketplace bump
+
+Without --bump-marketplace the script stops after step 4 — push and bump
+the marketplace yourself.
 USAGE
   exit 1
 }
@@ -32,12 +47,16 @@ NEW_VERSION=""
 NOTES_FILE=""
 DO_TAG=true
 DRY_RUN=false
+BUMP_MARKETPLACE=false
+MARKETPLACE_REPO="$MARKETPLACE_REPO_DEFAULT"
 for arg in "$@"; do
   case "$arg" in
     -h|--help) usage ;;
     --no-tag) DO_TAG=false ;;
     --dry-run) DRY_RUN=true ;;
+    --bump-marketplace) BUMP_MARKETPLACE=true ;;
     --notes-file=*) NOTES_FILE="${arg#*=}" ;;
+    --marketplace-repo=*) MARKETPLACE_REPO="${arg#*=}" ;;
     -*) echo "Unknown flag: $arg" >&2; usage ;;
     *)
       if [ -n "$NEW_VERSION" ]; then echo "Unexpected arg: $arg" >&2; usage; fi
@@ -48,6 +67,11 @@ done
 
 if ! printf '%s' "$NEW_VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[a-z0-9.]+)?$'; then
   echo "Invalid version: '$NEW_VERSION' — expected semver X.Y.Z (optional -prerelease)" >&2
+  exit 2
+fi
+
+if [ "$BUMP_MARKETPLACE" = true ] && [ "$DO_TAG" = false ]; then
+  echo "--bump-marketplace requires a tag (cannot be combined with --no-tag)" >&2
   exit 2
 fi
 
@@ -105,6 +129,10 @@ if [ "$DRY_RUN" = true ]; then
   printf '%s\n' "$NEW_ENTRY" | sed 's/^/  | /'
   echo "[dry-run] Would commit: 'chore(release): v$NEW_VERSION'"
   [ "$DO_TAG" = true ] && echo "[dry-run] Would tag: v$NEW_VERSION"
+  if [ "$BUMP_MARKETPLACE" = true ]; then
+    echo "[dry-run] Would push origin master --tags"
+    echo "[dry-run] Would clone $MARKETPLACE_REPO, bump version + ref to v$NEW_VERSION, push"
+  fi
   exit 0
 fi
 
@@ -132,22 +160,70 @@ git commit -m "chore(release): v$NEW_VERSION"
 if [ "$DO_TAG" = true ]; then
   git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
   echo ""
-  echo "Tagged v$NEW_VERSION. Push when ready:"
-  echo "  git push origin master --tags"
+  echo "Tagged v$NEW_VERSION."
 else
   echo ""
-  echo "Released v$NEW_VERSION (no tag). Push when ready:"
-  echo "  git push origin master"
+  echo "Released v$NEW_VERSION (no tag)."
 fi
 
-# Cross-repo reminder: the marketplace catalog (since 2026-05-23) lives in
-# https://github.com/yusufkaracaburun/marketplace and must be bumped manually
-# after this release. release.sh cannot reach across repos.
+if [ "$BUMP_MARKETPLACE" = false ]; then
+  if [ "$DO_TAG" = true ]; then
+    echo "Push when ready:"
+    echo "  git push origin master --tags"
+  else
+    echo "Push when ready:"
+    echo "  git push origin master"
+  fi
+  echo ""
+  echo "Next: bump the marketplace catalog so /plugin update picks this up."
+  echo "  Re-run with --bump-marketplace to do this automatically, or:"
+  echo "  cd /path/to/yusufkaracaburun/marketplace"
+  echo "  jq '.plugins[0].version = \"$NEW_VERSION\" | .plugins[0].source.ref = \"v$NEW_VERSION\"' \\"
+  echo "    .claude-plugin/marketplace.json > .claude-plugin/marketplace.tmp.json \\"
+  echo "    && mv .claude-plugin/marketplace.tmp.json .claude-plugin/marketplace.json"
+  echo "  git commit -am 'chore: bump ai-kit to v$NEW_VERSION'"
+  echo "  git push origin master"
+  exit 0
+fi
+
+# --- Marketplace bump (--bump-marketplace) ---------------------------------
 echo ""
-echo "Next: bump the marketplace catalog so /plugin update picks this up."
-echo "  cd /path/to/yusufkaracaburun/marketplace"
-echo "  jq '.plugins[0].version = \"$NEW_VERSION\" | .plugins[0].source.ref = \"v$NEW_VERSION\"' \\"
-echo "    .claude-plugin/marketplace.json > .claude-plugin/marketplace.tmp.json \\"
-echo "    && mv .claude-plugin/marketplace.tmp.json .claude-plugin/marketplace.json"
-echo "  git commit -am 'chore: bump ai-kit to v$NEW_VERSION'"
-echo "  git push origin master"
+echo "Pushing ai-kit master + tags…"
+git push origin master --tags
+
+MKT_TMP="$(mktemp -d -t ai-kit-marketplace.XXXXXX)"
+trap 'rm -rf "$MKT_TMP"' EXIT
+
+echo "Cloning $MARKETPLACE_REPO → $MKT_TMP …"
+git clone --quiet "$MARKETPLACE_REPO" "$MKT_TMP"
+
+MKT_JSON="$MKT_TMP/.claude-plugin/marketplace.json"
+if [ ! -f "$MKT_JSON" ]; then
+  echo "Marketplace manifest not found at $MKT_JSON — aborting" >&2
+  exit 2
+fi
+
+if ! command -v jq >/dev/null 2>&1; then
+  echo "jq required for --bump-marketplace but not on PATH" >&2
+  exit 2
+fi
+
+jq --arg v "$NEW_VERSION" --arg ref "v$NEW_VERSION" \
+  '.plugins[0].version = $v | .plugins[0].source.ref = $ref' \
+  "$MKT_JSON" > "$MKT_JSON.tmp"
+mv "$MKT_JSON.tmp" "$MKT_JSON"
+
+cd "$MKT_TMP"
+if git diff --quiet; then
+  echo "Marketplace already at v$NEW_VERSION — nothing to push"
+else
+  git add .claude-plugin/marketplace.json
+  git commit -m "chore: bump ai-kit to v$NEW_VERSION"
+  git push origin HEAD
+  echo "Marketplace bumped + pushed."
+fi
+cd "$AIKIT"
+
+echo ""
+echo "Released v$NEW_VERSION end-to-end (ai-kit + marketplace)."
+echo "Downstream: /plugin update ai@yusufkaracaburun"
