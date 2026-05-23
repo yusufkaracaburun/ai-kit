@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.13.0 — 2026-05-23
+
+Closes #29: new canonical rule `domain-model-first`. Captures the
+naschool 2026-05-23 "domain-model blindness" lesson from
+`~/.claude/ai-kit-lessons.md` as a reusable, stack-agnostic primitive.
+Ships universal so every `/ai:setup` run pulls it in.
+
+The rule absorbs option C from the issue (verify-state generalisation)
+as a sub-clause and skips option B (plan-mode gate) — that requires
+harness changes ai-kit doesn't control.
+
+- **New** `standards/rules/domain-model-first.mini.md` — frontmatter
+  `universal: true`, `weight: high`, `default_mode: always-on`. Body
+  covers when-the-gate-fires (architecture/schema verbs near domain
+  nouns; entity names from CONTEXT.md; new-migration proposals),
+  how-to-apply (locate canonical layer per-stack, read entity +
+  related entities, verify don't assume, prefix proposal with
+  evidence, prefer extending), when-to-skip (cosmetic / explicit
+  user override / no-domain-layer), and a concrete anti-pattern
+  using the naschool subsidy example.
+- **Updated** `tests/bin/cases/bootstrap-emit.sh` — `--list` count
+  23 → 24, adds `domain-model-first listed` assertion.
+- **Updated** plugin manifest + README from 23 → 24 canonical rules.
+
+Tests: 410 passed, 0 failed.
+
 ## 1.12.1 — 2026-05-23
 
 Closes #24: surface `context7` more prominently in `/ai:recommend-tools`.
