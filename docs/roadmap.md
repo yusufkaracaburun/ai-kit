@@ -410,3 +410,20 @@ in priority order:
     `${CLAUDE_PLUGIN_ROOT}/.claude-plugin/plugin.json` in the same
     pass. Optional sidecar: `bin/ai-kit-remove-global.sh` for curl-
     install migrators.
+
+18. **Repo-rename housekeeping: stale path refs in memory-files** (#33)
+    — Surfaced 2026-05-23 after renaming `school-activities-hub` →
+    `naschool` on disk; `~/.claude/CLAUDE.md` Phase 14 PARKED block,
+    project-local `CLAUDE.md`, `.agents/memory/**`, and `docs/**` all
+    kept the old absolute path. Existing `context-drift-check.sh` only
+    catches forward drift (edit → check docs); rename drift goes the
+    other direction (rename watched path → check who still names it)
+    and has no detector. Three primitive options on the table: (a)
+    `repo-rename-housekeeping` skill that scans the memory-file
+    universe for old basename + absolute path and proposes
+    Edit-replace_all batches; (b) post-cwd-change hook that compares
+    `$PWD` against `~/.claude/known-projects.json` and flags suspected
+    renames; (c) pre-write validator on `~/.claude/**` and
+    `.agents/memory/**` that warns when new content names an
+    unreachable absolute path. Skill option lowest-friction to ship.
+    Surfaced from `~/.claude/ai-kit-lessons.md` entry 2026-05-23.
