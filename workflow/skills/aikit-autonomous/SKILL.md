@@ -101,16 +101,16 @@ Path: `.ai-kit/autonomous/progress.txt`. Append-only, one event per line:
 Events: `pick`, `brief-ok`, `tdd-green`, `review-pass`, `ship-ok`,
 `exit-empty`, `exit-gate`, `exit-cap`, `exit-error`.
 
-Example trace:
+Example trace (columns separated by literal `\t`):
 
 ```
-2026-05-23T10:00:00Z	42	pick	feat: foo
-2026-05-23T10:00:05Z	42	brief-ok	5 criteria
-2026-05-23T10:02:30Z	42	tdd-green	cycles=4
-2026-05-23T10:03:10Z	42	review-pass	mode=comprehensive
-2026-05-23T10:03:45Z	42	ship-ok	pr=#101
-2026-05-23T10:03:46Z	43	pick	fix: bar
-2026-05-23T10:04:00Z	43	exit-gate	brief-thin
+2026-05-23T10:00:00Z \t 42 \t pick         \t feat: foo
+2026-05-23T10:00:05Z \t 42 \t brief-ok     \t 5 criteria
+2026-05-23T10:02:30Z \t 42 \t tdd-green    \t cycles=4
+2026-05-23T10:03:10Z \t 42 \t review-pass  \t mode=comprehensive
+2026-05-23T10:03:45Z \t 42 \t ship-ok      \t pr=#101
+2026-05-23T10:03:46Z \t 43 \t pick         \t fix: bar
+2026-05-23T10:04:00Z \t 43 \t exit-gate    \t brief-thin
 ```
 
 The next iteration reads this cold — no in-context memory required.
