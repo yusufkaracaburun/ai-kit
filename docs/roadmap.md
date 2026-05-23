@@ -348,6 +348,35 @@ in priority order:
     benchmark (48 tables + 36 code blocks preserved vs pdftotext's 0+0
     on a 103-page technical book) is documented prior art for any
     future llm-wiki PDF-ingest path.
+16. **Adopt naschool's DoR/DoD-enforced GH issues + Projects flow** (#27) —
+    ai-kit projects have no opinion on issue tracking today. Naschool has
+    solved this with a battle-tested GitHub-native stack:
+    `.github/ISSUE_TEMPLATE/{feature,spike}.md` embedding Triage (priority /
+    epic / area / depends-on / blocks / ready-to-start) + Scope + Acceptance
+    + **Definition of Ready** + **Definition of Done** checklists;
+    `dor-dod-enforcement.yml` (closes → check DoD, reopens if unchecked;
+    `labeled status:in-progress` → check DoR, strips label if unchecked);
+    `auto-promote-ready.yml` (Todo → Ready on board #6 when DoR all checked
+    AND `P[0-3]-*` + `epic/*` + `area/*` labels set, via ProjectV2 GraphQL).
+    Required labels: `P0-critical` / `P1-high` / `P2-medium` / `P3-low`,
+    `epic/<name>`, `area/<name>`, `status:in-progress`. **`/should-i-use`
+    verdict: adopt-as-pattern.** Delivery: new artifacts under
+    `context/templates/github/` (ISSUE_TEMPLATE, workflows, labels.json),
+    new skill `setup-gh-workflow` that detects `.github/` + `gh remote` +
+    `gh auth`, copies templates idempotently, bulk-creates labels via
+    `gh label create --force`, resolves Project IDs via `gh api graphql`
+    if board exists (detect-only — never auto-create, that's a silent-
+    config anti-pattern). Wired into `/ai:setup` as **Tier-A** —
+    always on when a GitHub remote is detected; silent skip on
+    non-GH remotes; no opt-in prompt. Also update `to-issues` SKILL
+    to use the DoR/DoD structure when project templates present.
+    **Decisions baked in:** Tier-A always-on when GitHub-remote
+    detected (every ai-kit-on-GitHub repo gets the same bar);
+    **Dutch default** with `--lang en` flag for English templates
+    (matches naschool source and user's primary language); detect-
+    existing-board never auto-create; labels hard-copied from
+    naschool (divergence without reason is noise); DoR/DoD parsing
+    logic verbatim from naschool (already battle-tested).
 15. **Generalise naschool docs-sync into reusable ai-kit primitive** (#26)
     — Tier 1 **landed** 2026-05-23 (commit `3a64907`):
     `bin/hooks/context-drift-check.sh` now fires path-pattern triggers
