@@ -12,8 +12,9 @@
     {
       "name": "context7",
       "category": "documentation",
-      "best_for": "Projects using popular libraries/SDKs where Claude should code against up-to-date docs",
-      "value": "Live documentation lookups instead of relying on training data — reduces hallucinated APIs and outdated patterns.",
+      "universal": true,
+      "best_for": "Any project that depends on third-party libraries — Claude should code against live docs, not training-data snapshots",
+      "value": "Live documentation lookups instead of relying on training data — reduces hallucinated APIs and outdated patterns. Universal because the failure mode (stale training data) is library-agnostic.",
       "signals": {
         "frameworks": ["react", "vue", "angular", "nextjs", "nuxt", "svelte", "express", "fastify", "fastapi", "django", "rails", "laravel", "spring"],
         "dependencies": ["@anthropic-ai/sdk", "openai", "langchain", "@aws-sdk/", "prisma", "drizzle-orm"]

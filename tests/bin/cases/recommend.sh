@@ -106,7 +106,8 @@ EMPTY_TMP=$(mktemp -d)
 JSON_EMPTY="$("$AIKIT/bin/recommend-tools.sh" "$EMPTY_TMP" --json)"
 assert "recommend-tools empty stack: universal hooks still surfaced" 'echo "$JSON_EMPTY" | grep -q "\"name\": \"block-lockfile-edits\""'
 assert "recommend-tools empty stack: universal plugins still surfaced" 'echo "$JSON_EMPTY" | grep -q "\"name\": \"claude-mem\""'
-assert "recommend-tools empty stack: no MCP recs (nothing to match)" 'echo "$JSON_EMPTY" | python3 -c "import json,sys; d=json.load(sys.stdin); assert all(r[\"kind\"] in (\"hook\",\"plugin\") for r in d[\"recommendations\"])"'
+assert "recommend-tools empty stack: universal MCP (context7) still surfaced" 'echo "$JSON_EMPTY" | grep -q "\"name\": \"context7\""'
+assert "recommend-tools empty stack: only universal MCPs surface (context7), no stack-specific MCPs" 'echo "$JSON_EMPTY" | python3 -c "import json,sys; d=json.load(sys.stdin); mcp_names = [r[\"name\"] for r in d[\"recommendations\"] if r[\"kind\"]==\"mcp\"]; assert mcp_names == [\"context7\"], f\"expected only context7, got {mcp_names}\""'
 rm -rf "$EMPTY_TMP"
 
 assert "recommend-tools: rejects unknown --kind" '! "$AIKIT/bin/recommend-tools.sh" "$AIKIT" --kind bogus >/dev/null 2>&1'

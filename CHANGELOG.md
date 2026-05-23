@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.12.1 — 2026-05-23
+
+Closes #24: surface `context7` more prominently in `/ai:recommend-tools`.
+The pain was a closed framework signal-list — Phoenix repos, Go services,
+Rust CLIs, niche stacks never saw the recommendation even though
+context7's value (live docs vs. training-data hallucinations) is universal
+for any project depending on third-party libraries.
+
+- **Updated** `standards/external/mcp-servers.json` — context7 entry now
+  carries `"universal": true`. The deterministic recommender's `universal`
+  axis (already wired for hooks + plugins) now applies to MCP too, so
+  context7 surfaces on every stack while keeping its framework/dependency
+  boosts for ranking.
+- **Updated** `workflow/skills/recommend-tools/SKILL.md` — companion
+  table grows from three rows to four (graphify / caveman / llm-wiki /
+  context7). Note clarifies context7 is the one universal companion.
+- **Updated** `tests/bin/cases/recommend.sh` — empty-stack assertion
+  inverted: was "no MCP recs", now "only context7 surfaces (universal),
+  no stack-specific MCPs". Adds direct `name == "context7"` assertion.
+
+No new primitives. Trust model unchanged (preview-then-confirm). Lands
+ahead of #19's wider signal-table restructure; the additive
+universal-flag pattern survives a future scorer refactor cleanly.
+
 ## 1.12.0 — 2026-05-23
 
 New `/ai:onboard` skill wraps the harness `ShareOnboardingGuide` tool — drafts

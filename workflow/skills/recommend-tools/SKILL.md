@@ -7,15 +7,16 @@ Recommend and wire **companion tools** for this project — external AI-producti
 
 ## What a companion tool is
 
-A third-party tool *or pattern* that improves the AI coding setup but is **not** part of ai-kit's agile lifecycle. ai-kit owns the *integration glue* (a rules block, a hook, a scaffold), never the tool itself. Three are known today:
+A third-party tool *or pattern* that improves the AI coding setup but is **not** part of ai-kit's agile lifecycle. ai-kit owns the *integration glue* (a rules block, a hook, a scaffold), never the tool itself. Four are known today:
 
 | Companion | Optimizes | Effect | Risk |
 | --------- | --------- | ------ | ---- |
 | **graphify** | Input — what the AI reads about the code | Knowledge graph; scoped subgraph per query instead of raw grep. Large token cut on multi-file repos. | Low — invisible infra, just better retrieval. |
 | **caveman** | Output — how verbosely the AI replies | Compresses responses (drops articles/filler/hedging), technical content intact. ~65% fewer output tokens. | Medium — it is a *communication mode*, opinionated. |
 | **llm-wiki** | Memory — knowledge from non-code documents | Self-maintaining wiki; ingests specs/transcripts/research into interlinked pages. The wiki, not the raw files, is the artifact that compounds. | Low — additive scaffold; the agent owns `wiki/`, never touches `raw/`. |
+| **context7** | Documentation — live library docs vs. training-data snapshots | MCP server (project-scope) + optional user-scope `~/.claude/rules/context7.md` rule. Cuts API hallucinations on third-party libraries. Universal: any project with deps benefits. | Low — read-only doc lookups, no auto-install of packages. |
 
-They are orthogonal to each other and to ai-kit. Recommend per project, never blanket.
+They are orthogonal to each other and to ai-kit. Recommend per project, never blanket — except **context7**, which scores `universal: true` in `standards/external/mcp-servers.json` and surfaces for every stack the deterministic recommender runs against (Phase "MCP servers + Claude Code hooks + Claude Code plugins" below).
 
 ## When to invoke
 
