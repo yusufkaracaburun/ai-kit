@@ -341,3 +341,27 @@ in priority order:
     benchmark (48 tables + 36 code blocks preserved vs pdftotext's 0+0
     on a 103-page technical book) is documented prior art for any
     future llm-wiki PDF-ingest path.
+15. **Generalise naschool docs-sync into reusable ai-kit primitive** (#26) —
+    naschool ships a richer drift detector than ai-kit: 10-check `docs-sync`
+    skill + `PostToolUse` hook with **path-pattern triggers**
+    (`/app/Models/`, `/database/migrations/`, `/app/Policies/`,
+    `/database/seeders/`, `/routes/`) and **per-category reminders**
+    ("seeder (mogelijk persona-drift)" vs generic doc-ref). ai-kit's
+    Branch 11 `context-drift-check.sh` only fires when an edited file is
+    literally named in `CONTEXT.md` / `CONTEXT-MAP.md` / `docs/adr/`, so
+    new models / renamed migrations / moved enum cases never get a
+    drift nudge until after the fact. **Two-tier delivery.** Tier 1:
+    extend `bin/hooks/context-drift-check.sh` with stack-aware
+    `--trigger-paths` (from `detect-tooling.sh`) + per-category reminder
+    template; non-blocking, silent no-op when nothing matches. ~50 LOC
+    + tests, can land independently. Tier 2: new ai-kit skill
+    `docs-drift` (or `docs-sync` — name TBD) wrapping the 10-check
+    audit, generalised via `detect-tooling.sh` with project-local
+    overrides in `docs/agents/docs-drift.yml` (seeded-names PII grep,
+    status-table refs, ADR convention). Wired into `aikit-setup` as a
+    Tier-B branch parallel to Branch 11. **Cross-cutting** with #19 and
+    #22 — path-pattern signal table belongs in the same restructure;
+    sequencing risk on Tier 2 (skill-vs-companion call needed first).
+    Migration path: naschool keeps local override until generalised
+    version lands, then re-bootstraps and drops the project-specific
+    bits into the YAML config.
