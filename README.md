@@ -65,7 +65,7 @@ First moves:
 
 ## The agile lifecycle
 
-24 skills covering one loop — idea to retro:
+23 skills covering one loop — idea to retro:
 
 | Phase | Skills |
 | ----- | ------ |
@@ -73,7 +73,7 @@ First moves:
 | Development | `to-issues` → `triage` → `tdd` |
 | Testing | `review` · `qa` · `diagnose` |
 | Deployment | `ship` |
-| Ops & review | `retro` · `followup` |
+| Ops & review | `retro` |
 | Session continuity | `checkpoint` ↔ `resume` · `handoff` |
 | Cross-cutting | `setup` · `setup-gh-workflow` · `recommend-rules` · `recommend-tools` · `improve-codebase-architecture` |
 | Experimental | `autonomous` (spike — autonomous-loop variant of `tdd`, opt-in) |

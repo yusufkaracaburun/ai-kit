@@ -6,7 +6,7 @@ expects:
   - reads top item before suggesting a next-step skill
   - if top item has status:in-progress → suggests continuing the WIP, NOT starting new work
   - if top item has ready-for-agent → suggests /ai:autonomous (queue drain)
-  - if top item is roadmap-only → suggests /ai:followup to open a GH issue first
+  - if top item is roadmap-only → suggests /ai:to-prd defer to open a GH issue first
   - if top item is setup-deferred → suggests re-running /ai:setup to revisit that branch
   - does NOT auto-execute the suggested next skill — user picks
 ---

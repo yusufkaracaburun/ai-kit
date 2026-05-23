@@ -7,7 +7,7 @@ description: Break a plan, spec, or PRD into independently-grabbable issues on t
 
 Break a plan into independently-grabbable issues using vertical slices (tracer bullets).
 
-**Not this skill** — use [`followup`](../followup/SKILL.md) when the user wants to *defer* a single surfaced lead (one issue + one roadmap paragraph). `to-issues` is for shattering an already-planned chunk of work into N tickets ready to execute. `followup` pushes work OUT of now; `to-issues` decomposes work INTO actionable slices.
+**Not this skill** — use [`to-prd`](../to-prd/SKILL.md) in defer mode when the user wants to *park* a single surfaced lead (one issue + one roadmap paragraph). `to-issues` is for shattering an already-planned chunk of work into N tickets ready to execute. Defer mode pushes work OUT of now; `to-issues` decomposes work INTO actionable slices.
 
 The issue tracker and triage label vocabulary should have been provided to you — run `/setup-matt-pocock-skills` if not.
 

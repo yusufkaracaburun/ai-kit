@@ -46,7 +46,7 @@ case "$ACTION" in
     echo "    if [ -L \"\$d\" ] && readlink \"\$d\" | grep -q ai-kit; then rm -f \"\$d\"; fi"
     echo "  done"
     echo "  # Slash commands"
-    echo "  for cmd in doctor status which no-globals upgrade followup prefer-plugin; do"
+    echo "  for cmd in doctor status which no-globals upgrade prefer-plugin; do"
     echo "    rm -f ~/.claude/commands/\$cmd.md"
     echo "  done"
     echo ""

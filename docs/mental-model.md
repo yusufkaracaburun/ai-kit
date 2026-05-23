@@ -20,7 +20,7 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
    │   DEPLOYMENT    ship
    │      │
    │      ▼
-   │   OPS & REVIEW  retro · handoff · followup
+   │   OPS & REVIEW  retro · handoff
    │      │
    └──────┘
 
@@ -51,7 +51,7 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
 | Save context for `/clear`, resume later | `checkpoint` ↔ `resume` |
 | Recommend canonical rules for the detected stack | `recommend-rules` |
 | Wire optional companion tools (graphify, caveman) | `recommend-tools` |
-| Defer ONE surfaced lead — one issue + one roadmap paragraph (not for breaking down planned work; use `to-issues` for that) | `followup` |
+| Defer ONE surfaced lead — one issue + one roadmap paragraph (not for breaking down planned work; use `to-issues` for that) | `to-prd` (defer mode) |
 | Drain a `ready-for-agent` queue end-to-end (spike) | `autonomous` |
 
 ## Subagents (Claude Code only)
@@ -74,7 +74,7 @@ Subagents are Claude Code-only. Cursor and other hosts fall back to the inline c
 | Show project ai-kit status (version, marker, drift) | `/ai:status` |
 | Toggle the global-check opt-out | `/ai:no-globals on\|off\|status` |
 | Re-stamp the project marker after pulling new ai-kit | `/ai:upgrade` |
-| Defer a lead in one shot (issue + roadmap entry) | `/ai:followup "<lead>"` |
+| Defer a lead in one shot (issue + roadmap entry) | `/ai:to-prd defer "<lead>"` |
 
 Slash commands wrap `bin/ai-kit-*.sh` scripts. They're optional — you can always run the underlying script directly.
 

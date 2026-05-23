@@ -19,7 +19,7 @@ Trigger phrases:
 
 Also fires automatically as part of `/ai:setup` when the project has a GitHub remote — silent skip on non-GH remotes; never asks for opt-in.
 
-**Not this skill** — use [`to-issues`](../to-issues/SKILL.md) when you want to *break down a plan* into N tickets. `setup-gh-workflow` scaffolds the templates + workflows themselves; `to-issues` populates them later. Use [`followup`](../followup/SKILL.md) when you want to defer a single lead — `followup` opens one issue + roadmap entry; this skill is the one-time platform setup.
+**Not this skill** — use [`to-issues`](../to-issues/SKILL.md) when you want to *break down a plan* into N tickets. `setup-gh-workflow` scaffolds the templates + workflows themselves; `to-issues` populates them later. Use [`to-prd`](../to-prd/SKILL.md) in defer mode when you want to park a single lead — that opens one issue + roadmap entry; this skill is the one-time platform setup.
 
 ## What it installs
 

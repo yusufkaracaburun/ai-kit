@@ -281,7 +281,7 @@ for i, it in enumerate(top, 1):
     elif it["kind"] == "roadmap":
         print(f"  {i:>2}. [{p}] roadmap-only")
         print(f"      {it['title']}")
-        print(f"      (no GH issue — consider /ai:followup to open one)")
+        print(f"      (no GH issue — consider /ai:to-prd defer to open one)")
     elif it["kind"] == "deferred":
         print(f"  {i:>2}. [{p}] setup-deferred")
         print(f"      {it['title']}")
