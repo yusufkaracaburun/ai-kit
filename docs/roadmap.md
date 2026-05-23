@@ -462,3 +462,41 @@ in priority order:
     recommending `/ai:triage <n>` to re-emit. Body-fallback in
     autonomous was considered and rejected: it would have broken the
     "brief = contract" durability principle in `AGENT-BRIEF.md`.
+
+21. **autonomous hardening: cwd-guard + telemetry + exit-handoff**
+    (#38, #39, #40) — landed 2026-05-23 in v1.14.2. First real-queue
+    drain on naschool #42 (EPIC #41 Chunk A: 18 dir deletes, 24
+    call-site rewrites, 4 moves, vocab doc, CLAUDE.md rewrite)
+    surfaced three orthogonal gaps. **Safety (#39):** CC harness
+    resets cwd to session-primary working dir after every Bash, so
+    when the user starts CC from the master worktree but the brief
+    targets a sibling worktree, every `cd X && cmd` ends with cwd
+    back on master. Skill discipline was the only guard. v1.14.2
+    adds a hard precondition step 0 — parse `target_worktree` +
+    `target_branch` from the brief, compare against `$(pwd)` and
+    `git rev-parse --abbrev-ref HEAD`, exit-gate `cwd-mismatch` /
+    `branch-mismatch` before pick; trust-model gains a "never
+    operate outside the brief's declared worktree" bullet.
+    Recommended worktree layout codified: `<repo-root>/.agents/
+    worktrees/<branch-slug>` — inside-project, makes cwd-confusion
+    impossible when CC starts from repo root. **Observability (#38):**
+    `progress.txt` had a 20-minute silent gap between `brief-ok` and
+    next event, making "LLM thinking" indistinguishable from
+    "process dead". New `bin/autonomous-heartbeat.sh` writes a
+    `heartbeat` line per 60s wall-clock while the skill is alive,
+    killed via trap on EXIT; per-attempt `cycle-attempt C-id
+    attempt=N result=pass|fail` events plus per-cycle `cycle-done
+    C-id result=...` events add real-time progress. SKILL.md adds a
+    "Real-time view" subsection pointing at the CC session
+    transcript (`~/.claude/projects/<slug>/sessions/*.jsonl`) as
+    the authoritative live-view. **Handoff (#40):** the live drain
+    aborted mid-verification due to harness instability; skill
+    invented `exit-handoff` to gracefully hand state back to the
+    user (worktree changes preserved uncommitted, chat-output
+    recipe for manual cycle-split + gate-running). v1.14.2
+    formalises `exit-handoff` as a first-class non-error
+    termination with its own stop-conditions row and a Handoff
+    protocol section. Trust-model addition: never escalate
+    `exit-handoff` to `exit-error`. Together these unblock
+    tomorrow's #42 re-drain attempt with mechanical safety,
+    diagnosable progress, and a clean abort path.

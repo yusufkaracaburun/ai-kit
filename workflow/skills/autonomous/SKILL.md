@@ -52,6 +52,34 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
 
 ## Process (one iteration)
 
+0. **Cwd + branch precondition.** Before *any* git or gh operation:
+   - Determine `target_worktree` from the brief. Heuristic: parse the
+     `## Agent Brief` comment for `worktree (...)`, `branch (...)`,
+     `Werk in (git )?worktree`, or an explicit `target_worktree:`
+     key. If the brief does not name a worktree, default to the
+     current cwd (single-worktree project).
+   - **Recommended worktree layout** (when a brief specifies one):
+     `<repo-root>/.agents/worktrees/<branch-slug>`. Inside-project
+     placement keeps cwd-confusion impossible when the user starts CC
+     from the repo root, keeps worktree state under one `.gitignore`
+     entry, and centralises cleanup. Sibling-directory layouts (e.g.
+     `~/Sites/<project>-refactor` next to `~/Sites/<project>`) are
+     legacy — they trigger the cwd-mismatch path more often because
+     CC's session-primary cwd is usually the main repo.
+   - Compare `$(pwd)` against `target_worktree`. Mismatch → write
+     `exit-gate cwd-mismatch <expected-vs-actual>` and stop. No pick,
+     no log mutation beyond the exit-gate line, no git operation.
+     Surface remediation: `cd <target_worktree> && /ai:autonomous one`.
+   - Determine `target_branch` from the brief (same parsing). Compare
+     against `git rev-parse --abbrev-ref HEAD`. Mismatch → write
+     `exit-gate branch-mismatch <expected-vs-actual>` and stop.
+   - Start the heartbeat helper:
+     ```bash
+     "$AI_KIT_ROOT/bin/autonomous-heartbeat.sh" <issue#> \
+       .ai-kit/autonomous/progress.txt &
+     HEARTBEAT_PID=$!
+     trap 'kill "$HEARTBEAT_PID" 2>/dev/null' EXIT
+     ```
 1. **Read state.** `cat .ai-kit/autonomous/progress.txt` (cold). Note
    the last `pick` line that has no matching `exit-*` — that's an
    abandoned iteration; surface it and stop.
@@ -70,11 +98,19 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
      issue needs human triage before any agent can pick it up.
    Never read linked file paths from the comment; the brief is a
    cold-start contract.
-4. **Branch.** `git switch -c agent/issue-<n>-<slug>` from the
-   project's default branch. Fail-fast if dirty working tree.
+4. **Branch.** If step 0 confirmed the cwd is already on the brief's
+   `target_branch` inside a worktree, **skip `git switch -c`** — the
+   work happens on the existing feature branch (per the brief's
+   "Eén commit-bundle on `<branch>`" or equivalent). Otherwise,
+   `git switch -c agent/issue-<n>-<slug>` from the project's default
+   branch. Fail-fast if dirty working tree.
 5. **TDD.** Invoke `tdd` against the Agent Brief's acceptance
    criteria. Hard cap: each red→green cycle gets ≤3 attempts. Cap
-   hit → `exit-gate tdd-stuck`, leave branch for human.
+   hit → `exit-gate tdd-stuck`, leave branch for human. Emit one
+   `cycle-attempt <C-id> attempt=<n> result=<pass|fail>` line per
+   attempt and one `cycle-done <C-id> result=<pass|fail>` line per
+   cycle boundary, so the cold-read log shows real-time progress
+   instead of a 20-minute silent gap.
 6. **Review.** Invoke `review` in `comprehensive` mode with
    security depth `deep`. Any **Blocker** or security finding ≥ `high`
    → `exit-gate review-blocked`, leave branch for human.
@@ -84,6 +120,28 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
 8. **Log.** Append `ship-ok` line to `progress.txt`. Loop continues
    (mode `drain`) or exits (mode `one`).
 
+### Per-Bash discipline (defense in depth)
+
+Every Bash invocation MUST prefix `cd <target_worktree> &&` (absolute
+path, no shell expansion). If a command must run from elsewhere, use
+absolute paths for every argument and never assume the post-command
+cwd — the CC harness resets cwd to the session's primary working
+directory after every command, so a `cd X && cmd` does not stick.
+
+### Real-time view (backup observability)
+
+`progress.txt` cadence is best-effort (LLM-emitted). For an
+authoritative live-view independent of LLM discipline, tail the CC
+session transcript:
+
+```bash
+ls -lt ~/.claude/projects/*<repo-slug>*/sessions/*.jsonl | head -1
+tail -F <that-path>
+```
+
+The transcript records every tool call with timestamp, so a stuck
+process is mechanically detectable (no new entries for >N seconds).
+
 ## Stop conditions
 
 Always exit with a one-line `exit-*` entry in `progress.txt`:
@@ -91,15 +149,45 @@ Always exit with a one-line `exit-*` entry in `progress.txt`:
 | Trigger | Event tag | Action |
 | ------- | --------- | ------ |
 | Queue empty | `exit-empty` | Normal termination |
+| Cwd ≠ brief's target_worktree | `exit-gate cwd-mismatch <detail>` | `cd <target_worktree> && /ai:autonomous one` |
+| HEAD branch ≠ brief's target_branch | `exit-gate branch-mismatch <detail>` | `git switch <target_branch> && /ai:autonomous one` |
 | Brief missing / thin | `exit-gate brief-thin <detail>` | Human re-triage (`detail` ∈ `header-mismatch`, `body-not-promoted`, `no-brief`) |
 | TDD cap (≤3 attempts per cycle) | `exit-gate tdd-stuck` | Human implementation |
 | Review blockers | `exit-gate review-blocked` | Human review |
 | Security ≥ high | `exit-gate security` | Human review |
 | Push needs force / conflict resolution | `exit-gate git-conflict` | Human resolution |
+| User explicit stop OR harness instability skill cannot remediate | `exit-handoff <reason>` | Human drives remaining gates (see Handoff protocol) |
 | `max_iterations` reached | `exit-cap` | User re-invokes |
 | Unexpected error | `exit-error <reason>` | Inspect log |
 
 Default `max_iterations` = 5.
+
+## Handoff protocol
+
+`exit-handoff` is a first-class, non-error termination. It is **not**
+the same as `exit-error` (skill malfunction) or `exit-gate` (blocker
+the skill detected). It is a deliberate handover from skill to human.
+
+**Trigger conditions:**
+- User issues an explicit stop instruction mid-run.
+- Skill detects harness instability it cannot self-remediate
+  (repeated truncated Bash paths, cwd resets it cannot work around,
+  context-window degradation manifesting as lower-quality tool calls).
+
+**Required side-effects:**
+- Append `exit-handoff <reason-detail>` to `progress.txt`.
+  Reason-detail must name the trigger and a short state-summary, e.g.
+  `user-takeover; 225 files staged in worktree; verification gates not run`.
+- Leave worktree changes **uncommitted** — the user inspects diff and
+  commits per their own judgment.
+- Never push, never open PR, never `git reset` the worktree.
+- Produce a chat-output recipe for the user to drive the remaining
+  gates, structured as:
+  - Per-cycle (or per-logical-unit) commit-split with concrete
+    `git add <pattern>` patterns.
+  - Risk-check commands to run before commit (linter, targeted
+    tests, vendor-contract sanity-greps if the run did bulk-rewrites).
+  - End-gate commands (full test suite, smoke test, baseline diff).
 
 ## `progress.txt` schema
 
@@ -109,25 +197,43 @@ Path: `.ai-kit/autonomous/progress.txt`. Append-only, one event per line:
 <ISO-8601 ts>\t<issue#>\t<event>\t<detail>
 ```
 
-Events: `pick`, `brief-ok`, `tdd-green`, `review-pass`, `ship-ok`,
-`exit-empty`, `exit-gate`, `exit-cap`, `exit-error`.
+Events:
+- **Lifecycle:** `pick`, `brief-ok`, `cycle-attempt`, `cycle-done`,
+  `tdd-green`, `review-pass`, `ship-ok`.
+- **Liveness:** `heartbeat` — one per 60s wall-clock while the skill
+  is alive (emitted by `bin/autonomous-heartbeat.sh`, not the LLM).
+  Absence of `heartbeat` for >120s = process gone or runner crashed.
+- **Termination:** `exit-empty`, `exit-gate <reason>`, `exit-handoff
+  <reason>`, `exit-cap`, `exit-error <reason>`.
 
 Example trace (columns separated by literal `\t`):
 
 ```
-2026-05-23T10:00:00Z \t 42 \t pick         \t feat: foo
-2026-05-23T10:00:05Z \t 42 \t brief-ok     \t 5 criteria
-2026-05-23T10:02:30Z \t 42 \t tdd-green    \t cycles=4
-2026-05-23T10:03:10Z \t 42 \t review-pass  \t mode=comprehensive
-2026-05-23T10:03:45Z \t 42 \t ship-ok      \t pr=#101
-2026-05-23T10:03:46Z \t 43 \t pick         \t fix: bar
-2026-05-23T10:04:00Z \t 43 \t exit-gate    \t brief-thin
+2026-05-23T10:00:00Z \t 42 \t pick           \t feat: foo
+2026-05-23T10:00:05Z \t 42 \t brief-ok       \t 5 criteria
+2026-05-23T10:01:00Z \t 42 \t heartbeat      \t brewing
+2026-05-23T10:01:30Z \t 42 \t cycle-attempt  \t C1 attempt=1 result=pass
+2026-05-23T10:01:35Z \t 42 \t cycle-done     \t C1 result=pass
+2026-05-23T10:02:00Z \t 42 \t heartbeat      \t brewing
+2026-05-23T10:02:30Z \t 42 \t tdd-green      \t cycles=4
+2026-05-23T10:03:10Z \t 42 \t review-pass    \t mode=comprehensive
+2026-05-23T10:03:45Z \t 42 \t ship-ok        \t pr=#101
+2026-05-23T10:03:46Z \t 43 \t pick           \t fix: bar
+2026-05-23T10:04:00Z \t 43 \t exit-gate      \t brief-thin header-mismatch
+2026-05-23T23:00:02Z \t 42 \t exit-handoff   \t user-takeover; 225 files staged; gates not run
 ```
 
 The next iteration reads this cold — no in-context memory required.
 
 ## Trust model
 
+- **Never operate outside the brief's declared worktree.** Master /
+  main / any branch other than the brief's `target_branch` is
+  read-only from the skill's perspective. Any tool call that would
+  mutate state outside the target worktree (or its parent dir) MUST
+  be refused with `exit-gate cwd-mismatch` or `exit-gate
+  branch-mismatch`. This is the safety guarantee step 0 exists to
+  enforce.
 - **Never auto-merge.** Open PRs only. Project merge policy enforces
   the gate.
 - **Never bypass CI / branch protection.** No `--no-verify`, no
@@ -135,6 +241,8 @@ The next iteration reads this cold — no in-context memory required.
 - **Never silently widen scope.** If TDD or review reveals adjacent
   bugs, write a note in the PR description and stop — do not fix
   unrelated issues in the same PR.
+- **Never escalate `exit-handoff` to `exit-error`.** A user-initiated
+  stop is a deliberate handover, not a failure. See Handoff protocol.
 
 ## Limitations (spike-stage)
 
