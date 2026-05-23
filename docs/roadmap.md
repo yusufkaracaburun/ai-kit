@@ -212,16 +212,20 @@ in priority order:
    via `/should-i-use` 2026-05-23 was **adopt-as-pattern** — the
    mapping tables, not the upstream skill itself, were the reusable
    artifact.
-6. **Spike: autonomous-loop variant of `aikit-tdd`** (#17) — Ralph pattern.
-   A new skill (working title `aikit-autonomous` / `aikit-grind`) that
-   loops over ready-for-AFK issues with fresh-instance-per-story +
-   persistent `progress.txt` + git-log-as-memory, the way
-   `snarktank/ralph` (19.4k ⭐) and Geoffrey Huntley's original Ralph
-   pattern work. Verdict via `/should-i-use` 2026-05-23: package itself
-   = **ignore** (overlaps `aikit-to-prd` + `aikit-to-issues` +
-   `aikit-tdd`); pattern = **adopt-as-pattern** if ai-kit ever decides
-   to ship an autonomous-runner. Philosophical shift, not a feature add
-   — worth a spike before committing.
+6. **Spike: autonomous-loop variant of `aikit-tdd`** — landed
+   2026-05-23 (#17). See
+   [docs/spikes/aikit-autonomous-ralph.md](spikes/aikit-autonomous-ralph.md).
+   Verdict: ship as a **sibling skill** (`aikit-autonomous`), not a
+   flag on existing skills and not a separate plugin. **Complementary,
+   not competing** with `/loop` — `/loop` is the scheduler,
+   `aikit-autonomous` is the worker (one issue per fire, exits clean).
+   Draft skill landed at `workflow/skills/aikit-autonomous/SKILL.md`
+   with `dry-run` as default mode, explicit stop conditions (TDD cap,
+   review blockers, security ≥ high, git conflicts), and
+   `.ai-kit/autonomous/progress.txt` as cold-start state. **Not wired
+   into `aikit-setup`** — opt-in, hand-installed during validation
+   period. Promotion from spike → released gated on first successful
+   real-queue drain (currently 0 issues labeled `ready-for-agent`).
 7. **Brainstorm: second plugin under `yusufkaracaburun/marketplace`** (#15).
    Parking lot for picking plugin #2 now that the standalone marketplace
    is live (#9). Marketplace shape only pays off at N ≥ 2. Candidate
