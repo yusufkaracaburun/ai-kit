@@ -38,7 +38,7 @@ curl -fsSL https://raw.githubusercontent.com/yusufkaracaburun/ai-kit/master/inst
 ```
 
 - **Project-only** (no machine-wide symlinks): append `-s -- --no-global` to `bash`.
-- **Pin a release**: `… | AI_KIT_REF=v1.2.0 bash`.
+- **Pin a release**: `… | AI_KIT_REF=v1.0.0 bash`.
 - **Update later**: `~/.local/share/ai-kit/install.sh --update`.
 
 **Are you an AI agent doing the install?** Follow [docs/install-for-agents.md](docs/install-for-agents.md) — a self-contained prompt with detection, verification, and reporting steps.
