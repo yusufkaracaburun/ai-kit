@@ -1,7 +1,6 @@
 ---
 name: aikit-setup
-description: Stack-agnostic ai-kit onboarding — one setup-mode question, fast Tier-A path by default, optional full branches for Docker, tracker, domain, architecture, Sandcastle. Claude Code and Cursor.
-disable-model-invocation: true
+description: Stack-agnostic ai-kit onboarding — one setup-mode question, fast Tier-A path by default, optional full branches for Docker, tracker, domain, architecture, Sandcastle. Claude Code and Cursor. Use when the user wants to install ai-kit in a repo, set up ai-kit, onboard a project to ai-kit, re-run setup to extend Tier A → Tier B, or invokes `/aikit-setup`. Re-runs idempotently — the `.ai-kit-setup` marker triggers keep/change/skip per branch instead of overwriting.
 ---
 
 # Setup (ai-kit)
