@@ -1066,6 +1066,87 @@ OUT_CD_NODOCS="$(echo "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$
 assert "context-drift silent when no docs exist" '[ -z "$OUT_CD_NODOCS" ]'
 rm -rf "$CD_NODOCS"
 
+# Path-pattern triggers — #26 Tier 1. The new code path nudges on edits to
+# stack-conventional locations (Laravel models, migrations, policies, etc.)
+# even when the file is not yet named in any tracked doc, with a per-category
+# reminder message.
+echo ""
+echo "=== hook: context-drift path-pattern triggers ==="
+CD_PP=$(mktemp -d)
+mkdir -p "$CD_PP/app/Models" "$CD_PP/database/migrations" "$CD_PP/database/seeders" \
+         "$CD_PP/app/Policies" "$CD_PP/routes"
+touch "$CD_PP/app/Models/User.php" \
+      "$CD_PP/database/migrations/2026_01_01_create_users.php" \
+      "$CD_PP/database/seeders/UserSeeder.php" \
+      "$CD_PP/app/Policies/PostPolicy.php" \
+      "$CD_PP/routes/web.php"
+
+OUT_PP_MODEL="$(echo "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$CD_PP/app/Models/User.php\"}}" | CLAUDE_PROJECT_DIR="$CD_PP" "$CD_HOOK")"
+assert "path-pattern: model edit fires drift nudge" 'echo "$OUT_PP_MODEL" | grep -q "context-drift (model)"'
+assert "path-pattern: model reminder mentions model docs" 'echo "$OUT_PP_MODEL" | grep -q "model wijziging"'
+
+OUT_PP_MIG="$(echo "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$CD_PP/database/migrations/2026_01_01_create_users.php\"}}" | CLAUDE_PROJECT_DIR="$CD_PP" "$CD_HOOK")"
+assert "path-pattern: migration fires" 'echo "$OUT_PP_MIG" | grep -q "context-drift (migration)"'
+assert "path-pattern: migration reminder differs from model" 'echo "$OUT_PP_MIG" | grep -q "stale schema-refs"'
+
+OUT_PP_SEED="$(echo "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$CD_PP/database/seeders/UserSeeder.php\"}}" | CLAUDE_PROJECT_DIR="$CD_PP" "$CD_HOOK")"
+assert "path-pattern: seeder fires with persona-drift reminder" 'echo "$OUT_PP_SEED" | grep -q "persona-drift"'
+
+OUT_PP_POL="$(echo "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$CD_PP/app/Policies/PostPolicy.php\"}}" | CLAUDE_PROJECT_DIR="$CD_PP" "$CD_HOOK")"
+assert "path-pattern: policy fires with authorisatie reminder" 'echo "$OUT_PP_POL" | grep -q "authorisatie-policy"'
+
+OUT_PP_ROUTE="$(echo "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$CD_PP/routes/web.php\"}}" | CLAUDE_PROJECT_DIR="$CD_PP" "$CD_HOOK")"
+assert "path-pattern: route fires with route reminder" 'echo "$OUT_PP_ROUTE" | grep -q "route-definitie"'
+
+# Silent on unrelated path even without any tracked docs present — the
+# path-pattern code path must not nudge on every edit.
+mkdir -p "$CD_PP/src/components"
+touch "$CD_PP/src/components/Header.tsx"
+OUT_PP_NONE="$(echo "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$CD_PP/src/components/Header.tsx\"}}" | CLAUDE_PROJECT_DIR="$CD_PP" "$CD_HOOK")"
+assert "path-pattern: silent on non-matching path" '[ -z "$OUT_PP_NONE" ]'
+
+# JSON shape still valid when path-pattern path is the only firer.
+assert "path-pattern: emits valid JSON" 'echo "$OUT_PP_MODEL" | python3 -c "import json,sys; json.load(sys.stdin)"'
+rm -rf "$CD_PP"
+
+# Project override — .ai-kit/drift-triggers.json replaces built-in defaults.
+CD_OV=$(mktemp -d)
+mkdir -p "$CD_OV/.ai-kit" "$CD_OV/lib/custom"
+touch "$CD_OV/lib/custom/widget.ts"
+cat > "$CD_OV/.ai-kit/drift-triggers.json" <<'EOF'
+{
+  "triggers": [
+    { "pattern": "lib/custom/", "category": "widget" }
+  ],
+  "messages": {
+    "widget": "widget gewijzigd — bijwerk widget-catalogus"
+  }
+}
+EOF
+OUT_OV="$(echo "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$CD_OV/lib/custom/widget.ts\"}}" | CLAUDE_PROJECT_DIR="$CD_OV" "$CD_HOOK")"
+assert "override: project triggers fire" 'echo "$OUT_OV" | grep -q "context-drift (widget)"'
+assert "override: project reminder text used" 'echo "$OUT_OV" | grep -q "widget-catalogus"'
+
+# Override REPLACES built-ins — a Laravel-shaped path should NOT fire when
+# the override is in effect.
+mkdir -p "$CD_OV/app/Models"
+touch "$CD_OV/app/Models/User.php"
+OUT_OV_LARAVEL="$(echo "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$CD_OV/app/Models/User.php\"}}" | CLAUDE_PROJECT_DIR="$CD_OV" "$CD_HOOK")"
+assert "override: built-in triggers suppressed" '[ -z "$OUT_OV_LARAVEL" ]'
+rm -rf "$CD_OV"
+
+# Combined firing — both literal-doc path AND path-pattern can fire on the
+# same edit; both messages should appear.
+CD_COMB=$(mktemp -d)
+mkdir -p "$CD_COMB/app/Models"
+echo "code" > "$CD_COMB/app/Models/User.php"
+echo "The User model in app/Models/User.php is central to auth." > "$CD_COMB/CONTEXT.md"
+OUT_COMB="$(echo "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$CD_COMB/app/Models/User.php\"}}" | CLAUDE_PROJECT_DIR="$CD_COMB" "$CD_HOOK")"
+assert "combined: literal-doc match still fires" 'echo "$OUT_COMB" | grep -q "CONTEXT.md"'
+assert "combined: path-pattern match also fires" 'echo "$OUT_COMB" | grep -q "context-drift (model)"'
+assert "combined: emits valid JSON" 'echo "$OUT_COMB" | python3 -c "import json,sys; json.load(sys.stdin)"'
+rm -rf "$CD_COMB"
+
 echo ""
 echo "=== apply-context-drift-hook ==="
 TMP_CDH=$(mktemp -d)
