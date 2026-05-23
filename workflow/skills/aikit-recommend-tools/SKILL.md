@@ -1,6 +1,6 @@
 ---
 name: aikit-recommend-tools
-description: Recommend and wire optional companion tools (graphify, caveman, llm-wiki) into the current project — external tools and patterns ai-kit configures but does not vendor. Use when the user asks "should I add graphify, caveman, or a self-maintaining wiki", "set up companion tools", "optimize my AI setup further", "fewer tokens", or after /aikit-setup to layer extra capability.
+description: Recommend optional companion tools (graphify, caveman, llm-wiki) and stack-specific runtime helpers — MCP servers + Claude Code hooks — for the current project. ai-kit writes integration glue, never auto-installs. Use when the user asks "should I add graphify / caveman / a self-maintaining wiki", "which MCP servers fit this stack", "any hooks I should turn on", "set up companion tools", "fewer tokens", or after /aikit-setup to layer extra capability.
 ---
 
 Recommend and wire **companion tools** for this project — external AI-productivity tools that sit alongside ai-kit's lifecycle skills. ai-kit configures them; it never vendors or auto-installs them. Same trust model as `aikit-recommend-rules`: surface, let the user choose, wire only what they pick.
@@ -77,10 +77,71 @@ End by reporting:
 
 If a file edit or merge failed, say so. Never report a tool wired when its glue is not on disk.
 
+## Extended: MCP servers + Claude Code hooks
+
+A separate, deterministic recommender lifts stack-signal → MCP-server and
+stack-signal → hook-recipe tables from upstream Anthropic reference
+material (provenance-pinned in `standards/external/`). It scores them
+against the same `detect-tooling.sh` output that drives
+`/aikit-recommend-rules`, so the suggestions are reproducible and never
+guessed.
+
+### When to surface
+
+Add this layer when the user wants more than companion tools:
+
+- "Which MCP servers fit this project?"
+- "Any hooks I should turn on?"
+- After the companions phase, when the user is willing to spend a few
+  more minutes hardening the setup.
+
+### Run the scorer
+
+```bash
+"$AI_KIT_ROOT"/bin/recommend-tools.sh <project-path>           # ranked table
+"$AI_KIT_ROOT"/bin/recommend-tools.sh <project-path> --json    # machine-readable
+"$AI_KIT_ROOT"/bin/recommend-tools.sh <project-path> --kind mcp
+"$AI_KIT_ROOT"/bin/recommend-tools.sh <project-path> --kind hook
+```
+
+Output rows: `name`, `score`, `category`, `kind` (`mcp`|`hook`), `reason`.
+Higher score = stronger signal. Universal hooks (env/lockfile protection,
+notification alerts) always score 1; framework / file / git-remote matches
+push the score up.
+
+### Surface — never wire silently
+
+Present the ranked list grouped by `kind`. For each entry show: `name`,
+`category`, `score`, and the one-line `reason`. Then ask the user which
+to wire. Same trust posture as `/aikit-recommend-rules`:
+
+- **MCP servers:** never auto-install. Walk the user through their
+  preferred install path (`.mcp.json` checked in, `~/.claude.json`
+  global, or interactive `claude mcp add`). ai-kit does not vendor MCP
+  server code.
+- **Hooks:** never write to `.claude/settings.json` without an explicit
+  yes per hook. When the user approves a hook, generate a minimal
+  recipe matching the entry's `event` + `matcher` and merge into the
+  project's `.claude/settings.json` `hooks` block — preserve any
+  existing entries.
+- **No web search.** This phase is fully deterministic from the
+  vendored tables. If the user wants MCP servers / hooks beyond what is
+  vendored, they can extend `standards/external/*.json` and re-vendor
+  with provenance (source URL, license, pinned SHA).
+
+### Re-vendoring the tables
+
+The two vendored tables under `standards/external/` carry the upstream
+SHA pin in `_meta`. Refresh them only with explicit user confirmation —
+fetch the new content from the pinned source repo, replace the file,
+bump `pinned_sha` + `vendored_at`. Treat them as ai-kit ships them; do
+not silently fetch new upstream content during a run.
+
 ## Trust model
 
-- **Never vendor.** ai-kit does not copy graphify or caveman source into the repo. They install from their own upstreams; ai-kit writes only the glue. For llm-wiki, ai-kit ships its own schema adapting a public pattern (Karpathy's `llm-wiki.md`) — it vendors no upstream repo.
+- **Never vendor the tool itself.** ai-kit does not copy graphify or caveman source into the repo, and does not include MCP server source. They install from their own upstreams; ai-kit writes only the glue. For llm-wiki, ai-kit ships its own schema adapting a public pattern (Karpathy's `llm-wiki.md`) — it vendors no upstream repo. The only things ai-kit vendors are the **signal → recommendation tables** under `standards/external/`, with provenance frontmatter.
 - **llm-wiki: `raw/` is the user's, `wiki/` is the agent's.** The agent never edits or deletes anything under `raw/`.
 - **Never auto-install** the tool itself — surface the install pointer, the user runs it.
 - **caveman is never a default.** Opt-in only; the agent must not start compressing output unprompted.
 - The graphify hook is additive context only — it cannot block a tool call, only suggest.
+- **MCP / hook recommendations are suggestions, not installs.** The scorer ranks; the user picks per entry; only then is anything written.

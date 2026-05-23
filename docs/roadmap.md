@@ -200,14 +200,18 @@ in priority order:
    (override with `--label`), target section is the last `## What's
    next`, local-only mode appends the roadmap entry when `gh` is
    unavailable.
-5. **Lift the stack → MCP / hook mapping tables** (#14) from Anthropic's
-   `claude-code-setup:claude-automation-recommender` (read-only recommender
-   skill) into ai-kit. Reference docs there contain dense "if codebase
-   signal X then recommend MCP server / hook Y" tables that the
-   `aikit-recommend-tools` skill could mine — same shape as
-   `aikit-recommend-rules`, but for the runtime side (MCP + hooks).
-   Verdict via `/should-i-use` 2026-05-23: **adopt-as-pattern**, not
-   install — direct adoption would overlap and lower cohesion.
+5. **Stack → MCP / hook recommendations** — landed 2026-05-23 (#14).
+   `standards/external/{mcp-servers,hooks-patterns}.json` vendor the
+   distilled signal tables from
+   `anthropics/claude-plugins-official @ claude-code-setup/skills/claude-automation-recommender`
+   (Apache-2.0, pinned SHA `3449c10c`). `bin/recommend-tools.sh` scores
+   them against `detect-tooling.sh` output and file presence; the
+   `aikit-recommend-tools` skill surfaces the ranked list with the same
+   trust model as `/aikit-recommend-rules` (never auto-install, never
+   write `.claude/settings.json` without per-hook approval). Verdict
+   via `/should-i-use` 2026-05-23 was **adopt-as-pattern** — the
+   mapping tables, not the upstream skill itself, were the reusable
+   artifact.
 6. **Spike: autonomous-loop variant of `aikit-tdd`** (#17) — Ralph pattern.
    A new skill (working title `aikit-autonomous` / `aikit-grind`) that
    loops over ready-for-AFK issues with fresh-instance-per-story +

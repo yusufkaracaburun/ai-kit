@@ -1,0 +1,149 @@
+{
+  "_meta": {
+    "title": "MCP server recommendations — stack signal → server map",
+    "derived_from": "anthropics/claude-plugins-official @ plugins/claude-code-setup/skills/claude-automation-recommender/references/mcp-servers.md",
+    "source_url": "https://github.com/anthropics/claude-plugins-official/blob/3449c10cd1f254c2529a4a7e96a094ef118a00a5/plugins/claude-code-setup/skills/claude-automation-recommender/references/mcp-servers.md",
+    "source_license": "Apache-2.0",
+    "pinned_sha": "3449c10cd1f254c2529a4a7e96a094ef118a00a5",
+    "vendored_at": "2026-05-23",
+    "notes": "Derivative work — distilled from the upstream markdown into a structured signal→recommendation table for ai-kit's recommend-tools scorer. Re-vendor (refresh pin + content) only with explicit user confirmation."
+  },
+  "recommendations": [
+    {
+      "name": "context7",
+      "category": "documentation",
+      "best_for": "Projects using popular libraries/SDKs where Claude should code against up-to-date docs",
+      "value": "Live documentation lookups instead of relying on training data — reduces hallucinated APIs and outdated patterns.",
+      "signals": {
+        "frameworks": ["react", "vue", "angular", "nextjs", "nuxt", "svelte", "express", "fastify", "fastapi", "django", "rails", "laravel", "spring"],
+        "dependencies": ["@anthropic-ai/sdk", "openai", "langchain", "@aws-sdk/", "prisma", "drizzle-orm"]
+      }
+    },
+    {
+      "name": "playwright",
+      "category": "browser",
+      "best_for": "Frontend projects needing browser automation, testing, or screenshots",
+      "value": "Claude can interact with the running app, take screenshots, fill forms, verify UI.",
+      "signals": {
+        "architectures": ["react", "vue", "angular", "nextjs", "nuxt", "svelte"],
+        "frameworks": ["react", "vue", "angular", "nextjs", "nuxt", "svelte"],
+        "files": ["playwright.config.ts", "playwright.config.js"]
+      }
+    },
+    {
+      "name": "puppeteer",
+      "category": "browser",
+      "best_for": "Headless browser automation, web scraping",
+      "value": "PDF generation, scraping, headless CI tests.",
+      "signals": {
+        "dependencies": ["puppeteer", "puppeteer-core"]
+      }
+    },
+    {
+      "name": "supabase",
+      "category": "database",
+      "best_for": "Projects using Supabase for backend/database",
+      "value": "Query tables, manage auth, interact with Supabase storage directly.",
+      "signals": {
+        "dependencies": ["@supabase/supabase-js", "@supabase/auth-helpers-nextjs"],
+        "files": ["supabase/config.toml"]
+      }
+    },
+    {
+      "name": "postgresql",
+      "category": "database",
+      "best_for": "Direct PostgreSQL database access (no ORM, raw migrations, data analysis)",
+      "value": "Inspect schema, run queries, debug data issues directly.",
+      "signals": {
+        "dependencies": ["pg", "postgres", "psycopg2", "psycopg2-binary"],
+        "files": ["postgresql.conf"]
+      }
+    },
+    {
+      "name": "github",
+      "category": "vcs",
+      "best_for": "GitHub-hosted repos needing issue/PR integration",
+      "value": "Create issues, review PRs, check workflow runs, manage releases.",
+      "signals": {
+        "git_remote_host": ["github.com"],
+        "files": [".github/workflows"]
+      }
+    },
+    {
+      "name": "gitlab",
+      "category": "vcs",
+      "best_for": "GitLab-hosted repositories",
+      "signals": {
+        "git_remote_host": ["gitlab.com"],
+        "files": [".gitlab-ci.yml"]
+      }
+    },
+    {
+      "name": "linear",
+      "category": "issues",
+      "best_for": "Teams using Linear for issue tracking",
+      "signals": {
+        "dependencies": ["@linear/sdk"]
+      }
+    },
+    {
+      "name": "aws",
+      "category": "cloud",
+      "best_for": "AWS infrastructure management",
+      "signals": {
+        "dependencies": ["@aws-sdk/", "boto3", "aws-sdk"],
+        "files": ["cdk.json", "samconfig.toml", "serverless.yml"]
+      }
+    },
+    {
+      "name": "cloudflare",
+      "category": "cloud",
+      "best_for": "Cloudflare Workers, Pages, R2, D1",
+      "signals": {
+        "dependencies": ["@cloudflare/workers-types", "wrangler"],
+        "files": ["wrangler.toml", "wrangler.jsonc"]
+      }
+    },
+    {
+      "name": "vercel",
+      "category": "cloud",
+      "best_for": "Vercel deployment and configuration",
+      "signals": {
+        "files": ["vercel.json"]
+      }
+    },
+    {
+      "name": "sentry",
+      "category": "observability",
+      "best_for": "Error tracking and debugging",
+      "value": "Investigate Sentry issues, find root causes, suggest fixes.",
+      "signals": {
+        "dependencies": ["@sentry/", "sentry-sdk", "sentry/sentry-laravel"]
+      }
+    },
+    {
+      "name": "slack",
+      "category": "communication",
+      "best_for": "Slack workspace integration — notifications, deploy alerts, incident posts",
+      "signals": {
+        "dependencies": ["@slack/web-api", "slack-sdk", "slack_sdk"]
+      }
+    },
+    {
+      "name": "docker",
+      "category": "containers",
+      "best_for": "Container management — Compose, builds, debug",
+      "signals": {
+        "files": ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
+      }
+    },
+    {
+      "name": "kubernetes",
+      "category": "containers",
+      "best_for": "Kubernetes cluster management",
+      "signals": {
+        "files": ["Chart.yaml", "k8s/", "kustomization.yaml"]
+      }
+    }
+  ]
+}

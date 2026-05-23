@@ -317,6 +317,34 @@ assert "recommend: score is integer" 'echo "$JSON_REC" | python3 -c "import json
 assert "recommend: results sorted desc" 'echo "$JSON_REC" | python3 -c "import json,sys; d=json.load(sys.stdin); s=[r[\"score\"] for r in d[\"recommendations\"]]; assert s == sorted(s, reverse=True)"'
 rm -rf "$REC_TMP"
 
+echo ""
+echo "=== recommend-tools ==="
+TOOLS_TMP=$(mktemp -d)
+cp -R "$AIKIT/tests/fixtures/architecture-laravel/." "$TOOLS_TMP/"
+touch "$TOOLS_TMP/pint.json" "$TOOLS_TMP/.env"
+JSON_TOOLS="$("$AIKIT/bin/recommend-tools.sh" "$TOOLS_TMP" --json)"
+assert "recommend-tools: context7 surfaced (laravel framework match)" 'echo "$JSON_TOOLS" | grep -q "\"name\": \"context7\""'
+assert "recommend-tools: laravel-pint surfaced (file + framework)" 'echo "$JSON_TOOLS" | grep -q "\"name\": \"laravel-pint\""'
+assert "recommend-tools: block-env-edits surfaced (.env present)" 'echo "$JSON_TOOLS" | grep -q "\"name\": \"block-env-edits\""'
+assert "recommend-tools: score is integer" 'echo "$JSON_TOOLS" | python3 -c "import json,sys; d=json.load(sys.stdin); assert all(isinstance(r[\"score\"], int) for r in d[\"recommendations\"])"'
+assert "recommend-tools: kind in {mcp,hook}" 'echo "$JSON_TOOLS" | python3 -c "import json,sys; d=json.load(sys.stdin); assert all(r[\"kind\"] in (\"mcp\",\"hook\") for r in d[\"recommendations\"])"'
+assert "recommend-tools: sorted desc by score" 'echo "$JSON_TOOLS" | python3 -c "import json,sys; d=json.load(sys.stdin); s=[r[\"score\"] for r in d[\"recommendations\"]]; assert s == sorted(s, reverse=True)"'
+
+JSON_MCP="$("$AIKIT/bin/recommend-tools.sh" "$TOOLS_TMP" --json --kind mcp)"
+assert "recommend-tools --kind mcp: only mcp" 'echo "$JSON_MCP" | python3 -c "import json,sys; d=json.load(sys.stdin); assert all(r[\"kind\"]==\"mcp\" for r in d[\"recommendations\"]) and len(d[\"recommendations\"])>0"'
+
+JSON_HOOK="$("$AIKIT/bin/recommend-tools.sh" "$TOOLS_TMP" --json --kind hook)"
+assert "recommend-tools --kind hook: only hooks" 'echo "$JSON_HOOK" | python3 -c "import json,sys; d=json.load(sys.stdin); assert all(r[\"kind\"]==\"hook\" for r in d[\"recommendations\"]) and len(d[\"recommendations\"])>0"'
+rm -rf "$TOOLS_TMP"
+
+EMPTY_TMP=$(mktemp -d)
+JSON_EMPTY="$("$AIKIT/bin/recommend-tools.sh" "$EMPTY_TMP" --json)"
+assert "recommend-tools empty stack: universal hooks still surfaced" 'echo "$JSON_EMPTY" | grep -q "\"name\": \"block-lockfile-edits\""'
+assert "recommend-tools empty stack: no MCP recs (nothing to match)" 'echo "$JSON_EMPTY" | python3 -c "import json,sys; d=json.load(sys.stdin); assert all(r[\"kind\"]==\"hook\" for r in d[\"recommendations\"])"'
+rm -rf "$EMPTY_TMP"
+
+assert "recommend-tools: rejects unknown --kind" '! "$AIKIT/bin/recommend-tools.sh" "$AIKIT" --kind bogus >/dev/null 2>&1'
+
 TMP_LINK=$(mktemp -d)
 "$AIKIT/bin/bootstrap-project.sh" --minimal --link-all "$TMP_LINK"
 assert "link-all .claude symlink" '[ -L "$TMP_LINK/.claude/skills" ]'

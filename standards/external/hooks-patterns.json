@@ -1,0 +1,178 @@
+{
+  "_meta": {
+    "title": "Claude Code hook recommendations — stack signal → hook recipe",
+    "derived_from": "anthropics/claude-plugins-official @ plugins/claude-code-setup/skills/claude-automation-recommender/references/hooks-patterns.md",
+    "source_url": "https://github.com/anthropics/claude-plugins-official/blob/3449c10cd1f254c2529a4a7e96a094ef118a00a5/plugins/claude-code-setup/skills/claude-automation-recommender/references/hooks-patterns.md",
+    "source_license": "Apache-2.0",
+    "pinned_sha": "3449c10cd1f254c2529a4a7e96a094ef118a00a5",
+    "vendored_at": "2026-05-23",
+    "notes": "Derivative work — distilled from upstream markdown into a structured detection→hook recipe table for ai-kit's recommend-tools scorer. Re-vendor (refresh pin + content) only with explicit user confirmation."
+  },
+  "recommendations": [
+    {
+      "name": "prettier-format",
+      "category": "formatter",
+      "event": "PostToolUse",
+      "matcher": "Edit|Write",
+      "best_for": "Auto-format JS/TS on save",
+      "value": "Code stays formatted without thinking about it",
+      "signals": {
+        "files": [".prettierrc", ".prettierrc.json", ".prettierrc.yml", "prettier.config.js", "prettier.config.mjs"]
+      }
+    },
+    {
+      "name": "eslint-fix",
+      "category": "linter",
+      "event": "PostToolUse",
+      "matcher": "Edit|Write",
+      "best_for": "Auto-fix lint errors on save (JS/TS)",
+      "signals": {
+        "files": [".eslintrc", ".eslintrc.json", ".eslintrc.js", "eslint.config.js", "eslint.config.mjs"]
+      }
+    },
+    {
+      "name": "black-isort",
+      "category": "formatter",
+      "event": "PostToolUse",
+      "matcher": "Edit|Write",
+      "best_for": "Format Python with black + isort",
+      "signals": {
+        "files": ["pyproject.toml", ".black", "setup.cfg"],
+        "frameworks": ["django", "fastapi", "flask"]
+      }
+    },
+    {
+      "name": "ruff",
+      "category": "linter",
+      "event": "PostToolUse",
+      "matcher": "Edit|Write",
+      "best_for": "Modern Python lint + format (faster than black/isort)",
+      "signals": {
+        "files": ["ruff.toml", ".ruff.toml"]
+      }
+    },
+    {
+      "name": "gofmt",
+      "category": "formatter",
+      "event": "PostToolUse",
+      "matcher": "Edit|Write",
+      "best_for": "Standard Go formatting",
+      "signals": {
+        "files": ["go.mod"]
+      }
+    },
+    {
+      "name": "rustfmt",
+      "category": "formatter",
+      "event": "PostToolUse",
+      "matcher": "Edit|Write",
+      "best_for": "Standard Rust formatting",
+      "signals": {
+        "files": ["Cargo.toml"]
+      }
+    },
+    {
+      "name": "laravel-pint",
+      "category": "formatter",
+      "event": "PostToolUse",
+      "matcher": "Edit|Write",
+      "best_for": "PSR-12 PHP formatting via Laravel Pint",
+      "signals": {
+        "files": ["pint.json"],
+        "frameworks": ["laravel"]
+      }
+    },
+    {
+      "name": "tsc-check",
+      "category": "typecheck",
+      "event": "PostToolUse",
+      "matcher": "Edit|Write",
+      "best_for": "Catch type errors immediately after edits",
+      "signals": {
+        "files": ["tsconfig.json"]
+      }
+    },
+    {
+      "name": "mypy-pyright",
+      "category": "typecheck",
+      "event": "PostToolUse",
+      "matcher": "Edit|Write",
+      "best_for": "Python type checking",
+      "signals": {
+        "files": ["mypy.ini", "pyrightconfig.json"]
+      }
+    },
+    {
+      "name": "block-env-edits",
+      "category": "protection",
+      "event": "PreToolUse",
+      "matcher": "Edit|Write",
+      "best_for": "Prevent accidental edits to .env / secrets files",
+      "value": "Stops secret leakage and credential corruption",
+      "signals": {
+        "files": [".env", ".env.local", ".env.production", "credentials.json", "secrets.yaml"]
+      },
+      "universal": true
+    },
+    {
+      "name": "block-lockfile-edits",
+      "category": "protection",
+      "event": "PreToolUse",
+      "matcher": "Edit|Write",
+      "best_for": "Prevent direct edits to lock files (package manager owns them)",
+      "signals": {
+        "files": ["package-lock.json", "yarn.lock", "pnpm-lock.yaml", "Cargo.lock", "poetry.lock", "Pipfile.lock", "composer.lock"]
+      },
+      "universal": true
+    },
+    {
+      "name": "jest-related",
+      "category": "tests",
+      "event": "PostToolUse",
+      "matcher": "Edit|Write",
+      "best_for": "Run related Jest tests after a change",
+      "signals": {
+        "files": ["jest.config.js", "jest.config.ts"],
+        "dependencies": ["jest"]
+      }
+    },
+    {
+      "name": "pytest-related",
+      "category": "tests",
+      "event": "PostToolUse",
+      "matcher": "Edit|Write",
+      "best_for": "Run pytest on changed files",
+      "signals": {
+        "files": ["pytest.ini", "pyproject.toml"],
+        "dependencies": ["pytest"]
+      }
+    },
+    {
+      "name": "vitest-related",
+      "category": "tests",
+      "event": "PostToolUse",
+      "matcher": "Edit|Write",
+      "best_for": "Run Vitest on changed files",
+      "signals": {
+        "files": ["vitest.config.ts", "vitest.config.js"],
+        "dependencies": ["vitest"]
+      }
+    },
+    {
+      "name": "permission-prompt-alert",
+      "category": "notification",
+      "event": "Notification",
+      "matcher": "permission_prompt",
+      "best_for": "Sound/desktop alert when Claude requests permission (multitasking workflows)",
+      "universal": true
+    },
+    {
+      "name": "idle-prompt-alert",
+      "category": "notification",
+      "event": "Notification",
+      "matcher": "idle_prompt",
+      "best_for": "Alert when Claude is idle waiting for input",
+      "universal": true
+    }
+  ]
+}

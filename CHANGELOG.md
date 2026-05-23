@@ -107,6 +107,39 @@
     when" / "Slash commands" tables; `docs/architecture.md` source-layer
     counts; `docs/install-plugin.md` bundled-list counts;
     `workflow/.claude-plugin/plugin.json` description.
+- **Stack → MCP server / Claude Code hook recommendations** (#14, roadmap §5):
+  ai-kit can now surface runtime-side recommendations (MCP servers and
+  Claude Code hooks) the same way `aikit-recommend-rules` surfaces canonical
+  rules — deterministic, scored against `bin/detect-tooling.sh` output.
+  - **Vendored signal tables.** `standards/external/mcp-servers.json` and
+    `standards/external/hooks-patterns.json` are distilled from
+    `anthropics/claude-plugins-official @ plugins/claude-code-setup/skills/claude-automation-recommender/references/{mcp-servers,hooks-patterns}.md`,
+    pinned to SHA `3449c10cd1f254c2529a4a7e96a094ef118a00a5` under
+    Apache-2.0. `_meta` carries the source URL, license, SHA and
+    `vendored_at` date for re-vendor audits.
+  - **Scorer.** `bin/recommend-tools.sh <project> [--json] [--kind mcp|hook|all]`
+    + `bin/lib/recommend-tools-lib.sh`. Scores each entry against detected
+    `frameworks`, `architecture.{frontend,backend}.detected`,
+    `issue_tracker.remote`, and file presence (e.g. `pint.json`,
+    `playwright.config.ts`, `.github/workflows`). Universal hooks
+    (env / lockfile protection, notification alerts) score 1 by default.
+  - **Skill integration.** `workflow/skills/aikit-recommend-tools/SKILL.md`
+    gains an "Extended: MCP servers + Claude Code hooks" section that
+    invokes the scorer, surfaces the ranked list grouped by kind, and
+    documents the trust model: never auto-install an MCP server, never
+    write to `.claude/settings.json` without per-hook approval, never
+    fetch new upstream content silently.
+  - **Why not adopt the upstream skill.** `/should-i-use` verdict (#14):
+    adopt-as-pattern, not install — the audience is end-users without
+    automations, ai-kit already runs the codebase-analysis phase and the
+    companion-tools phase, and two recommenders on one repo dilute the
+    narrative. The mapping tables are the reusable artifact.
+  - Tests: 11 new assertions in `tests/bin/run-tests.sh` covering Laravel
+    fixture matching (context7 + laravel-pint + block-env-edits), JSON
+    output shape (integer score, kind ∈ {mcp,hook}, sorted desc),
+    `--kind` filtering for both kinds, empty-stack fallback (only
+    universal hooks surface), and `--kind bogus` rejection. 314 total
+    pass.
 
 **Removed**
 - **ai-kit scoped to Claude Code + Cursor — MCP server and non-CC/Cursor
