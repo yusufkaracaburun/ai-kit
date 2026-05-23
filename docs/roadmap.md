@@ -324,3 +324,20 @@ in priority order:
     `aikit-recommend-tools` output was the real artifact. Defer-
     rationale: bundle with or after #19's broader signal-table
     restructure to avoid merge conflict.
+14. **Re-evaluate book-to-skill as catalog candidate after #22** (#25)
+    — `/should-i-use https://github.com/virgiliojr94/book-to-skill`
+    2026-05-23 returned **Ignore for now**: a polished MIT Claude
+    Code meta-skill that turns one document (PDF/EPUB/DOCX/HTML/RTF/
+    MOBI/MD) into a global personal skill at `~/.claude/skills/<slug>/`
+    with chapter index, on-demand chapter files, glossary, patterns,
+    cheatsheet. Overlaps llm-wiki's slot without a documented category
+    boundary (one-shot deep-dive vs continuous wiki maintenance), and
+    `#22` (vetting criteria) is the prerequisite before any new
+    "personal knowledge / agent memory" catalog category lands. Defer-
+    gate: `#22` landed + ≥2 entries in a documented category scored
+    against the new criteria + boundary-vs-llm-wiki written down. Then
+    re-run `/should-i-use` and promote or close. Cherry-pick noted in
+    the issue body (not its own follow-up): book-to-skill's docling
+    benchmark (48 tables + 36 code blocks preserved vs pdftotext's 0+0
+    on a 103-page technical book) is documented prior art for any
+    future llm-wiki PDF-ingest path.
