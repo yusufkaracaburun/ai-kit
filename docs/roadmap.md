@@ -427,3 +427,19 @@ in priority order:
     `.agents/memory/**` that warns when new content names an
     unreachable absolute path. Skill option lowest-friction to ship.
     Surfaced from `~/.claude/ai-kit-lessons.md` entry 2026-05-23.
+
+19. **Whole-codebase architecture audit skill** (#32) — landed
+    2026-05-23 in v1.14.0. New skill `audit-architecture` + canonical
+    rule `code-audit.mini.md` (9 dimensions: design patterns, SOLID,
+    DRY, YAGNI, naming+comment-drift, coupling, layering, error-
+    handling, type-safety). Stack-agnostic; severity-tagged markdown
+    report at `docs/reviews/<date>-<scope>-architecture-audit.md`;
+    read-only (no code fixes). Issue #32 proposed 8 dimensions —
+    review widened to 9 (added error-handling and type-safety; merged
+    naming and comment-drift; dropped testability as a cross-cutting
+    lens). Two follow-ups deferred and to be filed as fresh issues:
+    (a) companion `audit-fix` skill that consumes the report and
+    runs atomic per-finding fixes with user approval; (b) per-stack
+    tuning extensions `audit-architecture-laravel` / `-react` /
+    `-go` etc. that layer stack-specific heuristics on top of the
+    stack-agnostic core.

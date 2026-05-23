@@ -1,5 +1,49 @@
 # Changelog
 
+## 1.14.0 — 2026-05-23
+
+Closes #32: new skill `audit-architecture` + canonical rule
+`code-audit.mini.md`. Whole-codebase architecture-quality audit
+against 9 dimensions, stack-agnostic, read-only, writes a severity-
+tagged markdown report — fixing is a separate step.
+
+Issue #32 proposed 8 dimensions. Reviewed the catalogue before
+shipping:
+
+- Folded "Comments/docs drift" into "Naming" (same intent-vs-text
+  theme; standalone bucket was thin).
+- Added "Error handling / failure modes" (swallowed exceptions,
+  silent fallbacks, retry-without-backoff, race smells).
+- Added "Type safety / contract clarity" (escape-hatch types,
+  stringly-typed APIs, missing nullability, boolean-flag args).
+- Sharpened the coupling-vs-layering separation: coupling is
+  local/structural, layering is global/architectural.
+- Rejected a "Testability" bucket — manifests as SOLID-DIP or
+  coupling findings and would double-count.
+- Explicitly out-of-scope: security (use `/ai:review` deep pass),
+  performance, runtime profiling, pre-merge diff review.
+
+Issue #32 options B (companion `audit-fix` skill) and C (per-stack
+tuning extensions like `audit-architecture-laravel`) are deferred
+to fresh follow-up issues — they need their own design and
+shouldn't bloat v1.14.0.
+
+- **New** `standards/rules/code-audit.mini.md` — frontmatter
+  `universal: true`, `weight: medium`, `default_mode: on-demand`.
+  Body covers the 9 dimensions, severity tagging (🔴/🟠/🟡/🟢),
+  output contract (`docs/reviews/<date>-<scope>-architecture-audit.md`),
+  and anti-patterns.
+- **New** `workflow/skills/audit-architecture/SKILL.md` — invocable
+  workflow. References the rule as the canonical catalogue. Delegates
+  the codebase walk to the `explore` subagent on Claude Code; falls
+  back to inline walk on hosts without subagents. Always read-only.
+- **Updated** `tests/bin/cases/bootstrap-emit.sh` — `--list` count
+  24 → 25, adds `code-audit listed` + source-file + `universal: true`
+  assertions.
+- **Updated** plugin manifest + README from 27 skills → 28 and
+  24 rules → 25. README skill table gets a new `audit-architecture`
+  entry under Cross-cutting.
+
 ## 1.13.0 — 2026-05-23
 
 Closes #29: new canonical rule `domain-model-first`. Captures the

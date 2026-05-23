@@ -14,7 +14,7 @@ runtime daemon, no network calls, no telemetry.
 | Subagents | 3 | Claude Code |
 | Slash commands | 8 | Claude Code · Cursor |
 | Hooks | 2 | Claude Code |
-| Rules | 24 canonical mini-rules | Cursor · Claude Code (via emitter) |
+| Rules | 25 canonical mini-rules | Cursor · Claude Code (via emitter) |
 | Curated companions | 21 MCP servers · 25 hook recipes · 12 plugins | Recommend-only — never auto-installed |
 | Repo templates | 5 baseline files (`.editorconfig`, `.gitattributes`, `CODEOWNERS`, `renovate.json`, `.envrc`) | Drop-in via `/ai:setup` |
 
@@ -66,7 +66,7 @@ First moves:
 
 ## The agile lifecycle
 
-27 skills covering one loop — idea to retro:
+28 skills covering one loop — idea to retro:
 
 | Phase | Skills |
 | ----- | ------ |
@@ -76,7 +76,7 @@ First moves:
 | Deployment | `ship` |
 | Ops & review | `retro` · `feedback` · `contribute-eval` |
 | Session continuity | `checkpoint` ↔ `resume` · `handoff` · `onboard` |
-| Cross-cutting | `setup` · `setup-gh-workflow` · `recommend-rules` · `recommend-tools` · `improve-codebase-architecture` |
+| Cross-cutting | `setup` · `setup-gh-workflow` · `recommend-rules` · `recommend-tools` · `improve-codebase-architecture` · `audit-architecture` |
 | Experimental | `autonomous` (spike — autonomous-loop variant of `tdd`, opt-in) |
 
 8 slash commands: `/ai:setup` · `/ai:doctor` · `/ai:dedupe` · `/ai:status` · `/ai:which` · `/ai:next` · `/ai:upgrade` · `/ai:no-globals` · `/ai:prefer-plugin`.
