@@ -1,5 +1,34 @@
 # Changelog
 
+## 1.7.0 — 2026-05-23
+
+Close the user feedback loop (Phase 2 of < 50-user feedback design).
+
+- **New skill** `contribute-eval` (`workflow/skills/contribute-eval/`) —
+  turns a skill failure into a regression test by composing a prompt
+  fixture (`tests/eval/prompts/<skill>/<scenario>.md`) plus a golden
+  rubric (`tests/eval/goldens/<skill>/<scenario>.md`) and opening a PR
+  against `yusufkaracaburun/ai-kit`. Captures the verbatim prompt, the
+  actual output, and the user's expected-behaviour bullets; derives
+  rubric fields conservatively from those bullets (no invented
+  `required_keywords`). Reuses the same redaction rules as
+  `/ai:feedback` (paths, secrets, tenant names, emails). One case per
+  PR; previews both files + full PR body before any write.
+
+Motivation: `/ai:feedback` captures *that* something is wrong;
+`/ai:contribute-eval` captures *what* would have been right and locks
+it into CI. The two skills are a pair — feedback ⇒ triage ⇒
+contribute-eval ⇒ PR ⇒ CI gate. Every contributed case becomes a
+regression test the next release must pass.
+
+Shipping surface at v1.7.0:
+
+- 26 skills (was 25) — adds `contribute-eval`
+- 3 subagents (unchanged)
+- 8 slash commands (unchanged)
+- 18 canonical rules (unchanged)
+- 21 curated MCP servers + 25 curated hook recipes (unchanged)
+
 ## 1.6.0 — 2026-05-23
 
 Open the user feedback loop (Phase 1 of < 50-user feedback design).
