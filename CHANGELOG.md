@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.0.2 — 2026-05-23
+
+- fix(verify): use resolve_ai_kit_version helper for plugin-install layout
+
 ## 5.0.1 — 2026-05-23
 
 - fix(plugin): wrap hooks.json in top-level "hooks" key
