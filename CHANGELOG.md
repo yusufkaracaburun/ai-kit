@@ -1,5 +1,38 @@
 # Changelog
 
+## 1.9.0 — 2026-05-23
+
+Repo template pack — drop-in baseline files under
+`context/templates/repo/`. Quick win, real toil saved per new repo.
+
+Added templates:
+
+- `.editorconfig` — charset, line endings, per-language indent overrides
+  (Python 4, Go tabs, Markdown preserves trailing whitespace).
+- `.gitattributes` — LF normalisation, binary markers, `-diff` on
+  lockfiles.
+- `CODEOWNERS` — empty template with examples for default, backend,
+  frontend, infra, docs, and security-critical paths.
+- `renovate.json` — Renovate Bot defaults: weekly cadence, dependency
+  dashboard, semantic commits, auto-merge for non-major dev-deps,
+  major bumps human-gated, GH Actions pinned to SHA.
+- `.envrc` — direnv stub with commented hooks for Node/Python/PHP
+  version pinning.
+- `README.md` — what each file does and when to use it.
+
+Templates are available now via `$AI_KIT_ROOT/context/templates/repo/`;
+`/ai:setup` integration as an optional offer-step is queued for a
+future minor (no skill change in this release).
+
+Shipping surface at v1.9.0:
+
+- 26 skills (unchanged)
+- 3 subagents (unchanged)
+- 8 slash commands (unchanged)
+- 18 canonical rules (unchanged)
+- 21 curated MCP servers + 25 curated hook recipes + 12 curated plugins
+- **5 repo templates** under `context/templates/repo/`
+
 ## 1.8.0 — 2026-05-23
 
 Complete the `recommend-tools` curation triad (MCP / hook / **plugin**).
