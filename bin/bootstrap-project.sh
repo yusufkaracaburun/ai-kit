@@ -14,6 +14,8 @@ NO_COMMANDS=false
 SKILLS_MODE="merge-skills"
 WITH_MCP=false
 EMIT_RULES=true
+SETUP_GH_WORKFLOW=true
+GH_WORKFLOW_LANG="nl"
 
 usage() {
   echo "Usage: $0 [--minimal] /path/to/project [options]"
@@ -28,6 +30,8 @@ usage() {
   echo "  --no-commands   Skip .claude/commands and .cursor/commands (slash commands)"
   echo "  --with-mcp      Copy baseline .cursor/mcp.json.template to .cursor/mcp.json (opt-in)"
   echo "  --no-rules      Skip emit-rules.sh (no universal canonical rules in this project)"
+  echo "  --no-gh-workflow  Skip GH workflow setup (issue templates + DoR/DoD enforcement + auto-promote)"
+  echo "  --gh-lang=en|nl Language for issue templates (default: nl)"
   echo ""
   echo "Configures Claude Code (.claude/skills + legacy .agents/skills) and Cursor (.cursor/skills)."
   echo "Full setup via /ai:setup in the agent."
@@ -47,6 +51,9 @@ while [ $# -gt 0 ]; do
     --no-commands) NO_COMMANDS=true; shift ;;
     --with-mcp) WITH_MCP=true; shift ;;
     --no-rules) EMIT_RULES=false; shift ;;
+    --no-gh-workflow) SETUP_GH_WORKFLOW=false; shift ;;
+    --gh-lang=*) GH_WORKFLOW_LANG="${1#*=}"; shift ;;
+    --gh-lang) GH_WORKFLOW_LANG="$2"; shift 2 ;;
     -h | --help) usage ;;
     -*)
       echo "Unknown option: $1" >&2
@@ -201,6 +208,15 @@ fi
 if [ "$EMIT_RULES" = true ]; then
   echo ""
   "$AIKIT/bin/emit-rules.sh" "$TARGET" || echo "warn: emit-rules.sh failed (non-fatal)"
+fi
+
+# Tier-A: GH workflow hygiene (issue templates + DoR/DoD enforcement +
+# auto-promote-to-Ready). The script silent-skips on non-GitHub remotes,
+# so it is safe to call unconditionally. Opt-out via --no-gh-workflow.
+if [ "$SETUP_GH_WORKFLOW" = true ]; then
+  echo ""
+  "$AIKIT/bin/setup-gh-workflow.sh" "$TARGET" --lang "$GH_WORKFLOW_LANG" --quiet \
+    || echo "warn: setup-gh-workflow.sh failed (non-fatal)"
 fi
 
 echo ""

@@ -734,7 +734,7 @@ export AI_KIT_ROOT="$AIKIT"
 OUT_WHICH_LIST="$("$AIKIT/bin/ai-kit-which.sh" --list)"
 assert "which --list has header" 'echo "$OUT_WHICH_LIST" | head -1 | grep -q "SKILL"'
 WHICH_LIST_ROWS="$(echo "$OUT_WHICH_LIST" | tail -n +3 | wc -l | tr -d ' ')"
-assert "which --list shows all 22 skills" '[ "$WHICH_LIST_ROWS" -eq 22 ]'
+assert "which --list shows all 23 skills" '[ "$WHICH_LIST_ROWS" -eq 23 ]'
 
 # --explain dumps the SKILL.md.
 OUT_WHICH_EXP="$("$AIKIT/bin/ai-kit-which.sh" --explain ship)"
@@ -770,7 +770,7 @@ assert "which: gibberish exits 1" '[ "$WHICH_NONE_EXIT" -eq 1 ]'
 echo ""
 echo "=== skills count ==="
 SKILL_COUNT=$(find "$AIKIT/workflow/skills" -name SKILL.md | wc -l | tr -d ' ')
-assert "22 skills" '[ "$SKILL_COUNT" -eq 22 ]'
+assert "23 skills" '[ "$SKILL_COUNT" -eq 23 ]'
 assert "checkpoint skill exists" '[ -f "$AIKIT/workflow/skills/checkpoint/SKILL.md" ]'
 assert "resume skill exists" '[ -f "$AIKIT/workflow/skills/resume/SKILL.md" ]'
 
@@ -790,7 +790,7 @@ assert "qa-runner frontmatter tools" 'head -5 "$AIKIT/workflow/agents/qa-runner/
 echo ""
 echo "=== slash commands ==="
 COMMAND_COUNT=$(find "$AIKIT/workflow/commands" -maxdepth 1 -name "*.md" | wc -l | tr -d ' ')
-assert "6 slash commands present" '[ "$COMMAND_COUNT" -eq 6 ]'
+assert "7 slash commands present" '[ "$COMMAND_COUNT" -eq 7 ]'
 for cmd in doctor which status no-globals upgrade followup; do
   assert "$cmd command exists"     "[ -f \"$AIKIT/workflow/commands/$cmd.md\" ]"
   assert "$cmd has description"    "head -6 \"$AIKIT/workflow/commands/$cmd.md\" | grep -q '^description:'"
@@ -1231,6 +1231,104 @@ AQ_BAD_ARG_RC=0
 assert "bad arg exits nonzero" '[ "$AQ_BAD_ARG_RC" -ne 0 ]'
 
 rm -rf "$TMP_AQ"
+
+echo ""
+echo "=== setup-gh-workflow ==="
+GH_SETUP="$AIKIT/bin/setup-gh-workflow.sh"
+assert "setup-gh-workflow is executable" '[ -x "$GH_SETUP" ]'
+
+# Silent skip on non-GitHub remote (or no remote at all).
+TMP_GH_NONE=$(mktemp -d)
+(cd "$TMP_GH_NONE" && git init -q && git remote add origin https://gitlab.com/foo/bar.git)
+OUT_GH_NONE="$("$GH_SETUP" "$TMP_GH_NONE" --no-labels --no-project --quiet 2>&1 || true)"
+assert "non-GitHub remote: no templates written" '[ ! -d "$TMP_GH_NONE/.github" ]'
+rm -rf "$TMP_GH_NONE"
+
+# Dutch default — templates land, workflows land, idempotent.
+TMP_GH_NL=$(mktemp -d)
+(cd "$TMP_GH_NL" && git init -q && git remote add origin git@github.com:yusufkaracaburun/testrepo.git)
+"$GH_SETUP" "$TMP_GH_NL" --no-labels --no-project --quiet >/dev/null
+assert "nl: feature template written" '[ -f "$TMP_GH_NL/.github/ISSUE_TEMPLATE/feature.md" ]'
+assert "nl: spike template written" '[ -f "$TMP_GH_NL/.github/ISSUE_TEMPLATE/spike.md" ]'
+assert "nl: config.yml written" '[ -f "$TMP_GH_NL/.github/ISSUE_TEMPLATE/config.yml" ]'
+assert "nl: dor-dod workflow written" '[ -f "$TMP_GH_NL/.github/workflows/dor-dod-enforcement.yml" ]'
+assert "nl: auto-promote workflow written" '[ -f "$TMP_GH_NL/.github/workflows/auto-promote-ready.yml" ]'
+assert "nl: feature has Dutch DoR header" 'grep -q "Definition of Ready (vóór \"In Progress\")" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/feature.md"'
+assert "nl: feature has Triage section" 'grep -q "## Triage" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/feature.md"'
+assert "nl: feature has Depends on field" 'grep -q "Depends on:" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/feature.md"'
+assert "nl: feature has Blocks field" 'grep -q "Blocks:" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/feature.md"'
+assert "nl: spike has Time-box field" 'grep -q "Time-box:" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/spike.md"'
+
+# Workflows carry the right anchors.
+assert "dor-dod workflow parses DoR header" 'grep -q "Definition of Ready" "$TMP_GH_NL/.github/workflows/dor-dod-enforcement.yml"'
+assert "dor-dod workflow parses DoD header" 'grep -q "Definition of Done" "$TMP_GH_NL/.github/workflows/dor-dod-enforcement.yml"'
+assert "auto-promote checks P[0-3] labels" 'grep -q "P\\[0-3\\]-" "$TMP_GH_NL/.github/workflows/auto-promote-ready.yml"'
+assert "auto-promote checks epic/ labels" 'grep -q "epic/" "$TMP_GH_NL/.github/workflows/auto-promote-ready.yml"'
+assert "auto-promote checks area/ labels" 'grep -q "area/" "$TMP_GH_NL/.github/workflows/auto-promote-ready.yml"'
+
+# Placeholders remain when --no-project (script did not resolve them).
+assert "auto-promote keeps PROJECT_NUMBER placeholder" 'grep -q "AI_KIT_PROJECT_NUMBER" "$TMP_GH_NL/.github/workflows/auto-promote-ready.yml"'
+
+# Idempotency — second run does not overwrite. Mutate the file, re-run, check.
+echo "USER_EDIT" >> "$TMP_GH_NL/.github/ISSUE_TEMPLATE/feature.md"
+"$GH_SETUP" "$TMP_GH_NL" --no-labels --no-project --quiet >/dev/null
+assert "idempotent: user edits preserved on re-run" 'grep -q "USER_EDIT" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/feature.md"'
+
+# --force overwrites.
+"$GH_SETUP" "$TMP_GH_NL" --no-labels --no-project --quiet --force >/dev/null
+assert "force: user edits cleared" '! grep -q "USER_EDIT" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/feature.md"'
+rm -rf "$TMP_GH_NL"
+
+# English variant.
+TMP_GH_EN=$(mktemp -d)
+(cd "$TMP_GH_EN" && git init -q && git remote add origin git@github.com:yusufkaracaburun/testrepo.git)
+"$GH_SETUP" "$TMP_GH_EN" --lang en --no-labels --no-project --quiet >/dev/null
+assert "en: feature has English DoR header" 'grep -q "Definition of Ready (before \"In Progress\")" "$TMP_GH_EN/.github/ISSUE_TEMPLATE/feature.md"'
+assert "en: feature has English Scope content" 'grep -q "Measurable criterion" "$TMP_GH_EN/.github/ISSUE_TEMPLATE/feature.md"'
+assert "en: spike has English Goal header" 'grep -q "## Goal" "$TMP_GH_EN/.github/ISSUE_TEMPLATE/spike.md"'
+rm -rf "$TMP_GH_EN"
+
+# Dry-run writes nothing.
+TMP_GH_DRY=$(mktemp -d)
+(cd "$TMP_GH_DRY" && git init -q && git remote add origin git@github.com:yusufkaracaburun/testrepo.git)
+"$GH_SETUP" "$TMP_GH_DRY" --no-labels --no-project --quiet --dry-run >/dev/null
+assert "dry-run: no files written" '[ ! -f "$TMP_GH_DRY/.github/ISSUE_TEMPLATE/feature.md" ]'
+rm -rf "$TMP_GH_DRY"
+
+# Workflows have the right top-level structure (name + on + jobs).
+# Using grep rather than yaml.safe_load — pyyaml is not in stdlib and
+# requiring it would block CI on minimal images. The full YAML is sourced
+# verbatim from naschool's production setup, so syntactic validity is
+# established upstream; we only need to assert our copy preserved the
+# load-bearing top-level keys.
+TMP_GH_YAML=$(mktemp -d)
+(cd "$TMP_GH_YAML" && git init -q && git remote add origin git@github.com:yusufkaracaburun/testrepo.git)
+"$GH_SETUP" "$TMP_GH_YAML" --no-labels --no-project --quiet >/dev/null
+assert "dor-dod workflow has name + on + jobs" 'grep -q "^name:" "$TMP_GH_YAML/.github/workflows/dor-dod-enforcement.yml" && grep -q "^on:" "$TMP_GH_YAML/.github/workflows/dor-dod-enforcement.yml" && grep -q "^jobs:" "$TMP_GH_YAML/.github/workflows/dor-dod-enforcement.yml"'
+assert "auto-promote workflow has name + on + jobs" 'grep -q "^name:" "$TMP_GH_YAML/.github/workflows/auto-promote-ready.yml" && grep -q "^on:" "$TMP_GH_YAML/.github/workflows/auto-promote-ready.yml" && grep -q "^jobs:" "$TMP_GH_YAML/.github/workflows/auto-promote-ready.yml"'
+rm -rf "$TMP_GH_YAML"
+
+# Bootstrap silent-skips gh-workflow on non-GitHub remote without breaking.
+TMP_BS_GL=$(mktemp -d)
+(cd "$TMP_BS_GL" && git init -q && git remote add origin https://gitlab.com/foo/bar.git)
+"$AIKIT/bin/bootstrap-project.sh" --minimal --no-rules "$TMP_BS_GL" >/dev/null 2>&1 || true
+assert "bootstrap on non-GitHub: no .github/ scaffolded" '[ ! -d "$TMP_BS_GL/.github" ]'
+rm -rf "$TMP_BS_GL"
+
+# Bootstrap on a GitHub remote DOES scaffold the workflow files.
+TMP_BS_GH=$(mktemp -d)
+(cd "$TMP_BS_GH" && git init -q && git remote add origin git@github.com:yusufkaracaburun/testrepo.git)
+"$AIKIT/bin/bootstrap-project.sh" --minimal --no-rules "$TMP_BS_GH" >/dev/null 2>&1
+assert "bootstrap on GitHub: feature template scaffolded" '[ -f "$TMP_BS_GH/.github/ISSUE_TEMPLATE/feature.md" ]'
+assert "bootstrap on GitHub: dor-dod workflow scaffolded" '[ -f "$TMP_BS_GH/.github/workflows/dor-dod-enforcement.yml" ]'
+rm -rf "$TMP_BS_GH"
+
+# --no-gh-workflow flag suppresses.
+TMP_BS_NO=$(mktemp -d)
+(cd "$TMP_BS_NO" && git init -q && git remote add origin git@github.com:yusufkaracaburun/testrepo.git)
+"$AIKIT/bin/bootstrap-project.sh" --minimal --no-rules --no-gh-workflow "$TMP_BS_NO" >/dev/null 2>&1
+assert "bootstrap --no-gh-workflow: no .github/ scaffolded" '[ ! -d "$TMP_BS_NO/.github" ]'
+rm -rf "$TMP_BS_NO"
 
 echo ""
 echo "=== privacy ==="

@@ -1,0 +1,13 @@
+[
+  { "name": "P0-critical",        "color": "B60205", "description": "Critical — drop everything and fix" },
+  { "name": "P1-high",            "color": "D93F0B", "description": "High priority — pick up next" },
+  { "name": "P2-medium",          "color": "FBCA04", "description": "Medium priority — schedule when capacity allows" },
+  { "name": "P3-low",             "color": "0E8A16", "description": "Low priority — nice to have" },
+  { "name": "epic/core",          "color": "5319E7", "description": "Epic: core platform work (placeholder — rename per project)" },
+  { "name": "epic/ux",            "color": "5319E7", "description": "Epic: user experience (placeholder — rename per project)" },
+  { "name": "area/backend",       "color": "1D76DB", "description": "Area: backend / API" },
+  { "name": "area/frontend",      "color": "1D76DB", "description": "Area: frontend / UI" },
+  { "name": "area/infra",         "color": "1D76DB", "description": "Area: infrastructure / deploy" },
+  { "name": "area/docs",          "color": "1D76DB", "description": "Area: documentation" },
+  { "name": "status:in-progress", "color": "0052CC", "description": "Issue is being worked on — DoR enforced before this label sticks" }
+]

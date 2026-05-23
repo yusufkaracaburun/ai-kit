@@ -98,8 +98,14 @@ echo "=== Claude Code subagents (~/.claude/agents) ==="
 install_dir_to "$AIKIT/workflow/agents" "${HOME}/.claude/agents"
 
 echo ""
-echo "=== Claude Code slash commands (~/.claude/commands) ==="
-install_files_to "$AIKIT/workflow/commands" "${HOME}/.claude/commands"
+PREFER_PLUGIN_MARKER="${HOME}/.config/ai-kit/prefer-plugin"
+if [ -f "$PREFER_PLUGIN_MARKER" ]; then
+  echo "=== Claude Code slash commands — skipped (prefer-plugin marker) ==="
+  echo "  Install via /plugin install ai@yusufkaracaburun to get /ai:doctor etc."
+else
+  echo "=== Claude Code slash commands (~/.claude/commands) ==="
+  install_files_to "$AIKIT/workflow/commands" "${HOME}/.claude/commands"
+fi
 
 echo ""
 echo "=== Cursor slash commands (~/.cursor/commands) ==="

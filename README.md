@@ -10,9 +10,9 @@ runtime daemon, no network calls, no telemetry.
 
 | Primitive | Count | Reaches |
 | --------- | -----:| ------- |
-| Skills | 22 | Claude Code · Cursor |
+| Skills | 23 | Claude Code · Cursor |
 | Subagents | 3 | Claude Code |
-| Slash commands | 6 | Claude Code · Cursor |
+| Slash commands | 7 | Claude Code · Cursor |
 | Hooks | 2 | Claude Code |
 | Rules | 7 canonical books | Cursor · Claude Code (via emitter) |
 
@@ -65,7 +65,7 @@ First moves:
 
 ## The agile lifecycle
 
-22 skills covering one loop — idea to retro:
+23 skills covering one loop — idea to retro:
 
 | Phase | Skills |
 | ----- | ------ |
@@ -75,7 +75,7 @@ First moves:
 | Deployment | `ship` |
 | Ops & review | `retro` · `followup` |
 | Session continuity | `checkpoint` ↔ `resume` · `handoff` |
-| Cross-cutting | `setup` · `recommend-rules` · `recommend-tools` · `improve-codebase-architecture` |
+| Cross-cutting | `setup` · `setup-gh-workflow` · `recommend-rules` · `recommend-tools` · `improve-codebase-architecture` |
 | Experimental | `autonomous` (spike — autonomous-loop variant of `tdd`, opt-in) |
 
 See [docs/mental-model.md](docs/mental-model.md) for the "which skill, when" table and lifecycle diagram.
