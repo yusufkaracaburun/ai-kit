@@ -56,8 +56,8 @@ assert "emit-rules: idempotent (no duplicate rows)" \
 assert "emit-rules: --rules emits only requested" '[ -f "$EMIT_TMP/.cursor/rules/legacy-code.mdc" ]'
 assert "emit-rules: --agents limits dispatch (no new claude file)" \
   '[ ! -f "$EMIT_TMP/.claude/rules/legacy-code.md" ]'
-assert "emit-rules: --list lists 8 rules" \
-  '[ "$("$AIKIT/bin/emit-rules.sh" --list | wc -l | tr -d " ")" = "8" ]'
+assert "emit-rules: --list lists 23 rules" \
+  '[ "$("$AIKIT/bin/emit-rules.sh" --list | wc -l | tr -d " ")" = "23" ]'
 # Vendored external rule resolves via the external/ prefix and carries provenance.
 "$AIKIT/bin/emit-rules.sh" "$EMIT_TMP" --rules external/laravel-php-83 --agents cursor >/dev/null
 assert "emit-rules: external rule emits" \

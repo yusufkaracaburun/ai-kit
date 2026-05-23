@@ -1,5 +1,32 @@
 # Changelog
 
+## 1.10.2 — 2026-05-23
+
+Regression-lock for v1.3.0–v1.10.0 surface changes. All tests green
+(407 passed, 0 failed) on a fresh `tests/bin/run-all.sh`.
+
+- **New test case** `tests/bin/cases/dedupe.sh` — 13 assertions covering
+  `ai-kit-dedupe.sh` help / JSON shape / orphan rule detection /
+  --fix-prints-but-doesn't-execute / unknown-flag rejection.
+- **Updated** `tests/bin/cases/recommend.sh` — adds `--kind plugin`
+  filter test, `laravel-boost` + `claude-mem` surface assertions,
+  universal-plugin-on-empty-stack assertion. Adjusts the
+  "kind in {mcp,hook}" assertion to include `plugin` (v1.8.0 surface
+  change).
+- **Updated** count assertions: `structure.sh` (23→26 skills, 7→8
+  commands incl. new `dedupe` command), `release-install.sh`
+  (`which --list`: 23→26), `bootstrap-emit.sh` (`emit-rules --list`:
+  8→23).
+- **New eval fixtures** for the three new skills:
+  `tests/eval/prompts/{should-i-use,feedback,contribute-eval}/*.md`.
+  Each fixture has frontmatter `expects[]` listing the testable
+  behaviours, which the eval-structure check requires.
+- **Plugin manifest** `workflow/.claude-plugin/plugin.json` description
+  bumped to mention 26 skills / 8 commands / 23 rules / feedback loop
+  + curated MCP/hook/plugin recommendations.
+
+No surface or behaviour change in the skills/rules themselves.
+
 ## 1.10.1 — 2026-05-23
 
 Docs sync — README + architecture + install-plugin + mental-model
