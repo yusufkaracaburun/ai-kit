@@ -1,5 +1,10 @@
 # Changelog
 
+## 5.0.0 — 2026-05-23
+
+- feat!: self-contained plugin — bundle bin/ at workflow/bin/ (#28)
+- chore(defer): capture #28 in roadmap
+
 ## 4.1.0 — 2026-05-23
 
 - feat(release): auto-release wrapper from Conventional Commits
