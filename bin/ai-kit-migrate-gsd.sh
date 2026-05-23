@@ -16,13 +16,19 @@
 # USAGE:
 #   ai-kit-migrate-gsd.sh                       # dry-run, scan ~/.claude
 #   ai-kit-migrate-gsd.sh --project PATH        # also scan PATH/.claude + PATH/.cursor
-#   ai-kit-migrate-gsd.sh --apply               # actually remove (with backup)
-#   ai-kit-migrate-gsd.sh --apply --backup-dir DIR
+#   ai-kit-migrate-gsd.sh --apply               # interactive: asks backup-or-delete
+#   ai-kit-migrate-gsd.sh --apply --backup [--backup-dir DIR]
+#   ai-kit-migrate-gsd.sh --apply --no-backup   # delete without backup (irreversible)
+#
+# When --apply runs on a tty without --backup/--no-backup, it prompts:
+# "Keep a backup before removing? [Y/n]". Default is Y (safe). With no tty
+# (CI, pipe), defaults to backup unless --no-backup is given.
 #
 set -euo pipefail
 
 PROJECT=""
 APPLY=false
+BACKUP_MODE="ask"   # ask | backup | no-backup
 BACKUP_DIR=""
 
 usage() {
@@ -33,7 +39,9 @@ while [ $# -gt 0 ]; do
   case "$1" in
     --project) PROJECT="$2"; shift 2 ;;
     --apply) APPLY=true; shift ;;
-    --backup-dir) BACKUP_DIR="$2"; shift 2 ;;
+    --backup) BACKUP_MODE="backup"; shift ;;
+    --no-backup) BACKUP_MODE="no-backup"; shift ;;
+    --backup-dir) BACKUP_MODE="backup"; BACKUP_DIR="$2"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown arg: $1" >&2; exit 2 ;;
   esac
@@ -129,12 +137,29 @@ if [ "$APPLY" = false ]; then
   exit 0
 fi
 
-# Apply — backup, then remove.
-if [ -z "$BACKUP_DIR" ]; then
-  BACKUP_DIR="$HOME/.cache/ai-kit/migrate-gsd-$(date +%Y%m%dT%H%M%S)"
+# Resolve BACKUP_MODE if still "ask".
+if [ "$BACKUP_MODE" = "ask" ]; then
+  if [ -t 0 ]; then
+    printf 'Keep a backup before removing? [Y/n] '
+    read -r ANS
+    case "$ANS" in
+      n|N|no|NO) BACKUP_MODE="no-backup" ;;
+      *) BACKUP_MODE="backup" ;;
+    esac
+  else
+    BACKUP_MODE="backup"
+  fi
 fi
-mkdir -p "$BACKUP_DIR"
-echo "Backup: $BACKUP_DIR"
+
+if [ "$BACKUP_MODE" = "backup" ]; then
+  if [ -z "$BACKUP_DIR" ]; then
+    BACKUP_DIR="$HOME/.cache/ai-kit/migrate-gsd-$(date +%Y%m%dT%H%M%S)"
+  fi
+  mkdir -p "$BACKUP_DIR"
+  echo "Backup: $BACKUP_DIR"
+else
+  echo "Backup: SKIPPED (--no-backup) — removal is irreversible."
+fi
 echo ""
 
 backup_then_remove() {
@@ -145,8 +170,10 @@ backup_then_remove() {
     # Outside $HOME — back up under absolute/<path>.
     rel="absolute/$path"
   fi
-  mkdir -p "$BACKUP_DIR/$(dirname "$rel")"
-  cp -aR "$path" "$BACKUP_DIR/$rel" 2>/dev/null || cp -a "$path" "$BACKUP_DIR/$rel"
+  if [ "$BACKUP_MODE" = "backup" ]; then
+    mkdir -p "$BACKUP_DIR/$(dirname "$rel")"
+    cp -aR "$path" "$BACKUP_DIR/$rel" 2>/dev/null || cp -a "$path" "$BACKUP_DIR/$rel"
+  fi
   rm -rf "$path"
   echo "  removed: $path"
 }
@@ -156,7 +183,9 @@ for d in ${FOUND_DIRS[@]+"${FOUND_DIRS[@]}"}; do backup_then_remove "$d"; done
 
 # Patch settings.json — drop hook entries whose command references gsd-.
 if [ "$SETTINGS_NEEDS_PATCH" -eq 1 ]; then
-  cp "$SETTINGS" "$BACKUP_DIR/settings.json.bak"
+  if [ "$BACKUP_MODE" = "backup" ]; then
+    cp "$SETTINGS" "$BACKUP_DIR/settings.json.bak"
+  fi
   python3 - "$SETTINGS" <<'PY'
 import json, sys
 path = sys.argv[1]
@@ -200,4 +229,8 @@ fi
 
 echo ""
 echo "Done. Restart Claude Code so the new settings.json takes effect."
-echo "If you need to undo, restore from $BACKUP_DIR."
+if [ "$BACKUP_MODE" = "backup" ]; then
+  echo "If you need to undo, restore from $BACKUP_DIR."
+else
+  echo "No backup taken — undo not possible."
+fi

@@ -82,8 +82,19 @@ install_files_to() {
 echo "Installing ai-kit globally..."
 echo ""
 
-echo "=== Claude Code skills (~/.claude/skills) ==="
-install_dir_to "$AIKIT/workflow/skills" "${HOME}/.claude/skills"
+PREFER_PLUGIN_MARKER="${HOME}/.config/ai-kit/prefer-plugin"
+PREFER_PLUGIN=false
+if [ -f "$PREFER_PLUGIN_MARKER" ]; then
+  PREFER_PLUGIN=true
+fi
+
+if [ "$PREFER_PLUGIN" = true ]; then
+  echo "=== Claude Code skills — skipped (prefer-plugin marker) ==="
+  echo "  Install via /plugin install ai@yusufkaracaburun to get /ai:* skills."
+else
+  echo "=== Claude Code skills (~/.claude/skills) ==="
+  install_dir_to "$AIKIT/workflow/skills" "${HOME}/.claude/skills"
+fi
 
 echo ""
 echo "=== Claude Code legacy (~/.agents/skills) ==="
@@ -94,12 +105,16 @@ echo "=== Cursor skills (~/.cursor/skills) ==="
 install_dir_to "$AIKIT/workflow/skills" "${HOME}/.cursor/skills"
 
 echo ""
-echo "=== Claude Code subagents (~/.claude/agents) ==="
-install_dir_to "$AIKIT/workflow/agents" "${HOME}/.claude/agents"
+if [ "$PREFER_PLUGIN" = true ]; then
+  echo "=== Claude Code subagents — skipped (prefer-plugin marker) ==="
+  echo "  Install via /plugin install ai@yusufkaracaburun to get explore/reviewer/qa-runner."
+else
+  echo "=== Claude Code subagents (~/.claude/agents) ==="
+  install_dir_to "$AIKIT/workflow/agents" "${HOME}/.claude/agents"
+fi
 
 echo ""
-PREFER_PLUGIN_MARKER="${HOME}/.config/ai-kit/prefer-plugin"
-if [ -f "$PREFER_PLUGIN_MARKER" ]; then
+if [ "$PREFER_PLUGIN" = true ]; then
   echo "=== Claude Code slash commands — skipped (prefer-plugin marker) ==="
   echo "  Install via /plugin install ai@yusufkaracaburun to get /ai:doctor etc."
 else

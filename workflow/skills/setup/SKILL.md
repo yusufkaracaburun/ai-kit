@@ -53,8 +53,10 @@ with `/ai:*` and confuses the agent. Surface the finding to the user verbatim
 and offer two paths:
 
 1. **Migrate now** — re-run with `--apply` (and `--project` if any project
-   artifacts were listed). Removes everything with a timestamped backup under
-   `~/.cache/ai-kit/migrate-gsd-<ts>/`.
+   artifacts were listed). The tool prompts "Keep a backup before
+   removing? [Y/n]" — default backup lands in
+   `~/.cache/ai-kit/migrate-gsd-<ts>/`. Pass `--no-backup` to skip the prompt
+   and delete irreversibly, or `--backup` to skip the prompt and always back up.
 2. **Keep both** — explicit user choice; warn that `gsd-*` will keep
    appearing in the skill menu and may shadow `/ai:*` autoselection.
 

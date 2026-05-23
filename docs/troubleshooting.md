@@ -54,10 +54,14 @@ $AI_KIT_ROOT/bin/ai-kit-migrate-gsd.sh
 $AI_KIT_ROOT/bin/ai-kit-migrate-gsd.sh --project /path/to/repo   # add per-project artifacts
 ```
 
-Remove (with timestamped backup under `~/.cache/ai-kit/migrate-gsd-<ts>/`):
+Remove. The tool asks "Keep a backup before removing? [Y/n]" by default; with
+`Y` it stashes everything under `~/.cache/ai-kit/migrate-gsd-<ts>/` first, with
+`n` it deletes irreversibly. Pass `--backup` or `--no-backup` to skip the
+prompt:
 
 ```bash
 $AI_KIT_ROOT/bin/ai-kit-migrate-gsd.sh --apply --project /path/to/repo
+$AI_KIT_ROOT/bin/ai-kit-migrate-gsd.sh --apply --no-backup   # skip prompt + skip backup
 ```
 
 `ai-kit-doctor.sh` also reports the count under its `Legacy gsd` section.
