@@ -1,5 +1,45 @@
 # Changelog
 
+## 1.4.0 — 2026-05-23
+
+Expand `recommend-tools` curation with 9 MCP servers and 9 hook recipes.
+Pure data — no scorer or skill changes.
+
+**MCP additions (`standards/external/mcp-servers.json` 15 → 24):**
+
+- `obsidian` — Obsidian vaults (`.obsidian/`)
+- `notion` — Notion docs/PRDs/roadmap (`@notionhq/client`, `notion-sdk-py`)
+- `figma` — Frontend with Figma design files (`figma-api`, `figma-export`)
+- `stripe` — Payments/subscriptions (`stripe`, `stripe/stripe-php`)
+- `mongodb` — Direct MongoDB access (`mongoose`, `pymongo`)
+- `redis` — Cache/queue/pubsub (`redis`, `ioredis`, `predis/predis`)
+- `mysql` — Direct MySQL/MariaDB access (`mysql2`, `pymysql`)
+- `firecrawl` — Web scraping / doc ingestion (`firecrawl-py`)
+- `exa` — Semantic web search (`exa-py`, `exa-js`)
+
+**Hook additions (`standards/external/hooks-patterns.json` 16 → 25):**
+
+- `phpstan` (PHP static analysis) — `phpstan.neon`
+- `cargo-clippy` (Rust lint) — `Cargo.toml`
+- `swift-format` (Apple swift-format) — `Package.swift`
+- `dart-format` (Dart/Flutter) — `pubspec.yaml`
+- `commitlint` (Conventional Commits enforcement) — `commitlint.config.*`
+- `gitleaks-scan` (block secrets on write) — universal
+- `branch-guard` (warn/block edits on protected branch) — universal
+- `large-diff-warn` (surface big single-edit warnings) — universal
+- `pre-commit-run` (reuse project's pre-commit framework) — `.pre-commit-config.yaml`
+
+Motivation: `recommend-tools` scorer already consumes both JSON files; adding
+entries instantly widens stack coverage without touching any code path.
+
+Shipping surface at v1.4.0:
+
+- 24 skills (unchanged)
+- 3 subagents (unchanged)
+- 8 slash commands (unchanged)
+- 10 canonical rules (unchanged)
+- 24 curated MCP servers + 25 curated hook recipes
+
 ## 1.3.0 — 2026-05-23
 
 Add duplication detection for safer plugin updates.

@@ -144,6 +144,87 @@
       "signals": {
         "files": ["Chart.yaml", "k8s/", "kustomization.yaml"]
       }
+    },
+    {
+      "name": "obsidian",
+      "category": "knowledge",
+      "best_for": "Projects with an Obsidian vault — markdown notes, PARA/Zettelkasten knowledge bases",
+      "value": "Read/write notes, query backlinks and dataview, surface relevant pages without leaving Claude.",
+      "signals": {
+        "files": [".obsidian/", ".obsidian/app.json"]
+      }
+    },
+    {
+      "name": "notion",
+      "category": "knowledge",
+      "best_for": "Teams using Notion for docs, PRDs, or roadmap",
+      "value": "Read pages and databases, append blocks, sync ADRs or roadmap entries without context switching.",
+      "signals": {
+        "dependencies": ["@notionhq/client", "notion-sdk-py"]
+      }
+    },
+    {
+      "name": "figma",
+      "category": "design",
+      "best_for": "Frontend projects with Figma design files in scope",
+      "value": "Inspect frames, extract design tokens, sync component props from design source-of-truth.",
+      "signals": {
+        "dependencies": ["figma-api", "@figma/rest-api-spec", "figma-export"]
+      }
+    },
+    {
+      "name": "stripe",
+      "category": "payments",
+      "best_for": "Projects integrating Stripe for payments, subscriptions, or invoicing",
+      "value": "Inspect customers, payments, subscriptions; debug webhook failures and reconcile data.",
+      "signals": {
+        "dependencies": ["stripe", "@stripe/stripe-js", "stripe/stripe-php"]
+      }
+    },
+    {
+      "name": "mongodb",
+      "category": "database",
+      "best_for": "Direct MongoDB access (no ORM, raw aggregation, schema inspection)",
+      "value": "Run queries and aggregations, inspect indexes, debug data issues directly.",
+      "signals": {
+        "dependencies": ["mongoose", "mongodb", "pymongo", "motor"]
+      }
+    },
+    {
+      "name": "redis",
+      "category": "database",
+      "best_for": "Projects using Redis for cache, queues, pub/sub, or rate limiting",
+      "value": "Inspect keys, debug cache state, monitor pub/sub, troubleshoot stuck jobs.",
+      "signals": {
+        "dependencies": ["redis", "ioredis", "redis-py", "predis/predis"]
+      }
+    },
+    {
+      "name": "mysql",
+      "category": "database",
+      "best_for": "Direct MySQL/MariaDB access (no ORM, raw migrations, data analysis)",
+      "value": "Inspect schema, run queries, debug data issues directly.",
+      "signals": {
+        "dependencies": ["mysql2", "mysql", "pymysql", "mariadb"]
+      }
+    },
+    {
+      "name": "firecrawl",
+      "category": "research",
+      "best_for": "Projects needing live web scraping, competitive research, or doc ingestion",
+      "value": "Crawl and structure web content for LLM ingestion — superior to ad-hoc fetch.",
+      "signals": {
+        "dependencies": ["firecrawl-py", "@mendable/firecrawl-js"]
+      }
+    },
+    {
+      "name": "exa",
+      "category": "research",
+      "best_for": "Projects needing semantic web search instead of keyword search",
+      "value": "Neural search across the web — finds conceptual matches keyword search misses.",
+      "signals": {
+        "dependencies": ["exa-py", "exa-js"]
+      }
     }
   ]
 }

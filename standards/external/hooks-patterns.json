@@ -173,6 +173,96 @@
       "matcher": "idle_prompt",
       "best_for": "Alert when Claude is idle waiting for input",
       "universal": true
+    },
+    {
+      "name": "phpstan",
+      "category": "linter",
+      "event": "PostToolUse",
+      "matcher": "Edit|Write",
+      "best_for": "Static analysis on PHP edits (vanilla or larastan for Laravel)",
+      "value": "Catches type errors and dead code before tests run.",
+      "signals": {
+        "files": ["phpstan.neon", "phpstan.neon.dist", "phpstan.dist.neon"]
+      }
+    },
+    {
+      "name": "cargo-clippy",
+      "category": "linter",
+      "event": "PostToolUse",
+      "matcher": "Edit|Write",
+      "best_for": "Rust lint on edit — idiomatic suggestions + correctness checks",
+      "signals": {
+        "files": ["Cargo.toml", "Cargo.lock"]
+      }
+    },
+    {
+      "name": "swift-format",
+      "category": "formatter",
+      "event": "PostToolUse",
+      "matcher": "Edit|Write",
+      "best_for": "Apple swift-format on Swift edits",
+      "signals": {
+        "files": ["Package.swift", ".swift-format"]
+      }
+    },
+    {
+      "name": "dart-format",
+      "category": "formatter",
+      "event": "PostToolUse",
+      "matcher": "Edit|Write",
+      "best_for": "Dart/Flutter format on edit",
+      "signals": {
+        "files": ["pubspec.yaml", "analysis_options.yaml"]
+      }
+    },
+    {
+      "name": "commitlint",
+      "category": "linter",
+      "event": "PreToolUse",
+      "matcher": "Bash",
+      "best_for": "Enforce Conventional Commits on git commit",
+      "value": "Blocks malformed commit messages before they land in history.",
+      "signals": {
+        "files": ["commitlint.config.js", "commitlint.config.mjs", "commitlint.config.cjs", "commitlint.config.ts", ".commitlintrc", ".commitlintrc.json", ".commitlintrc.yml"]
+      }
+    },
+    {
+      "name": "gitleaks-scan",
+      "category": "security",
+      "event": "PreToolUse",
+      "matcher": "Edit|Write",
+      "best_for": "Block secret strings being written to disk (API keys, tokens, private keys)",
+      "value": "Last-line defence — catches secrets the developer pastes by accident.",
+      "universal": true
+    },
+    {
+      "name": "branch-guard",
+      "category": "safety",
+      "event": "PreToolUse",
+      "matcher": "Edit|Write",
+      "best_for": "Warn or block edits when checked out on protected branches (main/master)",
+      "value": "Stops accidental direct-to-main edits during agent-driven work.",
+      "universal": true
+    },
+    {
+      "name": "large-diff-warn",
+      "category": "safety",
+      "event": "PreToolUse",
+      "matcher": "Edit|Write",
+      "best_for": "Surface a warning when a single edit exceeds a configurable LOC threshold",
+      "value": "Discourages sprawling agent edits — nudges toward surgical diffs.",
+      "universal": true
+    },
+    {
+      "name": "pre-commit-run",
+      "category": "linter",
+      "event": "PostToolUse",
+      "matcher": "Edit|Write",
+      "best_for": "Run the project's pre-commit framework on changed files",
+      "value": "Reuses the team's existing hook config instead of duplicating per-tool entries.",
+      "signals": {
+        "files": [".pre-commit-config.yaml", ".pre-commit-config.yml"]
+      }
     }
   ]
 }
