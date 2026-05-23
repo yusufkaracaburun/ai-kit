@@ -10,7 +10,7 @@ runtime daemon, no network calls, no telemetry.
 
 | Primitive | Count | Reaches |
 | --------- | -----:| ------- |
-| Skills | 26 | Claude Code · Cursor |
+| Skills | 27 | Claude Code · Cursor |
 | Subagents | 3 | Claude Code |
 | Slash commands | 8 | Claude Code · Cursor |
 | Hooks | 2 | Claude Code |
@@ -66,7 +66,7 @@ First moves:
 
 ## The agile lifecycle
 
-26 skills covering one loop — idea to retro:
+27 skills covering one loop — idea to retro:
 
 | Phase | Skills |
 | ----- | ------ |
@@ -75,7 +75,7 @@ First moves:
 | Testing | `review` · `qa` · `diagnose` |
 | Deployment | `ship` |
 | Ops & review | `retro` · `feedback` · `contribute-eval` |
-| Session continuity | `checkpoint` ↔ `resume` · `handoff` |
+| Session continuity | `checkpoint` ↔ `resume` · `handoff` · `onboard` |
 | Cross-cutting | `setup` · `setup-gh-workflow` · `recommend-rules` · `recommend-tools` · `improve-codebase-architecture` |
 | Experimental | `autonomous` (spike — autonomous-loop variant of `tdd`, opt-in) |
 

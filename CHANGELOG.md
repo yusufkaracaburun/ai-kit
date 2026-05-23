@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.12.0 — 2026-05-23
+
+New `/ai:onboard` skill wraps the harness `ShareOnboardingGuide` tool — drafts
+a project-scoped `ONBOARDING.md` from existing artifacts (README, CONTEXT.md,
+`.ai-kit-setup`, ADRs), confirms with the user, then publishes a short-link.
+Composes with `/ai:handoff`: handoff = leaves a machine, onboard = arrives
+at a project.
+
+- **New** `workflow/skills/onboard/SKILL.md` — full template + audience
+  scoping + idempotent re-run contract (refreshes the existing guide; same
+  short-link keeps working).
+- **New** `tests/eval/prompts/onboard/new-contractor-arriving.md` —
+  eval-structure requires ≥1 fixture per skill.
+- **Updated** count assertions: `structure.sh` (26→27 skills, adds onboard
+  existence assertion), `release-install.sh` (`which --list`: 26→27).
+- **Updated** plugin manifest + README + architecture/install/mental-model
+  docs from 26 → 27 skills.
+
 ## 1.11.0 — 2026-05-23
 
 `/ai:setup` now offers the v1.9.0 repo template pack as an optional Tier B
