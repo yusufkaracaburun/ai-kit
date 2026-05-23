@@ -218,3 +218,12 @@ in priority order:
    `aikit-tdd`); pattern = **adopt-as-pattern** if ai-kit ever decides
    to ship an autonomous-runner. Philosophical shift, not a feature add
    — worth a spike before committing.
+7. **Brainstorm: second plugin under `yusufkaracaburun/marketplace`** (#15).
+   Parking lot for picking plugin #2 now that the standalone marketplace
+   is live (#9). Marketplace shape only pays off at N ≥ 2. Candidate
+   seeds: `emeq-kit` (emeq-specific lifecycle layer — Naschool / Snelstart
+   / Mollie templates), `spec-kit` (PRD/ADR authoring subset of gsd-*),
+   `browser-qa-kit` (Playwright/MCP QA standalone), `graphify-kit`
+   (graphify + caveman + llm-wiki bundle). Exit criterion: pick one,
+   decide fork-vs-fresh-start, open implementation issue against the new
+   repo.
