@@ -6,7 +6,7 @@ SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck source=lib/ai-kit-root.sh
 source "$SCRIPT_BIN/lib/ai-kit-root.sh"
 AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
-EXPECTED_VERSION="$(cat "$AIKIT/VERSION" | tr -d '[:space:]')"
+EXPECTED_VERSION="$(resolve_ai_kit_version "$AIKIT")"
 
 usage() {
   echo "Usage: $0 /path/to/project [--strict] [--minimal]"
