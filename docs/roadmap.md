@@ -437,9 +437,9 @@ in priority order:
     read-only (no code fixes). Issue #32 proposed 8 dimensions —
     review widened to 9 (added error-handling and type-safety; merged
     naming and comment-drift; dropped testability as a cross-cutting
-    lens). Two follow-ups deferred and to be filed as fresh issues:
-    (a) companion `audit-fix` skill that consumes the report and
-    runs atomic per-finding fixes with user approval; (b) per-stack
+    lens). Two follow-ups filed as fresh issues: #34 (companion
+    `audit-fix` skill that consumes the report and runs atomic
+    per-finding fixes with user approval) and #35 (per-stack
     tuning extensions `audit-architecture-laravel` / `-react` /
     `-go` etc. that layer stack-specific heuristics on top of the
-    stack-agnostic core.
+    stack-agnostic core).
