@@ -1,5 +1,32 @@
 # Changelog
 
+## 1.3.0 — 2026-05-23
+
+Add duplication detection for safer plugin updates.
+
+- **New slash command** `/ai:dedupe` — scans four surfaces and reports
+  duplicates/orphans without ever deleting:
+  1. Personal skills (`~/.claude/skills/`) shadowing plugin skills.
+  2. Personal agents (`~/.claude/agents/`) shadowing plugin agents.
+  3. Orphan emitted rules (`.cursor/rules/ai-kit-*.mdc`) whose canonical
+     source no longer exists in the plugin (stale after rule rename/removal).
+  4. Hook overlap in project `.claude/settings.json`.
+- **New bin script** `bin/ai-kit-dedupe.sh` — supports `--json` and `--fix`
+  (prints suggested `rm` commands, never executes). Exit 0 = clean, 1 = dups.
+  Mirrored to `workflow/bin/` so it ships in the plugin.
+
+Motivation: every `/plugin update` risks personal-skill shadowing and orphan
+emitted rules accumulating silently. `/ai:dedupe` surfaces them on demand
+without auto-deleting anything — user always reviews the cleanup commands
+before running them.
+
+Shipping surface at v1.3.0:
+
+- 24 skills (unchanged)
+- 3 subagents (unchanged)
+- 8 slash commands (was 7) — adds `/ai:dedupe`
+- 10 canonical rules (unchanged)
+
 ## 1.2.0 — 2026-05-23
 
 Codify "grill before plan" — prevent agents from jumping straight to plan
