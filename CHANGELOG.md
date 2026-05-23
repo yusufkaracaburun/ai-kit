@@ -1,5 +1,38 @@
 # Changelog
 
+## 1.10.0 — 2026-05-23
+
+Stack-specific micro-rules pack — 5 new rules gated on detected stack.
+
+- `laravel-conventions.mini.md` — Eloquent, Form Requests, queues
+  (idempotent + `WithoutOverlapping`), Artisan, multi-tenancy via Global
+  Scope. Fires on `laravel` framework.
+- `tailwind.mini.md` — utility-first discipline, tokens in `tailwind.config`
+  not literals, `cn()`+`cva` patterns, mobile-first responsive order,
+  `focus-visible:` over `focus:`. Fires on `tailwindcss`.
+- `prisma.mini.md` — schema-first, narrow `include`/`select`, cursor
+  pagination, explicit transactions, N+1 detection, no
+  `$queryRawUnsafe`. Backend architecture.
+- `react-rsc.mini.md` — Server Components by default, push `"use client"`
+  down the tree, async data fetch in RSC, Server Actions for mutations,
+  Suspense per independent slow region. Fires on `nextjs`/`remix`.
+- `sql-style.mini.md` — UPPERCASE keywords, no `SELECT *`, explicit
+  `INNER JOIN`, half-open date ranges, parameterised queries always,
+  `RETURNING` for one-roundtrip writes.
+
+All 5 use `universal: false` + framework/architecture signals so they
+only score when the relevant stack is detected — keeps the universal
+rule set lean for stack-agnostic repos.
+
+Shipping surface at v1.10.0:
+
+- 26 skills (unchanged)
+- 3 subagents (unchanged)
+- 8 slash commands (unchanged)
+- **23 canonical rules** (was 18) under `standards/rules/`
+- 21 curated MCP servers + 25 curated hook recipes + 12 curated plugins
+- 5 repo templates under `context/templates/repo/`
+
 ## 1.9.0 — 2026-05-23
 
 Repo template pack — drop-in baseline files under
