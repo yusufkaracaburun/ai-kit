@@ -7,12 +7,11 @@ set -euo pipefail
 SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"
 AIKIT="$(cd "$SCRIPT_BIN/.." && pwd)"
 
-MARKETPLACE_REPO_DEFAULT="git@github.com:yusufkaracaburun/marketplace.git"
+MARKETPLACE_REPO="git@github.com:yusufkaracaburun/marketplace.git"
 
 usage() {
   cat <<USAGE
-Usage: $0 <new-version> [--notes-file=<path>] [--no-tag] [--dry-run]
-                       [--bump-marketplace] [--marketplace-repo=<git-url>]
+Usage: $0 <new-version> [--notes-file=<path>] [--no-tag] [--dry-run] [--bump-marketplace]
 
 Examples:
   $0 1.2.1                              prompt for changelog entry inline
@@ -30,13 +29,11 @@ Performs:
 
 With --bump-marketplace it also:
   5. Pushes ai-kit master + tags to origin
-  6. Clones the marketplace repo (override URL with --marketplace-repo=...)
-  7. jq-patches .claude-plugin/marketplace.json
+  6. Clones $MARKETPLACE_REPO, jq-patches .claude-plugin/marketplace.json
      (plugins[0].version + plugins[0].source.ref → vX.Y.Z)
-  8. Commits + pushes the marketplace bump
+  7. Commits + pushes the marketplace bump
 
-Without --bump-marketplace the script stops after step 4 — push and bump
-the marketplace yourself.
+Without --bump-marketplace the script stops after step 4.
 USAGE
   exit 1
 }
@@ -48,7 +45,6 @@ NOTES_FILE=""
 DO_TAG=true
 DRY_RUN=false
 BUMP_MARKETPLACE=false
-MARKETPLACE_REPO="$MARKETPLACE_REPO_DEFAULT"
 for arg in "$@"; do
   case "$arg" in
     -h|--help) usage ;;
@@ -56,7 +52,6 @@ for arg in "$@"; do
     --dry-run) DRY_RUN=true ;;
     --bump-marketplace) BUMP_MARKETPLACE=true ;;
     --notes-file=*) NOTES_FILE="${arg#*=}" ;;
-    --marketplace-repo=*) MARKETPLACE_REPO="${arg#*=}" ;;
     -*) echo "Unknown flag: $arg" >&2; usage ;;
     *)
       if [ -n "$NEW_VERSION" ]; then echo "Unexpected arg: $arg" >&2; usage; fi
