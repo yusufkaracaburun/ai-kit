@@ -14,6 +14,27 @@ ai-kit ships **Bash scripts and Markdown only**. No runtime daemon, no network l
 
 The usage log is **opt-in via `AI_KIT_USAGE=1`** and never leaves the machine. There is no telemetry, analytics, or remote sync. Run `bin/usage-purge.sh` to wipe it.
 
+### Auto-log via the Claude Code `PostToolUse` hook
+
+ai-kit ships a `PostToolUse` hook (`bin/hooks/post-skill-log.sh`) wired in its own
+`.claude/settings.json`. With `AI_KIT_USAGE=1` set, each Skill invocation auto-writes
+a `done` event — no per-skill plumbing. The hook is silent and no-op without the env
+var. To add it to a downstream project, copy this into its `.claude/settings.json`:
+
+```jsonc
+{
+  "hooks": {
+    "PostToolUse": [{
+      "matcher": "^Skill$",
+      "hooks": [{
+        "type": "command",
+        "command": "${AI_KIT_ROOT}/bin/hooks/post-skill-log.sh"
+      }]
+    }]
+  }
+}
+```
+
 ## Reporting a vulnerability
 
 Open a private security advisory on GitHub: https://github.com/yusufkaracaburun/ai-kit/security/advisories/new
