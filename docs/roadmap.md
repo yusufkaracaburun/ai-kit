@@ -263,3 +263,18 @@ in priority order:
    by `/should-i-use` Coolify 2026-05-23 — Coolify itself = **Ignore**
    for ai-kit-the-repo (wrong category + AGPL-3.0 incompatible with
    MIT), but the downstream-project deploy advisory is missing.
+10. **Research OpenHands runtime patterns before promoting
+    `aikit-autonomous` spike** (#21) — research-arc input for closing
+    the three contract gaps the spike walkthrough (#18) flagged
+    (precondition checks, per-project `AI_KIT_ROOT` pinning, merge-
+    policy detection). OpenHands (73.2k★) is a mature autonomous
+    engineering agent with production-grade solutions for sandboxed
+    per-task runtimes, queue selection, long-running iteration, and
+    persistent state. Read their source, map each finding back to one
+    of the spike's gaps, decide adopt-as-pattern / adopt-modified /
+    reject per pattern. Output: new `Research input: OpenHands patterns`
+    section in `docs/spikes/aikit-autonomous-ralph.md` + updated
+    contract in `workflow/skills/aikit-autonomous/SKILL.md`. Gap
+    surfaced by `/should-i-use` OpenHands 2026-05-23 — OpenHands itself
+    = **Ignore** as host target (ADR-0006 scopes ai-kit to Claude Code
+    + Cursor) but **Adopt-as-pattern** for spike-research input.
