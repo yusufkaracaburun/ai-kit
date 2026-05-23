@@ -1,7 +1,7 @@
 {
   "name": "ai",
   "description": "Stack-agnostic agile lifecycle for Claude Code — 23 skills, 3 subagents, 7 slash commands. Ideation → development → testing → ship → retro, plus session-continuity (checkpoint/resume).",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "author": {
     "name": "Yusuf Karacaburun",
     "email": "info@emeq.nl"

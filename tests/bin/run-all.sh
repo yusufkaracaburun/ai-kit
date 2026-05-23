@@ -26,6 +26,7 @@ if [ ! -d "$CASES" ]; then
 fi
 
 TMPDIR_RUN=$(mktemp -d)
+# shellcheck disable=SC2064  # Want $TMPDIR_RUN expanded now (the dir we just created), not later.
 trap "rm -rf '$TMPDIR_RUN'" EXIT
 
 START=$(date +%s)

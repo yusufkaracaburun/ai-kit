@@ -36,6 +36,7 @@ done
 command -v gh >/dev/null 2>&1 \
   || { echo "gh CLI not found in PATH" >&2; exit 3; }
 
+# shellcheck disable=SC2054  # `number,title,updatedAt` is a gh --json arg value, not a bash array literal.
 GH_ARGS=(issue list --label ready-for-agent --state open --json number,title,updatedAt)
 [ -n "$REPO" ] && GH_ARGS+=(--repo "$REPO")
 

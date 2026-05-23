@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 3.1.0 — 2026-05-23
+
 **Added**
 - **`bin/ai-kit-migrate-gsd.sh`** — detect + remove ai-kit's predecessor
   ("get-shit-done" / `gsd`) from `~/.claude/` and an optional `--project`
