@@ -1,5 +1,35 @@
 # Changelog
 
+## 4.0.0 — 2026-05-23
+
+### Breaking
+
+- **Removed `/ai:followup`** — folded into `/ai:to-prd` as a "Defer mode"
+  sub-section. Trigger keywords ("defer this", "later", "follow-up on …")
+  now route to `to-prd` which produces a short parking-lot body + roadmap
+  entry instead of a full PRD. Users on `/ai:followup` must update muscle
+  memory to `/ai:to-prd` (Defer mode is auto-detected from keywords).
+- Skill count 24 → 23, slash-command count 8 → 7.
+
+### Changed
+
+- `workflow/skills/to-prd/SKILL.md` gained a `## Defer mode` section at the
+  top with its own template (Pain / Proposed delivery / Why-not / Roadmap
+  pointer), trigger keywords, and the no-approval-gate rule (Defer mode
+  ships without the "Capture as drafted, edit, or abort?" round — PRD mode
+  still gets module-review approval). Bidirectional disambiguation between
+  `to-prd` ↔ `followup` removed (now obsolete).
+- Cross-references updated in `workflow/skills/{next,to-issues,setup-gh-workflow}/SKILL.md`,
+  `docs/mental-model.md`, `bin/ai-kit-next.sh`, `bin/ai-kit-prefer-plugin.sh`,
+  `README.md`, and `tests/eval/prompts/next/whats-open.md` — all now point at
+  `/ai:to-prd defer` for deferred leads.
+
+### Removed
+
+- `workflow/skills/followup/`
+- `workflow/commands/followup.md`
+- `tests/eval/prompts/followup/`
+
 ## Unreleased
 
 ## 3.2.0 — 2026-05-23
