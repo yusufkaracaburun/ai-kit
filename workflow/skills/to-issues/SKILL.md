@@ -24,6 +24,10 @@ Issue titles, branch names, and commit messages follow the [git-hygiene rule](..
 
 Work from whatever is already in the conversation context. If the user passes an issue reference (issue number, URL, or path) as an argument, fetch it from the issue tracker and read its full body and comments.
 
+### 1.5. Grill-first gate
+
+Before drafting slices, apply [`grill-first.mini.md`](../../../standards/rules/grill-first.mini.md). Issue bodies and PRDs look complete but are almost always under-specified — scope split, detection logic, override patterns, and bundle-vs-defer decisions are usually implicit. Route to `grill-with-docs` (if domain docs exist) or `grill-me` and wait for answers before drafting slices. Skip only when the user has answered the open questions in the same turn or said "go" / "skip grill".
+
 ### 2. Explore the codebase (optional)
 
 If you have not already explored the codebase, do so to understand the current state of the code — see **Run mode** for delegating this to `explore`. Issue titles and descriptions should use the project's domain glossary vocabulary, and respect ADRs in the area you're touching.

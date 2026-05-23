@@ -7,6 +7,8 @@ description: Test-driven development with red-green-refactor loop. Use when user
 
 Apply [`context-discipline.mini.md`](../../../standards/rules/context-discipline.mini.md): `grep` for the system-under-test before reading; never `Read` test fixtures or large generated files into this context.
 
+Apply [`grill-first.mini.md`](../../../standards/rules/grill-first.mini.md) **before** writing the first failing test. If the user handed you an issue/PRD/spec, open with grill questions on scope, edge cases, detection logic, and override patterns — even when the source doc looks complete. Skip only if those questions were already answered in the same turn.
+
 ## Philosophy
 
 **Core principle**: Tests should verify behavior through public interfaces, not implementation details. Code can change entirely; tests shouldn't.

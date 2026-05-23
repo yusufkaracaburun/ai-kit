@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.2.0 — 2026-05-23
+
+Codify "grill before plan" — prevent agents from jumping straight to plan
+or implementation when handed an issue/PRD/spec that *looks* complete.
+
+- **New rule** `grill-first.mini.md` (`standards/rules/`) — universal, high
+  weight. Specifies when the grill gate fires, the minimum question set
+  (scope split, detection logic, override pattern, bundle-vs-defer, data
+  contract), routing to `grill-with-docs` vs `grill-me`, and when to skip.
+- **Skill update** `to-issues` — inserts a 1.5 Grill-first gate between
+  "Gather context" and "Explore the codebase", with explicit reference to
+  the new rule.
+- **Skill update** `tdd` — adds grill-first as a precondition before the
+  first failing test, alongside the existing `context-discipline` link.
+
+Motivation: Issue bodies, PRDs, and memory anchors look deterministic but
+are almost always under-specified. Discovering that mid-plan = wasted
+context. Discovering it pre-plan = cheap. Prevention beats cure.
+
+Shipping surface at v1.2.0:
+
+- 24 skills (unchanged; 2 edited)
+- 3 subagents (unchanged)
+- 7 slash commands (unchanged)
+- 10 canonical rules (was 9) under `standards/rules/`
+
 ## 1.1.0 — 2026-05-23
 
 Surface expansion from personal `~/.claude/` companions.
