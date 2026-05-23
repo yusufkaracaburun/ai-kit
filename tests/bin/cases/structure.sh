@@ -110,7 +110,7 @@ assert "hooks.json is valid JSON" 'python3 -c "import json; json.load(open(\"$BU
 assert "hooks.json has PostToolUse Skill matcher" 'python3 -c "
 import json
 d=json.load(open(\"$BUNDLED_JSON\"))
-e=d[\"PostToolUse\"][0]
+e=d[\"hooks\"][\"PostToolUse\"][0]
 assert e[\"matcher\"]==\"^Skill\$\"
 assert e[\"hooks\"][0][\"command\"]==\"\${CLAUDE_PLUGIN_ROOT}/hooks/post-skill-log.sh\"
 "'
