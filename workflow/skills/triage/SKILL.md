@@ -69,8 +69,8 @@ Show counts and a one-line summary per issue. Let the maintainer pick.
 4. **Grill (if needed).** If the issue needs fleshing out, run a `/ai:grill-with-docs` session.
 
 5. **Apply the outcome:**
-   - `ready-for-agent` — post an agent brief comment ([AGENT-BRIEF.md](AGENT-BRIEF.md)).
-   - `ready-for-human` — same structure as an agent brief, but note why it can't be delegated (judgment calls, external access, design decisions, manual testing).
+   - `ready-for-agent` — **MUST** post an Agent Brief comment ([AGENT-BRIEF.md](AGENT-BRIEF.md)) **atomically with the label change** (same triage call, not a follow-up). The comment **MUST** start with the literal header `## Agent Brief` (not `## Triage outcome` — that header is reserved for `needs-info` triage notes). The brief **MUST** contain inline acceptance criteria — referencing an external plan-doc or any file path is insufficient, because downstream skills (e.g. `autonomous`) read this comment cold and do not follow links. If you cannot produce a complete brief from issue context, **do not apply the `ready-for-agent` label** — route to `needs-info` instead.
+   - `ready-for-human` — same structure as an Agent Brief (header `## Agent Brief`, inline acceptance criteria), but note why it can't be delegated (judgment calls, external access, design decisions, manual testing).
    - `needs-info` — post triage notes (template below).
    - `wontfix` (bug) — polite explanation, then close.
    - `wontfix` (enhancement) — write to `.out-of-scope/`, link to it from a comment, then close ([OUT-OF-SCOPE.md](OUT-OF-SCOPE.md)).
@@ -78,7 +78,9 @@ Show counts and a one-line summary per issue. Let the maintainer pick.
 
 ## Quick state override
 
-If the maintainer says "move #42 to ready-for-agent", trust them and apply the role directly. Confirm what you're about to do (role changes, comment, close), then act. Skip grilling. If moving to `ready-for-agent` without a grilling session, ask whether they want to write an agent brief.
+If the maintainer says "move #42 to ready-for-agent", trust them and apply the role directly. Confirm what you're about to do (role changes, comment, close), then act. Skip grilling.
+
+When moving to `ready-for-agent` (quick override or not), an Agent Brief is **required**, not optional. Either write it from issue context in the same call, or refuse the transition and ask the maintainer to grill first. The `## Agent Brief` comment and the `ready-for-agent` label MUST be applied together — never label-only.
 
 ## Needs-info template
 
