@@ -155,39 +155,12 @@
       }
     },
     {
-      "name": "notion",
-      "category": "knowledge",
-      "best_for": "Teams using Notion for docs, PRDs, or roadmap",
-      "value": "Read pages and databases, append blocks, sync ADRs or roadmap entries without context switching.",
-      "signals": {
-        "dependencies": ["@notionhq/client", "notion-sdk-py"]
-      }
-    },
-    {
-      "name": "figma",
-      "category": "design",
-      "best_for": "Frontend projects with Figma design files in scope",
-      "value": "Inspect frames, extract design tokens, sync component props from design source-of-truth.",
-      "signals": {
-        "dependencies": ["figma-api", "@figma/rest-api-spec", "figma-export"]
-      }
-    },
-    {
       "name": "stripe",
       "category": "payments",
       "best_for": "Projects integrating Stripe for payments, subscriptions, or invoicing",
       "value": "Inspect customers, payments, subscriptions; debug webhook failures and reconcile data.",
       "signals": {
         "dependencies": ["stripe", "@stripe/stripe-js", "stripe/stripe-php"]
-      }
-    },
-    {
-      "name": "mongodb",
-      "category": "database",
-      "best_for": "Direct MongoDB access (no ORM, raw aggregation, schema inspection)",
-      "value": "Run queries and aggregations, inspect indexes, debug data issues directly.",
-      "signals": {
-        "dependencies": ["mongoose", "mongodb", "pymongo", "motor"]
       }
     },
     {

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.1 — 2026-05-23
+
+Drop `notion`, `figma`, `mongodb` from MCP curation per maintainer
+decision — narrowing recommend-tools surface to servers we actively use
+or actively recommend. MCP count: 24 → 21.
+
 ## 1.4.0 — 2026-05-23
 
 Expand `recommend-tools` curation with 9 MCP servers and 9 hook recipes.
