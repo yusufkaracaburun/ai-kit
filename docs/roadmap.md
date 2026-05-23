@@ -394,3 +394,19 @@ in priority order:
     first. Migration path: naschool keeps local override until Tier 2
     lands, then re-bootstraps and drops the project-specific bits into
     the YAML config.
+
+17. **Make plugin self-contained: bundle `bin/` so global clone is
+    optional** (#28) — Surfaced 2026-05-23 when naschool's project-
+    scope plugin install showed v4.1.0 in `installed_plugins.json` but
+    `/ai:status` reported "marker 4.0.0 == VERSION 4.0.0 no drift".
+    Root cause: 7 plugin slash-commands call
+    `${AI_KIT_ROOT}/bin/*.sh`, which resolves to the global curl-
+    install at `~/.local/share/ai-kit` — not the plugin cache. Dual
+    install surface, dual update path. Fix: byte-copy `bin/*.sh` into
+    `workflow/bin/` via a new `bin/sync-plugin-bin.sh` (mirrors
+    existing `sync-plugin-hooks.sh`), repoint commands to
+    `${CLAUDE_PLUGIN_ROOT}/bin/`, add drift-detection test.
+    Marker-source-of-truth in `/ai:status` should switch to
+    `${CLAUDE_PLUGIN_ROOT}/.claude-plugin/plugin.json` in the same
+    pass. Optional sidecar: `bin/ai-kit-remove-global.sh` for curl-
+    install migrators.
