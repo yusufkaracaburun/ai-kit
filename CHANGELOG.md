@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.0.1 — 2026-05-23
+
+- fix(plugin): wrap hooks.json in top-level "hooks" key
+
 ## 5.0.0 — 2026-05-23
 
 - feat!: self-contained plugin — bundle bin/ at workflow/bin/ (#28)
