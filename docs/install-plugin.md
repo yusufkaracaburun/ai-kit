@@ -91,7 +91,11 @@ Bundled (via `workflow/.claude-plugin/plugin.json`):
 **Not bundled** (intentionally):
 
 - Rules — emitted per-host at `/ai:setup` time (`bin/emit-rules.sh`); plugin context can't write into your project repo
-- The `bin/` shell scripts — not exposed by the plugin; if you want `/ai:doctor` to work you need `AI_KIT_ROOT` set in env (the slash command resolves it)
+
+`bin/*.sh` (everything the slash-commands invoke) **is** bundled at `workflow/bin/`,
+synced from the canonical `bin/` via `bin/sync-plugin-bin.sh` (`--check` enforces no
+drift in tests). Plugin commands resolve `${CLAUDE_PLUGIN_ROOT}/bin/<script>.sh`, so
+the global clone is not required — `/plugin install` alone is enough.
 
 ### Opt-in usage logging
 
@@ -124,7 +128,8 @@ claude plugin validate /Users/<you>/Sites/localhost/ws/ai-kit/workflow
 /ai:doctor                 # routes through the wrapper if commands loaded
 ```
 
-Or via the doctor script directly:
+Or via the doctor script directly (curl-install only — plugin users get this
+via `/ai:doctor`):
 
 ```bash
 ~/.local/share/ai-kit/bin/ai-kit-doctor.sh

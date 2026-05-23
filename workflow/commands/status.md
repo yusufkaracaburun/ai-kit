@@ -6,7 +6,7 @@ allowed-tools: Bash
 
 Show ai-kit status for the project.
 
-!`bash "${AI_KIT_ROOT:-$(cat "${HOME}/.config/ai-kit/root" 2>/dev/null)}/bin/ai-kit-status.sh" $ARGUMENTS`
+!`bash "${CLAUDE_PLUGIN_ROOT}/bin/ai-kit-status.sh" $ARGUMENTS`
 
 Read the output and answer for the user:
 

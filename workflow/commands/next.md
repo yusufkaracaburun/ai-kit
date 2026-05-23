@@ -10,6 +10,6 @@ Print the prioritized "what to do next" backlog for the current project. Combine
 - Open `- [ ]` tasks in `docs/roadmap.md` (or ROADMAP.md / .planning/roadmap.md)
 - `.ai-kit-setup` deferred branches
 
-!`bash "${AI_KIT_ROOT:-$(cat "${HOME}/.config/ai-kit/root" 2>/dev/null)}/bin/ai-kit-next.sh" $ARGUMENTS`
+!`bash "${CLAUDE_PLUGIN_ROOT}/bin/ai-kit-next.sh" $ARGUMENTS`
 
 Read the top item and propose the most appropriate next-step skill (see `next/SKILL.md` "When to use which next-step suggestion"). Do not auto-execute — the user picks.

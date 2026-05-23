@@ -117,6 +117,9 @@ assert e[\"hooks\"][0][\"command\"]==\"\${CLAUDE_PLUGIN_ROOT}/hooks/post-skill-l
 assert "bundled hook byte-identical to bin/ source" 'cmp -s "$AIKIT/bin/hooks/post-skill-log.sh" "$BUNDLED_POST"'
 assert "bundled log-skill byte-identical to bin/ source" 'cmp -s "$AIKIT/bin/log-skill.sh" "$BUNDLED_LOG"'
 assert "sync-plugin-hooks --check clean" 'bash "$AIKIT/bin/sync-plugin-hooks.sh" --check >/dev/null 2>&1'
+assert "sync-plugin-bin --check clean" 'bash "$AIKIT/bin/sync-plugin-bin.sh" --check >/dev/null 2>&1'
+assert "workflow/bin/ai-kit-doctor.sh exists" '[ -x "$AIKIT/workflow/bin/ai-kit-doctor.sh" ]'
+assert "plugin commands use CLAUDE_PLUGIN_ROOT" '! grep -lE "AI_KIT_ROOT.*\\\$HOME/\\.config/ai-kit/root.*}/bin/" "$AIKIT/workflow/commands/"*.md'
 
 # Drift detection round-trip: mutate, --check fails, re-stamp, --check passes.
 TMP_HOOK_BAK=$(mktemp -d)

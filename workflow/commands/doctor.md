@@ -6,7 +6,7 @@ allowed-tools: Bash
 
 Run `ai-kit-doctor.sh` against the current project and surface its findings.
 
-!`bash "${AI_KIT_ROOT:-$(cat "${HOME}/.config/ai-kit/root" 2>/dev/null)}/bin/ai-kit-doctor.sh" $ARGUMENTS`
+!`bash "${CLAUDE_PLUGIN_ROOT}/bin/ai-kit-doctor.sh" $ARGUMENTS`
 
 Summarise the output for the user:
 

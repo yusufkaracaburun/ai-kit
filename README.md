@@ -10,9 +10,9 @@ runtime daemon, no network calls, no telemetry.
 
 | Primitive | Count | Reaches |
 | --------- | -----:| ------- |
-| Skills | 24 | Claude Code · Cursor |
+| Skills | 23 | Claude Code · Cursor |
 | Subagents | 3 | Claude Code |
-| Slash commands | 8 | Claude Code · Cursor |
+| Slash commands | 7 | Claude Code · Cursor |
 | Hooks | 2 | Claude Code |
 | Rules | 7 canonical books | Cursor · Claude Code (via emitter) |
 
@@ -20,7 +20,18 @@ runtime daemon, no network calls, no telemetry.
 
 ## Install
 
-One line — clones into `~/.local/share/ai-kit` and links the skills globally:
+**Claude Code plugin (recommended).** Self-contained — no global clone, `/plugin update` handles version bumps:
+
+```text
+/plugin marketplace add yusufkaracaburun/marketplace
+/plugin install ai@yusufkaracaburun
+```
+
+The `yusufkaracaburun/marketplace` catalog ([repo](https://github.com/yusufkaracaburun/marketplace))
+hosts ai-kit and future plugins behind one stable address.
+[docs/install-plugin.md](docs/install-plugin.md) covers scope (user vs. project) + the trade-offs.
+
+**Cursor or other hosts (one-line curl).** Clones into `~/.local/share/ai-kit` and links the skills globally:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/yusufkaracaburun/ai-kit/master/install.sh | bash
@@ -29,18 +40,6 @@ curl -fsSL https://raw.githubusercontent.com/yusufkaracaburun/ai-kit/master/inst
 - **Project-only** (no machine-wide symlinks): append `-s -- --no-global` to `bash`.
 - **Pin a release**: `… | AI_KIT_REF=v1.2.0 bash`.
 - **Update later**: `~/.local/share/ai-kit/install.sh --update`.
-
-**Claude Code plugin (alternative).** Marketplace-style install with `/plugin update`
-semantics — Claude Code only:
-
-```text
-/plugin marketplace add yusufkaracaburun/marketplace
-/plugin install ai@yusufkaracaburun
-```
-
-The `yusufkaracaburun/marketplace` catalog ([repo](https://github.com/yusufkaracaburun/marketplace))
-hosts ai-kit and future plugins behind one stable address. See
-[docs/install-plugin.md](docs/install-plugin.md) for the trade-offs.
 
 **Are you an AI agent doing the install?** Follow [docs/install-for-agents.md](docs/install-for-agents.md) — a self-contained prompt with detection, verification, and reporting steps.
 
@@ -94,13 +93,18 @@ Glue lives in [context/templates/companions/](context/templates/companions/).
 
 ## How it's wired
 
-Two install layers, both optional:
+Two install paths, pick one:
 
-1. **Global** — `install-global.sh` symlinks skills, subagents, and commands into
-   `~/.claude/` and `~/.cursor/`. The one-line installer does this; skip with
-   `--no-global` if you only work in one repo.
-2. **Project** — `/ai:setup` bootstraps `AGENTS.md`, `CONTEXT.md`, project skills,
-   and the `.ai-kit-setup` marker. Works fully without step 1.
+1. **Plugin** (Claude Code) — self-contained. `/plugin install` ships everything
+   the slash-commands need under `${CLAUDE_PLUGIN_ROOT}`. No global symlinks,
+   no clone to maintain.
+2. **Global symlinks** (Cursor + Claude Code legacy) — the one-line curl
+   installer clones into `~/.local/share/ai-kit` and `install-global.sh`
+   symlinks skills, subagents, and commands into `~/.claude/` + `~/.cursor/`.
+   Skip with `--no-global` for project-only mode.
+
+Either way, **`/ai:setup`** bootstraps `AGENTS.md`, `CONTEXT.md`, project skills,
+and the `.ai-kit-setup` marker — works the same against both install paths.
 
 `AGENTS.md` is the agent-agnostic entry point; skills route from there. Three-layer
 source → distribution → host model and per-primitive routing: see
@@ -111,8 +115,8 @@ see [docs/primitives.md](docs/primitives.md).
 
 | Issue | First thing to try |
 | ----- | ------------------ |
-| `/ai:setup` not found | Re-run `install-global.sh`; verify the `setup` symlinks |
-| ai-kit root unknown | Set `AI_KIT_ROOT` or run `install-global.sh` once |
+| `/ai:setup` not found | Plugin: re-run `/plugin install ai@yusufkaracaburun` and restart Claude Code. Curl-install: re-run `install-global.sh` and verify the `setup` symlinks |
+| ai-kit root unknown | Plugin: `${CLAUDE_PLUGIN_ROOT}` is set by Claude Code — restart it. Curl-install: set `AI_KIT_ROOT` or re-run `install-global.sh` |
 | Skills missing in Cursor | Reload the window, check `.cursor/skills` resolves |
 | Re-configure a project | `/ai:setup` again (keep/change/skip per branch) or `rm .ai-kit-setup` |
 | Usage log empty | `export AI_KIT_USAGE=1` and open a new shell |

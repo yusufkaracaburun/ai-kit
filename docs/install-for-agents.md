@@ -22,16 +22,14 @@ Plan (run in order; stop on the first failure and report it):
 
 3. Install ai-kit. Pick ONE path based on the detected host(s):
 
-   3a. (Claude Code, recommended for the /ai:* namespace) Install via the
-       plugin marketplace — surfaces every primitive under /ai:*:
+   3a. (Claude Code, recommended) Install via the plugin marketplace —
+       self-contained, surfaces every primitive under /ai:*:
 
            /plugin marketplace add yusufkaracaburun/marketplace
            /plugin install ai@yusufkaracaburun
 
-       After plugin install, also clone the repo so the local bin/ scripts
-       are reachable for steps 4 + 6:
-
-           git clone https://github.com/yusufkaracaburun/ai-kit.git ~/.local/share/ai-kit
+       The plugin bundles bin/ scripts at workflow/bin/ — no global clone
+       is needed. Slash commands resolve ${CLAUDE_PLUGIN_ROOT}/bin/*.sh.
 
    3b. (Cursor, or Claude Code if the user prefers symlinks) Install via the
        installer (clones the repo + symlinks skills/commands/agents into
@@ -46,15 +44,15 @@ Plan (run in order; stop on the first failure and report it):
            git clone https://github.com/yusufkaracaburun/ai-kit.git ~/.local/share/ai-kit
            ~/.local/share/ai-kit/bin/install-global.sh
 
-4. Verify the install. Run:
-
-       ~/.local/share/ai-kit/bin/ai-kit-doctor.sh
+4. Verify the install. Plugin users: invoke `/ai:doctor` in Claude Code.
+   Curl-install users: run `~/.local/share/ai-kit/bin/ai-kit-doctor.sh`.
 
    Expect exit code 0 and no `BLOCKER` lines. If the doctor reports a
    "Legacy gsd" section with N > 0 artifacts, the user has the
    predecessor `get-shit-done` co-installed; ai-kit will still work but
    `/gsd-*` will keep competing with `/ai:*`. Surface this to the user
-   and offer to run:
+   and offer the migration (plugin: ask the user to run; curl-install:
+   run directly):
 
        ~/.local/share/ai-kit/bin/ai-kit-migrate-gsd.sh --project "$(pwd)"
 
@@ -80,10 +78,10 @@ Plan (run in order; stop on the first failure and report it):
    human has already specified another mode. After it completes,
    confirm `.ai-kit-setup` exists in the project root.
 
-7. Confirm health. Run the status command (variant from step 5, or
-   `~/.local/share/ai-kit/bin/ai-kit-status.sh`) and report the
-   version, the host(s) it detected, and the rule emission summary
-   back to the human.
+7. Confirm health. Plugin users: run `/ai:status`. Curl-install users:
+   run `~/.local/share/ai-kit/bin/ai-kit-status.sh`. Report the version,
+   the host(s) it detected, and the rule emission summary back to the
+   human.
 
 8. Suggest two next moves, picked from the human's intent (using the
    right prefix variant from step 5):
