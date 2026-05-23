@@ -208,3 +208,13 @@ in priority order:
    `aikit-recommend-rules`, but for the runtime side (MCP + hooks).
    Verdict via `/should-i-use` 2026-05-23: **adopt-as-pattern**, not
    install — direct adoption would overlap and lower cohesion.
+6. **Spike: autonomous-loop variant of `aikit-tdd`** (#17) — Ralph pattern.
+   A new skill (working title `aikit-autonomous` / `aikit-grind`) that
+   loops over ready-for-AFK issues with fresh-instance-per-story +
+   persistent `progress.txt` + git-log-as-memory, the way
+   `snarktank/ralph` (19.4k ⭐) and Geoffrey Huntley's original Ralph
+   pattern work. Verdict via `/should-i-use` 2026-05-23: package itself
+   = **ignore** (overlaps `aikit-to-prd` + `aikit-to-issues` +
+   `aikit-tdd`); pattern = **adopt-as-pattern** if ai-kit ever decides
+   to ship an autonomous-runner. Philosophical shift, not a feature add
+   — worth a spike before committing.
