@@ -292,3 +292,21 @@ in priority order:
     (3 documented false README claims) but **Adopt-as-pattern** for
     the underlying evaluation finding (verbatim-storage often beats
     LLM-extracted summaries on retrieval benchmarks).
+12. **Refine llm-wiki glue with tight-linking rule + Obsidian viewer
+    pointer** (#23) — small refinement to existing
+    `context/templates/companions/llm-wiki/` glue. Tighten the linking
+    guidance in `wiki-schema.md` from soft "link related concepts" to
+    Rusev's constraint: *only link where understanding A genuinely
+    changes how you see B; three meaningful cross-references beat
+    fifteen weak ones*. Add a short "Viewers" section to the
+    companion's `README.md` pointing at Obsidian as the most polished
+    viewer (free graph view, Copilot plugin for mobile/tablet LLM
+    querying, Web Clipper for browser-to-vault ingest) without making
+    Obsidian a dependency. Tool-neutral: any markdown reader works;
+    Obsidian just unlocks the graph + mobile loop. Surfaced by
+    `/should-i-use` Rusev 2026-05-23 ("How I Built My Second Brain
+    with Obsidian + Claude Code") — verdict was **Adopt-as-pattern**
+    for the two refinements; the article applies Karpathy's LLM Wiki
+    pattern already credited in the companion's README provenance
+    table. Defer-rationale: sequencing behind #22, which will re-audit
+    the same `context/templates/companions/` surface.
