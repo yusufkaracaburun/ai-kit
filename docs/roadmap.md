@@ -251,3 +251,15 @@ in priority order:
    2026-05-23 — the verdict on Qdrant itself was **Ignore** (wrong
    category for the meta-tool), but the downstream-project advisory
    layer is missing entirely.
+9. **Deploy / self-host PaaS advisory** (#20) — sibling of #8 for the
+   deploy category. Detect server-shaped projects (`Dockerfile` +
+   `docker-compose.yml`, no `vercel.json` / `netlify.toml` /
+   `wrangler.toml` / serverless markers) and surface self-hosted PaaS
+   options — Coolify (55k★, AGPL-3.0), Dokku, Caprover, Kamal — with
+   the same preview-then-confirm trust model. Split from #19 because
+   the deploy decision has a sharper either/or shape than the additive
+   vector-DB / observability buckets, and each PaaS needs its own
+   `/should-i-use` pass before vendoring signal tables. Gap surfaced
+   by `/should-i-use` Coolify 2026-05-23 — Coolify itself = **Ignore**
+   for ai-kit-the-repo (wrong category + AGPL-3.0 incompatible with
+   MIT), but the downstream-project deploy advisory is missing.
