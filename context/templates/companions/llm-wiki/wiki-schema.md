@@ -25,8 +25,11 @@ any wiki operation.
 | glossary | `wiki/glossary.md` | terms, definitions, naming conventions |
 | log | `wiki/log.md` | timestamped record of every operation |
 
-Link pages with `[[wiki-link]]` syntax. Every new page must be linked from at
-least one existing page and listed in `index.md` — no orphans.
+Link pages with `[[wiki-link]]` syntax. Only link where understanding page A
+genuinely changes how you see page B — tight linking beats dense linking, three
+meaningful cross-references outperform fifteen weak ones. Every new page must
+still be linked from at least one existing page and listed in `index.md` — no
+orphans.
 
 ## Operations
 
