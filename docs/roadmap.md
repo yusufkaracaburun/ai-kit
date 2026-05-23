@@ -278,8 +278,15 @@ in priority order:
     surfaced by `/should-i-use` OpenHands 2026-05-23 — OpenHands itself
     = **Ignore** as host target (ADR-0006 scopes ai-kit to Claude Code
     + Cursor) but **Adopt-as-pattern** for spike-research input.
-11. **Vetting criteria for `standards/external/` catalog entries** (#22) —
-    cross-cutting prerequisite for #19 and #20. Define a one-page
+11. **Vetting criteria for `standards/external/` catalog entries** (#22)
+    — **landed** 2026-05-23 (commit `ed09f44`). `standards/external/VETTING.md`
+    codifies the seven-criteria bar; existing entries retroactively audited
+    (mcp-servers.json batch, hooks-patterns.json batch, laravel-php-83 rule
+    all ADD; claude-mem REVISIT, deferred to AI-memory category). Re-audit
+    cadence: on every new addition, annually, on any /should-i-use finding.
+    Original entry kept below for traceability:
+
+    Define a one-page
     `standards/external/VETTING.md` codifying the bar a candidate must
     clear before being added to any catalog: storage/data-shape parity
     with marketing, benchmark integrity (no "teaching to the test"),
@@ -341,27 +348,20 @@ in priority order:
     benchmark (48 tables + 36 code blocks preserved vs pdftotext's 0+0
     on a 103-page technical book) is documented prior art for any
     future llm-wiki PDF-ingest path.
-15. **Generalise naschool docs-sync into reusable ai-kit primitive** (#26) —
-    naschool ships a richer drift detector than ai-kit: 10-check `docs-sync`
-    skill + `PostToolUse` hook with **path-pattern triggers**
-    (`/app/Models/`, `/database/migrations/`, `/app/Policies/`,
-    `/database/seeders/`, `/routes/`) and **per-category reminders**
-    ("seeder (mogelijk persona-drift)" vs generic doc-ref). ai-kit's
-    Branch 11 `context-drift-check.sh` only fires when an edited file is
-    literally named in `CONTEXT.md` / `CONTEXT-MAP.md` / `docs/adr/`, so
-    new models / renamed migrations / moved enum cases never get a
-    drift nudge until after the fact. **Two-tier delivery.** Tier 1:
-    extend `bin/hooks/context-drift-check.sh` with stack-aware
-    `--trigger-paths` (from `detect-tooling.sh`) + per-category reminder
-    template; non-blocking, silent no-op when nothing matches. ~50 LOC
-    + tests, can land independently. Tier 2: new ai-kit skill
-    `docs-drift` (or `docs-sync` — name TBD) wrapping the 10-check
-    audit, generalised via `detect-tooling.sh` with project-local
-    overrides in `docs/agents/docs-drift.yml` (seeded-names PII grep,
-    status-table refs, ADR convention). Wired into `aikit-setup` as a
-    Tier-B branch parallel to Branch 11. **Cross-cutting** with #19 and
-    #22 — path-pattern signal table belongs in the same restructure;
-    sequencing risk on Tier 2 (skill-vs-companion call needed first).
-    Migration path: naschool keeps local override until generalised
-    version lands, then re-bootstraps and drops the project-specific
-    bits into the YAML config.
+15. **Generalise naschool docs-sync into reusable ai-kit primitive** (#26)
+    — Tier 1 **landed** 2026-05-23 (commit `3a64907`):
+    `bin/hooks/context-drift-check.sh` now fires path-pattern triggers
+    in addition to literal-doc-name matches, with per-category reminders
+    (model / policy / enum / migration / seeder / route). Built-in
+    defaults cover Laravel, Rails, Next/Node, Django. Project override
+    via `.ai-kit/drift-triggers.json` replaces built-ins entirely.
+    15 new regression tests; 344 total pass.
+
+    **Tier 2 still open**: new `docs-drift` skill wrapping the full
+    10-check audit, generalised via `detect-tooling.sh` with project-
+    local overrides in `docs/agents/docs-drift.yml`. Wired into
+    `aikit-setup` as a Tier-B branch parallel to Branch 11. Sequencing
+    risk — skill-vs-companion call (recommend-tools vs core) needed
+    first. Migration path: naschool keeps local override until Tier 2
+    lands, then re-bootstraps and drops the project-specific bits into
+    the YAML config.
