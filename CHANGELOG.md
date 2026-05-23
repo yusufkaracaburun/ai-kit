@@ -1,5 +1,37 @@
 # Changelog
 
+## 1.6.0 — 2026-05-23
+
+Open the user feedback loop (Phase 1 of < 50-user feedback design).
+
+- **New skill** `feedback` (`workflow/skills/feedback/`) — walks the user
+  through one structured piece of feedback (friction/surprise/clarity/
+  gap/win), redacts absolute paths and secret-shaped strings from any
+  context block, and opens a GitHub issue against `yusufkaracaburun/ai-kit`
+  using the new `feedback.yml` template. Never publishes without showing
+  the final body first.
+- **New issue template** `.github/ISSUE_TEMPLATE/feedback.yml` — structured
+  feedback form with kind dropdown, area multi-select, situation /
+  friction / better fields, optional redacted-context block, redaction
+  checkbox gates.
+- **New issue config** `.github/ISSUE_TEMPLATE/config.yml` — disables
+  blank issues, points open-ended chat to Discussions, keeps the issue
+  tracker reserved for trackable work.
+
+Motivation: at < 50 users, telemetry pipelines are premature; GitHub +
+a guided capture skill is enough to compound user feedback into PRDs
+via the existing `/ai:triage` → `/ai:to-prd` flow. Phase 2 (eval-loop
+contributions) and Phase 3 (recommendation engine) deferred until
+inflow justifies them.
+
+Shipping surface at v1.6.0:
+
+- 25 skills (was 24) — adds `feedback`
+- 3 subagents (unchanged)
+- 8 slash commands (unchanged)
+- 18 canonical rules (unchanged)
+- 21 curated MCP servers + 25 curated hook recipes (unchanged)
+
 ## 1.5.0 — 2026-05-23
 
 Mini-rules pack — 8 new canonical rules under `standards/rules/`.

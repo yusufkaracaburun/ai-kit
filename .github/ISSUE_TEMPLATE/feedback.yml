@@ -1,0 +1,93 @@
+name: Feedback
+description: Share what worked, what didn't, or what could be better. Not a bug, not a new-skill request.
+title: "feedback: "
+labels: ["feedback:user"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the feedback — ai-kit improves fastest when real users share rough edges, confusing moments, and "this saved me hours" wins.
+
+        Use **Bug report** for behaviour that contradicts the docs, and **Skill suggestion** for a new skill. This template is for everything else: friction, clarity, defaults, "I expected X to also do Y", etc.
+  - type: input
+    id: version
+    attributes:
+      label: ai-kit version
+      description: Output of `cat VERSION` in your clone, or what `/ai:doctor` reports.
+      placeholder: "1.5.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Feedback kind
+      options:
+        - "Friction — skill/rule worked but felt clunky"
+        - "Surprise — behaviour differed from expectation"
+        - "Clarity — docs/description/output unclear"
+        - "Gap — situation not covered by any skill/rule"
+        - "Win — what worked well (so we don't regress it)"
+        - "Other"
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      multiple: true
+      options:
+        - "skill: setup"
+        - "skill: tdd"
+        - "skill: ship"
+        - "skill: to-prd"
+        - "skill: to-issues"
+        - "skill: review"
+        - "skill: recommend-rules"
+        - "skill: recommend-tools"
+        - "skill: should-i-use"
+        - "skill: other"
+        - "rule: any of standards/rules/"
+        - "command: /ai:doctor"
+        - "command: /ai:dedupe"
+        - "command: /ai:status"
+        - "command: other"
+        - "install / plugin"
+        - "docs / README"
+  - type: textarea
+    id: situation
+    attributes:
+      label: What were you trying to do?
+      description: One paragraph. Plain prose, not bullet points.
+    validations:
+      required: true
+  - type: textarea
+    id: friction
+    attributes:
+      label: What went wrong / felt off / surprised you?
+      description: Be specific. "Skill X took 8 turns instead of 2 because it kept re-reading the same file" beats "skill X was slow".
+    validations:
+      required: true
+  - type: textarea
+    id: better
+    attributes:
+      label: What would have been better?
+      description: Even if you don't know the implementation — describe the experience you wanted.
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Anonymized context (optional)
+      description: Last few skill invocations, stack, or repo shape. Redact paths and secrets. If `/ai:feedback` collected this for you, paste it here.
+      render: shell
+    validations:
+      required: false
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Confirmations
+      options:
+        - label: I checked existing issues and discussions for the same feedback
+          required: true
+        - label: I redacted absolute paths, repo names, and secrets from the context block
+          required: true

@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Discussions — Show & Tell / Q&A
+    url: https://github.com/yusufkaracaburun/ai-kit/discussions
+    about: Share what you built with ai-kit, ask "is this the right skill", swap rule packs. Use Discussions for open-ended chat; reserve issues for trackable work.
