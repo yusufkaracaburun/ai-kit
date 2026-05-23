@@ -278,3 +278,17 @@ in priority order:
     surfaced by `/should-i-use` OpenHands 2026-05-23 — OpenHands itself
     = **Ignore** as host target (ADR-0006 scopes ai-kit to Claude Code
     + Cursor) but **Adopt-as-pattern** for spike-research input.
+11. **Vetting criteria for `standards/external/` catalog entries** (#22) —
+    cross-cutting prerequisite for #19 and #20. Define a one-page
+    `standards/external/VETTING.md` codifying the bar a candidate must
+    clear before being added to any catalog: storage/data-shape parity
+    with marketing, benchmark integrity (no "teaching to the test"),
+    marketing-vs-code parity audit, license compatibility (MIT or
+    HTTP/MCP-client-only), category-appropriate maturity (entity
+    resolution, sandboxing, schema versioning), data-locality
+    disclosure, provenance pin-by-SHA. Re-audit existing entries
+    against the criteria once written. Surfaced by `/should-i-use`
+    MemPalace 2026-05-23 — verdict was **Ignore** as catalog entry
+    (3 documented false README claims) but **Adopt-as-pattern** for
+    the underlying evaluation finding (verbatim-storage often beats
+    LLM-extracted summaries on retrieval benchmarks).
