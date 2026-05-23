@@ -714,11 +714,15 @@ rm -rf "$TMP_HOME_INSTALL" "$BAD_DIR_INSTALL"
 
 echo ""
 echo "=== ai-kit-which ==="
+# Force the resolver to use the working repo, not whichever install is recorded
+# in ~/.config/ai-kit/root. Tests assert against the in-repo skill set.
+export AI_KIT_ROOT="$AIKIT"
+
 # --list shows all skills with descriptions.
 OUT_WHICH_LIST="$("$AIKIT/bin/ai-kit-which.sh" --list)"
 assert "which --list has header" 'echo "$OUT_WHICH_LIST" | head -1 | grep -q "SKILL"'
 WHICH_LIST_ROWS="$(echo "$OUT_WHICH_LIST" | tail -n +3 | wc -l | tr -d ' ')"
-assert "which --list shows all 21 skills" '[ "$WHICH_LIST_ROWS" -eq 21 ]'
+assert "which --list shows all 22 skills" '[ "$WHICH_LIST_ROWS" -eq 22 ]'
 
 # --explain dumps the SKILL.md.
 OUT_WHICH_EXP="$("$AIKIT/bin/ai-kit-which.sh" --explain aikit-ship)"
@@ -754,7 +758,7 @@ assert "which: gibberish exits 1" '[ "$WHICH_NONE_EXIT" -eq 1 ]'
 echo ""
 echo "=== skills count ==="
 SKILL_COUNT=$(find "$AIKIT/workflow/skills" -name SKILL.md | wc -l | tr -d ' ')
-assert "21 skills" '[ "$SKILL_COUNT" -eq 21 ]'
+assert "22 skills" '[ "$SKILL_COUNT" -eq 22 ]'
 assert "checkpoint skill exists" '[ -f "$AIKIT/workflow/skills/aikit-checkpoint/SKILL.md" ]'
 assert "resume skill exists" '[ -f "$AIKIT/workflow/skills/aikit-resume/SKILL.md" ]'
 
@@ -1069,6 +1073,71 @@ printf '{\n  "hooks": {\n    "PostToolUse": [\n      { "matcher": "^Skill$", "ho
 assert "apply preserves a pre-existing hook" 'grep -q "existing.sh" "$TMP_CDH2/.claude/settings.json"'
 assert "apply adds context-drift alongside" 'grep -q "context-drift-check.sh" "$TMP_CDH2/.claude/settings.json"'
 rm -rf "$TMP_CDH2"
+
+echo ""
+echo "=== bin/autonomous-queue.sh ==="
+TMP_AQ=$(mktemp -d)
+mkdir -p "$TMP_AQ/stubs"
+
+# Stub 1: empty queue.
+cat > "$TMP_AQ/stubs/gh" <<'STUB'
+#!/usr/bin/env bash
+echo "[]"
+STUB
+chmod +x "$TMP_AQ/stubs/gh"
+
+AQ_OUT_EMPTY="$(PATH="$TMP_AQ/stubs:$PATH" "$AIKIT/bin/autonomous-queue.sh" next)"
+assert "empty queue: empty stdout" '[ -z "$AQ_OUT_EMPTY" ]'
+
+AQ_JSON_EMPTY="$(PATH="$TMP_AQ/stubs:$PATH" "$AIKIT/bin/autonomous-queue.sh" next --json)"
+assert "empty queue --json: null" '[ "$AQ_JSON_EMPTY" = "null" ]'
+
+# Stub 2: populated queue. Oldest by updatedAt should win.
+cat > "$TMP_AQ/stubs/gh" <<'STUB'
+#!/usr/bin/env bash
+cat <<'JSON'
+[
+  {"number": 42, "title": "newer one", "updatedAt": "2026-05-22T10:00:00Z"},
+  {"number": 18, "title": "older one", "updatedAt": "2026-05-20T10:00:00Z"}
+]
+JSON
+STUB
+
+AQ_OUT_POP="$(PATH="$TMP_AQ/stubs:$PATH" "$AIKIT/bin/autonomous-queue.sh" next)"
+assert "populated picks oldest plain" '[ "$AQ_OUT_POP" = "$(printf "18\tolder one")" ]'
+
+AQ_JSON_POP="$(PATH="$TMP_AQ/stubs:$PATH" "$AIKIT/bin/autonomous-queue.sh" next --json)"
+assert "populated --json includes issue #" 'echo "$AQ_JSON_POP" | grep -q "\"issue\": 18"'
+assert "populated --json includes title"   'echo "$AQ_JSON_POP" | grep -q "\"title\": \"older one\""'
+
+# Stub 3: bad JSON from gh.
+cat > "$TMP_AQ/stubs/gh" <<'STUB'
+#!/usr/bin/env bash
+echo "not-json"
+STUB
+AQ_BAD_RC=0
+PATH="$TMP_AQ/stubs:$PATH" "$AIKIT/bin/autonomous-queue.sh" next >/dev/null 2>&1 || AQ_BAD_RC=$?
+assert "bad JSON exits nonzero" '[ "$AQ_BAD_RC" -ne 0 ]'
+
+# Missing gh: provide a PATH that excludes the gh-containing dir but still
+# resolves system tools. A truly empty PATH would break /usr/bin/env from the
+# shebang itself.
+mkdir -p "$TMP_AQ/stubs-empty"
+AQ_NO_GH_RC=0
+PATH="$TMP_AQ/stubs-empty:/usr/bin:/bin" "$AIKIT/bin/autonomous-queue.sh" next \
+  >/dev/null 2>&1 || AQ_NO_GH_RC=$?
+assert "missing gh exits nonzero (3)" '[ "$AQ_NO_GH_RC" -eq 3 ]'
+
+# Bad subcommand or no args => usage on stderr, nonzero exit.
+AQ_USAGE_RC=0
+"$AIKIT/bin/autonomous-queue.sh" >/dev/null 2>&1 || AQ_USAGE_RC=$?
+assert "no args exits nonzero" '[ "$AQ_USAGE_RC" -ne 0 ]'
+
+AQ_BAD_ARG_RC=0
+"$AIKIT/bin/autonomous-queue.sh" --bogus >/dev/null 2>&1 || AQ_BAD_ARG_RC=$?
+assert "bad arg exits nonzero" '[ "$AQ_BAD_ARG_RC" -ne 0 ]'
+
+rm -rf "$TMP_AQ"
 
 echo ""
 echo "=== privacy ==="

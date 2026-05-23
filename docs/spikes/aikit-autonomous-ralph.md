@@ -158,6 +158,81 @@ Do **not** wire it into the plugin or `aikit-setup` until the first
 real-queue drain succeeds end-to-end. Treat as opt-in, hand-installed
 during the validation period.
 
+## Validation walkthrough (2026-05-23)
+
+Walked the contract by triaging issue #18 (`Add bin/autonomous-queue.sh`)
+to `ready-for-agent`, drafting the agent brief inline, then building the
+helper end-to-end. Findings:
+
+### Worked
+
+- **Queue read** — `gh issue list --label ready-for-agent --json ...`
+  returned #18 cleanly; `bin/autonomous-queue.sh next` printed
+  `18<TAB>Add bin/autonomous-queue.sh: read ready-for-agent queue (validation for spike #17)`
+  on first invocation.
+- **Empty-queue contract** — empty stdout + exit 0 (plain) and `null`
+  + exit 0 (`--json`) both work; callers can detect with `[ -z "$out" ]`
+  or `[ "$out" = "null" ]`.
+- **`gh` stub via `PATH` override** — turned out to be the right test
+  isolation pattern. Nine regression tests in `tests/bin/run-tests.sh`
+  cover empty/populated/bad-JSON/missing-gh/bad-arg.
+
+### Surprised
+
+1. **Repo lacked the `ready-for-agent` label entirely.** Had to
+   `gh label create ready-for-agent --color 0e8a16` before triaging.
+   The autonomous skill must document this precondition, and ideally
+   `aikit-triage` (or `aikit-setup`) should idempotently ensure the
+   triage label set exists.
+2. **Skill auto-distributes via bootstrap.** Anything in
+   `workflow/skills/*/SKILL.md` gets symlinked by
+   `bootstrap-project.sh:merge_skills`. A spike-status skill currently
+   has no opt-out — users who pull `master` get `aikit-autonomous`
+   listed even though the contract says "do not use until validated".
+   Either move spike skills to `experiments/` (and skip the symlink
+   sweep), or add a `status: spike` frontmatter field + bootstrap
+   exclusion. **Tracked separately as a follow-up.**
+3. **`resolve_ai_kit_root` resolves to the *global* install** when
+   `AI_KIT_ROOT` is unset and `~/.config/ai-kit/root` points at
+   `~/.local/share/ai-kit/`. Tests that invoke `bin/*.sh` from the
+   working repo needed an explicit `export AI_KIT_ROOT="$AIKIT"`
+   to pin the resolver to the local tree. The autonomous loop must
+   do the same per-project — otherwise it would drain *the global
+   install's* queue, not the project the user is sitting in.
+4. **Drift tests left the working tree tampered.** Pre-existing
+   `sync-plugin-version` / `sync-plugin-hooks` drift tests append
+   `# tampered` lines and set `version=0.0.0-drift`, but cleanup did
+   not always run, so back-to-back test invocations dirty the tree.
+   Not autonomous-related, but a real friction for any AFK loop that
+   runs the test suite — surface as its own bug.
+5. **No PR step on ai-kit-the-repo.** The contract says "open PR,
+   never auto-merge", but ai-kit's local policy is direct-to-master
+   (per `feedback_no_pr_ceremony`). Both flows are valid; the contract
+   needs a per-project switch (read merge policy from project config /
+   memory rather than hard-coding PR).
+
+### Verdict on promotion
+
+The **mechanic is sound** — fresh-context iteration via stable disk
+state (`progress.txt` + `gh` queue) produced working code on the
+first try. The **contract needs three additions** before promotion:
+
+- precondition check that the triage labels exist
+- explicit `AI_KIT_ROOT` resolution per project
+- per-project merge-policy detection (PR vs direct)
+
+Status remains **spike** until those three land. Then it can be wired
+into `aikit-setup` as opt-in.
+
+### Artifact produced
+
+- `bin/autonomous-queue.sh` — the queue-read helper (77 lines bash +
+  inline python).
+- `tests/bin/run-tests.sh` — 9 regression tests under a new
+  `=== bin/autonomous-queue.sh ===` section, stubbed `gh` via
+  `PATH` override (no live network).
+- This findings section.
+
 ## Follow-ups (out of scope for spike)
 
 - `bin/autonomous.sh` helper (queue read, progress-log append) once

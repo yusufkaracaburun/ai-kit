@@ -1,6 +1,6 @@
 # Mental model
 
-How the 21 skills fit together, plus the 3 subagents and 6 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
+How the 22 skills fit together, plus the 3 subagents and 6 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
 
 For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossary.md). For "I want to add X — which primitive?" see [primitives.md](primitives.md).
 
@@ -52,6 +52,7 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
 | Recommend canonical rules for the detected stack | `aikit-recommend-rules` |
 | Wire optional companion tools (graphify, caveman) | `aikit-recommend-tools` |
 | Defer a lead — open issue + append to roadmap | `aikit-followup` |
+| Drain a `ready-for-agent` queue end-to-end (spike) | `aikit-autonomous` |
 
 ## Subagents (Claude Code only)
 
