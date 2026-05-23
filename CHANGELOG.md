@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.1.0 — 2026-05-23
+
+- feat(release): auto-release wrapper from Conventional Commits
+- docs(claude): working principles + pre-write checklist
+- feat(release): --bump-marketplace flag for end-to-end publish
+
 ## 4.0.0 — 2026-05-23
 
 ### Breaking
