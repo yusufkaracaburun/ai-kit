@@ -38,12 +38,15 @@ echo "=== ai-kit-audit-ecosystem: JSON shape ==="
 set +e
 JSON="$("$AUDIT" $COMMON --json 2>&1)"
 JSON_EXIT=$?
+JSON_STRICT="$("$AUDIT" $COMMON --json --strict 2>&1)"
+JSON_STRICT_EXIT=$?
 set -e
 assert "audit --json parses" 'echo "$JSON" | python3 -c "import json,sys; json.load(sys.stdin)"'
 assert "audit --json carries findings array" 'echo "$JSON" | python3 -c "import json,sys; d=json.load(sys.stdin); assert isinstance(d[\"findings\"], list)"'
 assert "audit --json carries total + divergent ints" 'echo "$JSON" | python3 -c "import json,sys; d=json.load(sys.stdin); assert isinstance(d[\"total\"], int) and isinstance(d[\"divergent\"], int)"'
 assert "audit --json carries home + catalog_root + scope keys" 'echo "$JSON" | python3 -c "import json,sys; d=json.load(sys.stdin); assert all(k in d for k in (\"home\",\"catalog_root\",\"scope\"))"'
-assert "audit exit 1 when divergent findings present" '[ "$JSON_EXIT" -eq 1 ]'
+assert "audit default exit 0 even with divergent findings (report-only)" '[ "$JSON_EXIT" -eq 0 ]'
+assert "audit --strict exit 1 when divergent findings present" '[ "$JSON_STRICT_EXIT" -eq 1 ]'
 
 echo "=== ai-kit-audit-ecosystem: verdict classification ==="
 # section: audit-ecosystem-verdicts
@@ -66,8 +69,9 @@ assert "in-catalog plugin → OWNED" 'find_verdict "in-catalog@example" "OWNED"'
 assert "stale projectPath → DROP-STALE" 'find_verdict "stale-path@example" "DROP-STALE"'
 assert "dup-name across marketplaces → REBIND (first install)" 'find_verdict "dup-name@market-a" "REBIND"'
 assert "dup-name across marketplaces → REBIND (second install)" 'find_verdict "dup-name@market-b" "REBIND"'
-assert "ai@yusufkaracaburun project-scoped → REBIND" 'find_verdict "ai@yusufkaracaburun" "REBIND"'
+assert "self-ref (ai@yusufkaracaburun) project-scoped → REBIND via manifest detection" 'find_verdict "ai@yusufkaracaburun" "REBIND"'
 assert "uncatalogued plugin → ADOPT" 'find_verdict "uncatalogued@example" "ADOPT"'
+assert "deliberately-excluded plugin → REPLACE (ai-kit has equivalent, recommend uninstall)" 'find_verdict "excluded-fixture@example" "REPLACE"'
 assert "user-skill shadowing plugin → REPLACE" 'find_verdict "dedupe" "REPLACE"'
 assert "user-agent shadowing plugin → REPLACE" 'find_verdict "reviewer" "REPLACE"'
 assert "user-rule matching catalog → OWNED" 'find_verdict "context7-fixture" "OWNED"'
@@ -96,6 +100,7 @@ assert "converge mentions /plugin uninstall for stale" 'echo "$CONV" | grep -q "
 assert "converge mentions rebind for ai@yusufkaracaburun" 'echo "$CONV" | grep -q "/plugin uninstall ai@yusufkaracaburun"'
 assert "converge mentions ADOPT candidate for uncatalogued" 'echo "$CONV" | grep -q "ADOPT candidate: plugins/uncatalogued@example"'
 assert "converge proposes rm for REPLACE user-skill" 'echo "$CONV" | grep -q "rm -rf .*\\.claude/skills/dedupe"'
+assert "converge proposes /plugin uninstall for REPLACE excluded plugin" 'echo "$CONV" | grep -q "/plugin uninstall excluded-fixture@example"'
 assert "converge did NOT execute (fixture skills dir unchanged)" '[ "$BEFORE" -eq "$AFTER" ] && [ -d "$WORK/home/.claude/skills/dedupe" ]'
 
 echo "=== ai-kit-audit-ecosystem: clean fixture → exit 0 ==="
@@ -109,5 +114,16 @@ set -e
 assert "clean fixture → exit 0" '[ "$CLEAN_EXIT" -eq 0 ]'
 assert "clean fixture → findings empty" 'echo "$CLEAN_OUT" | python3 -c "import json,sys; d=json.load(sys.stdin); assert d[\"total\"]==0 and d[\"divergent\"]==0"'
 rm -rf "$CLEAN_HOME"
+
+echo "=== ai-kit-audit-ecosystem: --strict on clean fixture still exits 0 ==="
+# section: audit-ecosystem-strict-clean
+CLEAN_HOME2=$(mktemp -d)
+mkdir -p "$CLEAN_HOME2/.claude"
+set +e
+"$AUDIT" --home "$CLEAN_HOME2" --catalog-root "$CATALOG_FIX" --strict >/dev/null 2>&1
+CLEAN_STRICT_EXIT=$?
+set -e
+assert "--strict on clean fixture → exit 0" '[ "$CLEAN_STRICT_EXIT" -eq 0 ]'
+rm -rf "$CLEAN_HOME2"
 
 print_summary_and_exit

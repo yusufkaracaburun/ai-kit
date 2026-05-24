@@ -13,16 +13,13 @@ echo "=== ai-kit-dedupe: basic invocation ==="
 assert "dedupe --help exits 0" '"$DEDUPE" --help >/dev/null 2>&1'
 assert "dedupe --help prints usage" '"$DEDUPE" --help 2>&1 | grep -q "Scan for ai-kit duplication"'
 
-# Smoke: empty target dir = clean (no personal-skill shadow from temp, no
-# project rules, no settings). Exit 0.
+# Smoke: empty target dir + report-only default = always exit 0.
 EMPTY_TMP=$(mktemp -d)
 set +e
 "$DEDUPE" "$EMPTY_TMP" >/dev/null 2>&1
 EMPTY_EXIT=$?
 set -e
-assert "dedupe empty target: exit 0 when no project orphans/notes" '[ "$EMPTY_EXIT" -eq 0 ] || [ "$EMPTY_EXIT" -eq 1 ]'
-# Exit may be 1 if the user's ~/.claude/skills shadows any plugin skill on
-# this machine. That's a real duplicate, not a test failure.
+assert "dedupe empty target: exit 0 always (report-only default)" '[ "$EMPTY_EXIT" -eq 0 ]'
 
 set +e
 JSON_OUT="$("$DEDUPE" "$EMPTY_TMP" --json 2>&1)"
@@ -57,6 +54,16 @@ FIX_OUT="$("$DEDUPE" "$PROJ_TMP" --fix 2>&1)"
 set -e
 assert "dedupe --fix prints rm for orphan" 'echo "$FIX_OUT" | grep -q "rm \".*totally-fake-rule-xyz.mdc\""'
 assert "dedupe --fix did NOT execute (orphan file still present)" '[ -f "$PROJ_TMP/.cursor/rules/ai-kit-totally-fake-rule-xyz.mdc" ]'
+
+# Exit-code semantics: default report-only (exit 0), --strict exits 1 on findings.
+set +e
+"$DEDUPE" "$PROJ_TMP" >/dev/null 2>&1
+DEFAULT_EXIT=$?
+"$DEDUPE" "$PROJ_TMP" --strict >/dev/null 2>&1
+STRICT_EXIT=$?
+set -e
+assert "dedupe default exit 0 even with orphan findings (report-only)" '[ "$DEFAULT_EXIT" -eq 0 ]'
+assert "dedupe --strict exit 1 when orphan findings present" '[ "$STRICT_EXIT" -eq 1 ]'
 
 rm -rf "$PROJ_TMP"
 

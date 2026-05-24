@@ -46,6 +46,13 @@
         "installPath": "/tmp/fake/uncatalogued",
         "version": "0.3.0"
       }
+    ],
+    "excluded-fixture@example": [
+      {
+        "scope": "user",
+        "installPath": "/tmp/fake/excluded-fixture",
+        "version": "0.1.0"
+      }
     ]
   }
 }

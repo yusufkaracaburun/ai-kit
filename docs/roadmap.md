@@ -550,3 +550,40 @@ in priority order:
     uninstall of `DROP` entries (recipe-only, user runs it),
     standalone `/ai:converge` slash command (promote later if
     `--converge` usage shows it's worth the surface).
+
+23. **ecosystem-audit polish: report-only, self-ref, deliberately-
+    excluded** (v1.15.2) — landed 2026-05-24. First real-world use
+    on naschool surfaced four shortcomings of v1.15.0/v1.15.1.
+    **Exit-code UX:** Claude Code's slash-command runner treats any
+    non-zero exit as red `Error:` — users mistook divergent findings
+    for script failure. Both `bin/ai-kit-dedupe.sh` and
+    `bin/ai-kit-audit-ecosystem.sh` now default to exit 0 (report-
+    only contract) and accept `--strict` to opt in to exit 1 when
+    findings present (intended for CI). **Self-reference:** v1.15.0
+    hardcoded the `ai@yusufkaracaburun` exclusion which (a) broke
+    when ai-kit's own catalog detection logic considered it
+    uncatalogued, mislabeling it `ADOPT`, and (b) didn't generalise.
+    Replaced with manifest-driven self-detection — the script reads
+    its own `workflow/.claude-plugin/plugin.json` `name` field and
+    skips that name from ADOPT classification (project-scoped
+    self-ref still flags `REBIND`). **Deliberately-excluded
+    plugins:** new `standards/external/plugins-excluded.json`
+    enumerates plugins ai-kit consciously did NOT add to its
+    catalog — typically meta-skill bundles (superpowers, gsd,
+    mattpocock-skills) whose best ideas were already distilled
+    into ai-kit's own lifecycle during initial design. Auditing
+    these as `ADOPT` (promotion candidate) was wrong — they're
+    `REPLACE` (ai-kit has equivalent, recommend uninstall) with the
+    `alternative` field surfaced inline in the verdict reason and
+    the convergence recipe (`/plugin uninstall <name>   # ai-kit
+    equivalent: <alternative>`). First entry: superpowers, with
+    `Use ai-kit's own lifecycle skills` as the alternative.
+    **Plugin standards bundling:** v1.15.1 hotfix (`bin/sync-
+    plugin-standards.sh`) confirmed in production — plugin install
+    on naschool went from 21 false-divergent (catalog missing) to 9
+    real divergent. Tests: 455 pass (+6 since v1.15.0). Follow-ups
+    parked as ai-kit#42/#43/#44 (catalog-candidates for context7 /
+    claude-code-setup / caveman, filed via `/ai:to-prd defer` from
+    naschool — labeled `enhancement` fallback because `catalog-
+    candidate` label did not yet exist on this repo; v1.15.2 adds
+    the label + relabels the three issues).

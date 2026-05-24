@@ -1,0 +1,10 @@
+{
+  "_meta": {"title": "fixture excluded plugins", "vendored_at": "2026-05-24"},
+  "excluded": [
+    {
+      "name": "excluded-fixture",
+      "reason": "fixture-only deliberate exclusion for tests",
+      "alternative": "use ai-kit's own equivalent"
+    }
+  ]
+}

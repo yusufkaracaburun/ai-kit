@@ -11,7 +11,7 @@ AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
 
 usage() {
   cat <<USAGE
-Usage: $0 [path] [--json] [--fix] [--no-ecosystem]
+Usage: $0 [path] [--json] [--fix] [--no-ecosystem] [--strict]
 
 Scan for ai-kit duplication across five surfaces:
   1. Personal skills (~/.claude/skills/) shadowing plugin skills
@@ -26,10 +26,14 @@ Options:
   --json          Machine-readable output.
   --fix           Print suggested rm/cleanup commands (does NOT execute).
   --no-ecosystem  Skip Surface 5 (legacy four-surface mode).
+  --strict        Exit 1 when findings are present (for CI). Default is
+                  exit 0 always — this script is report-only, and a non-
+                  zero exit confuses tooling that treats it as failure
+                  (e.g. Claude Code's slash-command runner).
 
 Exit codes:
-  0  no duplicates found
-  1  duplicates / divergent ecosystem findings present
+  0  ran successfully (with or without findings)
+  1  findings present AND --strict was passed
   2  usage error
 USAGE
 }
@@ -37,6 +41,7 @@ USAGE
 MODE_JSON=0
 MODE_FIX=0
 MODE_ECOSYSTEM=1
+MODE_STRICT=0
 TARGET=""
 for arg in "$@"; do
   case "$arg" in
@@ -44,6 +49,7 @@ for arg in "$@"; do
     --json) MODE_JSON=1 ;;
     --fix) MODE_FIX=1 ;;
     --no-ecosystem) MODE_ECOSYSTEM=0 ;;
+    --strict) MODE_STRICT=1 ;;
     -*) echo "Unknown flag: $arg" >&2; usage; exit 2 ;;
     *)
       if [ -n "$TARGET" ]; then echo "Unexpected arg: $arg" >&2; usage; exit 2; fi
@@ -197,7 +203,7 @@ if [ "$MODE_JSON" -eq 1 ]; then
   printf ',\n'
   printf '  "total": %d\n' "$TOTAL"
   printf '}\n'
-  if [ "$TOTAL" -gt 0 ]; then exit 1; else exit 0; fi
+  if [ "$MODE_STRICT" -eq 1 ] && [ "$TOTAL" -gt 0 ]; then exit 1; else exit 0; fi
 fi
 
 # Human-readable report
@@ -279,7 +285,8 @@ fi
 
 if [ "$TOTAL" -gt 0 ]; then
   echo "Found $TOTAL duplicate/orphan item(s). Re-run with --fix to see cleanup commands."
-  exit 1
+  if [ "$MODE_STRICT" -eq 1 ]; then exit 1; fi
+  exit 0
 else
   echo "Clean — no duplicates or orphans found."
   exit 0

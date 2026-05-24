@@ -29,7 +29,7 @@ PRIMITIVES="$(resolve_primitives_root "$AIKIT")"
 
 usage() {
   cat <<USAGE
-Usage: $0 [--json] [--scope SCOPE] [--converge] [--home DIR] [--catalog-root DIR]
+Usage: $0 [--json] [--scope SCOPE] [--converge] [--strict] [--home DIR] [--catalog-root DIR]
 
 Audit host Claude Code primitive state (installed plugins, user-scope skills/
 agents/rules, MCP servers) against ai-kit catalogs. Emit per-item verdicts:
@@ -40,6 +40,10 @@ Options:
   --scope SCOPE       Limit to one surface (plugins|marketplaces|skills|
                       agents|rules|mcp|all). Default: all.
   --converge          Print executable migration recipe (does NOT execute).
+  --strict            Exit 1 when divergent findings are present (for CI).
+                      Default is exit 0 always — this script is report-
+                      only, and a non-zero exit confuses tooling that
+                      treats it as failure.
   --home DIR          Override host root (default: \$HOME). Tests inject
                       fixture trees this way.
   --catalog-root DIR  Override ai-kit catalog root (default: resolved
@@ -47,14 +51,15 @@ Options:
   -h, --help          Show this message.
 
 Exit codes:
-  0  ecosystem already converged (only OWNED + KEEP-EXTERNAL findings)
-  1  divergent findings present
+  0  ran successfully (with or without divergent findings)
+  1  divergent findings present AND --strict was passed
   2  usage error
 USAGE
 }
 
 MODE_JSON=0
 MODE_CONVERGE=0
+MODE_STRICT=0
 SCOPE_FILTER="all"
 HOME_DIR="$HOME"
 CATALOG_ROOT="$AIKIT"
@@ -65,6 +70,7 @@ while [ $# -gt 0 ]; do
     -h|--help) usage; exit 0 ;;
     --json) MODE_JSON=1; shift ;;
     --converge) MODE_CONVERGE=1; shift ;;
+    --strict) MODE_STRICT=1; shift ;;
     --scope)
       [ -n "${2:-}" ] || { echo "--scope requires value" >&2; exit 2; }
       SCOPE_FILTER="$2"; shift 2 ;;
@@ -80,6 +86,23 @@ while [ $# -gt 0 ]; do
   esac
 done
 
+# Self-reference: the audit must never flag ai-kit's own plugin as an ADOPT
+# candidate (you can't ship yourself in your own catalog). Detect by reading
+# the plugin manifest's `name` field from CATALOG_ROOT.
+SELF_PLUGIN_NAME=""
+for self_manifest in "$CATALOG_ROOT/workflow/.claude-plugin/plugin.json" "$CATALOG_ROOT/.claude-plugin/plugin.json"; do
+  if [ -f "$self_manifest" ]; then
+    SELF_PLUGIN_NAME="$(python3 -c "
+import json, sys
+try:
+    print(json.load(open('$self_manifest')).get('name', ''))
+except Exception:
+    pass
+" 2>/dev/null)"
+    [ -n "$SELF_PLUGIN_NAME" ] && break
+  fi
+done
+
 case "$SCOPE_FILTER" in
   all|plugins|marketplaces|skills|agents|rules|mcp) ;;
   *) echo "Invalid --scope: $SCOPE_FILTER" >&2; exit 2 ;;
@@ -93,6 +116,7 @@ USER_RULES_DIR="$HOME_DIR/.claude/rules"
 USER_SETTINGS="$HOME_DIR/.claude/settings.json"
 
 PLUGINS_CATALOG="$CATALOG_ROOT/standards/external/plugins.json"
+PLUGINS_EXCLUDED="$CATALOG_ROOT/standards/external/plugins-excluded.json"
 MCP_CATALOG="$CATALOG_ROOT/standards/external/mcp-servers.json"
 PLUGIN_SKILLS_DIR="$CATALOG_PRIMITIVES/skills"
 PLUGIN_AGENTS_DIR="$CATALOG_PRIMITIVES/agents"
@@ -199,15 +223,54 @@ PY
       continue
     fi
 
-    if [ "$name" = "ai" ] && [ "$marketplace" = "yusufkaracaburun" ] && [ "$scope" = "project" ]; then
-      emit plugins "$name@$marketplace" "REBIND" \
-        "ai-kit itself is project-scoped; cross-project use needs --scope user" "$detail"
+    # Self-reference: ai-kit can never recommend ai-kit-itself into its own
+    # catalog. Treat as OWNED (the install is correct) unless it's project-
+    # scoped (then suggest user-scope rebind).
+    if [ -n "$SELF_PLUGIN_NAME" ] && [ "$name" = "$SELF_PLUGIN_NAME" ]; then
+      if [ "$scope" = "project" ]; then
+        emit plugins "$name@$marketplace" "REBIND" \
+          "ai-kit itself is project-scoped; cross-project use needs --scope user" "$detail"
+      else
+        emit plugins "$name@$marketplace" "OWNED" \
+          "ai-kit's own plugin (self-reference — not catalogued by design)" "$detail"
+      fi
       continue
     fi
 
     if is_catalogued "$name"; then
       emit plugins "$name@$marketplace" "OWNED" \
         "in standards/external/plugins.json" "$detail"
+      continue
+    fi
+
+    # Deliberately-excluded check — these plugins overlap ai-kit's own skills
+    # and should not be ADOPT'd. Surface as KEEP-EXTERNAL with the recorded
+    # reason so users see deliberate non-adoption rather than "promotion
+    # candidate".
+    EXCLUDED_REASON=""
+    EXCLUDED_ALT=""
+    if [ -f "$PLUGINS_EXCLUDED" ]; then
+      EXCLUDED_BLOB="$(python3 - "$PLUGINS_EXCLUDED" "$name" <<'PY'
+import json, sys
+try:
+    data = json.load(open(sys.argv[1]))
+except Exception:
+    sys.exit(0)
+needle = sys.argv[2]
+for entry in data.get("excluded", []):
+    if entry.get("name") == needle:
+        print(entry.get("reason", "deliberately excluded"))
+        print(entry.get("alternative", ""))
+        sys.exit(0)
+PY
+      )"
+      EXCLUDED_REASON="$(printf '%s\n' "$EXCLUDED_BLOB" | sed -n '1p')"
+      EXCLUDED_ALT="$(printf '%s\n' "$EXCLUDED_BLOB" | sed -n '2p')"
+    fi
+    if [ -n "$EXCLUDED_REASON" ]; then
+      reason_line="ai-kit equivalent exists (deliberately excluded): $EXCLUDED_REASON"
+      [ -n "$EXCLUDED_ALT" ] && reason_line="$reason_line — use: $EXCLUDED_ALT"
+      emit plugins "$name@$marketplace" "REPLACE" "$reason_line" "$detail"
       continue
     fi
 
@@ -426,7 +489,7 @@ print(json.dumps(out, indent=2))
     done
   } | HOME_DIR="$HOME_DIR" CATALOG_ROOT="$CATALOG_ROOT" SCOPE_FILTER="$SCOPE_FILTER" \
       python3 -c "$JSON_SCRIPT"
-  if [ "$DIVERGENT" -gt 0 ]; then exit 1; else exit 0; fi
+  if [ "$MODE_STRICT" -eq 1 ] && [ "$DIVERGENT" -gt 0 ]; then exit 1; else exit 0; fi
 fi
 
 # Human-readable
@@ -487,6 +550,15 @@ if [ "$MODE_CONVERGE" -eq 1 ] && [ "$DIVERGENT" -gt 0 ]; then
           agents)
             echo "  rm \"$USER_AGENTS_DIR/$rec_name.md\"   # ai-kit ships workflow/agents/$rec_name"
             ;;
+          plugins)
+            # rec_reason already embeds the alternative — strip the "ai-kit equivalent exists..." prefix.
+            alt_hint="$(printf '%s' "$rec_reason" | sed -n 's/.*— use: //p')"
+            if [ -n "$alt_hint" ]; then
+              echo "  /plugin uninstall $rec_name   # ai-kit equivalent: $alt_hint"
+            else
+              echo "  /plugin uninstall $rec_name   # ai-kit ships equivalent (see plugins-excluded.json)"
+            fi
+            ;;
         esac
         ;;
       DROP)
@@ -506,7 +578,8 @@ fi
 
 if [ "$DIVERGENT" -gt 0 ]; then
   echo "Found $DIVERGENT divergent item(s). Run with --converge to see migration recipe."
-  exit 1
+  if [ "$MODE_STRICT" -eq 1 ]; then exit 1; fi
+  exit 0
 else
   echo "Converged — host primitives match ai-kit catalog (or are explicitly external)."
   exit 0

@@ -1,0 +1,14 @@
+{
+  "_meta": {
+    "title": "Plugins deliberately NOT in ai-kit catalog",
+    "notes": "ai-kit's catalog is for COMPLEMENTARY tools, not ALTERNATIVES that overlap ai-kit's own integrated skills. During initial design (gstack, gsd, superpowers, mattpocock-skills, etc were studied), the best ideas were distilled INTO ai-kit's lifecycle. Recommending these plugins alongside ai-kit creates double-bundle noise. The audit emits KEEP-EXTERNAL with the reason from this file instead of ADOPT, so users see deliberate non-adoption (not 'promotion candidate').",
+    "vendored_at": "2026-05-24"
+  },
+  "excluded": [
+    {
+      "name": "superpowers",
+      "reason": "Meta-skill bundle (obra/superpowers-marketplace). Overlaps with ai-kit's /ai:tdd, /ai:review, /ai:retro, /ai:ship, /ai:plan-* and others — best patterns were distilled into ai-kit's own lifecycle during initial design. Adding it as a recommended plugin would create double-bundle noise.",
+      "alternative": "Use ai-kit's own lifecycle skills."
+    }
+  ]
+}
