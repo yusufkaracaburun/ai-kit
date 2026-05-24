@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "context7-fixture": {
+      "type": "http",
+      "url": "https://example.invalid/mcp"
+    },
+    "uncatalogued-mcp": {
+      "command": "/usr/bin/false"
+    }
+  }
+}

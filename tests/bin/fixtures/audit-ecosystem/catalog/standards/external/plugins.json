@@ -1,0 +1,13 @@
+{
+  "_meta": {"title": "fixture catalog", "vendored_at": "2026-05-24"},
+  "recommendations": [
+    {
+      "name": "in-catalog",
+      "marketplace": "example",
+      "install": "/plugin install in-catalog@example",
+      "category": "test",
+      "value": "fixture",
+      "universal": true
+    }
+  ]
+}

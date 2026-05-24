@@ -11,34 +11,39 @@ AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
 
 usage() {
   cat <<USAGE
-Usage: $0 [path] [--json] [--fix]
+Usage: $0 [path] [--json] [--fix] [--no-ecosystem]
 
-Scan for ai-kit duplication across four surfaces:
+Scan for ai-kit duplication across five surfaces:
   1. Personal skills (~/.claude/skills/) shadowing plugin skills
   2. Personal agents (~/.claude/agents/) shadowing plugin agents
   3. Orphan emitted rules (.cursor/rules/ai-kit-*.mdc) not in plugin
   4. Stale entries in project .claude/settings.json hooks
+  5. Ecosystem audit (host plugins / MCP / user skills / agents / rules
+     against ai-kit catalogs). Delegates to ai-kit-audit-ecosystem.sh.
 
 Options:
-  path     Project path (default: pwd). Used for surfaces 3 and 4.
-  --json   Machine-readable output.
-  --fix    Print suggested rm/cleanup commands (does NOT execute them).
+  path            Project path (default: pwd). Used for surfaces 3 and 4.
+  --json          Machine-readable output.
+  --fix           Print suggested rm/cleanup commands (does NOT execute).
+  --no-ecosystem  Skip Surface 5 (legacy four-surface mode).
 
 Exit codes:
   0  no duplicates found
-  1  duplicates found
+  1  duplicates / divergent ecosystem findings present
   2  usage error
 USAGE
 }
 
 MODE_JSON=0
 MODE_FIX=0
+MODE_ECOSYSTEM=1
 TARGET=""
 for arg in "$@"; do
   case "$arg" in
     -h|--help) usage; exit 0 ;;
     --json) MODE_JSON=1 ;;
     --fix) MODE_FIX=1 ;;
+    --no-ecosystem) MODE_ECOSYSTEM=0 ;;
     -*) echo "Unknown flag: $arg" >&2; usage; exit 2 ;;
     *)
       if [ -n "$TARGET" ]; then echo "Unexpected arg: $arg" >&2; usage; exit 2; fi
@@ -119,7 +124,36 @@ if [ -f "$PROJECT_SETTINGS" ]; then
   fi
 fi
 
-TOTAL=$(( ${#DUP_SKILLS[@]} + ${#DUP_AGENTS[@]} + ${#ORPHAN_RULES[@]} ))
+# Surface 5: ecosystem audit — delegate to ai-kit-audit-ecosystem.sh.
+ECOSYSTEM_JSON=""
+ECOSYSTEM_DIVERGENT=0
+ECOSYSTEM_TOTAL=0
+AUDIT_BIN="$SCRIPT_BIN/ai-kit-audit-ecosystem.sh"
+if [ "$MODE_ECOSYSTEM" -eq 1 ] && [ -x "$AUDIT_BIN" ]; then
+  set +e
+  ECOSYSTEM_JSON="$("$AUDIT_BIN" --json 2>/dev/null)"
+  set -e
+  if [ -n "$ECOSYSTEM_JSON" ]; then
+    ECOSYSTEM_DIVERGENT="$(printf '%s' "$ECOSYSTEM_JSON" | python3 -c "
+import json, sys
+try:
+    d = json.load(sys.stdin)
+    print(d.get('divergent', 0))
+except Exception:
+    print(0)
+" 2>/dev/null || echo 0)"
+    ECOSYSTEM_TOTAL="$(printf '%s' "$ECOSYSTEM_JSON" | python3 -c "
+import json, sys
+try:
+    d = json.load(sys.stdin)
+    print(d.get('total', 0))
+except Exception:
+    print(0)
+" 2>/dev/null || echo 0)"
+  fi
+fi
+
+TOTAL=$(( ${#DUP_SKILLS[@]} + ${#DUP_AGENTS[@]} + ${#ORPHAN_RULES[@]} + ECOSYSTEM_DIVERGENT ))
 
 if [ "$MODE_JSON" -eq 1 ]; then
   printf '{\n'
@@ -153,6 +187,14 @@ if [ "$MODE_JSON" -eq 1 ]; then
     printf '"%s"' "$(printf '%s' "$s" | sed 's/"/\\"/g')"
   done
   printf '],\n'
+  # Surface 5: embed the ecosystem audit JSON verbatim (or empty object).
+  printf '  "ecosystem": '
+  if [ -n "$ECOSYSTEM_JSON" ]; then
+    printf '%s' "$ECOSYSTEM_JSON"
+  else
+    printf '{"findings": [], "total": 0, "divergent": 0}'
+  fi
+  printf ',\n'
   printf '  "total": %d\n' "$TOTAL"
   printf '}\n'
   if [ "$TOTAL" -gt 0 ]; then exit 1; else exit 0; fi
@@ -203,6 +245,21 @@ else
   for s in "${HOOK_NOTES[@]}"; do
     echo "  info  $s"
   done
+fi
+echo ""
+
+echo "Surface 5 — Ecosystem audit (host plugins / MCP / user primitives vs ai-kit catalog)"
+if [ "$MODE_ECOSYSTEM" -eq 0 ]; then
+  echo "  skip  (--no-ecosystem)"
+elif [ ! -x "$AUDIT_BIN" ]; then
+  echo "  skip  ai-kit-audit-ecosystem.sh not found at $AUDIT_BIN"
+elif [ "$ECOSYSTEM_TOTAL" -eq 0 ]; then
+  echo "  ok  no host primitives inspected"
+elif [ "$ECOSYSTEM_DIVERGENT" -eq 0 ]; then
+  echo "  ok  $ECOSYSTEM_TOTAL item(s) inspected — all OWNED or KEEP-EXTERNAL"
+else
+  echo "  $ECOSYSTEM_DIVERGENT divergent of $ECOSYSTEM_TOTAL item(s)."
+  echo "  Run $AUDIT_BIN for the per-item verdict table, --converge for migration recipe."
 fi
 echo ""
 

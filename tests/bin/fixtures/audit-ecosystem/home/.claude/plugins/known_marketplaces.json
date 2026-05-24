@@ -1,0 +1,27 @@
+{
+  "example": {
+    "source": {"source": "github", "repo": "example/marketplace"},
+    "installLocation": "/tmp/fake/mkt/example",
+    "lastUpdated": "2026-05-24T00:00:00.000Z"
+  },
+  "market-a": {
+    "source": {"source": "github", "repo": "market-a/repo"},
+    "installLocation": "/tmp/fake/mkt/market-a",
+    "lastUpdated": "2026-05-24T00:00:00.000Z"
+  },
+  "market-b": {
+    "source": {"source": "github", "repo": "market-b/repo"},
+    "installLocation": "/tmp/fake/mkt/market-b",
+    "lastUpdated": "2026-05-24T00:00:00.000Z"
+  },
+  "yusufkaracaburun": {
+    "source": {"source": "github", "repo": "yusufkaracaburun/marketplace"},
+    "installLocation": "/tmp/fake/mkt/ykb",
+    "lastUpdated": "2026-05-24T00:00:00.000Z"
+  },
+  "unused-marketplace": {
+    "source": {"source": "github", "repo": "unused/repo"},
+    "installLocation": "/tmp/fake/mkt/unused",
+    "lastUpdated": "2026-05-24T00:00:00.000Z"
+  }
+}

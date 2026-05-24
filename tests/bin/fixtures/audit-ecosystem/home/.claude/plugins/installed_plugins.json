@@ -1,0 +1,51 @@
+{
+  "version": 2,
+  "plugins": {
+    "in-catalog@example": [
+      {
+        "scope": "project",
+        "projectPath": "__ALIVE_PATH__",
+        "installPath": "/tmp/fake/in-catalog",
+        "version": "1.0.0"
+      }
+    ],
+    "stale-path@example": [
+      {
+        "scope": "project",
+        "projectPath": "/tmp/this/path/does/not/exist/__nope__",
+        "installPath": "/tmp/fake/stale-path",
+        "version": "0.1.0"
+      }
+    ],
+    "dup-name@market-a": [
+      {
+        "scope": "project",
+        "projectPath": "__ALIVE_PATH__",
+        "installPath": "/tmp/fake/dup-a",
+        "version": "1.0.0"
+      }
+    ],
+    "dup-name@market-b": [
+      {
+        "scope": "user",
+        "installPath": "/tmp/fake/dup-b",
+        "version": "2.0.0"
+      }
+    ],
+    "ai@yusufkaracaburun": [
+      {
+        "scope": "project",
+        "projectPath": "__ALIVE_PATH__",
+        "installPath": "/tmp/fake/ai",
+        "version": "1.0.0"
+      }
+    ],
+    "uncatalogued@example": [
+      {
+        "scope": "user",
+        "installPath": "/tmp/fake/uncatalogued",
+        "version": "0.3.0"
+      }
+    ]
+  }
+}

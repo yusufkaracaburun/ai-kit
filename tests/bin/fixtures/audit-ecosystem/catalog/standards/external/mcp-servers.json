@@ -1,0 +1,11 @@
+{
+  "_meta": {"title": "fixture mcp catalog", "vendored_at": "2026-05-24"},
+  "recommendations": [
+    {
+      "name": "context7-fixture",
+      "category": "docs",
+      "value": "fixture universal MCP",
+      "universal": true
+    }
+  ]
+}

@@ -64,4 +64,24 @@ echo "=== ai-kit-dedupe: unknown flag rejected ==="
 # section: ai-kit-dedupe-flags
 assert "dedupe rejects unknown flag" '! "$DEDUPE" --bogus-flag >/dev/null 2>&1'
 
+echo "=== ai-kit-dedupe: Surface 5 ecosystem integration ==="
+# section: ai-kit-dedupe-ecosystem
+EMPTY_TMP2=$(mktemp -d)
+set +e
+S5_JSON="$("$DEDUPE" "$EMPTY_TMP2" --json 2>&1)"
+set -e
+assert "dedupe --json carries ecosystem block by default" 'echo "$S5_JSON" | python3 -c "import json,sys; d=json.load(sys.stdin); assert \"ecosystem\" in d"'
+assert "ecosystem block has findings array" 'echo "$S5_JSON" | python3 -c "import json,sys; d=json.load(sys.stdin); assert isinstance(d[\"ecosystem\"][\"findings\"], list)"'
+
+S5_HUMAN="$("$DEDUPE" "$EMPTY_TMP2" 2>&1 || true)"
+assert "dedupe human output includes Surface 5 header" 'echo "$S5_HUMAN" | grep -q "Surface 5 — Ecosystem audit"'
+
+S5_SKIP_JSON="$("$DEDUPE" "$EMPTY_TMP2" --no-ecosystem --json 2>&1 || true)"
+assert "dedupe --no-ecosystem still carries ecosystem key (empty)" 'echo "$S5_SKIP_JSON" | python3 -c "import json,sys; d=json.load(sys.stdin); assert d[\"ecosystem\"][\"total\"]==0 and d[\"ecosystem\"][\"divergent\"]==0"'
+
+S5_SKIP_HUMAN="$("$DEDUPE" "$EMPTY_TMP2" --no-ecosystem 2>&1 || true)"
+assert "dedupe --no-ecosystem human output marks Surface 5 skipped" 'echo "$S5_SKIP_HUMAN" | grep -q "skip"'
+
+rm -rf "$EMPTY_TMP2"
+
 print_summary_and_exit

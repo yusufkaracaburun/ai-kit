@@ -500,3 +500,53 @@ in priority order:
     `exit-handoff` to `exit-error`. Together these unblock
     tomorrow's #42 re-drain attempt with mechanical safety,
     diagnosable progress, and a clean abort path.
+
+22. **broader CC-primitive ecosystem audit + convergence** (#41) —
+    landed 2026-05-24 in v1.15.0. `/ai:dedupe` and `/ai:setup` were
+    blind to host-side Claude Code state beyond their four narrow
+    surfaces; on naschool the rename `school-activities-hub` →
+    `naschool` left stale `projectPath` refs in
+    `~/.claude/plugins/installed_plugins.json` and `/ai:dedupe`
+    still reported `clean — no duplicates or orphans found`. User
+    reframe (2026-05-24): ai-kit should *replace* the scattered
+    status-quo, not just report on it — every host primitive needs a
+    convergence verdict (add/move/update/delete) against ai-kit's
+    single source of truth. New `bin/ai-kit-audit-ecosystem.sh` is a
+    read-only auditor that walks installed plugins, known
+    marketplaces, user-scope skills/agents/rules, and user-settings
+    MCP servers, cross-checking each against
+    `standards/external/{plugins,mcp-servers}.json` +
+    `workflow/{skills,agents}/` + `standards/rules/`. Per-item
+    verdict: `OWNED` (catalog match), `ADOPT` (promotion
+    candidate), `REBIND` (scope mismatch — project-scoped where
+    user-scope makes sense, or duplicate marketplace install),
+    `REPLACE` (ai-kit ships equivalent), `DROP-STALE`
+    (`projectPath` missing on disk), `KEEP-EXTERNAL` (valid
+    out-of-scope). Flags: `--json`, `--scope`, `--converge`
+    (prints migration recipe — `/plugin uninstall`,
+    `/plugin install --scope user`, `rm`, `/plugin marketplace
+    remove` — but does NOT execute), `--home` and
+    `--catalog-root` for test-fixture injection. `bin/ai-kit-dedupe.sh`
+    gained Surface 5 wired through `--no-ecosystem` opt-out; JSON
+    output embeds the `ecosystem` block verbatim alongside
+    `dup_skills` etc. `workflow/commands/dedupe.md` documents the
+    verdict tokens. `workflow/skills/recommend-tools/SKILL.md`
+    gained Phase 0 Inventory that runs the auditor before
+    recommending, so already-wired tools are noted as such (no
+    double-recommend) and `ADOPT`/`REBIND`/`REPLACE` findings
+    surface for user action *before* Phase 3 wiring. Tests:
+    fixture tree under `tests/bin/fixtures/audit-ecosystem/` with
+    synthetic `installed_plugins.json` covering every verdict
+    class; `tests/bin/cases/audit-ecosystem.sh` (30 assertions);
+    `tests/bin/cases/dedupe.sh` extended to assert Surface 5
+    presence (5 extra assertions). 449 tests pass total. Real-
+    machine smoke on the dev host: 66 items inspected, 9
+    divergent — confirmed `ai@yusufkaracaburun` project-scoped to
+    naschool only (should be user), `superpowers` installed from
+    two different marketplaces, 4 plugin promotion candidates
+    (`context7`, `claude-code-setup`, `csharp-lsp`, `caveman`).
+    Non-goals deferred to follow-ups: auto-promote of `ADOPT`
+    candidates (gated by VETTING.md / `/should-i-use`), auto-
+    uninstall of `DROP` entries (recipe-only, user runs it),
+    standalone `/ai:converge` slash command (promote later if
+    `--converge` usage shows it's worth the surface).
