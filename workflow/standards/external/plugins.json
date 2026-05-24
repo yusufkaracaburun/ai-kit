@@ -1,0 +1,139 @@
+{
+  "_meta": {
+    "title": "Claude Code plugin recommendations — stack signal → plugin map",
+    "notes": "Curated third-party Claude Code plugins worth surfacing per project. ai-kit recommends, never bundles. Install entries are advisory — users run /plugin install themselves. Mirror of mcp-servers.json schema with additional 'marketplace' + 'install' fields.",
+    "vendored_at": "2026-05-23"
+  },
+  "recommendations": [
+    {
+      "name": "claude-mem",
+      "marketplace": "thedotmack",
+      "install": "/plugin install claude-mem@thedotmack",
+      "category": "memory",
+      "best_for": "Long-running projects where Claude should remember decisions, context, and history across sessions",
+      "value": "Persistent cross-session memory — complements ai-kit's /ai:checkpoint with searchable long-term context.",
+      "universal": true
+    },
+    {
+      "name": "tdd-guard",
+      "marketplace": "tdd-guard",
+      "install": "/plugin install tdd-guard@tdd-guard",
+      "category": "tests",
+      "best_for": "Projects with a real test suite where you want hook-enforced red-green-refactor discipline",
+      "value": "Real-time TDD enforcement via hooks — pairs with ai-kit's /ai:tdd skill for the workflow + guard for the gate.",
+      "signals": {
+        "files": ["jest.config.js", "jest.config.ts", "vitest.config.ts", "vitest.config.js", "phpunit.xml", "phpunit.xml.dist", "pytest.ini", "pyproject.toml"]
+      }
+    },
+    {
+      "name": "ask-questions-if-underspecified",
+      "marketplace": "trailofbits",
+      "install": "/plugin install ask-questions-if-underspecified@trailofbits",
+      "category": "discipline",
+      "best_for": "Any project — forces clarifying questions when a request is ambiguous",
+      "value": "Codifies the same intent as ai-kit's grill-first rule + /ai:grill-with-docs skill; the plugin enforces it via behaviour, the rule enforces it via prompt.",
+      "universal": true
+    },
+    {
+      "name": "claude-md-management",
+      "marketplace": "claude-plugins-official",
+      "install": "/plugin install claude-md-management@claude-plugins-official",
+      "category": "docs",
+      "best_for": "Projects with a CLAUDE.md / AGENTS.md that drifts from reality",
+      "value": "Keeps CLAUDE.md hygiene automated — section linting, deprecated-instruction detection, regeneration suggestions.",
+      "universal": true
+    },
+    {
+      "name": "skill-creator",
+      "marketplace": "claude-plugins-official",
+      "install": "/plugin install skill-creator@claude-plugins-official",
+      "category": "meta",
+      "best_for": "Users extending ai-kit with their own skills",
+      "value": "Skill scaffolding + eval + benchmarking. Use it to author the project-local skills ai-kit suggests but does not ship.",
+      "universal": true
+    },
+    {
+      "name": "github",
+      "marketplace": "claude-plugins-official",
+      "install": "/plugin install github@claude-plugins-official",
+      "category": "vcs",
+      "best_for": "Projects hosted on GitHub — issue/PR/workflow integration",
+      "value": "Native gh-aware skills for issue triage, PR review, workflow inspection. Complements ai-kit's /ai:to-issues and /ai:ship.",
+      "signals": {
+        "git_remote_host": ["github.com"],
+        "files": [".github/workflows"]
+      }
+    },
+    {
+      "name": "laravel-boost",
+      "marketplace": "claude-plugins-official",
+      "install": "/plugin install laravel-boost@claude-plugins-official",
+      "category": "framework",
+      "best_for": "Laravel projects",
+      "value": "Eloquent / Artisan / Filament / queue idioms baked into the agent. Pairs with ai-kit's stack-agnostic skills.",
+      "signals": {
+        "frameworks": ["laravel"],
+        "files": ["artisan", "composer.json"]
+      }
+    },
+    {
+      "name": "frontend-design",
+      "marketplace": "claude-plugins-official",
+      "install": "/plugin install frontend-design@claude-plugins-official",
+      "category": "design",
+      "best_for": "Frontend projects needing layout / typography / component design help",
+      "value": "Design-aware suggestions, component sketches, layout critique. Complements ai-kit's /ai:prototype and /ai:qa.",
+      "signals": {
+        "frameworks": ["react", "vue", "angular", "nextjs", "nuxt", "svelte", "remix", "astro"],
+        "architectures": ["frontend"]
+      }
+    },
+    {
+      "name": "lazyweb",
+      "marketplace": "lazyweb",
+      "install": "/plugin install lazyweb@lazyweb",
+      "category": "design",
+      "best_for": "Frontend projects where design research and screenshot reference compounds value",
+      "value": "Screenshot database + design research workflows — pairs with frontend-design for the search + critique loop.",
+      "signals": {
+        "frameworks": ["react", "vue", "angular", "nextjs", "nuxt", "svelte", "remix", "astro"],
+        "architectures": ["frontend"]
+      }
+    },
+    {
+      "name": "chrome-devtools-mcp",
+      "marketplace": "claude-plugins-official",
+      "install": "/plugin install chrome-devtools-mcp@claude-plugins-official",
+      "category": "browser",
+      "best_for": "Web apps needing in-browser debugging (console, network, DOM inspection)",
+      "value": "Direct Chrome devtools access from Claude — complements ai-kit's /ai:qa for live debugging.",
+      "signals": {
+        "frameworks": ["react", "vue", "angular", "nextjs", "nuxt", "svelte", "remix", "astro"],
+        "architectures": ["frontend"]
+      }
+    },
+    {
+      "name": "typescript-lsp",
+      "marketplace": "claude-plugins-official",
+      "install": "/plugin install typescript-lsp@claude-plugins-official",
+      "category": "lsp",
+      "best_for": "TypeScript projects — adds language-server-aware code intelligence",
+      "value": "Type-aware navigation, refactoring, and diagnostics from the LSP instead of grep-and-guess.",
+      "signals": {
+        "files": ["tsconfig.json", "tsconfig.base.json"]
+      }
+    },
+    {
+      "name": "php-lsp",
+      "marketplace": "claude-plugins-official",
+      "install": "/plugin install php-lsp@claude-plugins-official",
+      "category": "lsp",
+      "best_for": "PHP / Laravel projects — adds language-server-aware code intelligence",
+      "value": "Type-aware navigation and refactoring through the PHP LSP — useful in any non-trivial PHP codebase.",
+      "signals": {
+        "files": ["composer.json"],
+        "frameworks": ["laravel", "symfony"]
+      }
+    }
+  ]
+}
