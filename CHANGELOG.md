@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.19.0 — 2026-05-25
+
+### Added
+
+- **`/ai:rename-housekeeping <old> <new>`** — new skill that rewrites stale absolute-path references in memory files after a local repo rename or move. Scans `~/.claude/CLAUDE.md`, project `CLAUDE.md`/`AGENTS.md`/`.agents/memory/**`/`.planning/**`/`docs/**`/`.claude/**`, and `~/.cursor`/`~/.codex`/`~/.gemini`. Dry-run preview → confirm → snapshots every `~/.claude/**` target to `~/.claude/.backups/<ts>/` before write → updates `~/.claude/known-projects.json`. Closes [#33](https://github.com/yusufkaracaburun/ai-kit/issues/33).
+- **`bin/hooks/rename-detector.sh`** — user-global `SessionStart` hook that maintains `~/.claude/known-projects.json` (`name`, `path`, `first_seen`, `last_seen`). Emits a one-line nudge only when `basename($PWD) == known.name && $PWD != known.path && ! test -d known.path`. Multi-clone case (both paths still on disk) stays silent and registers a disambiguated second entry.
+- **`bin/install-rename-hook.sh`** — idempotent installer that wires the hook into `~/.claude/hooks/` and non-destructively merges a `SessionStart` entry into `~/.claude/settings.json`. Refuses to overwrite malformed JSON. `--uninstall` cleanly reverses both.
+- **`/ai:setup` Branch 11b** — "install global rename-detector?" one-line prompt; gated on whether the hook is already wired.
+
+### Tests
+
+- `tests/bin/cases/rename-housekeeping.sh` adds 30 assertions across structure, fake-rename, known-projects-update, hook-rename, multi-clone-guard, installer idempotency, and corrupt-`settings.json` refusal.
+- `tests/eval/prompts/rename-housekeeping/post-mv.md` eval fixture closes the missing-fixture warning.
+
 ## 1.18.2 — 2026-05-25
 
 Patch: context7 detection now catches plugin-provided installs (not
