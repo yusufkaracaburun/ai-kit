@@ -42,3 +42,17 @@ compatible.
 **For code knowledge, use graphify instead** — it indexes the codebase via AST.
 llm-wiki is for knowledge that is *not* code; recommending both for the same
 need is redundant.
+
+### Two wikis — disambiguation
+
+If this project also scaffolds graphify with `graphify . --wiki`, both
+companions produce a directory called `wiki`:
+
+| Name | Path | Source | Owner |
+| ---- | ---- | ------ | ----- |
+| **graphify-wiki** | `graphify-out/wiki/` | AST of the codebase | generator (no LLM cost) |
+| **llm-wiki** | `wiki/` | curated from `raw/` documents | agent (this glue) |
+
+When the user says "the wiki", check both. Code-symbol lookups → graphify-wiki.
+Concept / source / glossary / overview pages → llm-wiki. See the AGENTS.md
+"Two wikis present — disambiguation" block when both are wired.

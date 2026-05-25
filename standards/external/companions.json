@@ -37,7 +37,13 @@
         "repo": "test -d graphify-out",
         "wiki": "test -d graphify-out/wiki"
       },
-      "conflicts": [],
+      "conflicts": [
+        {
+          "with": "llm-wiki",
+          "check": "test -d wiki",
+          "warning": "graphify-out/wiki/ (AST-derived, opt-in via --wiki) and llm-wiki's wiki/ (curated from raw/ documents) are both called 'wiki'. When both are wired, emit the 'Two wikis present — disambiguation' block in AGENTS.md so the agent never guesses which wiki the user means. See issue #53."
+        }
+      ],
       "install": {
         "upstream": "https://github.com/yusufkaracaburun/graphify",
         "auto_install": false,

@@ -4,6 +4,10 @@ This project uses [graphify](https://github.com/) — a knowledge graph of the
 codebase at `graphify-out/`. It returns a scoped subgraph per query, usually far
 smaller than raw grep output or the full `GRAPH_REPORT.md`.
 
+The AST-derived wiki at `graphify-out/wiki/` is the **graphify-wiki** — not to
+be confused with the curated **llm-wiki** at `wiki/` if both companions are
+scaffolded. See the disambig block below or `wiki/SCHEMA.md` for the split.
+
 Rules:
 
 - For codebase questions, run `graphify query "<question>"` first when
