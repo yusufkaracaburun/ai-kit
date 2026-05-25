@@ -1,5 +1,40 @@
 # Changelog
 
+## 1.20.2 — 2026-05-25
+
+Patch: `ai-kit-audit-ecosystem.sh` now surfaces deliberately-excluded plugins
+with a dedicated `EXCLUDED` verdict instead of conflating them with `REPLACE`
+(which is reserved for user-scope skill/agent shadowing). The audit's
+`--converge` mode emits a `/plugin uninstall` command per EXCLUDED finding
+with the recorded alternative from `standards/external/plugins-excluded.json`,
+and `/ai:dedupe` Surface 5 calls out the EXCLUDED count distinctly so
+`/ai:hygiene` inherits the signal.
+
+Before: an installed superpowers (or any other excluded plugin) was emitted
+as `REPLACE` next to user-scope skill/agent shadowing. The plugins-excluded
+catalog knew the plugin shouldn't be there, but the verdict was lossy.
+
+After: `verdict: "EXCLUDED"` carries the recorded reason verbatim, the
+converge recipe prints the uninstall command, and the dedupe summary states
+"N EXCLUDED plugin(s) installed — ai-kit ships equivalents, uninstall
+suggested." Trust-model unchanged — never auto-uninstalls.
+
+- **Fix** `bin/ai-kit-audit-ecosystem.sh`: emit `EXCLUDED` (was `REPLACE`) for
+  plugins matching `plugins-excluded.json`; counted as divergent; new converge
+  case for `plugins/EXCLUDED` surfaces uninstall + alternative hint.
+- **Fix** `bin/ai-kit-dedupe.sh`: extract `ECOSYSTEM_EXCLUDED` from ecosystem
+  JSON; Surface 5 prints a distinct EXCLUDED line when present.
+- **Docs** `workflow/commands/dedupe.md`: extend Surface 5 verdict-token list
+  with `EXCLUDED`; tighten `REPLACE` meaning to user-scope shadowing only.
+- **Tests** `tests/bin/cases/audit-ecosystem.sh` + `tests/bin/cases/dedupe.sh`:
+  new assertions for verdict, divergent counting, converge output, and human
+  surfacing via real-catalog HOME-override fixture.
+- **Chore** Re-sync `workflow/bin/` from `bin/` (pre-existing drift on
+  `audit-setup-symmetry`, `bootstrap-project`, `emit-agents`, `eval-skill`,
+  `install-global`, `lib/detect-lib`).
+
+Closes [#54](https://github.com/yusufkaracaburun/ai-kit/issues/54).
+
 ## 1.20.1 — 2026-05-25
 
 Patch: `emit-rules.sh` now resolves the ai-kit version via the shared
