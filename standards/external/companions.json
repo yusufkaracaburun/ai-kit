@@ -1,0 +1,130 @@
+{
+  "_meta": {
+    "title": "Companion tool recommendations — third-party AI-productivity tools wired by recommend-tools",
+    "derived_from": "ai-kit internal catalog (not vendored from upstream)",
+    "source_url": "https://github.com/yusufkaracaburun/ai-kit/blob/master/standards/external/companions.json",
+    "source_license": "MIT",
+    "vendored_at": "2026-05-25",
+    "notes": "Catalogues the companions branch of /ai:recommend-tools (graphify, caveman, llm-wiki, context7). Each entry documents its tier(s), detection signal, glue file(s), conflict checks, and wiring path. Consumed by `audit-setup-symmetry.sh` so new companions cannot land without a documented wiring path. Companions are orthogonal to MCP/hooks/plugins/subagents — the latter score via `recommend-tools-lib.sh` from stack-signals; companions are surfaced per project judgement and never scored numerically."
+  },
+  "recommendations": [
+    {
+      "name": "graphify",
+      "category": "input-retrieval",
+      "best_for": "Brownfield code repos where the agent greps a lot — replaces grep with a scoped subgraph per query",
+      "value": "Knowledge graph at graphify-out/. `graphify query` returns ~60% smaller subgraph than raw grep on multi-file repos.",
+      "risk": "Low — invisible infra, additive.",
+      "tiers": [
+        {
+          "name": "base",
+          "description": "Default tier — query/path/explain over graphify-out/graph.json; no auto-generated wiki.",
+          "wired_via": "workflow/skills/recommend-tools/SKILL.md Phase 3 graphify branch",
+          "glue_files": [
+            "context/templates/companions/graphify.md",
+            "context/templates/companions/graphify-hook.json",
+            "context/templates/companions/graphifyignore"
+          ]
+        },
+        {
+          "name": "wiki",
+          "description": "Opt-in — `graphify . --wiki` generates graphify-out/wiki/index.md (AST-only, no LLM cost). Useful when the agent does many symbol-lookup grep'ing — wiki is faster than query for navigation.",
+          "wired_via": "workflow/skills/recommend-tools/SKILL.md Phase 3 graphify branch (tier-wiki opt-in)",
+          "post_run_nudge": "If graphify-out/ exists without graphify-out/wiki/, recommend re-running with --wiki when the agent's recent transcript shows >3 grep/find calls for symbol locations."
+        }
+      ],
+      "detection": {
+        "cli": "command -v graphify",
+        "repo": "test -d graphify-out",
+        "wiki": "test -d graphify-out/wiki"
+      },
+      "conflicts": [],
+      "install": {
+        "upstream": "https://github.com/yusufkaracaburun/graphify",
+        "auto_install": false,
+        "post_install_command": "graphify ."
+      }
+    },
+    {
+      "name": "caveman",
+      "category": "output-compression",
+      "best_for": "Sessions where the user explicitly wants compressed responses (~65% fewer output tokens)",
+      "value": "Caveman mode — drops articles/filler/hedging; technical content + code intact.",
+      "risk": "Medium — opinionated communication mode.",
+      "tiers": [
+        {
+          "name": "base",
+          "description": "Document the mode exists; never enable by default.",
+          "wired_via": "workflow/skills/recommend-tools/SKILL.md Phase 3 caveman branch",
+          "glue_files": ["context/templates/companions/caveman.md"]
+        }
+      ],
+      "detection": {
+        "skills": "test -d ~/.claude/skills/caveman -o -d .claude/skills/caveman"
+      },
+      "conflicts": [],
+      "install": {
+        "upstream": "https://github.com/yusufkaracaburun/caveman",
+        "auto_install": false,
+        "default_state": "opt-in"
+      }
+    },
+    {
+      "name": "llm-wiki",
+      "category": "memory-non-code",
+      "best_for": "Projects accumulating non-code documents (PRDs, transcripts, research PDFs, regulation docs) the user re-reads to find things",
+      "value": "Self-maintaining wiki — ingests raw/ documents into interlinked wiki/ pages. The wiki, not raw files, is the artifact that compounds.",
+      "risk": "Low — additive scaffold; agent owns wiki/, never touches raw/.",
+      "tiers": [
+        {
+          "name": "base",
+          "description": "Scaffold wiki/ + raw/ + SCHEMA.md; AGENTS.md pointer.",
+          "wired_via": "workflow/skills/recommend-tools/SKILL.md Phase 3 llm-wiki branch",
+          "glue_files": ["context/templates/companions/llm-wiki/"]
+        }
+      ],
+      "detection": {
+        "repo": "test -d wiki -a -d raw"
+      },
+      "conflicts": [
+        {
+          "with": "existing docs/ directory",
+          "check": "test -d docs",
+          "warning": "llm-wiki is orthogonal to docs/ — use it for raw-input ingestion (PDFs, transcripts), NOT to migrate existing curated docs. Existing docs/ stays as-is; raw/ is for new untreated source material."
+        },
+        {
+          "with": "graphify",
+          "check": "test -d graphify-out",
+          "warning": "graphify and llm-wiki cover different needs — graphify indexes code, llm-wiki indexes documents. Both can coexist; do not recommend llm-wiki as a code-navigation alternative."
+        }
+      ],
+      "install": {
+        "upstream": "vendored in ai-kit (context/templates/companions/llm-wiki/)",
+        "auto_install": false,
+        "scaffold_command": "ai-kit recommend-tools llm-wiki"
+      }
+    },
+    {
+      "name": "context7",
+      "category": "documentation",
+      "best_for": "Any project with third-party library dependencies — code against live docs, not training-data snapshots",
+      "value": "MCP server (project-scope) + optional ~/.claude/rules/context7.md rule. Cuts API hallucinations on third-party libraries.",
+      "risk": "Low — read-only doc lookups, no auto-install of packages.",
+      "universal": true,
+      "tiers": [
+        {
+          "name": "base",
+          "description": "Universal — surfaces for every stack via mcp-servers.json scorer (universal: true).",
+          "wired_via": "standards/external/mcp-servers.json (scorer-driven) + workflow/skills/recommend-tools/SKILL.md MCP phase"
+        }
+      ],
+      "detection": {
+        "mcp": "claude mcp list | grep -q context7"
+      },
+      "conflicts": [],
+      "install": {
+        "upstream": "https://github.com/upstash/context7",
+        "auto_install": false
+      }
+    }
+  ]
+}

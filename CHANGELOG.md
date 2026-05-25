@@ -1,5 +1,77 @@
 # Changelog
 
+## 1.18.0 — 2026-05-25
+
+Minor: one-shot hygiene command + companion-tool catalog + graphify
+wiki tier + llm-wiki conflict-detection.
+
+### `/ai:hygiene` — one-shot housekeeping
+
+ai-kit shipped three separate housekeeping scripts (`ai-kit-doctor.sh`,
+`ai-kit-dedupe.sh`, `audit-setup-symmetry.sh`) but no chat-callable
+aggregator. Users had to remember each script and run them one by one.
+The drift-check hook auto-fires on Edit/Write in client repos, but
+install-health, duplicate detection, and catalog-symmetry have no
+auto-trigger anywhere.
+
+- **New** `bin/ai-kit-hygiene.sh` — orchestrates doctor + dedupe +
+  audit-setup-symmetry in sequence with section headers; exit code =
+  max of the three (0 clean, 1 warn, 2 block). Skip flags:
+  `--skip-doctor`, `--skip-dedupe`, `--skip-symmetry`.
+- **New** `/ai:hygiene` slash command — wraps the script and summarises
+  per-section findings with routing hints (`/ai:setup`,
+  `bin/sync-plugin-version.sh`, `/ai:dedupe --fix`, …). Reports only;
+  never deletes.
+
+### `standards/external/companions.json` — companion catalog
+
+The four companions (graphify, caveman, llm-wiki, context7) lived as
+hard-coded prose inside `recommend-tools/SKILL.md`. New companions
+could not be added without editing the skill body, and
+`audit-setup-symmetry.sh` had no signal to flag missing wiring paths.
+
+- **New** `standards/external/companions.json` — vendored catalog
+  documenting each companion's tiers, detection signals, glue files,
+  and conflict checks. Same provenance frontmatter pattern as the
+  other `standards/external/*.json` tables.
+- **Updated** `bin/audit-setup-symmetry.sh` — recognises a third
+  wiring path: `workflow/skills/recommend-tools/SKILL.md` (companions
+  branch, non-scored judgement-based recommendations). Companions
+  failing to reference their catalog entry will block setup-symmetry
+  audit.
+- **Updated** `recommend-tools/SKILL.md` — references the catalog as
+  source of truth; per-companion behaviour now derives from the JSON.
+
+### `graphify --wiki` opt-in tier + post-run nudge
+
+graphify supports `graphify . --wiki` (AST-only, no LLM cost) — a
+generated Markdown wiki under `graphify-out/wiki/` that beats per-query
+subgraphs for symbol-lookup navigation. The flag was undocumented in
+ai-kit; users never knew to consider it.
+
+- **Updated** `recommend-tools/SKILL.md` Phase 1 (Detect) — emits a
+  separate line for the wiki tier so the recommendation can branch on
+  presence/absence.
+- **Updated** `recommend-tools/SKILL.md` Phase 3 (graphify branch) —
+  adds step 5 documenting the opt-in tier with an explicit decision
+  rule: recommend only when the user asks, the repo is large, or the
+  recent transcript shows >3 grep/find calls for symbol locations.
+
+### `llm-wiki` conflict-detection with existing `docs/`
+
+llm-wiki scaffolded `wiki/` + `raw/` without checking whether the
+project already had a curated `docs/` tree. The agent risked "helpfully
+consolidating" existing docs into the wiki — eroding the boundary
+between human-curated material (`docs/`) and agent-derived material
+(`wiki/`).
+
+- **Updated** `recommend-tools/SKILL.md` Phase 3 (llm-wiki branch) —
+  adds an explicit Conflict-check step 1: surface the warning from
+  `companions.json` verbatim before scaffolding; the agent must never
+  relocate, rewrite, or "consolidate" files under existing `docs/`
+  into `wiki/`. AGENTS.md pointer block now spells out the
+  docs/ ↔ wiki/ boundary explicitly when both coexist.
+
 ## 1.17.1 — 2026-05-25
 
 Patch: ship a starter `.graphifyignore` with the graphify companion.

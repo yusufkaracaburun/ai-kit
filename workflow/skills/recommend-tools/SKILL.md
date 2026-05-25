@@ -7,7 +7,7 @@ Recommend and wire **companion tools** for this project — external AI-producti
 
 ## What a companion tool is
 
-A third-party tool *or pattern* that improves the AI coding setup but is **not** part of ai-kit's agile lifecycle. ai-kit owns the *integration glue* (a rules block, a hook, a scaffold), never the tool itself. Four are known today:
+A third-party tool *or pattern* that improves the AI coding setup but is **not** part of ai-kit's agile lifecycle. ai-kit owns the *integration glue* (a rules block, a hook, a scaffold), never the tool itself. The current catalog lives at `standards/external/companions.json` — that file is the source of truth for which companions exist, their tiers, detection signals, and conflict checks. The table below summarises; see the JSON for fields, glue paths, and conflict rules. Four are known today:
 
 | Companion | Optimizes | Effect | Risk |
 | --------- | --------- | ------ | ---- |
@@ -54,11 +54,13 @@ Check what is already present on the machine and in the repo:
 ```bash
 command -v graphify >/dev/null 2>&1 && echo "graphify: CLI present" || echo "graphify: not installed"
 [ -d graphify-out ] && echo "graphify: already initialised in this repo" || echo "graphify: not initialised here"
+[ -d graphify-out/wiki ] && echo "graphify: --wiki tier present" || echo "graphify: --wiki tier not generated"
 { [ -d "$HOME/.claude/skills/caveman" ] || [ -d .claude/skills/caveman ]; } && echo "caveman: skills present" || echo "caveman: not installed"
 { [ -d wiki ] && [ -d raw ]; } && echo "llm-wiki: scaffolded in this repo" || echo "llm-wiki: not scaffolded here"
+[ -d docs ] && echo "llm-wiki: conflict-check — existing docs/ found (see Phase 3 llm-wiki branch)" || true
 ```
 
-Report the three lines plainly. Detection drives the recommendation — never claim a tool is wired when it is not.
+Report the lines plainly. Detection drives the recommendation — never claim a tool is wired when it is not. The two graphify lines disambiguate **base tier** (`graphify-out/`) from **wiki tier** (`graphify-out/wiki/`); the wiki tier is an opt-in nudge described in Phase 3.
 
 ### Phase 2 — Recommend per project
 
@@ -79,15 +81,17 @@ Glue templates live in `$AI_KIT_ROOT/context/templates/companions/`. Wire only t
 2. Claude Code only: merge the `PreToolUse` hook from `companions/graphify-hook.json` into the project `.claude/settings.json`. It nudges the agent toward `graphify query` over raw grep once `graphify-out/graph.json` exists. Merge into the existing `hooks` object — do not clobber other hooks.
 3. Copy `companions/graphifyignore` to the project root as `.graphifyignore`. **Skip if the file already exists** — never clobber a project's own ignore list. The starter file excludes `node_modules/`, `vendor/`, build outputs, lockfiles, agent scratch dirs, binary assets, and `graphify-out/` itself, so the first `graphify .` run produces a clean graph instead of indexing generated junk.
 4. Tell the user to run `graphify .` (or the upstream's init command) once to build `graphify-out/`, then `graphify update .` after code changes.
+5. **Wiki tier (opt-in).** If `graphify-out/` exists but `graphify-out/wiki/` does not, mention the opt-in tier: `graphify . --wiki` generates a Markdown wiki of the graph (AST-only, no LLM cost). Useful when the agent does many symbol-lookup grep'ing — wiki-page browsing is faster than per-query subgraphs for navigation. Decision rule: recommend only when the user explicitly asks for it, the repo is large enough that `query` results scroll past a page, or the recent transcript shows >3 grep/find calls for symbol locations. Otherwise skip — `query`/`path`/`explain` cover the common case. Companion catalog entry: `standards/external/companions.json` → `graphify.tiers.wiki`.
 
 **caveman:**
 1. Append `companions/caveman.md` to the project `AGENTS.md` — a short note that the mode exists and how to toggle it. caveman ships its own skills via its own installer; ai-kit only documents it.
 2. Do not enable it. The note states it is opt-in.
 
 **llm-wiki:**
-1. Skip if `wiki/` already exists. Otherwise scaffold from `companions/llm-wiki/`: copy `wiki-schema.md` → project `wiki/SCHEMA.md`, copy the starter pages (`index.md`, `overview.md`, `glossary.md`, `log.md`) → project `wiki/`, and create an empty `raw/` for source documents.
-2. Append a short pointer block to `AGENTS.md`: where the wiki lives, that `wiki/SCHEMA.md` is the operating manual, and the three operations — ingest / query / lint.
-3. Tell the user to drop a document in `raw/` and say "ingest" to start. Obsidian is an optional viewer for the wiki — mention it, do not install it.
+1. **Conflict-check first.** If `docs/` exists, surface the conflict warning from `standards/external/companions.json` → `llm-wiki.conflicts[0]` verbatim: *llm-wiki is orthogonal to docs/ — use it for raw-input ingestion (PDFs, transcripts), NOT to migrate existing curated docs. Existing docs/ stays as-is; raw/ is for new untreated source material.* Confirm the user understands the split before scaffolding. The agent must never relocate, rewrite, or "consolidate" files under the existing `docs/` tree into `wiki/`.
+2. Skip if `wiki/` already exists. Otherwise scaffold from `companions/llm-wiki/`: copy `wiki-schema.md` → project `wiki/SCHEMA.md`, copy the starter pages (`index.md`, `overview.md`, `glossary.md`, `log.md`) → project `wiki/`, and create an empty `raw/` for source documents.
+3. Append a short pointer block to `AGENTS.md`: where the wiki lives, that `wiki/SCHEMA.md` is the operating manual, the three operations — ingest / query / lint — and (if `docs/` existed at scaffold time) the explicit boundary note that `docs/` is for curated material owned by humans, `wiki/` for material derived from `raw/` by the agent.
+4. Tell the user to drop a document in `raw/` and say "ingest" to start. Obsidian is an optional viewer for the wiki — mention it, do not install it.
 
 ### Phase 4 — Output contract
 
