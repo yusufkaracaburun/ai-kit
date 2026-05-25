@@ -16,3 +16,6 @@ Rules:
   `query` / `path` / `explain` do not surface enough.
 - After modifying code, run `graphify update .` to keep the graph current
   (AST-only, no API cost).
+- Tune `.graphifyignore` at the project root to exclude generated /
+  vendored paths (e.g. `node_modules/`, `vendor/`, build outputs) before
+  the first `graphify .` run, so the graph indexes source — not junk.

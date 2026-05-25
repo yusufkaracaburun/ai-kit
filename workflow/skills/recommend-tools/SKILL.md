@@ -77,7 +77,8 @@ Glue templates live in `$AI_KIT_ROOT/context/templates/companions/`. Wire only t
 **graphify:**
 1. Append `companions/graphify.md` to the project `AGENTS.md` (agent-agnostic — both Claude Code and Cursor read it). Skip if an equivalent block is already there.
 2. Claude Code only: merge the `PreToolUse` hook from `companions/graphify-hook.json` into the project `.claude/settings.json`. It nudges the agent toward `graphify query` over raw grep once `graphify-out/graph.json` exists. Merge into the existing `hooks` object — do not clobber other hooks.
-3. Tell the user to run `graphify .` (or the upstream's init command) once to build `graphify-out/`, then `graphify update .` after code changes.
+3. Copy `companions/graphifyignore` to the project root as `.graphifyignore`. **Skip if the file already exists** — never clobber a project's own ignore list. The starter file excludes `node_modules/`, `vendor/`, build outputs, lockfiles, agent scratch dirs, binary assets, and `graphify-out/` itself, so the first `graphify .` run produces a clean graph instead of indexing generated junk.
+4. Tell the user to run `graphify .` (or the upstream's init command) once to build `graphify-out/`, then `graphify update .` after code changes.
 
 **caveman:**
 1. Append `companions/caveman.md` to the project `AGENTS.md` — a short note that the mode exists and how to toggle it. caveman ships its own skills via its own installer; ai-kit only documents it.
@@ -92,7 +93,7 @@ Glue templates live in `$AI_KIT_ROOT/context/templates/companions/`. Wire only t
 
 End by reporting:
 
-- **Wired:** which tools, which files changed (`AGENTS.md`, `.claude/settings.json`).
+- **Wired:** which tools, which files changed (`AGENTS.md`, `.claude/settings.json`, `.graphifyignore` for graphify when newly written).
 - **Needs install:** any recommended tool whose CLI/skills are missing — with the upstream pointer.
 - **Deferred:** tools the user said "later" to.
 - **Next step:** for graphify, the init command to run.

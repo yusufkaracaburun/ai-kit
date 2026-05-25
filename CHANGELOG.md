@@ -1,5 +1,37 @@
 # Changelog
 
+## 1.17.1 — 2026-05-25
+
+Patch: ship a starter `.graphifyignore` with the graphify companion.
+
+Without an ignore list, `graphify .` scans `node_modules/`, `vendor/`,
+build outputs, lockfiles, binary assets, and recursively
+`graphify-out/` itself — producing a junk-laden graph on any real
+Laravel / Node / Vite repo. Users had to discover this and write an
+ignore file by hand after the first run.
+
+- **New** `context/templates/companions/graphifyignore` — 84-line
+  starter list covering PHP/Laravel (`vendor/`, `backend/storage/`,
+  `backend/bootstrap/cache/`, …), Node/pnpm (`node_modules/`,
+  `.pnpm-store/`), build outputs (`dist/`, `.next/`, `.vite/`, …),
+  IDE/OS dirs, agent scratch (`.agents/worktrees/`,
+  `.claude/tdd-guard/`, …), lockfiles, binary assets, logs, and
+  `graphify-out/` itself. Stack-agnostic + common monorepo
+  `backend/*` paths — lines for absent paths are no-ops.
+- **Updated** `workflow/skills/recommend-tools/SKILL.md` — Phase 3
+  graphify gains a new step 3: copy template to project root as
+  `.graphifyignore`, **skip if present** (never clobber a project's
+  own ignore list). Phase 4 "Wired" line mentions `.graphifyignore`
+  when newly written.
+- **Updated** `context/templates/companions/README.md` — table row
+  for the new glue file.
+- **Updated** `context/templates/companions/graphify.md` — one extra
+  AGENTS.md rule line: "tune `.graphifyignore` at the project root
+  before the first `graphify .` run".
+
+Trust posture unchanged: ai-kit writes glue, never auto-runs
+`graphify .`. User still triggers init themselves.
+
 ## 1.17.0 — 2026-05-25
 
 Closes #50 (subagent recommendations) and #48 (setup-symmetry lock).

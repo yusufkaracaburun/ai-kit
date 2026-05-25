@@ -1,0 +1,83 @@
+# PHP / Laravel
+vendor/
+backend/vendor/
+backend/storage/framework/
+backend/storage/logs/
+backend/storage/app/public/
+backend/bootstrap/cache/
+backend/public/build/
+backend/public/hot/
+backend/public/storage/
+
+# Node / pnpm
+node_modules/
+**/node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+.next/
+.astro/
+.cache/
+.turbo/
+.parcel-cache/
+.vite/
+out/
+
+# IDE / OS
+.idea/
+.vscode/
+.fleet/
+.zed/
+.DS_Store
+
+# Agent / tooling scratch
+.tmp/
+.agents/worktrees/
+.claude/tdd-guard/
+.playwright-cli/
+.playwright-mcp/
+.lazyweb/
+.superdesign/
+test-results/
+test-output/
+
+# Locks (geen architectuur-info)
+package-lock.json
+pnpm-lock.yaml
+composer.lock
+yarn.lock
+bun.lockb
+skills-lock.json
+
+# Lock-equivalents
+*.lock
+*.lockb
+
+# Binary assets (al gefilterd door graphify, maar expliciet)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.webp
+*.ico
+*.woff
+*.woff2
+*.ttf
+*.eot
+*.mp4
+*.webm
+*.mp3
+*.wav
+*.pdf
+*.zip
+*.tar.gz
+
+# Logs
+*.log
+backend/storage/*.log
+
+# Graphify zelf (recursie voorkomen)
+graphify-out/

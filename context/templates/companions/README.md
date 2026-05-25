@@ -13,6 +13,7 @@ upstream; ai-kit owns only the integration glue in this directory. Same pattern 
 | ---- | --------- | --------- |
 | `graphify.md` | graphify | project `AGENTS.md` (agent-agnostic rules block) |
 | `graphify-hook.json` | graphify | project `.claude/settings.json` (Claude Code `PreToolUse` hook) |
+| `graphifyignore` | graphify | project `.graphifyignore` (root) — copied verbatim, skip-if-present |
 | `caveman.md` | caveman | project `AGENTS.md` (opt-in note) |
 | `llm-wiki/` | llm-wiki | project `wiki/` + `raw/` skeleton + `AGENTS.md` pointer |
 
