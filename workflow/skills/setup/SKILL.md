@@ -200,6 +200,35 @@ It copies the hook into `.claude/hooks/` and merges a `PostToolUse` entry into
 `.claude/settings.json` — non-destructive and idempotent. Record the choice in
 the marker (`--context-drift-hook=wired|skipped`). See [ADR-0005](../../../docs/adr/0005-monorepo-boost-context-drift.md).
 
+### Branch 11b — Rename detector (machine-wide, ask once)
+
+A user-global `SessionStart` hook that detects when `$PWD`'s basename matches
+a known project but its registered path is gone — strong signal that the user
+ran `mv` on the repo. Emits a one-line nudge to run `/ai:rename-housekeeping
+<old> <new>` so stale absolute-path refs in memory files get rewritten.
+
+Machine-wide install (not per-project). Skip the prompt if
+`~/.claude/hooks/rename-detector.sh` already exists.
+
+> Optional: a user-global rename-detector hook flags stale memory-file paths
+> after you `mv` a repo. One-time install; covers every future project.
+> [1] Yes, install globally → `wired`
+> [2] No thanks            → `skipped`
+
+On `wired`:
+
+```bash
+bash "$AI_KIT_ROOT/bin/install-rename-hook.sh"
+```
+
+It copies the hook into `~/.claude/hooks/`, merges a `SessionStart` entry into
+`~/.claude/settings.json`, and seeds `~/.claude/known-projects.json`. Idempotent
+— a second run prints `rename-detector already wired` and exits.
+
+The skill side (`/ai:rename-housekeeping`) is always available — it ships with
+ai-kit. This branch only governs whether the auto-detection hook fires on
+every session.
+
 ### Branch 12 — Rule recommendation (optional refinement)
 
 Bootstrap (Branch 1) emits every `universal: true` canonical rule. For a
