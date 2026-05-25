@@ -184,6 +184,45 @@ if [ -d "$INSTALLED_PLUGIN" ] && [ "$EFFECTIVE_MODE" != "project-only" ]; then
 fi
 echo ""
 
+echo "Workflow text drift"
+# Lint workflow/skills/**/*.md + workflow/commands/**/*.md for team-size
+# "solo" / "single dev" / "single developer" tokens. Excludes lines that
+# also carry the install-layout vocabulary `setup_mode=solo-*` (parent grill
+# Branch 1 of ai-kit #52). Regression guardrail against future drift after
+# the parent sweep. Always warn (yellow), never error.
+_workflow_lint_root="$AIKIT"
+if [ ! -d "$_workflow_lint_root/workflow/skills" ] && [ ! -d "$_workflow_lint_root/workflow/commands" ]; then
+  info "workflow/ directories absent at $_workflow_lint_root — lint skipped"
+else
+  # Exclusions:
+  #   - setup_mode / solo-both / solo-global / [solo- → install-layout vocab
+  #     (parent grill Branch 1 — different axis, must remain documented)
+  #   - solo-human                                      → rule-discussion idiom
+  #   - single-dev shortcut                             → anti-pattern naming
+  #   - / solo /                                        → project-shape bullet idiom
+  #   - solo-lint:allow                                 → explicit per-line opt-out
+  _hits="$(grep -rniE '\b(solo|single[ -]dev|single[ -]developer)\b' \
+    "$_workflow_lint_root/workflow/skills" \
+    "$_workflow_lint_root/workflow/commands" \
+    2>/dev/null \
+    | grep -viE 'setup_mode|solo-both|solo-global|\[solo-|solo-human|single-dev shortcut|/ solo /|solo-lint:allow' \
+    || true)"
+  if [ -z "$_hits" ]; then
+    ok "no team-size solo/single-dev token in workflow/skills + workflow/commands"
+  else
+    _count="$(printf '%s\n' "$_hits" | wc -l | tr -d ' ')"
+    warn "team-size solo/single-dev string in workflow/ ($_count hit$([ "$_count" = 1 ] || echo s) — see ai-kit issue #52 for the 2-dev default rationale)"
+    # Surface up to 3 hits so the user can see where to look without grep-ing.
+    printf '%s\n' "$_hits" | head -3 | while IFS= read -r line; do
+      info "    $line"
+    done
+    if [ "$_count" -gt 3 ]; then
+      info "    … $((_count - 3)) more — re-run with: grep -rniE '\\\\b(solo|single[ -]dev|single[ -]developer)\\\\b' workflow/skills workflow/commands | grep -viE 'setup_mode|solo-both|solo-global|\\\\[solo-'"
+    fi
+  fi
+fi
+echo ""
+
 if [ -n "$TARGET" ]; then
   if [ ! -d "$TARGET" ]; then
     err "Project path not a directory: $TARGET"
