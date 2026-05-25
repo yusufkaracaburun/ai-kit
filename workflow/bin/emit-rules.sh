@@ -16,9 +16,7 @@ source "$AIKIT/bin/lib/emitters/claude-code.sh"
 # shellcheck source=lib/emitters/generic.sh
 source "$AIKIT/bin/lib/emitters/generic.sh"
 
-VERSION_FILE="$AIKIT/VERSION"
-[ -f "$VERSION_FILE" ] || { echo "ai-kit VERSION file missing" >&2; exit 2; }
-AIKIT_VERSION="$(tr -d '[:space:]' < "$VERSION_FILE")"
+AIKIT_VERSION="$(resolve_ai_kit_version "$AIKIT")"
 
 usage() {
   cat <<EOF

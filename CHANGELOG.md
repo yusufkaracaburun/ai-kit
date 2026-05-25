@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.20.1 — 2026-05-25
+
+Patch: `emit-rules.sh` now resolves the ai-kit version via the shared
+`resolve_ai_kit_version` helper (with `plugin.json` fallback) instead of
+requiring a `VERSION` file at the script's parent root. Plugin installs
+ship the `workflow/` subdir without `VERSION` at top level, so the old
+hard-coded read failed with `ai-kit VERSION file missing` and exit 2 —
+blocking `/ai:recommend-rules` Phase 3 emit and any direct
+`emit-rules.sh` call on a plugin-only install.
+
+- **Fix** `bin/emit-rules.sh` + `workflow/bin/emit-rules.sh`: use
+  `resolve_ai_kit_version "$AIKIT"`, same migration the other bin/
+  scripts already had (`verify-setup.sh`, `ai-kit-upgrade.sh`,
+  `ai-kit-doctor.sh`, `ai-kit-status.sh`).
+
+Closes [#55](https://github.com/yusufkaracaburun/ai-kit/issues/55).
+
 ## 1.20.0 — 2026-05-25
 
 ### Added
