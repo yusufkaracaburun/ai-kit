@@ -431,40 +431,34 @@ in priority order:
     so the question shape can be reused. All three surfaced from one
     `/should-i-use` pass on a vault session (#45/#46/#47 batch).
 20. **META: symmetric Tier-B setup branches for all catalog primitives**
-    (#48) — Coverage audit 2026-05-25 found `/ai:setup` wires only
-    rules + context-drift-hook + GH-workflow as first-class branches.
-    Companion tools / MCP / hooks-catalog get a one-liner mention
-    (already tracked as #19). **Plugins (#49) and subagents (#50)
-    have no recommend-skill, no setup branch at all** — and subagents
-    lack a catalog file entirely. Principle to lock: every
-    `standards/external/<category>.json` MUST ship with a matching
-    Tier-B branch in `setup/SKILL.md` mirroring Branch 12 (rules)
-    shape. Trust model unchanged — setup fires the *recommend* skill,
-    never the install. DoD includes an audit-script lock so future
-    catalogs cannot land without a wiring path. Surfaced by user
-    observation: "if we aren't setting it up during setup, the
-    recommend skills are dead weight".
-21. **`recommend-plugins` skill + setup Tier-B branch** (#49) — sub
-    of #48. `standards/external/plugins.json` exists and is curated
-    (#42-#44 batch 2026-05-25) but has no consumer skill. Mirror
-    `recommend-rules` / `recommend-tools` pattern: score catalog
-    against detected stack, surface ranked list with install command,
-    per-plugin preview-then-confirm. New marker key
-    `branches.plugin_recommendation`. Defer-rationale: catalog still
-    small (3 entries); sequence after #19 lands the per-primitive
-    wiring pattern so this skill copies shape rather than invents
-    parallel.
+    (#48) — **landed** 2026-05-25 (v1.17.0, commit afb698f). DoD met:
+    every `standards/external/*.json` has a wiring path; Branch 14
+    surfaces all four tool-class catalogs (MCP/hooks/plugins/
+    subagents) via `recommend-tools`; `bin/audit-setup-symmetry.sh`
+    enforces the lock for future catalogs (test fixture invokes it).
+    Re-scope note: pragmatically reused `recommend-tools` as a
+    meta-skill covering all tool-class catalogs instead of one skill
+    per catalog — avoided ~80% duplicated plumbing while preserving
+    the symmetry principle.
+21. **`recommend-plugins` skill + setup Tier-B branch** (#49) —
+    **closed as already-covered** 2026-05-25. Audit during v1.17.0
+    work showed `standards/external/plugins.json` was already wired
+    via the `recommend-tools` scorer (`bin/lib/recommend-tools-lib.sh`:
+    `emit(plugins_path, 'plugin')`) since v1.12.x. Branch 14
+    (#19, v1.16.0) surfaces it through `/ai:recommend-tools --kind
+    plugin`. A separate skill would have duplicated ~80% of plumbing
+    without adding capability.
 22. **`recommend-subagents` skill + `standards/external/subagents.json`
-    catalog + setup Tier-B branch** (#50) — sub of #48, biggest of
-    the three sub-issues. No catalog exists yet; needs vetting bar
-    applied first (#22 gate) with initial entries from `caveman:
-    cavecrew-*`, `ai:explore` / `ai:qa-runner` / `ai:reviewer`,
-    `claude-code-guide`, baseline `general-purpose` / `Explore` /
-    `Plan`. Trust surface is different from plugins (Agent tool +
-    tool-list); VETTING.md may need a subagent-specific addendum.
-    Category-boundary decision required vs `recommend-tools` for
-    subagent-shaped tools. Last in sequence — catalog before
-    wiring before lock.
+    catalog + setup Tier-B branch** (#50) — **landed** 2026-05-25
+    (v1.17.0, commit afb698f). Initial catalog entries:
+    `claude-code-guide` (universal docs subagent),
+    `caveman:cavecrew-investigator` / `cavecrew-builder` /
+    `cavecrew-reviewer`. Scorer extended with fourth `emit()` call;
+    `--kind subagent` filter added. Schema mirrors `plugins.json`
+    with additional `parent_plugin` (install pointer) + `tools`
+    (trust-surface disclosure) fields. Built-in CC subagents and
+    ai-kit's own subagents explicitly excluded. Surfaced through
+    existing Branch 14 — no separate setup branch needed.
 
 17. **Make plugin self-contained: bundle `bin/` so global clone is
     optional** (#28) — Surfaced 2026-05-23 when naschool's project-
