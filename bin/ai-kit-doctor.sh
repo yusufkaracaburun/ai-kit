@@ -217,6 +217,81 @@ if [ -n "$TARGET" ]; then
     else
       warn ".ai-kit-setup absent — /ai:setup not yet run"
     fi
+
+    # ------------------------------------------------------------------
+    # Single-dev drift — 3 checks. ai-kit issue #69 (parent #52).
+    # All warn-only; never raise to error. Each gated on its preconditions
+    # so local-only / fresh / non-admin / non-git repos see no false drift.
+    # ------------------------------------------------------------------
+    echo ""
+    echo "Single-dev drift"
+    if ! git -C "$TARGET" rev-parse --git-dir >/dev/null 2>&1; then
+      info "skipped — not a git repo"
+    else
+      _gh_remote_url="$(git -C "$TARGET" remote get-url origin 2>/dev/null || true)"
+      case "$_gh_remote_url" in
+        *github.com*) _is_gh=true ;;
+        *) _is_gh=false ;;
+      esac
+
+      # Check 1 — PR template absent (GH repos only).
+      if [ "$_is_gh" = true ]; then
+        _pr_tpl_found=false
+        for p in "$TARGET/.github/PULL_REQUEST_TEMPLATE.md" \
+                 "$TARGET/.github/pull_request_template.md" \
+                 "$TARGET/docs/pull_request_template.md"; do
+          [ -f "$p" ] && _pr_tpl_found=true
+        done
+        if [ "$_pr_tpl_found" = false ]; then
+          warn "PR template missing at any honored .github path — run /ai:setup-gh-workflow"
+        else
+          ok "PR template present"
+        fi
+      else
+        info "PR template check skipped — non-GitHub remote"
+      fi
+
+      # Check 2 — branch-protection off (requires gh + admin scope).
+      if [ "$_is_gh" = true ] && command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
+        _owner_repo="$(printf '%s' "$_gh_remote_url" | sed -E 's#.*github\.com[:/]([^/]+/[^/]+)(\.git)?$#\1#' | sed 's/\.git$//')"
+        _default_branch="$(gh api "repos/$_owner_repo" --jq .default_branch 2>/dev/null || echo "master")"
+        # 200 → protected; 404 → not protected (drift); 403 → not admin (silent skip).
+        _http_out="$(gh api "repos/$_owner_repo/branches/$_default_branch/protection" 2>&1 >/dev/null || true)"
+        case "$_http_out" in
+          *"HTTP 404"*|*"Not Found"*|*"404:"*)
+            warn "branch-protection off on $_owner_repo branch $_default_branch — run /ai:setup-gh-workflow"
+            ;;
+          *"HTTP 403"*|*"Forbidden"*|*"403:"*)
+            info "branch-protection check skipped — not repo admin"
+            ;;
+          "")
+            ok "branch-protection enabled on $_default_branch"
+            ;;
+          *)
+            info "branch-protection check inconclusive ($_http_out)"
+            ;;
+        esac
+      elif [ "$_is_gh" = true ]; then
+        info "branch-protection check skipped — gh CLI not authenticated"
+      else
+        info "branch-protection check skipped — non-GitHub remote"
+      fi
+
+      # Check 3 — single-committer in last 30 days (>5 commits gate).
+      if [ "$_is_gh" = true ]; then
+        _commit_count="$(git -C "$TARGET" log --since=30.days --oneline 2>/dev/null | wc -l | tr -d ' ')"
+        if [ "${_commit_count:-0}" -ge 5 ]; then
+          _author_count="$(git -C "$TARGET" log --since=30.days --format=%ae 2>/dev/null | sort -u | wc -l | tr -d ' ')"
+          if [ "${_author_count:-0}" -le 1 ]; then
+            warn "single-committer in last 30d ($_commit_count commits, 1 author) — document reviewer cadence in CLAUDE.md (e.g. AI-as-reviewer + weekly human sweep)"
+          else
+            ok "$_author_count distinct committers in last 30d"
+          fi
+        else
+          info "committer check skipped — fewer than 5 commits in last 30d"
+        fi
+      fi
+    fi
   fi
   echo ""
 fi
