@@ -122,8 +122,11 @@ goes in `src/`." One-line each.>
 
 ## 9. Where to ask
 
-<Slack channel / GitHub Discussions / maintainer email. If the project is
-solo, say so explicitly so newcomers don't wait for a reply that isn't coming.>
+<Slack channel / GitHub Discussions / maintainer email. ai-kit defaults
+assume a 2-dev minimum (per issue #52); when the project has only one
+human contributor, document the response cadence explicitly (e.g. "human
+reviewer within 48h" or "AI-as-reviewer with weekly human sweep") so
+newcomers know what to expect.>
 
 ## 10. Suggested next skill
 

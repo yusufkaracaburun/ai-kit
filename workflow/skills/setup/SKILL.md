@@ -154,7 +154,7 @@ keep/change/skip pattern — show the current value, ask only if the user picks
 | 6 | Domain docs | skip if no CONTEXT yet |
 | 7 | Architecture | skip simple CRUD; else document-existing |
 | 8 | Sandcastle | skip brownfield |
-| 9 | Agile workflow | informal solo default |
+| 9 | Agile workflow | 2-dev default (informal review gate; ≥1 reviewer + PR-per-feature, per ai-kit #52) |
 | 10 | Automation recommender | propose-but-defer (brownfield default: skipped) |
 | 11 | Context-drift hook | offer if `CONTEXT.md` or `docs/adr/` exist |
 | 12 | Rule recommendation | offer if `detect-tooling` finds a framework |
