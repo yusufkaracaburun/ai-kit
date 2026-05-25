@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.18.1 — 2026-05-25
+
+Patch: ship `bin/ai-kit-hygiene.sh` + updated `bin/audit-setup-symmetry.sh`
+in the plugin install.
+
+v1.18.0 added the script + symmetry-audit changes to repo-root `bin/`
+but skipped `bin/sync-plugin-bin.sh`, so `workflow/bin/` (the
+plugin-install source) never received the files. `/ai:hygiene` resolved
+`${CLAUDE_PLUGIN_ROOT}/bin/ai-kit-hygiene.sh` to a non-existent path on
+every install.
+
+- **Fix** `workflow/bin/ai-kit-hygiene.sh` — now mirrored from
+  `bin/ai-kit-hygiene.sh`.
+- **Fix** `workflow/bin/audit-setup-symmetry.sh` — re-synced so the
+  recommend-tools/SKILL.md wiring-path check ships in the plugin.
+
+Process gap that allowed this: the release flow has
+`bin/sync-plugin-bin.sh --check` available but the manual commit path
+did not invoke it. Adding a pre-commit guard for `workflow/bin/` drift
+is a follow-up.
+
 ## 1.18.0 — 2026-05-25
 
 Minor: one-shot hygiene command + companion-tool catalog + graphify
