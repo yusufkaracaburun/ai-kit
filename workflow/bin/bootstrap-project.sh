@@ -5,6 +5,7 @@ SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck source=lib/ai-kit-root.sh
 source "$SCRIPT_BIN/lib/ai-kit-root.sh"
 AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
+PRIMITIVES="$(resolve_primitives_root "$AIKIT")"
 
 COPY_SKILLS=false
 MINIMAL=true
@@ -107,11 +108,11 @@ link_skills_all() {
   mkdir -p "$dest_parent"
   if [ "$COPY_SKILLS" = true ]; then
     rm -rf "$dest_parent/skills"
-    cp -R "$AIKIT/workflow/skills" "$dest_parent/skills"
-    echo "Copied workflow skills to $dest_parent/skills/"
+    cp -R "$PRIMITIVES/skills" "$dest_parent/skills"
+    echo "Copied skills to $dest_parent/skills/"
   else
-    ln -sfn "$AIKIT/workflow/skills" "$dest_parent/skills"
-    echo "Symlinked $label -> ai-kit workflow/skills"
+    ln -sfn "$PRIMITIVES/skills" "$dest_parent/skills"
+    echo "Symlinked $label -> ai-kit skills"
   fi
 }
 
@@ -125,16 +126,16 @@ merge_skills() {
 
   if [ -L "$skills_dir" ]; then
     resolved="$(cd "$skills_dir" 2>/dev/null && pwd -P)" || resolved=""
-    aikit_resolved="$(cd "$AIKIT/workflow/skills" && pwd -P)"
+    aikit_resolved="$(cd "$PRIMITIVES/skills" && pwd -P)"
     if [ "$resolved" = "$aikit_resolved" ]; then
-      echo "$label already linked to ai-kit workflow/skills"
+      echo "$label already linked to ai-kit skills"
       return 0
     fi
     rm -f "$skills_dir"
   fi
 
   mkdir -p "$skills_dir"
-  for skill in "$AIKIT/workflow/skills"/*/; do
+  for skill in "$PRIMITIVES/skills"/*/; do
     [ -d "$skill" ] || continue
     ln -sfn "$skill" "$skills_dir/$(basename "$skill")"
   done
@@ -145,7 +146,7 @@ merge_agents() {
   local dest_parent="$1"
   local label="$2"
   local agents_dir="$dest_parent/agents"
-  local src_root="$AIKIT/workflow/agents"
+  local src_root="$PRIMITIVES/agents"
 
   [ -d "$src_root" ] || return 0
   mkdir -p "$agents_dir"
@@ -160,7 +161,7 @@ merge_commands() {
   local dest_parent="$1"
   local label="$2"
   local commands_dir="$dest_parent/commands"
-  local src_root="$AIKIT/workflow/commands"
+  local src_root="$PRIMITIVES/commands"
 
   [ -d "$src_root" ] || return 0
   mkdir -p "$commands_dir"
