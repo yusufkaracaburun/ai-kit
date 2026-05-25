@@ -234,6 +234,14 @@ The next iteration reads this cold — no in-context memory required.
   be refused with `exit-gate cwd-mismatch` or `exit-gate
   branch-mismatch`. This is the safety guarantee step 0 exists to
   enforce.
+- **Agent is the writer; the reviewer is human.** This skill produces
+  code on behalf of dev #1; dev #2 (human) must read the diff before
+  merge. The rule holds even when the project has only one human
+  contributor — solo-human-with-autonomous still reads every PR. ai-kit
+  defaults assume ≥2 devs per ai-kit issue #52; the writer/reviewer
+  split is the load-bearing invariant, not a CI/branch-protection
+  consequence. See also the triage ↔ autonomous Agent Brief contract
+  for how the writer's input arrives cold.
 - **Never auto-merge.** Open PRs only. Project merge policy enforces
   the gate.
 - **Never bypass CI / branch protection.** No `--no-verify`, no
