@@ -74,6 +74,7 @@ Ask once: **Fast (Tier A, ~5 min)** or **Full (Tier B)**?
 | 0 | Setup mode | one question (below) |
 | 1 | Bootstrap | scripts from mode |
 | 2 | Dev environment | `--write` + refine URLs |
+| 2b | Lifecycle | one question (below) — default `development` |
 
 Then:
 
@@ -81,6 +82,7 @@ Then:
 $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" \
   --setup-mode=solo-both|solo-global|project-only|brownfield \
   --tier=minimal \
+  --lifecycle=development|production \
   --docker=skipped --tracker=skipped --workflow=skipped \
   --domain-docs=skipped --architecture=skipped --sandcastle=false --context-drift-hook=skipped
 $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict --minimal
@@ -122,6 +124,25 @@ Verify official doc URLs live.
 If `monorepo.detected`: the root `--write` misses per-app stacks. List the apps
 (`monorepo.apps[]`) and ask which to scope dev-environment docs to; note the
 others so per-app docs can follow.
+
+### Branch 2b — Lifecycle (one question)
+
+Calibrate every future ai-kit skill to this project's lifecycle phase. The
+canonical rule `project-lifecycle` reads `branches.lifecycle` from
+`.ai-kit-setup` and flips defaults around schema migrations, backwards-compat,
+defensive code, destructive ops, and feature flags. See
+[`standards/rules/project-lifecycle.mini.md`](../../../standards/rules/project-lifecycle.mini.md).
+
+> What is this project's current lifecycle phase?
+> [1] development — no real users, data is resetable, edit landed migrations freely → `development`
+> [2] production  — real users or persistent data; default to additive + backwards-compat → `production`
+
+**Default:** `development` (fresh `/ai:setup` usually runs on greenfield repos).
+For brownfield setup-mode the default flips to `production`.
+
+Record via `--lifecycle=development|production`. Re-runs follow the
+keep/change/skip pattern — show the current value, ask only if the user picks
+`change`. Flip later without re-running setup via [`/ai:phase`](../phase/SKILL.md).
 
 ## Tier B branches (optional)
 

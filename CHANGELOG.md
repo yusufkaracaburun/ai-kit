@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.20.0 — 2026-05-25
+
+### Added
+
+- **`branches.lifecycle` in `.ai-kit-setup`** — new orthogonal signal (`development` | `production`) calibrates default agent caution per project lifecycle phase. Missing key defaults to `production` (safe-by-default, no regression for existing installs). Closes [#56](https://github.com/yusufkaracaburun/ai-kit/issues/56), [#58](https://github.com/yusufkaracaburun/ai-kit/issues/58).
+- **`standards/rules/project-lifecycle.mini.md`** — new canonical rule (universal=true, always-on, weight=high). Emits a 5-axis behaviour contract (schema migrations / backwards-compat / defensive code / destructive ops / feature flags) with both columns visible so the LLM can calibrate edge cases. Lands in `.claude/rules/project-lifecycle.md` + `docs/agents/active-rules.md` via the existing emit-rules pipeline.
+- **`bin/write-setup-marker.sh --lifecycle=development|production`** — new flag persists the phase in the marker. Rejects invalid values with exit 2 + clear error.
+- **`/ai:setup` Branch 2b** — Tier-A lifecycle prompt; default `development` for fresh greenfield, `production` for brownfield setup-mode. Re-runs follow the existing keep/change/skip pattern. Closes [#59](https://github.com/yusufkaracaburun/ai-kit/issues/59).
+- **`/ai:phase <development|production>`** — new lightweight skill flips the lifecycle key without re-running `/ai:setup`. No-arg form prints the current phase. Surfaces the script's `lifecycle: <old> → <new>` transition + restart-Claude-Code reminder verbatim — the canonical rule reloads only on next session. Closes [#60](https://github.com/yusufkaracaburun/ai-kit/issues/60).
+- **`/ai:status`** — surfaces `lifecycle=<value>` alongside the existing branch summary, with the same `// "production"` fallback.
+
+### Tests
+
+- `tests/bin/cases/structure.sh` bumped to 30 skills / 10 slash commands; the per-command loop now covers `phase`.
+- `tests/bin/cases/release-install.sh` bumped `which --list` row count to 30.
+- `tests/bin/cases/bootstrap-emit.sh` bumped `emit-rules --list` row count to 26.
+- `tests/eval/prompts/phase/flip-to-production.md` — new eval fixture covering invoke-the-script / don't-re-run-setup / surface-transition+reminder / reject-invalid-without-retry / read-marker-not-guess.
+
 ## 1.19.0 — 2026-05-25
 
 ### Added

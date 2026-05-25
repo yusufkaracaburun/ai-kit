@@ -8,7 +8,7 @@ source "$AIKIT/tests/bin/lib/harness.sh"
 echo "=== skills-count ==="
 # section: skills-count
 SKILL_COUNT=$(find "$AIKIT/workflow/skills" -name SKILL.md | wc -l | tr -d ' ')
-assert "29 skills" '[ "$SKILL_COUNT" -eq 29 ]'
+assert "30 skills" '[ "$SKILL_COUNT" -eq 30 ]'
 assert "checkpoint skill exists" '[ -f "$AIKIT/workflow/skills/checkpoint/SKILL.md" ]'
 assert "resume skill exists" '[ -f "$AIKIT/workflow/skills/resume/SKILL.md" ]'
 assert "onboard skill exists" '[ -f "$AIKIT/workflow/skills/onboard/SKILL.md" ]'
@@ -32,8 +32,8 @@ assert "qa-runner frontmatter tools" 'head -5 "$AIKIT/workflow/agents/qa-runner/
 echo "=== slash-commands ==="
 # section: slash-commands
 COMMAND_COUNT=$(find "$AIKIT/workflow/commands" -maxdepth 1 -name "*.md" | wc -l | tr -d ' ')
-assert "8 slash commands present" '[ "$COMMAND_COUNT" -eq 8 ]'
-for cmd in doctor which status no-globals upgrade next dedupe; do
+assert "10 slash commands present" '[ "$COMMAND_COUNT" -eq 10 ]'
+for cmd in doctor which status no-globals upgrade next dedupe phase; do
   assert "$cmd command exists"     "[ -f \"$AIKIT/workflow/commands/$cmd.md\" ]"
   assert "$cmd has description"    "head -6 \"$AIKIT/workflow/commands/$cmd.md\" | grep -q '^description:'"
   assert "$cmd has allowed-tools"  "head -6 \"$AIKIT/workflow/commands/$cmd.md\" | grep -q '^allowed-tools:'"

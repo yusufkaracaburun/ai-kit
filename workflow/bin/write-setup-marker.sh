@@ -25,6 +25,7 @@ usage() {
   echo "  --rule-recommendation=completed|deferred|skipped"
   echo "  --tool-recommendation=completed|deferred|skipped"
   echo "  --repo-templates=all|picked|skipped"
+  echo "  --lifecycle=development|production"
   exit 1
 }
 
@@ -46,6 +47,7 @@ CONTEXT_DRIFT_HOOK=""
 RULE_RECOMMENDATION=""
 TOOL_RECOMMENDATION=""
 REPO_TEMPLATES=""
+LIFECYCLE=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -63,6 +65,7 @@ while [ $# -gt 0 ]; do
     --rule-recommendation=*) RULE_RECOMMENDATION="${1#*=}"; shift ;;
     --tool-recommendation=*) TOOL_RECOMMENDATION="${1#*=}"; shift ;;
     --repo-templates=*) REPO_TEMPLATES="${1#*=}"; shift ;;
+    --lifecycle=*) LIFECYCLE="${1#*=}"; shift ;;
     -h | --help) usage ;;
     *) echo "Unknown option: $1" >&2; usage ;;
   esac
@@ -80,11 +83,17 @@ COMPLETED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
 python3 - "$SETUP_FILE" "$VERSION" "$COMPLETED_AT" \
   "$SETUP_MODE" "$SETUP_TIER" "$DOCKER" "$TRACKER" "$WORKFLOW" "$DOMAIN_DOCS" "$ARCHITECTURE" "$SANDCASTLE" \
-  "$AUTOMATION_RECOMMENDER" "$CONTEXT_DRIFT_HOOK" "$RULE_RECOMMENDATION" "$TOOL_RECOMMENDATION" "$REPO_TEMPLATES" <<'PY'
+  "$AUTOMATION_RECOMMENDER" "$CONTEXT_DRIFT_HOOK" "$RULE_RECOMMENDATION" "$TOOL_RECOMMENDATION" "$REPO_TEMPLATES" \
+  "$LIFECYCLE" <<'PY'
 import json, sys, os
 
 path, version, completed = sys.argv[1:4]
-setup_mode, tier, docker, tracker, workflow, domain_docs, architecture, sandcastle, automation_recommender, context_drift_hook, rule_recommendation, tool_recommendation, repo_templates = sys.argv[4:17]
+setup_mode, tier, docker, tracker, workflow, domain_docs, architecture, sandcastle, automation_recommender, context_drift_hook, rule_recommendation, tool_recommendation, repo_templates, lifecycle = sys.argv[4:18]
+
+VALID_LIFECYCLE = {"development", "production"}
+if lifecycle and lifecycle not in VALID_LIFECYCLE:
+    print(f"error: invalid --lifecycle={lifecycle!r} (expected one of {sorted(VALID_LIFECYCLE)})", file=sys.stderr)
+    sys.exit(2)
 
 data = {}
 if os.path.isfile(path):
@@ -126,6 +135,8 @@ if tool_recommendation:
     branches["tool_recommendation"] = tool_recommendation
 if repo_templates:
     branches["repo_templates"] = repo_templates
+if lifecycle:
+    branches["lifecycle"] = lifecycle
 
 data["branches"] = branches
 

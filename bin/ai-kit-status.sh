@@ -47,6 +47,7 @@ br = data.get("branches", {})
 order = [
     ("setup_mode", "setup-mode"),
     ("setup_tier", "tier"),
+    ("lifecycle", "lifecycle"),
     ("docker", "docker"),
     ("issue_tracker", "tracker"),
     ("workflow", "workflow"),
@@ -54,6 +55,7 @@ order = [
     ("sandcastle", "sandcastle"),
     ("automation_recommender", "recommender"),
 ]
+br.setdefault("lifecycle", "production")
 shown = []
 def fmt(v):
     if isinstance(v, bool):
