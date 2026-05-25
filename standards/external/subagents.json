@@ -1,0 +1,51 @@
+{
+  "_meta": {
+    "title": "Claude Code subagent recommendations — stack signal → subagent map",
+    "notes": "Curated third-party Claude Code subagents (Agent tool specialists) worth surfacing per project. ai-kit recommends, never bundles. Install entries point at the parent plugin/repo — users invoke /plugin install themselves. Subagents differ from plugins in trust surface: they execute via the Agent tool with an explicit tool-list, so each entry documents which tools the subagent gets access to. Mirrors plugins.json schema with additional 'parent_plugin' + 'tools' fields. Built-in subagents (general-purpose, Explore, Plan, statusline-setup) are excluded — always available, not recommendation candidates. ai-kit's own subagents (ai:explore, ai:qa-runner, ai:reviewer) are excluded — installed with ai-kit itself.",
+    "vendored_at": "2026-05-25"
+  },
+  "recommendations": [
+    {
+      "name": "claude-code-guide",
+      "parent_plugin": "claude-code-setup@claude-plugins-official",
+      "install": "/plugin install claude-code-setup@claude-plugins-official",
+      "category": "docs",
+      "tools": ["Bash", "Read", "WebFetch", "WebSearch"],
+      "best_for": "Any project where Claude Code / Agent SDK / Anthropic API questions surface during development — features, hooks, slash commands, MCP servers, settings, IDE integrations",
+      "value": "Authoritative answers about the host harness (Claude Code itself) without the main thread chewing through context to re-derive them. Read-only, no code edits.",
+      "universal": true
+    },
+    {
+      "name": "caveman:cavecrew-investigator",
+      "parent_plugin": "caveman@caveman",
+      "install": "/plugin install caveman@caveman",
+      "category": "code-locator",
+      "tools": ["Read", "Grep", "Glob", "Bash"],
+      "best_for": "Brownfield repos with many files where the main thread keeps spending context on 'where is X defined / what calls Y' lookups",
+      "value": "Read-only code locator. Returns file:line tables in caveman-compressed format — tool-result injected back into main context is ~60% smaller than vanilla Explore output. Main context lasts longer across long sessions.",
+      "signals": {
+        "files": ["package.json", "composer.json", "pyproject.toml", "Cargo.toml", "go.mod", "Gemfile"]
+      }
+    },
+    {
+      "name": "caveman:cavecrew-builder",
+      "parent_plugin": "caveman@caveman",
+      "install": "/plugin install caveman@caveman",
+      "category": "code-editor",
+      "tools": ["Read", "Edit", "Write", "Grep", "Glob"],
+      "best_for": "Surgical 1-2 file edits — typo fixes, single-function rewrites, mechanical renames, comment removal, format-preserving tweaks",
+      "value": "Bounded scope editor. Hard refuses 3+ file scope. Returns caveman-compressed diff receipt. Use when scope is bounded and obvious; do NOT use for new features, new files, or cross-file refactors.",
+      "universal": true
+    },
+    {
+      "name": "caveman:cavecrew-reviewer",
+      "parent_plugin": "caveman@caveman",
+      "install": "/plugin install caveman@caveman",
+      "category": "review",
+      "tools": ["Read", "Grep", "Bash"],
+      "best_for": "PR review / diff review where the main thread wants compressed actionable findings instead of multi-paragraph commentary",
+      "value": "One line per finding, severity-tagged, no praise, no scope creep. Output format `path:line: <emoji> <severity>: <problem>. <fix>.` Skips formatting nits unless they change meaning.",
+      "universal": true
+    }
+  ]
+}

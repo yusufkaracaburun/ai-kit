@@ -102,4 +102,15 @@ assert "apply adds context-drift alongside" 'grep -q "context-drift-check.sh" "$
 rm -rf "$TMP_CDH2"
 
 
+echo "=== audit-setup-symmetry ==="
+# section: audit-setup-symmetry
+# Lock for #48 — every standards/external/*.json catalog must be wired
+# either via the recommend-tools scorer or as its own setup branch.
+"$AIKIT/bin/audit-setup-symmetry.sh" >/tmp/symmetry-audit.log 2>&1 || true
+assert "all catalogs have a wiring path" '"$AIKIT/bin/audit-setup-symmetry.sh" >/dev/null'
+assert "subagents.json appears wired" 'grep -q "OK  subagents.json" /tmp/symmetry-audit.log'
+assert "plugins.json appears wired" 'grep -q "OK  plugins.json" /tmp/symmetry-audit.log'
+rm -f /tmp/symmetry-audit.log
+
+
 print_summary_and_exit

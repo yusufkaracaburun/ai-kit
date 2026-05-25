@@ -87,10 +87,12 @@ assert "recommend-tools: context7 surfaced (laravel framework match)" 'echo "$JS
 assert "recommend-tools: laravel-pint surfaced (file + framework)" 'echo "$JSON_TOOLS" | grep -q "\"name\": \"laravel-pint\""'
 assert "recommend-tools: block-env-edits surfaced (.env present)" 'echo "$JSON_TOOLS" | grep -q "\"name\": \"block-env-edits\""'
 assert "recommend-tools: score is integer" 'echo "$JSON_TOOLS" | python3 -c "import json,sys; d=json.load(sys.stdin); assert all(isinstance(r[\"score\"], int) for r in d[\"recommendations\"])"'
-assert "recommend-tools: kind in {mcp,hook,plugin}" 'echo "$JSON_TOOLS" | python3 -c "import json,sys; d=json.load(sys.stdin); assert all(r[\"kind\"] in (\"mcp\",\"hook\",\"plugin\") for r in d[\"recommendations\"])"'
+assert "recommend-tools: kind in {mcp,hook,plugin,subagent}" 'echo "$JSON_TOOLS" | python3 -c "import json,sys; d=json.load(sys.stdin); assert all(r[\"kind\"] in (\"mcp\",\"hook\",\"plugin\",\"subagent\") for r in d[\"recommendations\"])"'
 assert "recommend-tools: sorted desc by score" 'echo "$JSON_TOOLS" | python3 -c "import json,sys; d=json.load(sys.stdin); s=[r[\"score\"] for r in d[\"recommendations\"]]; assert s == sorted(s, reverse=True)"'
 assert "recommend-tools: laravel-boost plugin surfaced (laravel framework match)" 'echo "$JSON_TOOLS" | grep -q "\"name\": \"laravel-boost\""'
 assert "recommend-tools: claude-mem plugin surfaced (universal)" 'echo "$JSON_TOOLS" | grep -q "\"name\": \"claude-mem\""'
+assert "recommend-tools: claude-code-guide subagent surfaced (universal)" 'echo "$JSON_TOOLS" | grep -q "\"name\": \"claude-code-guide\""'
+assert "recommend-tools: --kind subagent filter works" '"$AIKIT/bin/recommend-tools.sh" "$TOOLS_TMP" --kind subagent --json | python3 -c "import json,sys; d=json.load(sys.stdin); assert all(r[\"kind\"]==\"subagent\" for r in d[\"recommendations\"]); assert len(d[\"recommendations\"])>0"'
 
 JSON_MCP="$("$AIKIT/bin/recommend-tools.sh" "$TOOLS_TMP" --json --kind mcp)"
 assert "recommend-tools --kind mcp: only mcp" 'echo "$JSON_MCP" | python3 -c "import json,sys; d=json.load(sys.stdin); assert all(r[\"kind\"]==\"mcp\" for r in d[\"recommendations\"]) and len(d[\"recommendations\"])>0"'

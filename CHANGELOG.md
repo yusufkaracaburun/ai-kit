@@ -1,5 +1,51 @@
 # Changelog
 
+## 1.17.0 — 2026-05-25
+
+Closes #50 (subagent recommendations) and #48 (setup-symmetry lock).
+Closes #49 retroactively — verified that `standards/external/plugins.json`
+was already wired via the `recommend-tools` scorer from v1.12.x; the
+issue scope (separate `recommend-plugins` skill) would have duplicated
+~80% of `recommend-tools` plumbing. Branch 14 (#19, v1.16.0) already
+surfaces plugins through `recommend-tools.sh --kind plugin`.
+
+The remaining work: extend the same recommend-tools surface to subagents
+and lock the symmetry principle so future catalogs cannot land without
+a wiring path.
+
+- **New** `standards/external/subagents.json` — initial entries:
+  `claude-code-guide` (universal docs subagent), `caveman:cavecrew-
+  investigator` / `cavecrew-builder` / `cavecrew-reviewer`. Schema
+  mirrors `plugins.json` with additional `parent_plugin` (install
+  pointer) + `tools` (trust-surface disclosure) fields. Built-in
+  subagents and ai-kit's own subagents are explicitly excluded from
+  the catalog — see `_meta.notes`.
+- **Updated** `bin/lib/recommend-tools-lib.sh` — fourth `emit()` call
+  for `subagents.json`, silent skip when absent (older clones). Sort
+  key unchanged (score desc, kind, name).
+- **Updated** `bin/recommend-tools.sh` — `--kind subagent` filter and
+  usage doc.
+- **Updated** `workflow/skills/recommend-tools/SKILL.md` — Extended
+  section covers four catalogs (was three); trust-model bullet
+  documents subagent-specific surface (parent_plugin install + tools
+  list disclosure).
+- **New** `bin/audit-setup-symmetry.sh` — enumerates
+  `standards/external/*.json` and asserts each is wired via the
+  scorer lib OR explicitly mentioned in `setup/SKILL.md`. Hard-coded
+  exclusions: `plugins-excluded.json`, `VETTING.md`. Fails with
+  pointer to #48 on mismatch.
+- **Updated** `tests/bin/cases/apply-marker.sh` — 3 new assertions
+  invoking `audit-setup-symmetry.sh`.
+- **Updated** `tests/bin/cases/recommend.sh` — `kind` enum widened to
+  `{mcp,hook,plugin,subagent}`; new assertion verifies
+  `claude-code-guide` subagent surfaces and `--kind subagent` filter
+  returns only subagent rows. 464/464 total pass (was 459).
+
+The symmetry-audit lock means new catalogs added to
+`standards/external/` MUST either be picked up by the scorer
+(`emit()` call) or get their own setup branch — otherwise CI fails.
+Closes the #48 DoD.
+
 ## 1.16.0 — 2026-05-25
 
 Closes #19: `/ai:setup` now wires `/ai:recommend-tools` as a first-class
