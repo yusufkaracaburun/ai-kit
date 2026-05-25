@@ -13,6 +13,21 @@ The issue tracker and triage label vocabulary should have been provided to you �
 
 Issue titles, branch names, and commit messages follow the [git-hygiene rule](../../../standards/rules/git-hygiene.mini.md). Default branch prefix per type: AFK + feature → `feat/`, AFK + bug → `fix/`, HITL → ask first.
 
+## Second-dev cold-pickup rule
+
+Every issue this skill produces must contain enough context that a **second
+dev** — teammate, AFK agent, or returning maintainer — who has never seen
+the conversation can act on it cold. Each issue gets a parent reference, a
+behavioral *what to build* description, inline machine-checkable
+acceptance criteria, and an explicit *blocked by* list. The issue body is
+the contract surface; conversation context is not.
+
+Rationale: ai-kit defaults assume ≥2 devs (one writer, one reviewer), per
+ai-kit issue #52. The to-issues template enforces this structure — never
+emit an issue that drops acceptance criteria or the parent pointer. If a
+slice cannot be specified cold from current context, keep grilling before
+publishing.
+
 ## Run mode
 
 - **Claude Code:** for the codebase exploration in step 2, delegate to the `explore` subagent via the Task tool with `subagent_type=explore` — ask it to map the area the plan touches and the current state of the code, and return a ≤300-line summary. Drafting slices, quizzing the user, and publishing issues stay in this context.
