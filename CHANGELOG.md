@@ -1,5 +1,34 @@
 # Changelog
 
+## 1.20.3 — 2026-05-25
+
+### Added
+
+- **2-dev default sweep ([#52](https://github.com/yusufkaracaburun/ai-kit/issues/52))** — ai-kit defaults now assume ≥2 devs (writer + reviewer) instead of solo. Eight slices merged under one parent:
+  - `setup-gh-workflow` ([#66](https://github.com/yusufkaracaburun/ai-kit/issues/66)): hybrid `gh api PUT` branch-protection (403 → checklist fallback, exits 0); scaffolds `.github/PULL_REQUEST_TEMPLATE.md` with DoR/DoD checkboxes; new `--no-protection` / `--no-pr-template` flags; `--dry-run` emits payload + fallback command.
+  - `triage` + `to-issues` ([#65](https://github.com/yusufkaracaburun/ai-kit/issues/65)): explicit "Second-dev cold-pickup" rule pointing to #52.
+  - `tdd` ([#63](https://github.com/yusufkaracaburun/ai-kit/issues/63)): new "Review (required)" phase with single-human-project clause.
+  - `ship` ([#63](https://github.com/yusufkaracaburun/ai-kit/issues/63)): review-before-merge stated as precondition, not recommendation.
+  - `autonomous` ([#68](https://github.com/yusufkaracaburun/ai-kit/issues/68)): Trust-model gains explicit "Agent is the writer; the reviewer is human" rule with solo-human caveat.
+  - `setup` + `onboard` ([#62](https://github.com/yusufkaracaburun/ai-kit/issues/62)): two surviving team-size "solo" hits rewritten in 2-dev framing. Install-layout `setup_mode=solo-*` vocabulary preserved.
+  - AGENTS.md / CLAUDE.md templates ([#64](https://github.com/yusufkaracaburun/ai-kit/issues/64)): new "Team shape" section documents the "we" / 2-dev default.
+
+- **`/ai:doctor` single-dev drift checks ([#69](https://github.com/yusufkaracaburun/ai-kit/issues/69))** — three new warn-only checks in GitHub repos: PR template missing, branch-protection off (skipped on 403 / non-admin), single-committer in last 30d (gated on ≥5 commits). All warn (never error). `/ai:hygiene` inherits via its existing doctor call.
+
+- **`/ai:doctor` workflow-text solo lint ([#70](https://github.com/yusufkaracaburun/ai-kit/issues/70))** — regression guardrail across `workflow/skills/**/*.md` + `workflow/commands/**/*.md`. Locks the baseline at zero team-size solo/single-dev hits. Whitelists install-layout vocab, rule-discussion idioms (`solo-human`, `single-dev shortcut`), and per-line `solo-lint:allow` directive.
+
+### Fixed
+
+- **`recommend-tools` companions disambig ([#53](https://github.com/yusufkaracaburun/ai-kit/issues/53))** — `graphify-wiki` (AST-derived at `graphify-out/wiki/`) and `llm-wiki` (curated at `wiki/`) now name themselves uniquely; glue templates carry a disambig footer; `companions.json` cross-refs both ways; `recommend-tools` SKILL emits a "Two wikis present" block in AGENTS.md when both companions are wired.
+
+### Audited
+
+- **`recommend-tools` solo-heuristic audit ([#67](https://github.com/yusufkaracaburun/ai-kit/issues/67))** — grep across `workflow/skills/recommend-tools/` + scorer + JSON catalogs returned zero hits. recommend-tools already scores per stack-signal; no team-size heuristics existed to drop. Closed with evidence comment, no code change.
+
+### Tests
+
+- Total assert count: 506 → 575 (69 new). New test cases: `companions-disambig` (7), `we-pronouns` (4), `setup-gh-workflow-protection` (14), `setup-onboard-no-solo` (7), `cold-pickup-rule` (8), `autonomous-writer-reviewer` (6), `tdd-ship-review-required` (9), `single-dev-drift` (15), `doctor-workflow-solo-lint` (10).
+
 ## 1.20.2 — 2026-05-25
 
 Patch: `ai-kit-audit-ecosystem.sh` now surfaces deliberately-excluded plugins
