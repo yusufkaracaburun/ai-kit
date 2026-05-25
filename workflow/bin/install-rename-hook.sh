@@ -47,10 +47,14 @@ cmd_needle = "rename-detector.sh"
 try:
     with open(path) as f:
         data = json.load(f)
-    if not isinstance(data, dict):
-        data = {}
-except (FileNotFoundError, json.JSONDecodeError):
+except FileNotFoundError:
     data = {}
+except json.JSONDecodeError as e:
+    print(f"refusing to overwrite malformed settings.json: {path} ({e})", file=sys.stderr)
+    sys.exit(1)
+if not isinstance(data, dict):
+    print(f"refusing: settings.json is not a JSON object: {path}", file=sys.stderr)
+    sys.exit(1)
 
 hooks = data.get("hooks") if isinstance(data.get("hooks"), dict) else None
 removed = 0
@@ -98,17 +102,19 @@ python3 - "$SETTINGS" "$HOOK_DST" <<'PY'
 import json, sys
 
 path, hook_path = sys.argv[1], sys.argv[2]
-# Use literal $HOME if HOME-prefixed for portability across machines.
-home = "/Users/" if hook_path.startswith("/Users/") else ""  # noqa: unused, kept for symmetry
 cmd = f'bash "{hook_path}"'
 
 try:
     with open(path) as f:
         data = json.load(f)
-    if not isinstance(data, dict):
-        data = {}
-except (FileNotFoundError, json.JSONDecodeError):
+except FileNotFoundError:
     data = {}
+except json.JSONDecodeError as e:
+    print(f"refusing to overwrite malformed settings.json: {path} ({e})", file=sys.stderr)
+    sys.exit(1)
+if not isinstance(data, dict):
+    print(f"refusing: settings.json is not a JSON object: {path}", file=sys.stderr)
+    sys.exit(1)
 
 hooks = data.get("hooks")
 if not isinstance(hooks, dict):

@@ -477,21 +477,22 @@ in priority order:
     install migrators.
 
 18. **Repo-rename housekeeping: stale path refs in memory-files** (#33)
-    — Surfaced 2026-05-23 after renaming `school-activities-hub` →
-    `naschool` on disk; `~/.claude/CLAUDE.md` Phase 14 PARKED block,
-    project-local `CLAUDE.md`, `.agents/memory/**`, and `docs/**` all
-    kept the old absolute path. Existing `context-drift-check.sh` only
-    catches forward drift (edit → check docs); rename drift goes the
-    other direction (rename watched path → check who still names it)
-    and has no detector. Three primitive options on the table: (a)
-    `repo-rename-housekeeping` skill that scans the memory-file
-    universe for old basename + absolute path and proposes
-    Edit-replace_all batches; (b) post-cwd-change hook that compares
-    `$PWD` against `~/.claude/known-projects.json` and flags suspected
-    renames; (c) pre-write validator on `~/.claude/**` and
-    `.agents/memory/**` that warns when new content names an
-    unreachable absolute path. Skill option lowest-friction to ship.
-    Surfaced from `~/.claude/ai-kit-lessons.md` entry 2026-05-23.
+    — landed 2026-05-25 in v1.19.0. Three primitives shipped together:
+    (a) `/ai:rename-housekeeping <old> <new>` skill, backed by
+    `bin/rename-housekeeping-core.sh` for the deterministic scan/apply
+    engine — snapshots `~/.claude/**` targets to
+    `~/.claude/.backups/<ts>/` before write, rewrites via a python utf-8
+    helper, updates `known-projects.json`; (b) user-global
+    `bin/hooks/rename-detector.sh` SessionStart hook that maintains
+    `~/.claude/known-projects.json` (name + path + first_seen +
+    last_seen) and emits a one-line nudge only when basename matches a
+    known project AND `$PWD` differs from the registered path AND the
+    old path is gone on disk — multi-clone case stays silent;
+    (c) `bin/install-rename-hook.sh` idempotent installer + Branch 11b
+    in `/ai:setup` ("install global rename-detector?"). Pre-write
+    validator (option c from the original surfacing) explicitly
+    deferred to a follow-up issue — different failure mode (catches
+    paths LLM *introduces*, not stale ones already on disk).
 
 19. **Whole-codebase architecture audit skill** (#32) — landed
     2026-05-23 in v1.14.0. New skill `audit-architecture` + canonical

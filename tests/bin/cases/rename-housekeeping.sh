@@ -185,6 +185,17 @@ assert "second install is idempotent (still 1 entry)" "[ '$WIRED_COUNT' = '1' ]"
 assert "installer seeded known-projects.json" "[ -f '$FAKE_HOME/.claude/known-projects.json' ]"
 assert "hook copied to ~/.claude/hooks/" "[ -x '$FAKE_HOME/.claude/hooks/rename-detector.sh' ]"
 
+# Refuse to clobber malformed JSON.
+echo 'not valid json at all { { {' > "$FAKE_HOME/.claude/settings.json"
+set +e
+CORRUPT_OUT=$(HOME="$FAKE_HOME" bash "$INSTALLER" 2>&1)
+CORRUPT_EXIT=$?
+set -e
+assert "installer refuses malformed settings.json (exit non-zero)" "[ '$CORRUPT_EXIT' -ne 0 ]"
+assert "installer surfaces refusal reason"  "echo '$CORRUPT_OUT' | grep -qi 'malformed'"
+# Reset for the uninstall test below.
+echo '{"hooks":{"SessionStart":[{"hooks":[{"type":"command","command":"bash \"'"$FAKE_HOME"'/.claude/hooks/rename-detector.sh\""}]}]}}' > "$FAKE_HOME/.claude/settings.json"
+
 # Uninstall removes everything.
 HOME="$FAKE_HOME" bash "$INSTALLER" --uninstall >/dev/null
 WIRED_COUNT=$(python3 -c "
