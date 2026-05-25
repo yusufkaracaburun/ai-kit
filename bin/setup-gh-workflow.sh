@@ -37,6 +37,8 @@ FORCE=false
 DRY_RUN=false
 SKIP_LABELS=false
 SKIP_PROJECT=false
+SKIP_PROTECTION=false
+SKIP_PR_TEMPLATE=false
 QUIET=false
 TARGET=""
 
@@ -52,6 +54,8 @@ while [ $# -gt 0 ]; do
     --dry-run)      DRY_RUN=true; shift ;;
     --no-labels)    SKIP_LABELS=true; shift ;;
     --no-project)   SKIP_PROJECT=true; shift ;;
+    --no-protection) SKIP_PROTECTION=true; shift ;;
+    --no-pr-template) SKIP_PR_TEMPLATE=true; shift ;;
     --quiet)        QUIET=true; shift ;;
     -*)             echo "Unknown flag: $1" >&2; exit 2 ;;
     *)
@@ -62,7 +66,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ -z "$TARGET" ]; then
-  echo "Usage: $0 /path/to/project [--lang en] [--force] [--dry-run] [--no-labels] [--no-project] [--quiet]" >&2
+  echo "Usage: $0 /path/to/project [--lang en] [--force] [--dry-run] [--no-labels] [--no-project] [--no-protection] [--no-pr-template] [--quiet]" >&2
   exit 1
 fi
 TARGET="$(cd "$TARGET" && pwd)"
@@ -289,6 +293,80 @@ PYEOF
       fi
     fi
   fi
+fi
+
+# ----------------------------------------------------------------------------
+# 4. Scaffold PR template — ai-kit issue #66 (parent #52).
+#    Idempotent: skip if any of the three GitHub-honored paths already populated.
+# ----------------------------------------------------------------------------
+scaffold_pr_template() {
+  local target="$1"
+  local src="$AIKIT/context/templates/github/PULL_REQUEST_TEMPLATE.md"
+  local candidates=(
+    "$target/.github/PULL_REQUEST_TEMPLATE.md"
+    "$target/.github/pull_request_template.md"
+    "$target/docs/pull_request_template.md"
+  )
+  for p in "${candidates[@]}"; do
+    if [ -f "$p" ]; then
+      log "PR template: already present at ${p#$target/} — skip"
+      return 0
+    fi
+  done
+  [ -f "$src" ] || { log "PR template: source missing ($src) — skip"; return 0; }
+  if [ "$DRY_RUN" = true ]; then
+    log "  [dry-run] would scaffold PR template at .github/PULL_REQUEST_TEMPLATE.md"
+    return 0
+  fi
+  mkdir -p "$target/.github"
+  cp "$src" "$target/.github/PULL_REQUEST_TEMPLATE.md"
+  log "PR template: scaffolded at .github/PULL_REQUEST_TEMPLATE.md"
+}
+
+# ----------------------------------------------------------------------------
+# 5. Apply branch protection — hybrid: gh api PUT, 403 → checklist fallback.
+#    ai-kit issue #66. Drift = warn, never break (exit 0 even on 403).
+# ----------------------------------------------------------------------------
+apply_branch_protection() {
+  local owner="$1" repo="$2"
+  local default_branch
+  default_branch="$(gh api "repos/$owner/$repo" --jq .default_branch 2>/dev/null || echo "master")"
+  local payload
+  payload=$(cat <<JSON
+{"required_status_checks":null,"enforce_admins":false,"required_pull_request_reviews":{"required_approving_review_count":1,"dismiss_stale_reviews":false,"require_code_owner_reviews":false},"restrictions":null,"allow_force_pushes":false,"allow_deletions":false}
+JSON
+)
+  local fallback_cmd="gh api -X PUT repos/$owner/$repo/branches/$default_branch/protection --input - <<EOF
+$payload
+EOF"
+  if [ "$DRY_RUN" = true ]; then
+    log "  [dry-run] branch-protection payload for $owner/$repo branch $default_branch:"
+    log "    $payload"
+    log "  [dry-run] fallback command if PUT returns 403:"
+    log "    $fallback_cmd"
+    return 0
+  fi
+  if printf '%s' "$payload" | gh api -X PUT "repos/$owner/$repo/branches/$default_branch/protection" --input - >/dev/null 2>&1; then
+    log "branch-protection: applied on $owner/$repo branch $default_branch (≥1 approving review)"
+    return 0
+  fi
+  # PUT failed (most commonly 403 = insufficient scope / not repo admin).
+  # Drift = warn, never break — print the exact fallback command.
+  log "branch-protection: PUT failed (403 likely — admin scope required)."
+  log "  Fallback: an admin can run the following from this repo:"
+  log ""
+  log "    $fallback_cmd"
+  log ""
+  log "  See ai-kit issue #52 for the 2-dev default rationale."
+  return 0
+}
+
+if [ "$SKIP_PR_TEMPLATE" = false ]; then
+  scaffold_pr_template "$TARGET"
+fi
+
+if [ "$SKIP_PROTECTION" = false ]; then
+  apply_branch_protection "$OWNER" "$REPO"
 fi
 
 log "setup-gh-workflow: done."
