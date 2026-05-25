@@ -58,6 +58,8 @@ command -v graphify >/dev/null 2>&1 && echo "graphify: CLI present" || echo "gra
 { [ -d "$HOME/.claude/skills/caveman" ] || [ -d .claude/skills/caveman ]; } && echo "caveman: skills present" || echo "caveman: not installed"
 { [ -d wiki ] && [ -d raw ]; } && echo "llm-wiki: scaffolded in this repo" || echo "llm-wiki: not scaffolded here"
 [ -d docs ] && echo "llm-wiki: conflict-check — existing docs/ found (see Phase 3 llm-wiki branch)" || true
+# context7: check BOTH user-scope MCP AND plugin-provided. `claude mcp list` alone misses plugin-provided MCPs that aren't currently connected — adding a user-scope ctx7 in that state causes a "same command/URL" conflict on next /doctor.
+{ claude mcp list 2>/dev/null | grep -qi context7 || claude plugin list 2>/dev/null | grep -qi context7; } && echo "context7: already available (user-scope MCP or plugin)" || echo "context7: not available — recommend the plugin path first"
 ```
 
 Report the lines plainly. Detection drives the recommendation — never claim a tool is wired when it is not. The two graphify lines disambiguate **base tier** (`graphify-out/`) from **wiki tier** (`graphify-out/wiki/`); the wiki tier is an opt-in nudge described in Phase 3.

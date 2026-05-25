@@ -1,5 +1,33 @@
 # Changelog
 
+## 1.18.2 — 2026-05-25
+
+Patch: context7 detection now catches plugin-provided installs (not
+just user-scope MCPs).
+
+Live incident on 2026-05-25 in a fresh session: ai-kit ran
+`claude mcp list | grep -q context7`, saw nothing, told the user
+"NOT_INSTALLED", then `claude mcp add --scope user context7` — but
+the `context7@claude-plugins-official` plugin was already installed
+and providing the same MCP. Result: `/doctor` reported
+"MCP server context7 skipped — same command/URL".
+
+Root cause: `claude mcp list` only shows user-config MCPs and
+currently-connected plugin MCPs. Plugin-provided MCPs that aren't
+active in the current project are invisible. Detection must check
+both surfaces.
+
+- **Fix** `standards/external/companions.json` → context7 entry: detection
+  now checks both `claude mcp list` AND `claude plugin list`; new
+  `conflicts[]` entry warns about the plugin-vs-user-scope clash;
+  install block names the plugin path as preferred.
+- **Fix** `standards/external/mcp-servers.json` → context7 entry: new
+  `install_paths` block documenting preferred plugin path, fallback
+  user-scope command, correct detection one-liner, and a conflict_note.
+- **Fix** `workflow/skills/recommend-tools/SKILL.md` Phase 1 detection
+  now emits a context7 line that combines both checks before
+  recommending anything.
+
 ## 1.18.1 — 2026-05-25
 
 Patch: ship `bin/ai-kit-hygiene.sh` + updated `bin/audit-setup-symmetry.sh`

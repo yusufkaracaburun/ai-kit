@@ -15,6 +15,12 @@
       "universal": true,
       "best_for": "Any project that depends on third-party libraries — Claude should code against live docs, not training-data snapshots",
       "value": "Live documentation lookups instead of relying on training data — reduces hallucinated APIs and outdated patterns. Universal because the failure mode (stale training data) is library-agnostic.",
+      "install_paths": {
+        "preferred": "/plugin install context7@claude-plugins-official",
+        "fallback_user_scope": "claude mcp add --scope user context7 -- npx -y @upstash/context7-mcp",
+        "detection": "claude mcp list 2>/dev/null | grep -qi context7 || claude plugin list 2>/dev/null | grep -qi context7",
+        "conflict_note": "Adding user-scope when plugin is already installed triggers 'MCP server skipped — same command/URL' in /doctor. Prefer the plugin path; fall back to user-scope only when the plugin marketplace is unavailable."
+      },
       "signals": {
         "frameworks": ["react", "vue", "angular", "nextjs", "nuxt", "svelte", "express", "fastify", "fastapi", "django", "rails", "laravel", "spring"],
         "dependencies": ["@anthropic-ai/sdk", "openai", "langchain", "@aws-sdk/", "prisma", "drizzle-orm"]

@@ -118,12 +118,23 @@
         }
       ],
       "detection": {
-        "mcp": "claude mcp list | grep -q context7"
+        "mcp_user_scope": "claude mcp list 2>/dev/null | grep -qi context7",
+        "plugin_provided": "claude plugin list 2>/dev/null | grep -qi context7",
+        "any": "claude mcp list 2>/dev/null | grep -qi context7 || claude plugin list 2>/dev/null | grep -qi context7",
+        "notes": "Detection MUST check both — `claude mcp list` only shows user-config MCPs from ~/.claude.json and currently-connected plugin MCPs (so plugin-provided ctx7 is invisible if the plugin isn't enabled in the current project). Adding a user-scope ctx7 when the plugin already provides it triggers Claude Code's 'MCP server skipped — same command/URL' conflict on next /doctor."
       },
-      "conflicts": [],
+      "conflicts": [
+        {
+          "with": "context7@claude-plugins-official plugin",
+          "check": "claude plugin list 2>/dev/null | grep -qi context7",
+          "warning": "Plugin already provides context7 MCP. Adding user-scope `claude mcp add context7` causes a 'same command/URL' conflict — Claude Code skips one. Prefer the plugin install (no manual MCP add needed). If user-scope already present and plugin is preferred, remove with `claude mcp remove --scope user context7`."
+        }
+      ],
       "install": {
         "upstream": "https://github.com/upstash/context7",
-        "auto_install": false
+        "plugin_alternative": "/plugin install context7@claude-plugins-official",
+        "auto_install": false,
+        "preferred_path": "plugin (no manual MCP config needed); user-scope only as fallback when plugin install is unavailable"
       }
     }
   ]
