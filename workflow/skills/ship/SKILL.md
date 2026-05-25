@@ -10,7 +10,11 @@ Release a working increment. Stack-agnostic — derive deploy commands from `doc
 ## Process
 
 1. **Pre-flight**
-   - Run or confirm `review` passed (no open blockers)
+   - Review must pass before merge — this is a precondition, not a
+     recommendation. Run or confirm `/ai:review` passed with no open
+     blockers and no security findings ≥ high. Human review of the diff
+     is required even when the project has only one human contributor
+     (see ai-kit issue #52 for the 2-dev-default rationale).
    - CI green on the release branch (`gh run list`, GitHub Actions, GitLab CI, etc.)
    - All related issues linked to the PR/release
    - Commit messages + PR title follow [git-hygiene rule](../../../standards/rules/git-hygiene.mini.md) (conventional commits, scoped, imperative); PR body uses the project's `.github/pull_request_template.md` if present

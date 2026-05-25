@@ -102,6 +102,20 @@ After all tests pass, look for [refactor candidates](refactoring.md):
 
 **Never refactor while RED.** Get to GREEN first.
 
+### 5. Review (required)
+
+Before opening a PR, a human reviewer reads the diff. This step is **not
+optional**. ai-kit defaults assume ≥2 devs (one writer, one reviewer) per
+ai-kit issue #52 — the rule applies even when the project has only one
+human contributor; solo-human-with-AI-writer still reads every diff before
+merge. Route review through `/ai:review` (or its equivalent) so blockers
+and security findings ≥ high surface before ship.
+
+If the reviewer is the same human who wrote the tests, treat that as an
+opt-in single-dev shortcut, not the default — document the cadence (e.g.
+"reviewed within 48h", "AI-as-reviewer + weekly human sweep") so a second
+dev arriving later can read the contract.
+
 ## Checklist Per Cycle
 
 ```
