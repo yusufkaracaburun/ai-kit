@@ -91,4 +91,33 @@ assert "dedupe --no-ecosystem human output marks Surface 5 skipped" 'echo "$S5_S
 
 rm -rf "$EMPTY_TMP2"
 
+echo "=== ai-kit-dedupe: Surface 5 EXCLUDED count surfaces ==="
+# section: ai-kit-dedupe-excluded
+# Stage a minimal $HOME with one installed plugin that matches a real entry in
+# ai-kit's standards/external/plugins-excluded.json. Pull the first excluded
+# name dynamically so this test survives catalog changes.
+EXCL_NAME="$(python3 -c "import json; print(json.load(open('$AIKIT/standards/external/plugins-excluded.json'))['excluded'][0]['name'])")"
+EX_WORK=$(mktemp -d)
+mkdir -p "$EX_WORK/home/.claude/plugins" "$EX_WORK/proj"
+python3 - <<PY > "$EX_WORK/home/.claude/plugins/installed_plugins.json"
+import json
+print(json.dumps({
+    "version": 2,
+    "plugins": {
+        "$EXCL_NAME@claude-plugins-official": [
+            {"scope": "user", "installPath": "/tmp/fake/excl", "version": "0.0.1"}
+        ]
+    },
+}))
+PY
+
+set +e
+EX_HUMAN="$(HOME="$EX_WORK/home" "$DEDUPE" "$EX_WORK/proj" 2>&1)"
+EX_JSON="$(HOME="$EX_WORK/home" "$DEDUPE" "$EX_WORK/proj" --json 2>&1)"
+set -e
+assert "dedupe ecosystem JSON contains EXCLUDED finding" 'echo "$EX_JSON" | python3 -c "import json,sys; d=json.load(sys.stdin); assert any(f[\"verdict\"]==\"EXCLUDED\" for f in d[\"ecosystem\"][\"findings\"])"'
+assert "dedupe human Surface 5 mentions excluded count distinctly" 'echo "$EX_HUMAN" | grep -qi "excluded"'
+
+rm -rf "$EX_WORK"
+
 print_summary_and_exit

@@ -71,7 +71,7 @@ assert "dup-name across marketplaces → REBIND (first install)" 'find_verdict "
 assert "dup-name across marketplaces → REBIND (second install)" 'find_verdict "dup-name@market-b" "REBIND"'
 assert "self-ref (ai@yusufkaracaburun) project-scoped → REBIND via manifest detection" 'find_verdict "ai@yusufkaracaburun" "REBIND"'
 assert "uncatalogued plugin → ADOPT" 'find_verdict "uncatalogued@example" "ADOPT"'
-assert "deliberately-excluded plugin → REPLACE (ai-kit has equivalent, recommend uninstall)" 'find_verdict "excluded-fixture@example" "REPLACE"'
+assert "deliberately-excluded plugin → EXCLUDED (distinct from REPLACE, surfaces uninstall suggestion)" 'find_verdict "excluded-fixture@example" "EXCLUDED"'
 assert "user-skill shadowing plugin → REPLACE" 'find_verdict "dedupe" "REPLACE"'
 assert "user-agent shadowing plugin → REPLACE" 'find_verdict "reviewer" "REPLACE"'
 assert "user-rule matching catalog → OWNED" 'find_verdict "context7-fixture" "OWNED"'
@@ -100,7 +100,9 @@ assert "converge mentions /plugin uninstall for stale" 'echo "$CONV" | grep -q "
 assert "converge mentions rebind for ai@yusufkaracaburun" 'echo "$CONV" | grep -q "/plugin uninstall ai@yusufkaracaburun"'
 assert "converge mentions ADOPT candidate for uncatalogued" 'echo "$CONV" | grep -q "ADOPT candidate: plugins/uncatalogued@example"'
 assert "converge proposes rm for REPLACE user-skill" 'echo "$CONV" | grep -q "rm -rf .*\\.claude/skills/dedupe"'
-assert "converge proposes /plugin uninstall for REPLACE excluded plugin" 'echo "$CONV" | grep -q "/plugin uninstall excluded-fixture@example"'
+assert "converge proposes /plugin uninstall for EXCLUDED plugin" 'echo "$CONV" | grep -q "/plugin uninstall excluded-fixture@example"'
+assert "EXCLUDED counts as divergent (not OWNED/KEEP-EXTERNAL)" 'echo "$JSON" | python3 -c "import json,sys; d=json.load(sys.stdin); excl=[f for f in d[\"findings\"] if f[\"verdict\"]==\"EXCLUDED\"]; assert excl, \"no EXCLUDED finding\"; assert d[\"divergent\"]>=len(excl)"'
+assert "EXCLUDED finding carries excluded-reason in reason field" 'echo "$JSON" | python3 -c "import json,sys; d=json.load(sys.stdin); excl=[f for f in d[\"findings\"] if f[\"verdict\"]==\"EXCLUDED\"][0]; assert \"excluded\" in excl[\"reason\"].lower()"'
 assert "converge did NOT execute (fixture skills dir unchanged)" '[ "$BEFORE" -eq "$AFTER" ] && [ -d "$WORK/home/.claude/skills/dedupe" ]'
 
 echo "=== ai-kit-audit-ecosystem: clean fixture → exit 0 ==="

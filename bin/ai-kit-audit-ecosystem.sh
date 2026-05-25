@@ -33,7 +33,7 @@ Usage: $0 [--json] [--scope SCOPE] [--converge] [--strict] [--home DIR] [--catal
 
 Audit host Claude Code primitive state (installed plugins, user-scope skills/
 agents/rules, MCP servers) against ai-kit catalogs. Emit per-item verdicts:
-OWNED, ADOPT, REBIND, REPLACE, DROP-STALE, KEEP-EXTERNAL.
+OWNED, ADOPT, REBIND, REPLACE, EXCLUDED, DROP-STALE, KEEP-EXTERNAL.
 
 Options:
   --json              Machine-readable output.
@@ -244,9 +244,9 @@ PY
     fi
 
     # Deliberately-excluded check — these plugins overlap ai-kit's own skills
-    # and should not be ADOPT'd. Surface as KEEP-EXTERNAL with the recorded
-    # reason so users see deliberate non-adoption rather than "promotion
-    # candidate".
+    # and should not be ADOPT'd. Surface as EXCLUDED (distinct from REPLACE,
+    # which is reserved for user-scope skill/agent shadowing) so the audit can
+    # surface an uninstall suggestion with the recorded reason.
     EXCLUDED_REASON=""
     EXCLUDED_ALT=""
     if [ -f "$PLUGINS_EXCLUDED" ]; then
@@ -270,7 +270,7 @@ PY
     if [ -n "$EXCLUDED_REASON" ]; then
       reason_line="ai-kit equivalent exists (deliberately excluded): $EXCLUDED_REASON"
       [ -n "$EXCLUDED_ALT" ] && reason_line="$reason_line — use: $EXCLUDED_ALT"
-      emit plugins "$name@$marketplace" "REPLACE" "$reason_line" "$detail"
+      emit plugins "$name@$marketplace" "EXCLUDED" "$reason_line" "$detail"
       continue
     fi
 
@@ -550,6 +550,10 @@ if [ "$MODE_CONVERGE" -eq 1 ] && [ "$DIVERGENT" -gt 0 ]; then
           agents)
             echo "  rm \"$USER_AGENTS_DIR/$rec_name.md\"   # ai-kit ships agents/$rec_name"
             ;;
+        esac
+        ;;
+      EXCLUDED)
+        case "$rec_surface" in
           plugins)
             # rec_reason already embeds the alternative — strip the "ai-kit equivalent exists..." prefix.
             alt_hint="$(printf '%s' "$rec_reason" | sed -n 's/.*— use: //p')"

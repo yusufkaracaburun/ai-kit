@@ -135,6 +135,7 @@ fi
 ECOSYSTEM_JSON=""
 ECOSYSTEM_DIVERGENT=0
 ECOSYSTEM_TOTAL=0
+ECOSYSTEM_EXCLUDED=0
 AUDIT_BIN="$SCRIPT_BIN/ai-kit-audit-ecosystem.sh"
 if [ "$MODE_ECOSYSTEM" -eq 1 ] && [ -x "$AUDIT_BIN" ]; then
   set +e
@@ -154,6 +155,14 @@ import json, sys
 try:
     d = json.load(sys.stdin)
     print(d.get('total', 0))
+except Exception:
+    print(0)
+" 2>/dev/null || echo 0)"
+    ECOSYSTEM_EXCLUDED="$(printf '%s' "$ECOSYSTEM_JSON" | python3 -c "
+import json, sys
+try:
+    d = json.load(sys.stdin)
+    print(sum(1 for f in d.get('findings', []) if f.get('verdict') == 'EXCLUDED'))
 except Exception:
     print(0)
 " 2>/dev/null || echo 0)"
@@ -266,6 +275,9 @@ elif [ "$ECOSYSTEM_DIVERGENT" -eq 0 ]; then
   echo "  ok  $ECOSYSTEM_TOTAL item(s) inspected — all OWNED or KEEP-EXTERNAL"
 else
   echo "  $ECOSYSTEM_DIVERGENT divergent of $ECOSYSTEM_TOTAL item(s)."
+  if [ "$ECOSYSTEM_EXCLUDED" -gt 0 ]; then
+    echo "  $ECOSYSTEM_EXCLUDED EXCLUDED plugin(s) installed — ai-kit ships equivalents, uninstall suggested."
+  fi
   echo "  Run $AUDIT_BIN for the per-item verdict table, --converge for migration recipe."
 fi
 echo ""
