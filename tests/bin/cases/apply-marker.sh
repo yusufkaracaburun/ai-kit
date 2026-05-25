@@ -48,6 +48,11 @@ assert "no rule_recommendation key without flag" '! grep -q "rule_recommendation
 "$AIKIT/bin/write-setup-marker.sh" "$TMP_M" --rule-recommendation=deferred
 assert "rule-recommendation round-trips" 'grep -q "\"rule_recommendation\": \"deferred\"" "$TMP_M/.ai-kit-setup"'
 assert "rule-recommendation write preserves setup_mode" 'grep -q "\"setup_mode\": \"solo-both\"" "$TMP_M/.ai-kit-setup"'
+assert "no tool_recommendation key without flag" '! grep -q "tool_recommendation" "$TMP_M/.ai-kit-setup"'
+"$AIKIT/bin/write-setup-marker.sh" "$TMP_M" --tool-recommendation=completed
+assert "tool-recommendation round-trips" 'grep -q "\"tool_recommendation\": \"completed\"" "$TMP_M/.ai-kit-setup"'
+assert "tool-recommendation write preserves rule_recommendation" 'grep -q "\"rule_recommendation\": \"deferred\"" "$TMP_M/.ai-kit-setup"'
+assert "tool-recommendation write preserves setup_mode" 'grep -q "\"setup_mode\": \"solo-both\"" "$TMP_M/.ai-kit-setup"'
 assert "no domain_docs key without flag (decoupled from tracker)" '! grep -q "domain_docs" "$TMP_M/.ai-kit-setup"'
 "$AIKIT/bin/write-setup-marker.sh" "$TMP_M" --domain-docs=scaffolded
 assert "domain-docs round-trips scaffolded" 'grep -q "\"domain_docs\": \"scaffolded\"" "$TMP_M/.ai-kit-setup"'

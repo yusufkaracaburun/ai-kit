@@ -259,6 +259,27 @@ Record the aggregate choice in the marker
 (`--repo-templates=all|picked|skipped`). Re-runs are idempotent: any file that
 already exists is left alone unless the user explicitly chose `overwrite`.
 
+### Branch 14 — Tool / MCP / hook recommendation (optional refinement)
+
+Sibling to Branch 12 for the tool-class catalogs. `/ai:recommend-tools` scores
+companion tools (graphify, caveman, llm-wiki), MCP servers
+(`standards/external/mcp-servers.json`), and Claude Code hooks
+(`standards/external/hooks-patterns.json`) against the detected stack and
+project shape. ai-kit never auto-installs — the skill previews each
+candidate and lets the user pick per item.
+
+Offer it once. The skill may search the web for upstream install commands, so
+never run it silently:
+
+> Optional: `/ai:recommend-tools` scores companion tools, MCP servers, and
+> Claude Code hooks against this stack. Wire any in now?
+> [1] Refine now    → run `/ai:recommend-tools`, then record `completed`
+> [2] Later         → `deferred`
+> [3] Keep default  → `skipped`
+
+Default: brownfield with a framework in `detect-tooling` → offer; otherwise
+`skipped`. Record the choice in the marker (`--tool-recommendation=...`).
+
 Full setup Done:
 
 ```bash
@@ -270,6 +291,7 @@ $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" \
   --automation-recommender=skipped|deferred|completed \
   --context-drift-hook=wired|skipped \
   --rule-recommendation=completed|deferred|skipped \
+  --tool-recommendation=completed|deferred|skipped \
   --repo-templates=all|picked|skipped
 $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict
 ```
@@ -293,16 +315,13 @@ $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict
     "automation_recommender": "skipped",
     "context_drift_hook": "skipped",
     "rule_recommendation": "skipped",
+    "tool_recommendation": "skipped",
     "repo_templates": "skipped"
   }
 }
 ```
 
 Summarise what was configured. Re-run `/ai:setup` to extend Tier A → Tier B later.
-
-As an optional follow-up, mention `/ai:recommend-tools` — it wires companion tools
-(graphify, caveman) for projects that want to push the AI setup further. Surface
-it once; do not run it.
 
 ## Usage logging (opt-in)
 

@@ -23,6 +23,7 @@ usage() {
   echo "  --automation-recommender=skipped|deferred|completed"
   echo "  --context-drift-hook=wired|skipped"
   echo "  --rule-recommendation=completed|deferred|skipped"
+  echo "  --tool-recommendation=completed|deferred|skipped"
   echo "  --repo-templates=all|picked|skipped"
   exit 1
 }
@@ -43,6 +44,7 @@ SANDCASTLE=""
 AUTOMATION_RECOMMENDER=""
 CONTEXT_DRIFT_HOOK=""
 RULE_RECOMMENDATION=""
+TOOL_RECOMMENDATION=""
 REPO_TEMPLATES=""
 
 while [ $# -gt 0 ]; do
@@ -59,6 +61,7 @@ while [ $# -gt 0 ]; do
     --automation-recommender=*) AUTOMATION_RECOMMENDER="${1#*=}"; shift ;;
     --context-drift-hook=*) CONTEXT_DRIFT_HOOK="${1#*=}"; shift ;;
     --rule-recommendation=*) RULE_RECOMMENDATION="${1#*=}"; shift ;;
+    --tool-recommendation=*) TOOL_RECOMMENDATION="${1#*=}"; shift ;;
     --repo-templates=*) REPO_TEMPLATES="${1#*=}"; shift ;;
     -h | --help) usage ;;
     *) echo "Unknown option: $1" >&2; usage ;;
@@ -77,11 +80,11 @@ COMPLETED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
 python3 - "$SETUP_FILE" "$VERSION" "$COMPLETED_AT" \
   "$SETUP_MODE" "$SETUP_TIER" "$DOCKER" "$TRACKER" "$WORKFLOW" "$DOMAIN_DOCS" "$ARCHITECTURE" "$SANDCASTLE" \
-  "$AUTOMATION_RECOMMENDER" "$CONTEXT_DRIFT_HOOK" "$RULE_RECOMMENDATION" "$REPO_TEMPLATES" <<'PY'
+  "$AUTOMATION_RECOMMENDER" "$CONTEXT_DRIFT_HOOK" "$RULE_RECOMMENDATION" "$TOOL_RECOMMENDATION" "$REPO_TEMPLATES" <<'PY'
 import json, sys, os
 
 path, version, completed = sys.argv[1:4]
-setup_mode, tier, docker, tracker, workflow, domain_docs, architecture, sandcastle, automation_recommender, context_drift_hook, rule_recommendation, repo_templates = sys.argv[4:16]
+setup_mode, tier, docker, tracker, workflow, domain_docs, architecture, sandcastle, automation_recommender, context_drift_hook, rule_recommendation, tool_recommendation, repo_templates = sys.argv[4:17]
 
 data = {}
 if os.path.isfile(path):
@@ -119,6 +122,8 @@ if context_drift_hook:
     branches["context_drift_hook"] = context_drift_hook
 if rule_recommendation:
     branches["rule_recommendation"] = rule_recommendation
+if tool_recommendation:
+    branches["tool_recommendation"] = tool_recommendation
 if repo_templates:
     branches["repo_templates"] = repo_templates
 

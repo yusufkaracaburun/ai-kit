@@ -1,5 +1,37 @@
 # Changelog
 
+## 1.16.0 — 2026-05-25
+
+Closes #19: `/ai:setup` now wires `/ai:recommend-tools` as a first-class
+Tier-B branch (Branch 14), parallel to Branch 12 (rule recommendation).
+Before: setup only mentioned `recommend-tools` as a one-liner at the
+end — users had to know to re-invoke it. After: setup actively offers
+to refine the companion-tool / MCP-server / Claude-Code-hook catalogs
+against the detected stack.
+
+Trust model unchanged — preview-then-confirm inside `recommend-tools`,
+never auto-install. Brownfield with a detected framework defaults to
+offering the branch; greenfield or stack-less projects default to
+`skipped`.
+
+Sets the pattern for #48 (setup-symmetry meta) — every
+`standards/external/<category>.json` will eventually have a matching
+Tier-B branch. #49 (recommend-plugins) and #50 (recommend-subagents)
+follow this template once their catalog prerequisites land.
+
+- **New** Branch 14 in `workflow/skills/setup/SKILL.md` — `[1] Refine now /
+  [2] Later / [3] Keep default` prompt; defaults documented; marker
+  key documented.
+- **Updated** `bin/write-setup-marker.sh` — accepts
+  `--tool-recommendation=completed|deferred|skipped`, writes
+  `branches.tool_recommendation` in `.ai-kit-setup`.
+- **Updated** `tests/bin/cases/apply-marker.sh` — 4 new assertions
+  covering tool-recommendation absent-without-flag, round-trip, and
+  preservation of sibling keys across re-writes. 39 total pass.
+- **Removed** the orphan one-liner at the end of `setup/SKILL.md`
+  that previously surfaced `recommend-tools` as a follow-up —
+  superseded by Branch 14.
+
 ## 1.14.0 — 2026-05-23
 
 Closes #32: new skill `audit-architecture` + canonical rule
