@@ -8,6 +8,7 @@ SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck source=lib/ai-kit-root.sh
 source "$SCRIPT_BIN/lib/ai-kit-root.sh"
 AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
+PRIMITIVES="$(resolve_primitives_root "$AIKIT")"
 
 usage() {
   cat <<USAGE
@@ -63,8 +64,8 @@ if [ ! -d "$TARGET" ]; then
   exit 2
 fi
 
-PLUGIN_SKILLS_DIR="$AIKIT/workflow/skills"
-PLUGIN_AGENTS_DIR="$AIKIT/workflow/agents"
+PLUGIN_SKILLS_DIR="$PRIMITIVES/skills"
+PLUGIN_AGENTS_DIR="$PRIMITIVES/agents"
 PLUGIN_RULES_DIR="$AIKIT/standards/rules"
 PERSONAL_SKILLS_DIR="$HOME/.claude/skills"
 PERSONAL_AGENTS_DIR="$HOME/.claude/agents"

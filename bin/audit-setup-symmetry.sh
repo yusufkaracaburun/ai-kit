@@ -14,11 +14,12 @@ SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck source=lib/ai-kit-root.sh
 source "$SCRIPT_BIN/lib/ai-kit-root.sh"
 AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
+PRIMITIVES="$(resolve_primitives_root "$AIKIT")"
 
 EXTERNAL_DIR="$AIKIT/standards/external"
 SCORER_LIB="$AIKIT/bin/lib/recommend-tools-lib.sh"
-SETUP_SKILL="$AIKIT/workflow/skills/setup/SKILL.md"
-RECOMMEND_TOOLS_SKILL="$AIKIT/workflow/skills/recommend-tools/SKILL.md"
+SETUP_SKILL="$PRIMITIVES/skills/setup/SKILL.md"
+RECOMMEND_TOOLS_SKILL="$PRIMITIVES/skills/recommend-tools/SKILL.md"
 
 [ -d "$EXTERNAL_DIR" ] || { echo "Missing: $EXTERNAL_DIR" >&2; exit 2; }
 [ -f "$SCORER_LIB" ] || { echo "Missing: $SCORER_LIB" >&2; exit 2; }

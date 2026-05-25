@@ -5,6 +5,7 @@ SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck source=lib/ai-kit-root.sh
 source "$SCRIPT_BIN/lib/ai-kit-root.sh"
 AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
+PRIMITIVES="$(resolve_primitives_root "$AIKIT")"
 
 write_ai_kit_root_config "$AIKIT"
 
@@ -93,16 +94,16 @@ if [ "$PREFER_PLUGIN" = true ]; then
   echo "  Install via /plugin install ai@yusufkaracaburun to get /ai:* skills."
 else
   echo "=== Claude Code skills (~/.claude/skills) ==="
-  install_dir_to "$AIKIT/workflow/skills" "${HOME}/.claude/skills"
+  install_dir_to "$PRIMITIVES/skills" "${HOME}/.claude/skills"
 fi
 
 echo ""
 echo "=== Claude Code legacy (~/.agents/skills) ==="
-install_dir_to "$AIKIT/workflow/skills" "${HOME}/.agents/skills"
+install_dir_to "$PRIMITIVES/skills" "${HOME}/.agents/skills"
 
 echo ""
 echo "=== Cursor skills (~/.cursor/skills) ==="
-install_dir_to "$AIKIT/workflow/skills" "${HOME}/.cursor/skills"
+install_dir_to "$PRIMITIVES/skills" "${HOME}/.cursor/skills"
 
 echo ""
 if [ "$PREFER_PLUGIN" = true ]; then
@@ -110,7 +111,7 @@ if [ "$PREFER_PLUGIN" = true ]; then
   echo "  Install via /plugin install ai@yusufkaracaburun to get explore/reviewer/qa-runner."
 else
   echo "=== Claude Code subagents (~/.claude/agents) ==="
-  install_dir_to "$AIKIT/workflow/agents" "${HOME}/.claude/agents"
+  install_dir_to "$PRIMITIVES/agents" "${HOME}/.claude/agents"
 fi
 
 echo ""
@@ -119,12 +120,12 @@ if [ "$PREFER_PLUGIN" = true ]; then
   echo "  Install via /plugin install ai@yusufkaracaburun to get /ai:doctor etc."
 else
   echo "=== Claude Code slash commands (~/.claude/commands) ==="
-  install_files_to "$AIKIT/workflow/commands" "${HOME}/.claude/commands"
+  install_files_to "$PRIMITIVES/commands" "${HOME}/.claude/commands"
 fi
 
 echo ""
 echo "=== Cursor slash commands (~/.cursor/commands) ==="
-install_files_to "$AIKIT/workflow/commands" "${HOME}/.cursor/commands"
+install_files_to "$PRIMITIVES/commands" "${HOME}/.cursor/commands"
 
 echo ""
 echo "Saved ai-kit root to ~/.config/ai-kit/root"

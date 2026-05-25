@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# emit-agents.sh — keep the generated region of workflow/agents/*/AGENT.md in
+# emit-agents.sh — keep the generated region of agents/*/AGENT.md in
 # sync with its source skill body. SKILL.md is canonical for shared reference
 # sections (the review checklist, the output-format spec); the agent prompt
 # only hand-writes its agent-runtime framing (Contract, Inputs, What not to do).
@@ -12,20 +12,23 @@
 #   <!-- emit-agents:end -->
 #
 # The emitter replaces everything between the begin/end markers with the named
-# `## ` sections pulled verbatim from workflow/skills/<skill-name>/SKILL.md.
+# `## ` sections pulled verbatim from skills/<skill-name>/SKILL.md.
 # Idempotent — re-running with no source change is a no-op.
 set -euo pipefail
 
 SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"
-AIKIT="$(cd "$SCRIPT_BIN/.." && pwd)"
-AGENTS_DIR="$AIKIT/workflow/agents"
-SKILLS_DIR="$AIKIT/workflow/skills"
+# shellcheck source=lib/ai-kit-root.sh
+source "$SCRIPT_BIN/lib/ai-kit-root.sh"
+AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
+PRIMITIVES="$(resolve_primitives_root "$AIKIT")"
+AGENTS_DIR="$PRIMITIVES/agents"
+SKILLS_DIR="$PRIMITIVES/skills"
 
 usage() {
   cat <<EOF
 Usage: $0 [--check] [--dry-run] [agent-name]
 
-Sync the generated region of workflow/agents/*/AGENT.md from the source skill.
+Sync the generated region of agents/*/AGENT.md from the source skill.
 
 Options:
   --check     Verify every managed AGENT.md is in sync. Exit 1 on drift. No writes.

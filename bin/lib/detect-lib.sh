@@ -155,11 +155,22 @@ detect_domain_layout() {
 }
 
 _has_skills_layout() {
-  # Accept both layouts: --link-all (symlink to ai-kit's workflow/skills) and
+  # Accept both layouts: --link-all (symlink to ai-kit's skills) and
   # --merge-skills (regular dir whose entries are symlinks per skill). Either
   # way the path must dereference to a non-empty directory.
   local p="$1"
   [ -e "$p" ] && [ -d "$p" ] && [ -n "$(ls -A "$p" 2>/dev/null)" ]
+}
+
+# Return the ai-kit primitives root (where skills/, agents/, commands/ live).
+# Dev clone: $root/workflow ; plugin install: $root.
+_aikit_primitives_root() {
+  local root="$1"
+  if [ -d "$root/workflow/skills" ]; then
+    echo "$root/workflow"
+  else
+    echo "$root"
+  fi
 }
 
 detect_bootstrap_state() {
@@ -408,18 +419,21 @@ _classify_skills_at() {
   local resolved
   resolved="$(cd "$skills_path" 2>/dev/null && pwd -P)" || resolved=""
 
+  local aikit_primitives
+  aikit_primitives="$(_aikit_primitives_root "$aikit_root")"
+
   local aikit_skills_resolved
-  aikit_skills_resolved="$(cd "$aikit_root/workflow/skills" 2>/dev/null && pwd -P)" || aikit_skills_resolved=""
+  aikit_skills_resolved="$(cd "$aikit_primitives/skills" 2>/dev/null && pwd -P)" || aikit_skills_resolved=""
 
   if [ -n "$resolved" ] && [ "$resolved" = "$aikit_skills_resolved" ]; then
-    for skill in "$aikit_root/workflow/skills"/*/; do
+    for skill in "$aikit_primitives/skills"/*/; do
       [ -d "$skill" ] && _CLASS_AIKIT+=("$(basename "$skill")")
     done
     return 0
   fi
 
   local known="" name
-  for skill in "$aikit_root/workflow/skills"/*/; do
+  for skill in "$aikit_primitives/skills"/*/; do
     known+=" $(basename "$skill") "
   done
 

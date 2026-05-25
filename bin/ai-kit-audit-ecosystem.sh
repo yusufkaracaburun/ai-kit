@@ -317,7 +317,7 @@ if want_scope skills && [ -d "$USER_SKILLS_DIR" ]; then
     name="$(basename "$skill_path")"
     if [ -d "$PLUGIN_SKILLS_DIR/$name" ]; then
       emit skills "$name" "REPLACE" \
-        "ai-kit ships workflow/skills/$name — personal copy shadows the plugin version" \
+        "ai-kit ships skills/$name — personal copy shadows the plugin version" \
         "user_path=$skill_path"
     else
       emit skills "$name" "KEEP-EXTERNAL" \
@@ -336,7 +336,7 @@ if want_scope agents && [ -d "$USER_AGENTS_DIR" ]; then
     name="$(basename "$agent_file" .md)"
     if [ -d "$PLUGIN_AGENTS_DIR/$name" ]; then
       emit agents "$name" "REPLACE" \
-        "ai-kit ships workflow/agents/$name — personal copy shadows the plugin version" \
+        "ai-kit ships agents/$name — personal copy shadows the plugin version" \
         "user_path=$agent_file"
     else
       emit agents "$name" "KEEP-EXTERNAL" \
@@ -545,10 +545,10 @@ if [ "$MODE_CONVERGE" -eq 1 ] && [ "$DIVERGENT" -gt 0 ]; then
       REPLACE)
         case "$rec_surface" in
           skills)
-            echo "  rm -rf \"$USER_SKILLS_DIR/$rec_name\"   # ai-kit ships workflow/skills/$rec_name"
+            echo "  rm -rf \"$USER_SKILLS_DIR/$rec_name\"   # ai-kit ships skills/$rec_name"
             ;;
           agents)
-            echo "  rm \"$USER_AGENTS_DIR/$rec_name.md\"   # ai-kit ships workflow/agents/$rec_name"
+            echo "  rm \"$USER_AGENTS_DIR/$rec_name.md\"   # ai-kit ships agents/$rec_name"
             ;;
           plugins)
             # rec_reason already embeds the alternative — strip the "ai-kit equivalent exists..." prefix.

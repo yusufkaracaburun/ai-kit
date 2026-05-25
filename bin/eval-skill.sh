@@ -9,6 +9,7 @@ SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck source=lib/ai-kit-root.sh
 source "$SCRIPT_BIN/lib/ai-kit-root.sh"
 AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
+PRIMITIVES="$(resolve_primitives_root "$AIKIT")"
 
 usage() {
   echo "Usage: $0 <skill> [<scenario>]" >&2
@@ -31,7 +32,7 @@ if [ $# -lt 1 ]; then usage; fi
 SKILL="$1"
 SCENARIO="${2:-}"
 
-skill_dir="$AIKIT/workflow/skills/$SKILL"
+skill_dir="$PRIMITIVES/skills/$SKILL"
 fx_dir="$AIKIT/tests/eval/prompts/$SKILL"
 
 if [ ! -f "$skill_dir/SKILL.md" ]; then
@@ -68,7 +69,7 @@ cat "$fx_file"
 
 cat <<EOF
 
-=== SKILL: workflow/skills/$SKILL/SKILL.md ===
+=== SKILL: skills/$SKILL/SKILL.md ===
 EOF
 cat "$skill_dir/SKILL.md"
 
