@@ -394,6 +394,42 @@ in priority order:
     first. Migration path: naschool keeps local override until Tier 2
     lands, then re-bootstraps and drops the project-specific bits into
     the YAML config.
+17. **Doc-to-skill scaffold (PDF/EPUB/DOCX → `SKILL.md` stub)** (#45) —
+    `/should-i-use` of a personal-vault `book-to-skill/extract.py`
+    project (2026-05-24) returned **adopt-as-pattern**: the conversion
+    mechanics are clean, the PKM-vault assumptions are not. Port
+    natively as `bin/doc-to-skill.sh` + `workflow/skills/doc-to-skill/
+    SKILL.md` — input a document, output a project-scoped skill stub
+    with claims-section + sources list. Different axis from #25
+    (catalog-promotion of upstream book-to-skill); can land
+    independently once the `/should-i-use` boundary on personal-
+    knowledge category (#22-dependent) is settled. Defer-rationale:
+    workaround = manual paste; sequence after #25's category-boundary
+    decision to avoid duplicate scope.
+18. **≥2-source quorum gate for `recommend-*` output** (#46) — `/
+    should-i-use` review of a personal-vault session (2026-05-24)
+    surfaced an unwritten rule already de-facto applied in
+    `recommend-rules` + `recommend-tools`: community items need ≥2
+    independent sources before reaching default-on tier. Codify in
+    `standards/promotion-quorum.md` and wire user-visible markers
+    (`sources: 2/2 verified` vs `single-source — preview only`) into
+    both SKILL.md outputs. Different surface from #22 (catalog-entry
+    bar) — this is the **recommend-output** bar. Defer-rationale:
+    audit shows current output already complies; landing alongside a
+    `/ai:retro`-driven hardening pass avoids one-off SKILL.md edits.
+19. **Tier-B EOD-email branch in `/ai:setup` for AFK autonomous runs**
+    (#47) — `/should-i-use` review of a personal-vault EOD workflow
+    (2026-05-24) returned **recommend during setup (optional Tier-B)**:
+    `.github/workflows/eod-send.yml` + `eod/trigger.json` + Resend via
+    repo secret, push-trigger with `repository_dispatch` fallback,
+    proven path. Closes the AFK loop for `/ai:autonomous` runs —
+    today the only feedback channel is `progress.txt` + open CC
+    session. Defer-rationale: `/ai:autonomous` still in spike status
+    (#21 — OpenHands research pending before promotion); wiring an
+    async-notification layer against a contract still in motion =
+    rework. Sequence after #19's setup-mode opt-in pattern stabilises
+    so the question shape can be reused. All three surfaced from one
+    `/should-i-use` pass on a vault session (#45/#46/#47 batch).
 
 17. **Make plugin self-contained: bundle `bin/` so global clone is
     optional** (#28) — Surfaced 2026-05-23 when naschool's project-
