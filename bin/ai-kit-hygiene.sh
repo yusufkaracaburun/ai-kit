@@ -3,7 +3,8 @@
 #   1. ai-kit-doctor.sh          — install health
 #   2. ai-kit-dedupe.sh          — duplicate skills/agents/rules
 #   3. audit-setup-symmetry.sh   — catalog ↔ wiring symmetry
-#   4. ai-kit-memory-audit.sh    — orphan / stale entries in .agents/memory/feedback/
+#   4. ai-kit-memory-audit.sh    — orphan / stale entries across all .agents/memory/*/ subdirs
+#   5. ai-kit-repo-skill-hint.sh — surface project-scoped hygiene skills (docs-sync, etc.)
 #
 # Exit code = max of the sections (0 clean, 1 warn, 2 block).
 set -uo pipefail
@@ -15,7 +16,7 @@ AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
 
 usage() {
   cat <<USAGE
-Usage: $0 [path] [--skip-doctor] [--skip-dedupe] [--skip-symmetry] [--skip-memory]
+Usage: $0 [path] [--skip-doctor] [--skip-dedupe] [--skip-symmetry] [--skip-memory] [--skip-repo-skills]
 
 Runs ai-kit hygiene checks against the given project path (default: cwd).
 Exit code = max of the section exit codes (0 clean, 1 warn, 2 block).
@@ -27,14 +28,16 @@ SKIP_DOCTOR=0
 SKIP_DEDUPE=0
 SKIP_SYMMETRY=0
 SKIP_MEMORY=0
+SKIP_REPO_SKILLS=0
 
 for arg in "$@"; do
   case "$arg" in
     -h|--help) usage; exit 0 ;;
-    --skip-doctor)   SKIP_DOCTOR=1 ;;
-    --skip-dedupe)   SKIP_DEDUPE=1 ;;
-    --skip-symmetry) SKIP_SYMMETRY=1 ;;
-    --skip-memory)   SKIP_MEMORY=1 ;;
+    --skip-doctor)     SKIP_DOCTOR=1 ;;
+    --skip-dedupe)     SKIP_DEDUPE=1 ;;
+    --skip-symmetry)   SKIP_SYMMETRY=1 ;;
+    --skip-memory)     SKIP_MEMORY=1 ;;
+    --skip-repo-skills) SKIP_REPO_SKILLS=1 ;;
     -*) echo "unknown flag: $arg" >&2; usage >&2; exit 2 ;;
     *)  PROJECT_PATH="$arg" ;;
   esac
@@ -71,8 +74,14 @@ if [ "$SKIP_SYMMETRY" -eq 0 ]; then
 fi
 
 if [ "$SKIP_MEMORY" -eq 0 ]; then
-  section "memory-audit (orphan/stale feedback entries)"
+  section "memory-audit (orphan/stale across .agents/memory/*/)"
   bash "$AIKIT/bin/ai-kit-memory-audit.sh" "$PROJECT_PATH"
+  record "$?"
+fi
+
+if [ "$SKIP_REPO_SKILLS" -eq 0 ]; then
+  section "repo-skill-hint (project-scoped hygiene skills)"
+  bash "$AIKIT/bin/ai-kit-repo-skill-hint.sh" "$PROJECT_PATH"
   record "$?"
 fi
 

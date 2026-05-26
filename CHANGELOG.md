@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### Added
+
+- **`/ai:hygiene` — memory-audit now scans every typed subdir of
+  `.agents/memory/`** (typically `feedback/`, `reference/`, `decisions/`,
+  `patterns/`, `project/`), not just `feedback/`. Orphan + stale logic is
+  identical per bucket; `README.md` index files are ignored. Output names
+  the buckets it scanned so the user sees coverage at a glance.
+
+- **`/ai:hygiene` — repo-skill-hint section.** New
+  `bin/ai-kit-repo-skill-hint.sh` lists project-scoped skills under
+  `.agents/skills/` whose name or description matches hygiene-style
+  triggers (docs-sync, doc-drift, repo-hygiene, housekeep, prune,
+  cleanup, audit). The hint points at `/skill-name` instead of
+  duplicating repo-specific content in ai-kit. Wired into
+  `bin/ai-kit-hygiene.sh` as section 5 with `--skip-repo-skills` flag.
+  Report-only; skips silently when no `.agents/skills/` exists.
+
 ## 1.25.0 — 2026-05-26
 
 ### Added
