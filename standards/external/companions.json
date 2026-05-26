@@ -119,8 +119,9 @@
       "tiers": [
         {
           "name": "base",
-          "description": "Universal — surfaces for every stack via mcp-servers.json scorer (universal: true).",
-          "wired_via": "standards/external/mcp-servers.json (scorer-driven) + workflow/skills/recommend-tools/SKILL.md MCP phase"
+          "description": "Universal — surfaces for every stack via mcp-servers.json scorer (universal: true). Auto-prompted by /ai:setup Tier-A Branch 2c.",
+          "wired_via": "standards/external/mcp-servers.json (scorer-driven) + workflow/skills/recommend-tools/SKILL.md MCP phase + workflow/skills/setup/SKILL.md Branch 2c",
+          "auto_prompted": true
         }
       ],
       "detection": {

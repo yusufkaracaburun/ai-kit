@@ -26,6 +26,7 @@ usage() {
   echo "  --tool-recommendation=completed|deferred|skipped"
   echo "  --repo-templates=all|picked|skipped"
   echo "  --lifecycle=development|production"
+  echo "  --universal-mcps-prompted=name1,name2  (CSV; appended to existing list — names not re-prompted on next /ai:setup)"
   exit 1
 }
 
@@ -48,6 +49,7 @@ RULE_RECOMMENDATION=""
 TOOL_RECOMMENDATION=""
 REPO_TEMPLATES=""
 LIFECYCLE=""
+UNIVERSAL_MCPS_PROMPTED=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -66,6 +68,7 @@ while [ $# -gt 0 ]; do
     --tool-recommendation=*) TOOL_RECOMMENDATION="${1#*=}"; shift ;;
     --repo-templates=*) REPO_TEMPLATES="${1#*=}"; shift ;;
     --lifecycle=*) LIFECYCLE="${1#*=}"; shift ;;
+    --universal-mcps-prompted=*) UNIVERSAL_MCPS_PROMPTED="${1#*=}"; shift ;;
     -h | --help) usage ;;
     *) echo "Unknown option: $1" >&2; usage ;;
   esac
@@ -84,11 +87,11 @@ COMPLETED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 python3 - "$SETUP_FILE" "$VERSION" "$COMPLETED_AT" \
   "$SETUP_MODE" "$SETUP_TIER" "$DOCKER" "$TRACKER" "$WORKFLOW" "$DOMAIN_DOCS" "$ARCHITECTURE" "$SANDCASTLE" \
   "$AUTOMATION_RECOMMENDER" "$CONTEXT_DRIFT_HOOK" "$RULE_RECOMMENDATION" "$TOOL_RECOMMENDATION" "$REPO_TEMPLATES" \
-  "$LIFECYCLE" <<'PY'
+  "$LIFECYCLE" "$UNIVERSAL_MCPS_PROMPTED" <<'PY'
 import json, sys, os
 
 path, version, completed = sys.argv[1:4]
-setup_mode, tier, docker, tracker, workflow, domain_docs, architecture, sandcastle, automation_recommender, context_drift_hook, rule_recommendation, tool_recommendation, repo_templates, lifecycle = sys.argv[4:18]
+setup_mode, tier, docker, tracker, workflow, domain_docs, architecture, sandcastle, automation_recommender, context_drift_hook, rule_recommendation, tool_recommendation, repo_templates, lifecycle, universal_mcps_prompted = sys.argv[4:19]
 
 VALID_LIFECYCLE = {"development", "production"}
 if lifecycle and lifecycle not in VALID_LIFECYCLE:
@@ -137,6 +140,11 @@ if repo_templates:
     branches["repo_templates"] = repo_templates
 if lifecycle:
     branches["lifecycle"] = lifecycle
+if universal_mcps_prompted:
+    existing = branches.get("universal_mcps_prompted", []) or []
+    incoming = [n.strip() for n in universal_mcps_prompted.split(",") if n.strip()]
+    merged = list(dict.fromkeys(existing + incoming))
+    branches["universal_mcps_prompted"] = merged
 
 data["branches"] = branches
 

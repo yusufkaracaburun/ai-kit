@@ -75,6 +75,7 @@ Ask once: **Fast (Tier A, ~5 min)** or **Full (Tier B)**?
 | 1 | Bootstrap | scripts from mode |
 | 2 | Dev environment | `--write` + refine URLs |
 | 2b | Lifecycle | one question (below) — default `development` |
+| 2c | Universal MCPs | auto-prompt each `universal: true` MCP not yet handled |
 
 Then:
 
@@ -83,6 +84,7 @@ $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" \
   --setup-mode=solo-both|solo-global|project-only|brownfield \
   --tier=minimal \
   --lifecycle=development|production \
+  --universal-mcps-prompted=context7,... \
   --docker=skipped --tracker=skipped --workflow=skipped \
   --domain-docs=skipped --architecture=skipped --sandcastle=false --context-drift-hook=skipped
 $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict --minimal
@@ -143,6 +145,52 @@ For brownfield setup-mode the default flips to `production`.
 Record via `--lifecycle=development|production`. Re-runs follow the
 keep/change/skip pattern — show the current value, ask only if the user picks
 `change`. Flip later without re-running setup via [`/ai:phase`](../phase/SKILL.md).
+
+### Branch 2c — Universal MCPs (auto-prompt)
+
+Some MCP servers are valuable on every project regardless of stack — they are
+marked `universal: true` in
+[`standards/external/mcp-servers.json`](../../../standards/external/mcp-servers.json).
+Today that means `context7` (live library docs lookup); future-proof for more.
+
+Tier-A behaviour, one prompt per universal MCP not yet handled by this project:
+
+1. **Read catalog.** Filter `recommendations` for `universal: true`.
+2. **Read marker.** Load `.ai-kit-setup` if it exists; collect
+   `branches.universal_mcps_prompted` as the already-handled list.
+3. **Detect already-installed.** For each candidate, run the detection from
+   the catalog entry — typically:
+   ```bash
+   claude mcp list 2>/dev/null | grep -qi <name> || claude plugin list 2>/dev/null | grep -qi <name>
+   ```
+4. **Prompt per candidate** that is neither in the prompted-list nor already
+   installed:
+
+   > Optional: install `<name>` MCP user-scope (~/.claude.json)?
+   > `<value-blurb from catalog>`
+   > [1] Yes, install now → run `claude mcp add ...` and record
+   > [2] No thanks       → record skipped, never re-prompt
+
+5. **On Yes:** run the install command from the catalog entry. For context7
+   today that is `install_paths.fallback_user_scope`:
+   ```bash
+   claude mcp add --scope user context7 -- npx -y @upstash/context7-mcp
+   ```
+   Prefer the plugin path (`install_paths.preferred`) when the user already has
+   the marketplace wired; the catalog notes the conflict cases.
+6. **Record outcome.** Append the candidate name to the prompted-list and pass
+   it through `--universal-mcps-prompted=` on the marker write at the end of
+   Tier-A. The marker writer stores the union of CSV input and any names
+   already in the marker — so re-runs accumulate, never clobber.
+
+**Idempotency.** A second `/ai:setup` reads the prompted-list and skips any
+candidate already in it (Yes or No outcome both record the name). Adding a
+new `universal: true` entry to `mcp-servers.json` is picked up on the next
+run automatically — no skill-body edit needed.
+
+**Trust model.** Prompt-per-tool, never silent install. User-scope means one
+install covers all repos on the machine; this branch is intentionally
+Tier-A because the universals' value is stack-agnostic.
 
 ## Tier B branches (optional)
 
