@@ -684,3 +684,16 @@ in priority order:
     the same friction. Recommendation: standalone skill, not a sixth
     hygiene section. Surfaced 2026-05-26 during the hygiene-extension
     session.
+26. **Audit /ai:checkpoint vs /ai:handoff — merge, split, or sharpen?**
+    (#91) — Both skills compact a session for resumption and share
+    overlapping trigger language ("context full, before `/clear`,
+    wrapping up"). checkpoint writes to project auto-memory (same-
+    project resume, pairs with `/ai:resume`); handoff writes to
+    `$TMPDIR` and supports `mid-session` mode (cross-context transfer).
+    Surfaced 2026-05-26 during #88 grilling — Q6 nudge-placement picked
+    checkpoint as docs-sync session-end carrier by gut, not by clear
+    rule, which suggests the skills aren't separating cleanly. Deferred
+    until #88 lands so the docs-sync nudge integration can target the
+    final shape rather than the current one. Recommendation: side-by-
+    side feature matrix → ADR → either merge with `--target` flag,
+    sharpen descriptions, or extract shared core.
