@@ -1,5 +1,58 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- **`/ai:audit-architecture` per-stack extensions — v1 big-bang** (EPIC
+  [#35](https://github.com/yusufkaracaburun/ai-kit/issues/35), ADR-0008).
+  The stack-agnostic audit skill now auto-loads stack-specific extensions
+  via `bin/audit-extension-loader.sh` whenever a matching framework or
+  language is detected.
+
+  Three extensions land in this release, each shipping a triplet (skill +
+  rule + helper-script + fixture):
+
+  - **`audit-architecture-laravel`** ([#80](https://github.com/yusufkaracaburun/ai-kit/issues/80))
+    — 22 strict heuristics across the 9 audit dimensions. Always-on
+    strict mode (severity floor 🟡; API findings L13-L18 floor at 🟠).
+    Detects `api-only` vs `full-stack` mode via `routes/api.php` +
+    Inertia/Livewire/Blade markers. Helper-script gates Larastan,
+    `composer outdated`, `php artisan about`.
+  - **`audit-architecture-react`** ([#81](https://github.com/yusufkaracaburun/ai-kit/issues/81))
+    — 8 React 19 heuristics, including the RSC server/client boundary
+    leak (R6) and React 19-specific server-action typing (R7). Default
+    strictness. Helper-script gates ESLint + `tsc --noEmit`. Matches
+    `react`, `nextjs`, `remix`.
+  - **`audit-architecture-typescript`** ([#82](https://github.com/yusufkaracaburun/ai-kit/issues/82))
+    — 8 framework-agnostic language-level heuristics (any-leak,
+    as-cast-past-edge, exhaustive-switch, decorator/runtime,
+    duplicated-type-alias, unused-type-export, readonly drift,
+    overloads-as-discriminated-union). Fires alongside React/Vue/Next
+    extensions. Helper-script gates `tsc --noEmit --strict`
+    (force-strict regardless of project tsconfig), `ts-prune`, ESLint
+    `@typescript-eslint/strict` subset.
+
+  Total v1 surface: 38 new heuristics encoded as `.mini.md` rules. The
+  React + TypeScript ownership boundary is enforced by the shared
+  `tests/fixtures/audit-react-ts-overlap/` fixture (each finding row
+  appears exactly once across `[react]` and `[typescript]` prefixes).
+
+  Flutter extension ([#83](https://github.com/yusufkaracaburun/ai-kit/issues/83))
+  is deferred to v2 pending a real Flutter project.
+
+  New env vars:
+
+  - `AI_KIT_AUDIT_NO_EXTEND=1` — skip extension loading entirely; run
+    vanilla baseline audit.
+  - `AI_KIT_AUDIT_LARAVEL_MODE=api-only|full-stack` — override
+    detected mode for the Laravel extension.
+
+  See `docs/adr/0008-audit-architecture-extensions.md` for the twelve
+  design decisions frozen during the 2026-05-26 grilling session, and
+  `standards/contracts/audit-architecture-extension.contract.md` for
+  the contract every future extension must satisfy.
+
 ## 1.24.0 — 2026-05-26
 
 ### Added
