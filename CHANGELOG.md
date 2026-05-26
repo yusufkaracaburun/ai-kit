@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.26.0 — 2026-05-26
+
+- feat(hygiene): scan all memory subdirs + repo-skill-hint section
+- docs(changelog): promote Unreleased detail into 1.25.0 section
+
 ## Unreleased
 
 ### Added
