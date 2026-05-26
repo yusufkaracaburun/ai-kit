@@ -1,5 +1,41 @@
 # Changelog
 
+## 1.22.0 — 2026-05-26
+
+### Added
+
+- **Promotion quorum for recommend-\*** (#46). New
+  `standards/promotion-quorum.md` codifies the ≥2-independent-sources
+  bar a community rule / tool / pattern must clear before
+  `/ai:recommend-rules` or `/ai:recommend-tools` marks it as default-on.
+  Single-source entries are still surfaced — labeled `(sources: 1 —
+  preview only)` and never pre-selected. Both recommend-\* SKILL.md
+  surfaces reference the doc and carry the annotation contract with
+  worked examples.
+
+### Changed
+
+- **`/ai:autonomous` step 0** gains three preflight checks adopted from
+  the OpenHands research arc (#21):
+  - Per-conversation `AI_KIT_ROOT` pinning from the Agent Brief's
+    `ai_kit_root:` key (falls back to existing resolver).
+  - Triage-labels-exist precondition: refuses to drain when the
+    `ready-for-agent` label is missing on the tracker.
+  - Per-project merge-policy detection (brief → `.ai-kit-setup` → git
+    config → default `pr`). Brief-vs-project disagreement halts via new
+    `exit-gate merge-policy-mismatch`.
+  New event family `preflight-*` lands in the `progress.txt` schema so
+  the cold-readable log shows step 0 ran clean before the first `pick`.
+
+### Docs
+
+- **`docs/spikes/aikit-autonomous-ralph.md`** — new section "Research
+  input: OpenHands patterns". 6-row comparison table mapping
+  `All-Hands-AI/OpenHands` patterns (sandbox-per-session, status state
+  machine, event store, workspace-volume per id, no-autonomous-picker,
+  pre-flight phases as first-class) to the three spike contract gaps,
+  with adopt / adopt-with-modification / reject decisions per pattern.
+
 ## 1.21.0 — 2026-05-26
 
 ### Added
