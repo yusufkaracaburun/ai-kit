@@ -134,6 +134,33 @@
         "files": ["composer.json"],
         "frameworks": ["laravel", "symfony"]
       }
+    },
+    {
+      "name": "context7",
+      "marketplace": "claude-plugins-official",
+      "install": "/plugin install context7@claude-plugins-official",
+      "category": "docs",
+      "best_for": "Projects where library docs change faster than your training data",
+      "value": "Live library docs lookup (MCP server) — pairs with the canonical context7 rule in standards/rules/.",
+      "universal": true
+    },
+    {
+      "name": "claude-code-setup",
+      "marketplace": "claude-plugins-official",
+      "install": "/plugin install claude-code-setup@claude-plugins-official",
+      "category": "meta",
+      "best_for": "Users setting up Claude Code automation (hooks, subagents, skills, MCP) on a new project",
+      "value": "General-purpose automation recommender — complementary to ai-kit's /ai:setup and /ai:recommend-tools.",
+      "universal": true
+    },
+    {
+      "name": "caveman",
+      "marketplace": "caveman",
+      "install": "/plugin install caveman@caveman",
+      "category": "efficiency",
+      "best_for": "Long sessions where token-economy matters — ultra-compressed communication + subagent-output compression",
+      "value": "~60-75% token savings on chatty surfaces. Complementary to ai-kit's verbose skills.",
+      "universal": true
     }
   ]
 }
