@@ -508,9 +508,14 @@ in priority order:
     per-finding fixes with user approval) and #35 (per-stack
     tuning extensions `audit-architecture-{laravel,react,typescript,flutter}`
     v1 big-bang — PRD landed 2026-05-26 via `/ai:grill-me` + `/ai:to-prd`;
-    `ready-for-agent`. Laravel ext = strict-always-on with 22 heuristics
-    + api-only/full-stack mode-detect; other stacks = default strictness
-    with 8 heuristics each. Go/Rails deferred to follow-up issues.).
+    split into 6 tracer-bullet issues 2026-05-26 via `/ai:to-issues`:
+    #79 (foundational: extension-loader + contract spec + shared
+    contract-test fixture + core changes), #80 (Laravel — 22 strict
+    heuristics + api-only/full-stack mode-detect), #81 (React 19 — 8
+    heuristics + RSC boundary), #82 (TypeScript — 8 framework-agnostic
+    heuristics), #83 (Flutter 3.27 / Dart 3.6 — 8 heuristics), #84 (docs:
+    ADR + skill doc + CHANGELOG). All `ready-for-agent`; #79 blocks
+    #80-83, #80-83 block #84. Go/Rails deferred to follow-up issues.).
 
 20. **triage↔autonomous Agent Brief contract** (#36) — landed
     2026-05-23 in v1.14.1 (PR #37). Surfaced on a live naschool run
