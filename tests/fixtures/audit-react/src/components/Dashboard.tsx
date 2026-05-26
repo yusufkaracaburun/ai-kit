@@ -1,7 +1,9 @@
-// React-shaped smell: props-bloat (>8 props on a component). Owned by
-// audit-architecture-react. R2: props-bloat under dimension #6 coupling.
+// Fixture component. Trips R1, R2.
+
 import { ReactNode } from "react";
 
+// R1: God-component > 300 LOC (🟠) — pretend this body is 412 LOC of mixed jobs.
+// R2: Props-bloat > 8 props (🟠).
 interface DashboardProps {
   title: string;
   subtitle: string;
@@ -13,6 +15,7 @@ interface DashboardProps {
   onDelete: () => void;
   showHeader: boolean;
   showFooter: boolean;
+  theme: "light" | "dark";
   children: ReactNode;
 }
 
