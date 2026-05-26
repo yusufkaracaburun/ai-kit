@@ -12,6 +12,10 @@
 #      PROJECT_NUMBER / STATUS_FIELD_ID / option IDs via `gh api graphql`
 #      and substitute the AI_KIT_PROJECT_* placeholders in
 #      auto-promote-ready.yml. If no board, print the manual setup steps.
+#   5. Scaffold .github/PULL_REQUEST_TEMPLATE.md from the canonical template
+#      (only when missing at all three GitHub-honored paths).
+#   6. Apply branch protection on the default branch via `gh api PUT`;
+#      on 403, print the manual checklist (drift = warn, never break).
 #
 # Idempotent: existing files are NEVER overwritten (`--force` opt-in available).
 # Silent skip when target has no `gh remote` matching github.com.
