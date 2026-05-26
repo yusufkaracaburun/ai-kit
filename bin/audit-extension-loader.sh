@@ -57,8 +57,8 @@ if [ "${#CANDIDATES[@]}" -eq 0 ]; then
   exit 0
 fi
 
-IFS=$'\n' SORTED=($(printf '%s\n' "${CANDIDATES[@]}" | sort))
-unset IFS
+SORTED=()
+while IFS= read -r line; do SORTED+=("$line"); done < <(printf '%s\n' "${CANDIDATES[@]}" | sort)
 
 # Detected frameworks + languages: empty is fine — only blocks the
 # intersection step, never the structural-validation warnings below.
