@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.23.0 — 2026-05-26
+
+### Added
+
+- **`/ai:audit-fix` skill** (#34) — consumes `/ai:audit-architecture`
+  reports and applies atomic per-finding fixes. One commit per
+  finding, per-finding user approval (or `--batch` with severity
+  filter), affected-paths-only scope, scoped verification before
+  commit, read-after-write re-run on the dimension, report row
+  rewritten to `✅ fixed` with closing commit SHA. Refusal cases for
+  scope-creep, bundling, missing fields, and behaviour-change risk.
+- **`/ai:doc-to-skill` skill + `bin/doc-to-skill.sh`** (#45) — converts
+  a single PDF / EPUB / DOCX / RTF / ODT / MD into a `SKILL.md`
+  scaffold with frontmatter, claim placeholders, chapter index from
+  source headings, sources list, and provenance credit to
+  `virgiliojr94/book-to-skill` (MIT). Pure bash + pandoc — pandoc is a
+  system dep, not added to the repo. Defaults output path to
+  `workflow/skills/` when run inside ai-kit, `./skills/` in consumer
+  repos. Refuses to overwrite an existing `SKILL.md`.
+
+### Fixed
+
+- **#26 closed** as already-shipped — Tier 1 path-pattern triggers in
+  `bin/hooks/context-drift-check.sh` landed in commit `3a64907` ahead
+  of this triage pass. Issue verified against AC; no new code needed.
+
 ## 1.22.0 — 2026-05-26
 
 ### Added
