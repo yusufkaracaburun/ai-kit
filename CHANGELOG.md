@@ -1,5 +1,38 @@
 # Changelog
 
+## 1.21.0 — 2026-05-26
+
+### Added
+
+- **/ai:setup Tier-A Branch 2c — Universal MCPs auto-prompt** (#51). MCP
+  servers marked `universal: true` in `standards/external/mcp-servers.json`
+  (today: `context7`; future-proof for more) are now auto-prompted during
+  Tier-A setup instead of waiting for a `/ai:recommend-tools` follow-up.
+  Per-tool prompt, never silent install. Idempotent: a new
+  `--universal-mcps-prompted=...` flag on `bin/write-setup-marker.sh`
+  accumulates handled names in `.ai-kit-setup` so re-runs skip them. Adding
+  a new `universal: true` entry to the MCP catalog is picked up
+  automatically — no skill-body edit required.
+- **Catalog: three new plugin entries in `standards/external/plugins.json`**
+  (#42 #43 #44):
+  - `context7@claude-plugins-official` — live library docs MCP, pairs with
+    the canonical context7 rule.
+  - `claude-code-setup@claude-plugins-official` — general-purpose Claude
+    Code automation recommender; complementary to `/ai:setup` and
+    `/ai:recommend-tools`.
+  - `caveman@caveman` (JuliusBrussee/caveman) — ultra-compressed
+    communication mode + subagent-output compression.
+
+  All three carry `universal: true`. `bin/ai-kit-audit-ecosystem.sh` now
+  reports each as OWNED instead of ADOPT-divergent.
+
+### Changed
+
+- `standards/external/companions.json`: context7's `tiers[0]` entry gains
+  `auto_prompted: true` and a wiring pointer to `setup/SKILL.md` Branch 2c
+  so `bin/audit-setup-symmetry.sh` stays consistent with the new auto-prompt
+  flow.
+
 ## 1.20.3 — 2026-05-25
 
 ### Added
