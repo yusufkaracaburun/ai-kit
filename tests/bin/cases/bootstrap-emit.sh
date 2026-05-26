@@ -56,10 +56,10 @@ assert "emit-rules: idempotent (no duplicate rows)" \
 assert "emit-rules: --rules emits only requested" '[ -f "$EMIT_TMP/.cursor/rules/legacy-code.mdc" ]'
 assert "emit-rules: --agents limits dispatch (no new claude file)" \
   '[ ! -f "$EMIT_TMP/.claude/rules/legacy-code.md" ]'
-assert "emit-rules: --list lists 34 rules" \
-  '[ "$("$AIKIT/bin/emit-rules.sh" --list | wc -l | tr -d " ")" = "34" ]'
+assert "emit-rules: --list lists 35 rules" \
+  '[ "$("$AIKIT/bin/emit-rules.sh" --list | wc -l | tr -d " ")" = "35" ]'
 assert "emit-rules: code-audit listed" \
-  '[ "$("$AIKIT/bin/emit-rules.sh" --list | grep -c "^code-audit" | tr -d " ")" = "1" ]'
+  '[ "$("$AIKIT/bin/emit-rules.sh" --list | grep -cE "^code-audit[[:space:]]" | tr -d " ")" = "1" ]'
 assert "emit-rules: code-audit source file exists" \
   '[ -f "$AIKIT/standards/rules/code-audit.mini.md" ]'
 assert "emit-rules: code-audit marked universal" \

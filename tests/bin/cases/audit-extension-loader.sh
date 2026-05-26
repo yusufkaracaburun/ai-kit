@@ -195,11 +195,12 @@ rm -rf "$TS_TARGET" "$DART_TARGET"
 
 echo "=== default-skills-dir ==="
 # When AI_KIT_AUDIT_SKILLS_DIR is unset, loader must default to AIKIT/workflow/skills.
-# No bundled extensions exist yet (this PR ships only the loader + contract),
-# so on the laravel fixture the default lookup MUST return empty.
+# Bundled extensions (audit-architecture-laravel, etc.) live there; on a
+# laravel-shaped target the default lookup MUST return the laravel extension
+# row at minimum. Other matching extensions may also appear in stable order.
 OUTPUT_DEFAULT=$("$LOADER" "$TARGET_LARAVEL" 2>/dev/null || true)
-assert "default skills-dir empty (no bundled extensions yet)" \
-  '[ -z "$OUTPUT_DEFAULT" ]'
+assert "default loader returns audit-architecture-laravel on laravel target" \
+  'echo "$OUTPUT_DEFAULT" | grep -q "audit-architecture-laravel/SKILL.md$"'
 
 rm -rf "$EMPTY_TARGET" "$TARGET_LARAVEL"
 

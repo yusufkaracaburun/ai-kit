@@ -73,6 +73,7 @@ for skill_dir in "$SKILLS_DIR"/*/; do
     [ -z "$fld" ] && continue
     case "$fld" in
       name|description|argument-hint|model|disable-model-invocation|tools|allowed-tools) ;;
+      extends|strictness) ;;
       *) unknown_fields="${unknown_fields}${fld} " ;;
     esac
   done <<EOF_FIELDS

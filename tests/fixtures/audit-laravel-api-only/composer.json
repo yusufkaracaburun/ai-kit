@@ -1,0 +1,9 @@
+{
+  "name": "ai-kit/audit-laravel-api-only-fixture",
+  "description": "Audit-laravel api-only mode fixture. All 22 heuristics trigger here.",
+  "require": {
+    "laravel/framework": "^13.0",
+    "laravel/sanctum": "^4.0",
+    "stancl/tenancy": "^4.0"
+  }
+}

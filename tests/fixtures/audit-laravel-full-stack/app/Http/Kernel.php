@@ -1,0 +1,14 @@
+<?php
+// Kernel that trips L21.
+
+namespace App\Http;
+
+use Illuminate\Foundation\Http\Kernel as HttpKernel;
+
+class Kernel extends HttpKernel
+{
+    // L21: TrimStrings / ConvertEmptyStringsToNull middleware removed from Kernel (🟡).
+    protected $middleware = [
+        \Illuminate\Http\Middleware\HandleCors::class,
+    ];
+}

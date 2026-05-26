@@ -1,0 +1,9 @@
+{
+  "name": "ai-kit/audit-laravel-full-stack-fixture",
+  "description": "Audit-laravel full-stack mode fixture. Inertia marker present; L14/L16/L18 (api-only) intentionally absent.",
+  "require": {
+    "laravel/framework": "^13.0",
+    "inertiajs/inertia-laravel": "^1.0",
+    "stancl/tenancy": "^4.0"
+  }
+}
