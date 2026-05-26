@@ -8,7 +8,7 @@ source "$AIKIT/tests/bin/lib/harness.sh"
 echo "=== skills-count ==="
 # section: skills-count
 SKILL_COUNT=$(find "$AIKIT/workflow/skills" -name SKILL.md | wc -l | tr -d ' ')
-assert "30 skills" '[ "$SKILL_COUNT" -eq 30 ]'
+assert "32 skills" '[ "$SKILL_COUNT" -eq 32 ]'
 assert "checkpoint skill exists" '[ -f "$AIKIT/workflow/skills/checkpoint/SKILL.md" ]'
 assert "resume skill exists" '[ -f "$AIKIT/workflow/skills/resume/SKILL.md" ]'
 assert "onboard skill exists" '[ -f "$AIKIT/workflow/skills/onboard/SKILL.md" ]'
@@ -120,6 +120,9 @@ assert "bundled hook byte-identical to bin/ source" 'cmp -s "$AIKIT/bin/hooks/po
 assert "bundled log-skill byte-identical to bin/ source" 'cmp -s "$AIKIT/bin/log-skill.sh" "$BUNDLED_LOG"'
 assert "sync-plugin-hooks --check clean" 'bash "$AIKIT/bin/sync-plugin-hooks.sh" --check >/dev/null 2>&1'
 assert "sync-plugin-bin --check clean" 'bash "$AIKIT/bin/sync-plugin-bin.sh" --check >/dev/null 2>&1'
+assert "sync-plugin-standards --check clean" 'bash "$AIKIT/bin/sync-plugin-standards.sh" --check >/dev/null 2>&1'
+assert "sync-plugin-context --check clean" 'bash "$AIKIT/bin/sync-plugin-context.sh" --check >/dev/null 2>&1'
+assert "workflow/context/templates/github exists in plugin" '[ -d "$AIKIT/workflow/context/templates/github" ]'
 assert "workflow/bin/ai-kit-doctor.sh exists" '[ -x "$AIKIT/workflow/bin/ai-kit-doctor.sh" ]'
 assert "plugin commands use CLAUDE_PLUGIN_ROOT" '! grep -lE "AI_KIT_ROOT.*\\\$HOME/\\.config/ai-kit/root.*}/bin/" "$AIKIT/workflow/commands/"*.md'
 

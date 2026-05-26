@@ -1,0 +1,79 @@
+# Agent instructions
+
+This project uses the ai-kit workflow (Claude Code + Cursor).
+
+**Context budget**: lean on `CONTEXT.md` and `docs/adr/` as cached truth — don't re-derive what's already documented. For wide codebase sweeps, delegate to a sub-agent (`Explore`, `Plan`) so raw output stays out of the main conversation. Full rule: `docs/agents/active-rules.md` → `context-discipline` (canonical source: `~/.local/share/ai-kit/standards/rules/context-discipline.mini.md`).
+
+## Agile lifecycle
+
+| Fase | Doel | Skills |
+| ---- | ---- | ------ |
+| **Ideation** | Scope, requirements, alignment | `grill-me`, `grill-with-docs`, `to-prd`, `prototype`, `zoom-out` |
+| **Development** | Backlog → incrementeel bouwen | `to-issues` → `triage` → `tdd` (+ Sandcastle voor AFK) |
+| **Testing** | Continuous test & fix | `tdd`, `review`, `qa`, `diagnose` |
+| **Deployment** | Release naar productie | `ship` |
+| **Ops & Review** | Feedback, retrospective | `retro` |
+
+One-off: `setup` (onboarding), `handoff` (agent context), `improve-codebase-architecture` (brownfield).
+
+Framework (Scrum/Kanban): see `docs/agents/workflow.md`.
+
+Run **`/setup`** once — configures dev environment, Docker, tracker, labels, domain docs, agile workflow.
+
+Setup status: `.ai-kit-setup` (committed after `/setup`).
+
+## Skills locations
+
+| Tool | Project | Global |
+| ---- | ------- | ------ |
+| Claude Code | `.agents/skills/` | `~/.agents/skills/` |
+| Cursor | `.cursor/skills/` | `~/.cursor/skills/` |
+
+### Agent stack
+
+See `docs/agents/agent-stack.md` when present (brownfield) — coexistence with custom skills, MCP, agent config.
+
+### Dev environment
+
+Stack-agnostic. See `docs/agents/dev-environment.md`. Use **official documentation** for commands.
+
+### Issue tracker
+
+See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+See `docs/agents/domain.md`. Read `CONTEXT.md` before implementation.
+
+### Architecture
+
+See `docs/agents/architecture.md` when present — FE/BE layout and where new code goes.
+
+### Docker
+
+See `docs/agents/docker.md` when present.
+
+### Agile workflow
+
+See `docs/agents/workflow.md`.
+
+## Verification
+
+Run relevant tests before claiming work complete. Derive commands from repo scripts, `docs/agents/dev-environment.md`, or official docs.
+
+## Standards
+
+Canonical book-derived rules live in `~/.local/share/ai-kit/standards/rules/*.mini.md`. Emitted per detected agent during `/setup` (or via `bin/emit-rules.sh`). The current active set for this project is listed in `docs/agents/active-rules.md`. Refine with `/recommend-rules` (project-aware scoring + optional web-search for stack-specific community rules).
+
+## Where facts live
+
+- Domain language → `CONTEXT.md`
+- Decisions → `docs/adr/`
+- Agent config → `AGENTS.md`, `docs/agents/`
+- Setup state → `.ai-kit-setup`
+- Active rules → `docs/agents/active-rules.md`
+- Canonical book rules → `~/.local/share/ai-kit/standards/rules/`

@@ -1,0 +1,32 @@
+# CODEOWNERS — automatic PR reviewer assignment.
+# Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-security/customizing-your-repository/about-code-owners
+#
+# Syntax: <path-pattern> <@owner1> <@owner2>  ...
+# Last matching pattern wins. Patterns follow .gitignore syntax.
+#
+# Place this file at one of: .github/CODEOWNERS, docs/CODEOWNERS, or repo root.
+# GitHub also honours BitBucket's location (.bitbucket/CODEOWNERS).
+
+# Default owners — required on every PR.
+# *           @your-org/maintainers
+
+# Backend
+# /backend/    @your-org/backend-team
+# /api/        @your-org/backend-team
+
+# Frontend
+# /frontend/   @your-org/frontend-team
+# /web/        @your-org/frontend-team
+
+# Infrastructure
+# /infra/      @your-org/platform-team
+# /.github/    @your-org/platform-team
+# Dockerfile   @your-org/platform-team
+
+# Docs
+# *.md         @your-org/docs-team
+# /docs/       @your-org/docs-team
+
+# Security-critical paths — require security review.
+# /auth/       @your-org/security
+# *secret*     @your-org/security

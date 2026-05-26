@@ -1,0 +1,26 @@
+{
+  "_comment": "ai-kit baseline MCP server config. Uncomment and adjust the servers you want enabled. Drop entries you don't need. Compatible with Cursor (.cursor/mcp.json), VS Code (.vscode/mcp.json), and Claude Code (.mcp.json) — the file shape is the same.",
+
+  "mcpServers": {
+    "_filesystem-example": {
+      "_comment": "Uncomment by removing the leading underscore. Restricts MCP filesystem access to the named directory.",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "${workspaceFolder}"]
+    },
+
+    "_github-example": {
+      "_comment": "Requires GITHUB_PERSONAL_ACCESS_TOKEN in the env. Do NOT inline secrets here.",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${env:GITHUB_PERSONAL_ACCESS_TOKEN}"
+      }
+    },
+
+    "_playwright-example": {
+      "_comment": "Browser automation. Useful for QA + ship preflight when the app has a UI.",
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"]
+    }
+  }
+}

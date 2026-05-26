@@ -1,0 +1,43 @@
+# Normalise line endings to LF in the repo; checkouts get native on Windows.
+* text=auto eol=lf
+
+# Common text formats — keep diffable.
+*.md     text diff=markdown
+*.json   text
+*.yml    text
+*.yaml   text
+*.sh     text eol=lf
+*.bash   text eol=lf
+
+# Force CRLF for files that need it.
+*.bat    text eol=crlf
+*.cmd    text eol=crlf
+
+# Treat as binary — never line-ending normalise, no text diff.
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.webp   binary
+*.ico    binary
+*.pdf    binary
+*.zip    binary
+*.tar    binary
+*.gz     binary
+*.tgz    binary
+*.woff   binary
+*.woff2  binary
+*.ttf    binary
+*.otf    binary
+
+# Lockfiles — keep stable line endings, but don't show by default in diffs.
+package-lock.json    text -diff
+yarn.lock            text -diff
+pnpm-lock.yaml       text -diff
+bun.lockb            binary
+composer.lock        text -diff
+Cargo.lock           text -diff
+poetry.lock          text -diff
+Pipfile.lock         text -diff
+Gemfile.lock         text -diff
+go.sum               text -diff

@@ -1,0 +1,35 @@
+# EditorConfig is awesome: https://EditorConfig.org
+# Top-level config — keeps a consistent text style across editors and OSes.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Markdown preserves trailing whitespace (hard line break).
+[*.md]
+trim_trailing_whitespace = false
+
+# Makefiles require tabs.
+[{Makefile,*.mk}]
+indent_style = tab
+
+# Go uses tabs.
+[*.go]
+indent_style = tab
+
+# Python uses 4-space indent.
+[*.{py,pyi}]
+indent_size = 4
+
+# PHP uses 4-space indent (PSR-12).
+[*.php]
+indent_size = 4
+
+# YAML must stay at 2-space; some parsers are strict.
+[*.{yml,yaml}]
+indent_size = 2

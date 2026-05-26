@@ -1,0 +1,139 @@
+name: Auto-promote to Ready
+
+# Wanneer alle DoR-vakjes in een issue body zijn afgevinkt EN priority/epic/area labels zijn gezet,
+# verplaats het project-item automatisch naar de "Ready" kolom op het project board.
+#
+# Vereist secret: PROJECT_TOKEN — Personal Access Token (classic) met `project` + `repo` scope,
+# of fine-grained PAT met "Projects: read+write" + "Issues: read" voor deze repo en
+# user-projects scope. Default GITHUB_TOKEN heeft géén project-access.
+#
+# Workflow promoveert alleen voorwaarts (Todo → Ready). Beweegt nooit terug bij broken DoR
+# en raakt items in "In Progress" / "Done" niet aan.
+#
+# AI_KIT_PROJECT_* placeholders worden door bin/setup-gh-workflow.sh ingevuld op basis
+# van `gh api graphql` queries tegen het bestaande project. Als het project later van
+# vorm verandert (Status-veld hernoemd, kolom toegevoegd), draai setup-gh-workflow opnieuw.
+
+on:
+  issues:
+    types: [edited, opened, labeled, unlabeled]
+
+permissions:
+  issues: read
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check DoR + promote to Ready
+        uses: actions/github-script@v7
+        env:
+          PROJECT_NUMBER: "AI_KIT_PROJECT_NUMBER"
+          PROJECT_OWNER: "AI_KIT_PROJECT_OWNER"
+          STATUS_FIELD_ID: "AI_KIT_STATUS_FIELD_ID"
+          READY_OPTION_ID: "AI_KIT_READY_OPTION_ID"
+          TODO_OPTION_ID: "AI_KIT_TODO_OPTION_ID"
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            const issue = context.payload.issue;
+            const body = issue.body || '';
+            const labels = issue.labels.map(l => l.name);
+
+            // Extract checkboxes under a given H2 section
+            function extractSection(body, header) {
+              const re = new RegExp(`##\\s+${header}[\\s\\S]*?(?=\\n##\\s|$)`, 'i');
+              const match = body.match(re);
+              if (!match) return null;
+              const lines = match[0].split('\n');
+              return lines
+                .map(l => l.match(/^\s*-\s*\[([ xX])\]\s*(.+)$/))
+                .filter(Boolean)
+                .map(m => ({ checked: m[1].trim().toLowerCase() === 'x', text: m[2].trim() }));
+            }
+
+            // 1. DoR section must exist + all checked
+            const dor = extractSection(body, 'Definition of Ready');
+            if (!dor || dor.length === 0) {
+              console.log(`#${issue.number}: no DoR section — skip`);
+              return;
+            }
+            const dorAllChecked = dor.every(b => b.checked);
+            if (!dorAllChecked) {
+              console.log(`#${issue.number}: DoR has ${dor.filter(b => !b.checked).length} unchecked — skip`);
+              return;
+            }
+
+            // 2. Required labels: at least one Pn-* + epic/* + area/*
+            const hasPriority = labels.some(l => /^P[0-3]-/.test(l));
+            const hasEpic = labels.some(l => l.startsWith('epic/'));
+            const hasArea = labels.some(l => l.startsWith('area/'));
+            if (!hasPriority || !hasEpic || !hasArea) {
+              console.log(`#${issue.number}: missing required labels (priority=${hasPriority}, epic=${hasEpic}, area=${hasArea}) — skip`);
+              return;
+            }
+
+            // 3. Find project item ID for this issue
+            const findItem = await github.graphql(`
+              query($owner: String!, $number: Int!) {
+                user(login: $owner) {
+                  projectV2(number: $number) {
+                    id
+                    items(first: 100) {
+                      nodes {
+                        id
+                        content { ... on Issue { number } }
+                        fieldValueByName(name: "Status") {
+                          ... on ProjectV2ItemFieldSingleSelectValue { name }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `, {
+              owner: process.env.PROJECT_OWNER,
+              number: parseInt(process.env.PROJECT_NUMBER),
+            });
+
+            const project = findItem.user.projectV2;
+            const item = project.items.nodes.find(n => n.content?.number === issue.number);
+            if (!item) {
+              console.log(`#${issue.number}: not on project board — skip`);
+              return;
+            }
+
+            const currentStatus = item.fieldValueByName?.name || 'Todo';
+
+            // 4. Only forward-promote from Todo. Never touch In Progress / Done / already-Ready.
+            if (currentStatus !== 'Todo') {
+              console.log(`#${issue.number}: status="${currentStatus}" — skip (only promote from Todo)`);
+              return;
+            }
+
+            // 5. Mutate Status field → Ready
+            await github.graphql(`
+              mutation($project: ID!, $item: ID!, $field: ID!, $option: String!) {
+                updateProjectV2ItemFieldValue(input: {
+                  projectId: $project,
+                  itemId: $item,
+                  fieldId: $field,
+                  value: { singleSelectOptionId: $option }
+                }) { projectV2Item { id } }
+              }
+            `, {
+              project: project.id,
+              item: item.id,
+              field: process.env.STATUS_FIELD_ID,
+              option: process.env.READY_OPTION_ID,
+            });
+
+            console.log(`✓ #${issue.number}: promoted Todo → Ready`);
+
+            // 6. Drop comment so user sees the move
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: `✅ **Auto-promoted to Ready** — alle DoR-vakjes aangevinkt + priority/epic/area labels gezet. Pak op wanneer je In Progress wilt.`,
+            });

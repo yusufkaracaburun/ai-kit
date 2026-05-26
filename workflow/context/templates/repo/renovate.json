@@ -1,0 +1,42 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    "group:monorepos",
+    "schedule:weekly"
+  ],
+  "rebaseWhen": "behind-base-branch",
+  "labels": ["dependencies"],
+  "dependencyDashboardTitle": "Renovate Dependency Dashboard",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 6am on monday"]
+  },
+  "vulnerabilityAlerts": {
+    "labels": ["security"],
+    "automerge": false
+  },
+  "packageRules": [
+    {
+      "description": "Auto-merge non-major dev-dep bumps after CI green",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
+    },
+    {
+      "description": "Major updates always need a human",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "addLabels": ["major-bump"]
+    },
+    {
+      "description": "Pin GitHub Actions to commit SHAs for supply-chain safety",
+      "matchManagers": ["github-actions"],
+      "pinDigests": true
+    }
+  ]
+}

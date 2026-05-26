@@ -1,0 +1,99 @@
+name: DoR + DoD enforcement
+
+# DoR + DoD enforcement voor issues:
+#  - issue closed       → check DoD checkboxes; reopen indien onafgevinkt
+#  - issue labeled      → bij `status:in-progress` check DoR checkboxes; revert label indien onafgevinkt
+#  - issue body edited  → herevalueer (gebruiker fixt vakjes)
+#
+# Parsing-conventie: body bevat secties "## Definition of Ready" en "## Definition of Done"
+# met markdown task-lists (`- [ ]` / `- [x]`). Alleen vakjes onder die headers tellen.
+
+on:
+  issues:
+    types: [closed, labeled, edited]
+
+permissions:
+  issues: write
+
+jobs:
+  enforce:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check DoR + DoD
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const action = context.payload.action;
+            const issue = context.payload.issue;
+            const body = issue.body || '';
+            const labelName = context.payload.label?.name;
+
+            // Skip bot-triggered edits to prevent loops
+            if (issue.user?.type === 'Bot') return;
+
+            // Extract checkboxes under a given H2 section
+            function extractSection(body, header) {
+              const re = new RegExp(`##\\s+${header}[\\s\\S]*?(?=\\n##\\s|$)`, 'i');
+              const match = body.match(re);
+              if (!match) return null;
+              const lines = match[0].split('\n');
+              const boxes = lines
+                .map(l => l.match(/^\s*-\s*\[([ xX])\]\s*(.+)$/))
+                .filter(Boolean)
+                .map(m => ({ checked: m[1].trim().toLowerCase() === 'x', text: m[2].trim() }));
+              return boxes;
+            }
+
+            const dor = extractSection(body, 'Definition of Ready');
+            const dod = extractSection(body, 'Definition of Done');
+
+            const repo = { owner: context.repo.owner, repo: context.repo.repo };
+            const issue_number = issue.number;
+
+            async function comment(text) {
+              await github.rest.issues.createComment({ ...repo, issue_number, body: text });
+            }
+
+            // === DoD enforcement on close ===
+            if (action === 'closed' && context.payload.issue.state_reason !== 'not_planned') {
+              if (!dod) {
+                console.log(`#${issue_number}: no DoD section — allowing close (legacy issue)`);
+                return;
+              }
+              const unchecked = dod.filter(b => !b.checked);
+              if (unchecked.length > 0) {
+                await github.rest.issues.update({ ...repo, issue_number, state: 'open' });
+                const list = unchecked.map(b => `- [ ] ${b.text}`).join('\n');
+                await comment(
+                  `⚠️ **DoD-check faalde — issue heropend.**\n\n` +
+                  `Onafgevinkte Definition of Done items:\n\n${list}\n\n` +
+                  `Vink alle DoD-vakjes af en sluit het issue opnieuw. ` +
+                  `Sluit als "not planned" als het werk niet meer relevant is.`
+                );
+                core.setFailed(`DoD incomplete: ${unchecked.length} unchecked item(s)`);
+              }
+              return;
+            }
+
+            // === DoR enforcement on label add ===
+            if (action === 'labeled' && labelName === 'status:in-progress') {
+              if (!dor) {
+                console.log(`#${issue_number}: no DoR section — allowing label (legacy issue)`);
+                return;
+              }
+              const unchecked = dor.filter(b => !b.checked);
+              if (unchecked.length > 0) {
+                await github.rest.issues.removeLabel({ ...repo, issue_number, name: 'status:in-progress' });
+                const list = unchecked.map(b => `- [ ] ${b.text}`).join('\n');
+                await comment(
+                  `⚠️ **DoR-check faalde — \`status:in-progress\` label verwijderd.**\n\n` +
+                  `Onafgevinkte Definition of Ready items:\n\n${list}\n\n` +
+                  `Vink alle DoR-vakjes af en voeg het label opnieuw toe om het werk te starten.`
+                );
+                core.setFailed(`DoR incomplete: ${unchecked.length} unchecked item(s)`);
+              }
+              return;
+            }
+
+            // 'edited' action: just log — no enforcement
+            console.log(`#${issue_number}: ${action} — no enforcement triggered`);

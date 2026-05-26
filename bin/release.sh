@@ -149,9 +149,14 @@ bash "$SCRIPT_BIN/sync-plugin-version.sh"
 bash "$SCRIPT_BIN/sync-plugin-hooks.sh"
 # Keep plugin-bundled bin/ scripts byte-identical to bin/ source-of-truth.
 bash "$SCRIPT_BIN/sync-plugin-bin.sh"
+# Keep plugin-bundled standards (canonical rules + external catalogs) in sync.
+bash "$SCRIPT_BIN/sync-plugin-standards.sh"
+# Keep plugin-bundled context (templates + prompts) in sync — ai-kit issues #67/#68.
+bash "$SCRIPT_BIN/sync-plugin-context.sh"
 
 git add VERSION CHANGELOG.md workflow/.claude-plugin/plugin.json \
-  workflow/hooks/post-skill-log.sh workflow/hooks/log-skill.sh workflow/bin
+  workflow/hooks/post-skill-log.sh workflow/hooks/log-skill.sh \
+  workflow/bin workflow/standards workflow/context
 git commit -m "chore(release): v$NEW_VERSION"
 
 if [ "$DO_TAG" = true ]; then
