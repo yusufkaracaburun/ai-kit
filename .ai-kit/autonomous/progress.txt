@@ -1,0 +1,80 @@
+2026-05-25T22:08:18Z	64	pick	we-pronoun sweep
+2026-05-25T22:08:31Z	64	brief-ok	4 criteria
+2026-05-25T22:09:41Z	64	cycle-attempt	C1 attempt=1 result=red
+2026-05-25T22:11:01Z	64	cycle-done	C1 result=pass
+2026-05-25T22:11:01Z	64	tdd-green	cycles=1
+2026-05-25T22:11:33Z	64	review-pass	mode=comprehensive
+2026-05-25T22:12:29Z	64	ship-ok	pr=#71
+2026-05-25T22:41:47Z	66	pick	setup-gh-workflow hybrid
+2026-05-25T22:42:34Z	66	brief-ok	6 criteria
+2026-05-25T22:42:34Z	66	cycle-attempt	C1 attempt=1 result=red
+2026-05-25T22:44:27Z	66	cycle-done	C1 result=pass
+2026-05-25T22:44:27Z	66	tdd-green	cycles=1
+2026-05-25T22:45:40Z	66	review-pass	mode=comprehensive
+2026-05-25T22:46:14Z	66	ship-ok	pr=#72
+2026-05-25T22:46:14Z	67	pick	recommend-tools audit
+2026-05-25T22:46:45Z	67	brief-ok	2 criteria
+2026-05-25T22:46:45Z	67	cycle-attempt	C1 attempt=1 result=pass (audit-only)
+2026-05-25T22:46:45Z	67	tdd-green	cycles=1 no-op
+2026-05-25T22:46:57Z	67	ship-ok	comment-only no-op
+2026-05-25T22:46:57Z	62	pick	setup+onboard 2 rewrites
+2026-05-25T22:47:33Z	62	brief-ok	4 criteria
+2026-05-25T22:47:33Z	62	cycle-attempt	C1 attempt=1 result=red
+2026-05-25T22:48:06Z	62	cycle-done	C1 result=pass
+2026-05-25T22:48:06Z	62	tdd-green	cycles=1
+2026-05-25T22:48:06Z	62	review-pass	mode=comprehensive
+2026-05-25T22:48:51Z	62	ship-ok	pr=opened
+2026-05-25T22:48:59Z	65	pick	triage+to-issues cold-pickup
+2026-05-25T22:49:34Z	65	brief-ok	3 criteria
+2026-05-25T22:49:34Z	65	cycle-attempt	C1 attempt=1 result=red
+2026-05-25T22:50:45Z	65	cycle-done	C1 result=pass
+2026-05-25T22:50:45Z	65	tdd-green	cycles=1
+2026-05-25T22:50:45Z	65	review-pass	mode=comprehensive
+2026-05-25T22:50:49Z	65	ship-ok	pr=opened
+2026-05-25T22:50:58Z	68	pick	autonomous human-reviewer
+2026-05-25T22:51:33Z	68	brief-ok	4 criteria
+2026-05-25T22:51:33Z	68	cycle-attempt	C1 attempt=1 result=pass
+2026-05-25T22:52:17Z	68	cycle-done	C1 result=pass
+2026-05-25T22:52:17Z	68	tdd-green	cycles=1
+2026-05-25T22:52:17Z	68	review-pass	mode=comprehensive
+2026-05-25T22:52:21Z	68	ship-ok	pr=opened
+2026-05-25T22:52:21Z	-	exit-cap	max_iterations=5 reached
+2026-05-25T22:53:40Z	63	pick	tdd+ship review-required
+2026-05-25T22:54:12Z	63	brief-ok	4 criteria
+2026-05-25T22:54:12Z	63	cycle-attempt	C1 attempt=1 result=red
+2026-05-25T22:55:19Z	63	cycle-done	C1 result=pass
+2026-05-25T22:55:19Z	63	tdd-green	cycles=1
+2026-05-25T22:55:19Z	63	review-pass	mode=comprehensive
+2026-05-25T22:55:23Z	63	ship-ok	pr=opened
+2026-05-25T23:02:25Z	69	pick	doctor+hygiene 3 drift checks
+2026-05-25T23:03:56Z	69	brief-ok	6 criteria
+2026-05-25T23:03:56Z	69	cycle-attempt	C1 attempt=1 result=red
+2026-05-25T23:06:42Z	69	cycle-done	C1 result=pass
+2026-05-25T23:06:42Z	69	tdd-green	cycles=1
+2026-05-25T23:06:42Z	69	review-pass	mode=comprehensive
+2026-05-25T23:06:47Z	69	ship-ok	pr=opened
+2026-05-25T23:06:55Z	70	pick	doctor solo-text lint
+2026-05-25T23:07:30Z	70	brief-ok	5 criteria
+2026-05-25T23:07:30Z	70	cycle-attempt	C1 attempt=1 result=red
+2026-05-25T23:09:35Z	70	cycle-done	C1 result=pass
+2026-05-25T23:09:35Z	70	tdd-green	cycles=1
+2026-05-25T23:09:35Z	70	review-pass	mode=comprehensive
+2026-05-25T23:09:39Z	70	ship-ok	pr=opened
+2026-05-25T23:09:39Z	-	exit-empty	queue drained
+2026-05-26T09:30:02Z	79	pick	foundational audit extension
+2026-05-26T09:30:02Z	79	brief-ok	9 criteria
+2026-05-26T09:33:16Z	79	cycle-attempt	C1 attempt=1 result=pass (contract spec)
+2026-05-26T09:33:16Z	79	cycle-done	C1 result=pass
+2026-05-26T09:38:47Z	79	cycle-attempt	C2 attempt=1 result=red
+2026-05-26T09:38:47Z	79	cycle-attempt	C2 attempt=2 result=red
+2026-05-26T09:38:47Z	79	cycle-attempt	C2 attempt=3 result=pass
+2026-05-26T09:38:47Z	79	cycle-done	C2 result=pass (loader)
+2026-05-26T12:13:44Z	79	cycle-attempt	C3 attempt=1 result=pass (fixture+test)
+2026-05-26T12:13:44Z	79	cycle-done	C3 result=pass
+2026-05-26T12:13:44Z	79	cycle-attempt	C4 attempt=1 result=red
+2026-05-26T12:13:44Z	79	cycle-attempt	C4 attempt=2 result=pass (core skill)
+2026-05-26T12:13:44Z	79	cycle-done	C4 result=pass
+2026-05-26T12:13:44Z	79	cycle-attempt	C5 attempt=1 result=red
+2026-05-26T12:13:44Z	79	cycle-attempt	C5 attempt=2 result=pass (doctor orphan)
+2026-05-26T12:13:44Z	79	cycle-done	C5 result=pass
+2026-05-26T12:13:44Z	79	tdd-green	cycles=5
