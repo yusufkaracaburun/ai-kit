@@ -18,7 +18,7 @@ Auto-loaded by `bin/audit-extension-loader.sh` when the project package.json dec
 
 This extension owns **React-shaped** smells: prop-bloat, component-size, hook usage, RSC boundary leaks, server-action typing, mechanism-named components.
 
-The `audit-architecture-typescript` extension owns **language-level** TypeScript smells: `any` past module boundaries, `as` casts past edges, generic-component variance, etc.
+The [`audit-architecture-typescript`](../audit-architecture-typescript/SKILL.md) extension owns **language-level** TypeScript smells: `any` past module boundaries, `as` casts past edges, generic-component variance, etc.
 
 Non-overlap enforced by the shared fixture `tests/fixtures/audit-react-ts-overlap/` and the contract-test under #79. Each finding row appears exactly once across `[react]` and `[typescript]` prefixes.
 
@@ -76,7 +76,7 @@ Format tools (Prettier) and security scanners (npm audit) are out of scope.
 ## Related
 
 - [`audit-architecture`](../audit-architecture/SKILL.md) — core stack-agnostic skill.
-- `audit-architecture-typescript` — TypeScript-language smells (separate ownership).
+- [`audit-architecture-typescript`](../audit-architecture-typescript/SKILL.md) — TypeScript-language smells (separate ownership).
 - [`code-audit-react.mini.md`](../../../standards/rules/code-audit-react.mini.md) — 8 heuristics with evidence patterns.
 - [`bin/audit-react-helpers.sh`](../../../bin/audit-react-helpers.sh) — ESLint + tsc gates.
 - [`standards/contracts/audit-architecture-extension.contract.md`](../../../standards/contracts/audit-architecture-extension.contract.md) — extension contract.

@@ -40,21 +40,45 @@ assert "Dashboard.tsx contains no any-past-boundary" \
 assert "api.ts contains no JSX / Component patterns" \
   '! grep -qE "(<[A-Z]|export function [A-Z].*Props)" "$FIXTURE/src/api.ts"'
 
-echo "=== integration-xfail ==="
-# These assertions describe what the contract-test will check once the
-# React + TypeScript extensions land (#81, #82). Until then they XFAIL —
-# we record the future-shape inline so reviewers see what's wired up.
+echo "=== integration ==="
+# Once both extensions land (#81 react, #82 typescript), the contract-test
+# verifies ownership-boundary discipline at the artifact level. The
+# actual /ai:audit-architecture invocation is LLM-driven and not
+# deterministically scriptable here, so we assert the contract surface:
+#
+#   (a) Both extensions exist and declare the boundary in their SKILL.md.
+#   (b) The loader returns both extensions when run against the overlap
+#       fixture (it's a tsconfig+react shape, so each extension applies).
+#   (c) Fixture-level non-overlap: the React-side file holds R* markers
+#       only, the TS-side file holds T* markers only. No file mixes.
 EXT_REACT="$AIKIT/workflow/skills/audit-architecture-react/SKILL.md"
 EXT_TS="$AIKIT/workflow/skills/audit-architecture-typescript/SKILL.md"
+LOADER="$AIKIT/bin/audit-extension-loader.sh"
 
-if [ -f "$EXT_REACT" ] && [ -f "$EXT_TS" ]; then
-  # Once both extensions exist, the integration assertions must be real —
-  # fail loud if this test case still ships the XFAIL stub, so the green
-  # bar cannot lie about coverage.
-  assert "integration assertions implemented (extensions #81/#82 present)" \
-    'false  # implement the de-dup + per-prefix assertions here'
-else
-  echo "  XFAIL: integration assertions skipped (extensions #81/#82 not yet bundled)"
-fi
+assert "audit-architecture-react SKILL.md exists" '[ -f "$EXT_REACT" ]'
+assert "audit-architecture-typescript SKILL.md exists" '[ -f "$EXT_TS" ]'
+assert "react SKILL.md declares boundary with typescript ext" \
+  'grep -qE "audit-architecture-typescript|ownership boundary" "$EXT_REACT"'
+assert "typescript SKILL.md declares boundary with react ext" \
+  'grep -qE "audit-architecture-react|ownership rule" "$EXT_TS"'
+
+# Loader returns both extensions when invoked against the overlap fixture.
+LOADER_OUT=$("$LOADER" "$FIXTURE" 2>/dev/null || true)
+assert "loader matches react extension on overlap fixture" \
+  'echo "$LOADER_OUT" | grep -q "audit-architecture-react/SKILL.md$"'
+assert "loader matches typescript extension on overlap fixture" \
+  'echo "$LOADER_OUT" | grep -q "audit-architecture-typescript/SKILL.md$"'
+
+# Fixture-level non-overlap: Dashboard.tsx has R* markers, NOT T* markers.
+assert "Dashboard.tsx has at least one R* marker" \
+  'grep -qE "R[1-8]:" "$FIXTURE/src/Dashboard.tsx"'
+assert "Dashboard.tsx has no T* marker (would indicate overlap)" \
+  '! grep -qE "T[1-8]:" "$FIXTURE/src/Dashboard.tsx"'
+
+# api.ts has T* markers, NOT R* markers.
+assert "api.ts has at least one T* marker" \
+  'grep -qE "T[1-8]:" "$FIXTURE/src/api.ts"'
+assert "api.ts has no R* marker (would indicate overlap)" \
+  '! grep -qE "R[1-8]:" "$FIXTURE/src/api.ts"'
 
 print_summary_and_exit

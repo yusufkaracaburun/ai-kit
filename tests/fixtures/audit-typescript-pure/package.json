@@ -1,0 +1,7 @@
+{
+  "name": "ai-kit/audit-typescript-pure-fixture",
+  "description": "Framework-less TypeScript library. Triggers T1-T8.",
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  }
+}
