@@ -660,3 +660,13 @@ in priority order:
     naschool — labeled `enhancement` fallback because `catalog-
     candidate` label did not yet exist on this repo; v1.15.2 adds
     the label + relabels the three issues).
+
+24. **/ai:dedupe — inline ecosystem per-item table when divergent>0**
+    (#86) — Surface 5 currently prints divergence count plus a footer
+    with the absolute path to `bin/ai-kit-audit-ecosystem.sh`; user
+    must copy-paste to see the verdict table. Add `--verbose` (or
+    auto-expand when `ECOSYSTEM_DIVERGENT > 0`) that inlines the
+    per-item table under the Surface 5 header and drops the path
+    footer. Standalone script remains for `--scope` / `--json` / CI.
+    Nice-to-have polish — current split is functional. Surfaced
+    2026-05-26 during a dedupe ↔ audit-ecosystem session.
