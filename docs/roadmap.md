@@ -670,3 +670,17 @@ in priority order:
     footer. Standalone script remains for `--scope` / `--json` / CI.
     Nice-to-have polish — current split is functional. Surfaced
     2026-05-26 during a dedupe ↔ audit-ecosystem session.
+25. **Promote framework-agnostic checks from naschool docs-sync to
+    ai-kit** (#88) — naschool ships a 380-line repo-local `/docs-sync`
+    skill with 10 drift-checks. Five are framework-agnostic (stale
+    refs, orphan docs, dead links, repo-hygiene, finished-work
+    cleanup) and would benefit every ai-kit project. v1.26.0 added a
+    `repo-skill-hint` section to `/ai:hygiene` as the short-term
+    pointer, but real promotion needs a standalone `/ai:docs-sync`
+    skill that ships only the generic checks — naschool's RSO /
+    DUS-I / persona-name / Laravel-Next.js knowledge stays repo-local.
+    Deferred to let v1.26.0 settle and gather signal from other
+    projects before extracting; promote when a second project hits
+    the same friction. Recommendation: standalone skill, not a sixth
+    hygiene section. Surfaced 2026-05-26 during the hygiene-extension
+    session.
