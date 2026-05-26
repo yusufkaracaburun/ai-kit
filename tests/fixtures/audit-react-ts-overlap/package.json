@@ -1,0 +1,13 @@
+{
+  "name": "audit-react-ts-overlap-fixture",
+  "private": true,
+  "description": "Minimal React+TS sample that BOTH audit-architecture-react and audit-architecture-typescript would flag if their ownership table is wrong. Used by tests/bin/cases/audit-extension-contract.sh to assert zero double-coverage.",
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "@types/react": "^19.0.0"
+  }
+}

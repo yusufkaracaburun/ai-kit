@@ -66,18 +66,20 @@ Read in order:
 
 See [`context-discipline.mini.md`](../../../standards/rules/context-discipline.mini.md).
 
-### 3. Detect stack
+### 3. Detect stack + load per-stack extensions
 
-Run `bash "$AI_KIT_ROOT/bin/detect-tooling.sh" --json` to capture frameworks/languages. Use the result to:
+Run `bash "$AI_KIT_ROOT/bin/detect-tooling.sh" <project-path> --json` to capture frameworks/languages. Use the result to:
 
-- Pick per-stack smell heuristics where they're obvious (e.g. Eloquent N+1 in Laravel, hooks-in-conditionals in React, goroutine-leaks in Go).
 - Skip dimensions that don't apply (e.g. "design patterns" on a 200-LOC shell-script repo).
+- Decide whether per-stack extensions should fire.
 
-Per-stack tuning extensions are deferred — see issue follow-up for `audit-architecture-laravel`, `audit-architecture-react`, etc.
+Then run `bash "$AI_KIT_ROOT/bin/audit-extension-loader.sh" <project-path>` to discover bundled per-stack extensions (`audit-architecture-laravel`, `audit-architecture-react`, `audit-architecture-typescript`, `audit-architecture-flutter`, …). The loader returns the SKILL.md paths of every matching extension in stable filename-sorted order. Honours `AI_KIT_AUDIT_NO_EXTEND=1` as an opt-out (returns empty → vanilla baseline audit). See [`standards/contracts/audit-architecture-extension.contract.md`](../../../standards/contracts/audit-architecture-extension.contract.md) for the contract every extension must satisfy.
 
-### 4. Walk per dimension
+### 4. Walk per dimension (+ invoke each matched extension via the Skill tool)
 
-For each of the 8 dimensions in `code-audit.mini.md`, surface concrete findings with `path:line` evidence. Skip a dimension only when it's genuinely out-of-scope for this codebase — say so explicitly in the report ("covered, no findings" or "skipped: <reason>").
+For each of the 9 dimensions in `code-audit.mini.md`, surface concrete findings with `path:line` evidence. Skip a dimension only when it's genuinely out-of-scope for this codebase — say so explicitly in the report ("covered, no findings" or "skipped: <reason>").
+
+For each matched extension from step 3, invoke it via the Skill tool with structured input (audit scope + detected framework versions). The extension returns markdown blocks dimension-keyed per the contract spec (`## Per-stack findings — <stack>` + optional `## Per-stack appendix — <stack>`). Hold the extension output until step 6 (Write the report) — do not interleave with the core walk.
 
 De-duplicate by **root-cause**, not by **symptom**. One god-module appearing in 12 hotspots is one finding with 12 affected paths, not 12 findings.
 
@@ -100,6 +102,8 @@ Structure:
 
 **Scope:** <whole-repo | context-name | layer>
 **Stack:** <detected frameworks>
+**Extensions loaded:** <comma-separated extension names, e.g. "audit-architecture-laravel (strict, floor=🟡)" — or "none">
+**Tools ingested:** <per-extension tool status, e.g. "Larastan ✓ · composer outdated ✗" — or "none">
 **Files walked:** <N>  ·  **LOC:** <N>  ·  **Audit duration:** <minutes>
 **Auditor:** /ai:audit-architecture (ai-kit vX.Y.Z)
 
@@ -123,7 +127,14 @@ Structure:
 | A1 | ... | 🟠 | ... | ... |
 ```
 
+**Merging extension output into the dimension sections:** each extension returns its own dimension-keyed markdown. For every `### Dimension N · <name>` block in an extension's output, append its findings under the matching `## N. <name>` section in the final report. Each merged finding row gets a `[<stack>]` tag prefix so the reader (and `grep`) can attribute the row to its source extension. Extension `## Per-stack appendix` blocks are appended after the per-dimension report, before the tech-debt rolling table. Stack tags also propagate into the rolling-table IDs (`L1`, `R3`, `T7`, …) for per-stack batch issue-filing.
+
 The tech-debt table at the bottom is copy-paste-ready for batch issue-filing — same pattern as the naschool 2026-05-23 session and the `audit-fix` follow-up workflow.
+
+### Env-var escape hatches
+
+- `AI_KIT_AUDIT_NO_EXTEND=1` — skip extension loading entirely; run vanilla baseline audit (pre/post-extension comparison, or when an extension is known-broken).
+- Extension-specific overrides follow the convention `AI_KIT_AUDIT_<STACK>_<KEY>=<value>` (e.g. `AI_KIT_AUDIT_LARAVEL_MODE=api-only`) — defined by each extension, not by the core.
 
 ### 7. Hand off
 

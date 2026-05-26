@@ -184,6 +184,36 @@ if [ -d "$INSTALLED_PLUGIN" ] && [ "$EFFECTIVE_MODE" != "project-only" ]; then
 fi
 echo ""
 
+echo "Audit-architecture extensions"
+# Orphan-extension check: if an audit-architecture-<stack>/ folder is on
+# disk without the core audit-architecture/ skill present, the extension
+# loader will never see it (or worse — load it against a missing core).
+# Warn so the install can be repaired before the next audit run.
+# Use resolve_primitives_root so plugin-mode installs (skills at AIKIT/skills)
+# are covered the same as dev-clone (skills at AIKIT/workflow/skills).
+_audit_ext_root="$(resolve_primitives_root "$AIKIT")/skills"
+if [ -d "$_audit_ext_root" ]; then
+  _core_present=true
+  [ -f "$_audit_ext_root/audit-architecture/SKILL.md" ] || _core_present=false
+  _ext_count=0
+  while IFS= read -r ext_skill; do
+    [ -z "$ext_skill" ] && continue
+    _ext_count=$((_ext_count + 1))
+    _ext_name="$(basename "$(dirname "$ext_skill")")"
+    if [ "$_core_present" = false ]; then
+      warn "orphan extension: $_ext_name present but core audit-architecture/ skill missing"
+    fi
+  done < <(find "$_audit_ext_root" -mindepth 2 -maxdepth 2 -type f -name SKILL.md -path '*/audit-architecture-*/SKILL.md' 2>/dev/null)
+  if [ "$_ext_count" -eq 0 ]; then
+    info "no audit-architecture-* extensions bundled"
+  elif [ "$_core_present" = true ]; then
+    ok "audit-architecture core + $_ext_count extension(s) present"
+  fi
+else
+  info "workflow/skills/ absent — audit-extension check skipped"
+fi
+echo ""
+
 echo "Workflow text drift"
 # Lint workflow/skills/**/*.md + workflow/commands/**/*.md for team-size
 # "solo" / "single dev" / "single developer" tokens. Excludes lines that
