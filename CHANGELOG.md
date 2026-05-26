@@ -4,6 +4,13 @@
 
 ### Added
 
+- **`/ai:hygiene` — memory-audit section.** New `bin/ai-kit-memory-audit.sh`
+  scans `.agents/memory/feedback/*.md` for ORPHAN entries (not indexed in
+  `.agents/memory/MEMORY.md`) and STALE entries (>90d untouched + 0 refs).
+  Wired into `bin/ai-kit-hygiene.sh` as the 4th section with `--skip-memory`
+  flag. Report-only; skips silently when no `.agents/memory/feedback/`
+  directory exists.
+
 - **`/ai:audit-architecture` per-stack extensions — v1 big-bang** (EPIC
   [#35](https://github.com/yusufkaracaburun/ai-kit/issues/35), ADR-0008).
   The stack-agnostic audit skill now auto-loads stack-specific extensions

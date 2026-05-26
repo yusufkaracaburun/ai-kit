@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Run all ai-kit hygiene checks in one shot:
-#   1. ai-kit-doctor.sh         — install health
-#   2. ai-kit-dedupe.sh         — duplicate skills/agents/rules
-#   3. audit-setup-symmetry.sh  — catalog ↔ wiring symmetry
+#   1. ai-kit-doctor.sh          — install health
+#   2. ai-kit-dedupe.sh          — duplicate skills/agents/rules
+#   3. audit-setup-symmetry.sh   — catalog ↔ wiring symmetry
+#   4. ai-kit-memory-audit.sh    — orphan / stale entries in .agents/memory/feedback/
 #
-# Exit code = max of the three (0 clean, 1 warn, 2 block).
+# Exit code = max of the sections (0 clean, 1 warn, 2 block).
 set -uo pipefail
 
 SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"
@@ -14,7 +15,7 @@ AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
 
 usage() {
   cat <<USAGE
-Usage: $0 [path] [--skip-doctor] [--skip-dedupe] [--skip-symmetry]
+Usage: $0 [path] [--skip-doctor] [--skip-dedupe] [--skip-symmetry] [--skip-memory]
 
 Runs ai-kit hygiene checks against the given project path (default: cwd).
 Exit code = max of the section exit codes (0 clean, 1 warn, 2 block).
@@ -25,6 +26,7 @@ PROJECT_PATH=""
 SKIP_DOCTOR=0
 SKIP_DEDUPE=0
 SKIP_SYMMETRY=0
+SKIP_MEMORY=0
 
 for arg in "$@"; do
   case "$arg" in
@@ -32,6 +34,7 @@ for arg in "$@"; do
     --skip-doctor)   SKIP_DOCTOR=1 ;;
     --skip-dedupe)   SKIP_DEDUPE=1 ;;
     --skip-symmetry) SKIP_SYMMETRY=1 ;;
+    --skip-memory)   SKIP_MEMORY=1 ;;
     -*) echo "unknown flag: $arg" >&2; usage >&2; exit 2 ;;
     *)  PROJECT_PATH="$arg" ;;
   esac
@@ -64,6 +67,12 @@ fi
 if [ "$SKIP_SYMMETRY" -eq 0 ]; then
   section "audit-setup-symmetry (catalog ↔ wiring)"
   bash "$AIKIT/bin/audit-setup-symmetry.sh"
+  record "$?"
+fi
+
+if [ "$SKIP_MEMORY" -eq 0 ]; then
+  section "memory-audit (orphan/stale feedback entries)"
+  bash "$AIKIT/bin/ai-kit-memory-audit.sh" "$PROJECT_PATH"
   record "$?"
 fi
 
