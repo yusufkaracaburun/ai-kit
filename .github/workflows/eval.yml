@@ -21,3 +21,6 @@ jobs:
 
       - name: Golden rubric eval (all goldens vs own rubric)
         run: ./bin/eval-golden.sh --validate-all
+
+      - name: Primitive-counts drift check
+        run: ./bin/count-primitives.sh --check

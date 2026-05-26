@@ -2,6 +2,31 @@
 
 ## Unreleased
 
+## 1.29.0 — 2026-05-26
+
+### Changed
+
+- **Split `ai-kit-audit-ecosystem.sh` god-script (closes #89).**
+  590-LOC dispatcher refactored into 7 sourced libs under
+  `bin/lib/audit-ecosystem/` (common, plugins, marketplaces, skills,
+  agents, rules, mcp, render). Slim dispatcher (~170 LOC) now only
+  handles argument parsing, self-detection, sourcing, and the
+  walk → render → exit sequence. Behaviour preserved — all 27
+  audit-ecosystem regression tests still pass.
+
+### Added
+
+- **`bin/count-primitives.sh` — single-source primitive counts
+  (closes #90).** Emits canonical counts as JSON (default), one-line
+  human-readable (`--human`), or drift-check (`--check`). The
+  drift-checker greps user-facing docs (`README.md`,
+  `docs/architecture.md`, `docs/install-plugin.md`,
+  `docs/mental-model.md`, `ONBOARDING.md`, `plugin.json`) for the
+  expected count substrings and fails CI when reality diverges from
+  any tracked surface. Wired into `.github/workflows/eval.yml` as the
+  third eval step. New regression test case `count-primitives` covers
+  all three modes + synthetic drift detection (14 asserts).
+
 ## 1.28.1 — 2026-05-26
 
 ### Fixed
