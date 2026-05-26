@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+## 1.30.0 — 2026-05-26
+
+### Added
+
+- **`/ai:docs-sync` — standalone content-drift skill (closes #92).**
+  Splits content-drift concerns out of `/ai:hygiene` (which stays focused
+  on framework wiring health). New driver `bin/ai-kit-docs-sync.sh` runs
+  sectioned checks against the project, exits 0 (clean) or 1 (findings).
+  First section: **dead-links** — scans every `*.md` for inline
+  `[text](path)` links, verifies relative + repo-absolute targets exist on
+  disk, and reports `file:line` + missing path per finding. Code fences,
+  image links, HTML `<a href>`, bare URLs, external schemes, and anchor-
+  only links are deliberately excluded. Anchor fragments are stripped
+  before path-existence check (no anchor validation). SKILL.md locks
+  6 non-goals (ADR-trigger detection, TODO-completion, status-table
+  drift, persona/PII grep, structure-convention, code-comment-as-doc
+  parsing) so v2 scope creep gets bounced. Tests: 30 asserts cover all
+  acceptance criteria from #92. Follow-up issues #93 / #94 add repo-
+  hygiene + finished-work checks; #95 wires nudge integrations; #96
+  teaches `repo-skill-hint` to surface both surfaces.
+
 ## 1.29.0 — 2026-05-26
 
 ### Changed

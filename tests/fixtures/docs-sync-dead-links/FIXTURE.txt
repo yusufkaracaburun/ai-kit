@@ -1,0 +1,17 @@
+Fixture: dead-links
+
+Exercises the dead-links check in ai-kit-docs-sync-dead-links.sh.
+
+Expected: exactly 2 broken markdown links in docs/architecture.md.
+1. Line referencing ./legacy-install.md (relative resolution)
+2. Line referencing /missing-root.md (repo-absolute resolution)
+
+Expected to be SKIPPED (not findings):
+- External https URLs
+- Anchor-only #... links
+- Image links ![alt](src)
+- Links inside fenced code blocks
+- Bare URLs without markdown syntax
+- HTML <a href> tags
+
+This file is .txt so the docs-sync scanner does not read it as markdown.

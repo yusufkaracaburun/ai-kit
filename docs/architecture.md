@@ -12,9 +12,9 @@ Read this before adding a new primitive type or moving files between layers. For
 
 ```
 ┌─────────────────────── source layer ────────────────────────┐
-│  workflow/skills/        37 skills (SKILL.md)               │
+│  workflow/skills/        38 skills (SKILL.md)               │
 │  workflow/agents/        3 subagents (AGENT.md)             │
-│  workflow/commands/      10 slash commands (.md)            │
+│  workflow/commands/      11 slash commands (.md)            │
 │  standards/rules/        agent-agnostic rule books          │
 │  .claude/settings.json   PostToolUse hook (Skill→log)       │
 │  context/templates/      per-project doc templates          │
