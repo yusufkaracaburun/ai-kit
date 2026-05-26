@@ -300,10 +300,14 @@ every session.
 
 ### Branch 12 — Rule recommendation (optional refinement)
 
-Bootstrap (Branch 1) emits every `universal: true` canonical rule. For a
-brownfield repo on a specific stack, [`/ai:recommend-rules`](../ai:recommend-rules/SKILL.md)
-tailors the set — it scores canonical rules against the detected frameworks and
-can surface community rule packs from the web.
+Bootstrap (Branch 1) emits every `universal: true` canonical rule, including
+the cross-project workflow / style / tool-gotcha rules under
+`standards/rules/feedback/` (the canonical feedback-rules layer — see
+[`docs/adr/0007-canonical-feedback-rules.md`](../../../docs/adr/0007-canonical-feedback-rules.md)).
+For a brownfield repo on a specific stack,
+[`/ai:recommend-rules`](../ai:recommend-rules/SKILL.md) tailors the set — it
+scores canonical rules against the detected frameworks and can surface
+community rule packs from the web.
 
 Offer it once. The skill is interactive (and may search the web), so never run
 it silently:

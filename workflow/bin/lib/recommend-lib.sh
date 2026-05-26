@@ -125,7 +125,8 @@ except Exception:
   fi
 
   local results=""
-  for f in "$rules_dir"/*.mini.md "$rules_dir"/*.nano.md; do
+  for f in "$rules_dir"/*.mini.md "$rules_dir"/*.nano.md \
+           "$rules_dir"/feedback/*.mini.md "$rules_dir"/feedback/*.nano.md; do
     [ -f "$f" ] || continue
     local row
     row="$(_recommend_score_one "$f" "$fw_csv" "$arch_csv" "$age_years")"

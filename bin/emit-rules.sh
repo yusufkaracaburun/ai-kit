@@ -64,7 +64,8 @@ done
 RULES_DIR="$AIKIT/standards/rules"
 
 list_rules() {
-  for f in "$RULES_DIR"/*.mini.md "$RULES_DIR"/*.nano.md; do
+  for f in "$RULES_DIR"/*.mini.md "$RULES_DIR"/*.nano.md \
+           "$RULES_DIR"/feedback/*.mini.md "$RULES_DIR"/feedback/*.nano.md; do
     [ -f "$f" ] || continue
     local name universal weight
     name="$(basename "$f")"
@@ -103,7 +104,8 @@ declare -a RULES=()
 if [ -n "$RULES_CSV" ]; then
   IFS=',' read -r -a RULES <<< "$RULES_CSV"
 else
-  for f in "$RULES_DIR"/*.mini.md "$RULES_DIR"/*.nano.md; do
+  for f in "$RULES_DIR"/*.mini.md "$RULES_DIR"/*.nano.md \
+           "$RULES_DIR"/feedback/*.mini.md "$RULES_DIR"/feedback/*.nano.md; do
     [ -f "$f" ] || continue
     universal="$(_emitter_extract_meta "$f" universal)"
     if [ "$universal" = "true" ]; then
@@ -122,11 +124,13 @@ fi
 
 resolve_rule_path() {
   local name="$1"
-  for ext in mini.md nano.md; do
-    if [ -f "$RULES_DIR/${name}.${ext}" ]; then
-      echo "$RULES_DIR/${name}.${ext}"
-      return 0
-    fi
+  for dir in "$RULES_DIR" "$RULES_DIR/feedback"; do
+    for ext in mini.md nano.md; do
+      if [ -f "$dir/${name}.${ext}" ]; then
+        echo "$dir/${name}.${ext}"
+        return 0
+      fi
+    done
   done
   return 1
 }

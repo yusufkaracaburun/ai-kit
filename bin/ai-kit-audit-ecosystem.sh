@@ -352,7 +352,7 @@ fi
 if want_scope rules && [ -d "$USER_RULES_DIR" ]; then
   PLUGIN_RULE_STEMS=()
   if [ -d "$PLUGIN_RULES_DIR" ]; then
-    for rule_file in "$PLUGIN_RULES_DIR"/*.md; do
+    for rule_file in "$PLUGIN_RULES_DIR"/*.md "$PLUGIN_RULES_DIR"/feedback/*.md; do
       [ -f "$rule_file" ] || continue
       stem="$(basename "$rule_file")"
       stem="${stem%.mini.md}"

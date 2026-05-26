@@ -36,6 +36,8 @@ Present the result as a table to the user. Group by relevance tier:
 - **Moderate fit** (score 1–2) — propose, but let the user opt out.
 - **Filtered out** (score 0) — show only if user asks "why isn't X here".
 
+Within each tier, surface the **feedback bucket** (rules whose source path is `standards/rules/feedback/`) under its own subheading — these are cross-project workflow / style / tool-gotcha defaults shipped via ADR-0007, not stack-tied. Keeping them grouped helps the user see why they showed up.
+
 For each rule, include the `reason` field — it explains *why* this rule fits (universal vs. framework match vs. age threshold). Never invent reasons.
 
 ### Phase 2 — Stack-specific web search (optional)
