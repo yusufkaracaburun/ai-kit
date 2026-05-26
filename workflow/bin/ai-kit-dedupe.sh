@@ -2,6 +2,12 @@
 # Scan for ai-kit duplication: personal skills/agents shadowing plugin assets,
 # orphan emitted rules, and stale plugin-bin overlap. Reports findings only —
 # never deletes. Exit 0 = no dups; 1 = dups found.
+#
+# Note: -e and -u are intentionally omitted — this is a warning-collector
+# that walks all surfaces even when one section returns non-zero (e.g.
+# missing optional catalog file). Per-section helpers rely on conditional
+# unbound-var checks (`${VAR:-}`); the pattern would fail under -u. Final
+# exit code is the max of per-section findings.
 set -o pipefail
 
 SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"

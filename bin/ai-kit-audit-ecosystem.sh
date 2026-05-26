@@ -19,6 +19,12 @@
 #   REPLACE        — ai-kit ships a functional equivalent
 #   DROP-STALE     — references a path that no longer exists on disk
 #   KEEP-EXTERNAL  — valid, out of ai-kit scope
+#
+# Note: -e and -u are intentionally omitted — this is a warning-collector
+# that walks six surfaces (plugins, marketplaces, skills, agents, rules, mcp)
+# even when one surface's catalog file is missing. Per-surface failures
+# degrade to a verdict tag, never to a script abort. Strict `-u` would
+# break the conditional-unbound-var pattern used across the surfaces.
 set -o pipefail
 
 SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"

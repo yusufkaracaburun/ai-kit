@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # Diagnose ai-kit setup health: env, global install, project (if given).
 # Exit 0 = all green; 1 = warnings; 2 = errors (fix before continuing).
+#
+# Note: -e is intentionally omitted — this is a diagnostic that must walk
+# every check even when an earlier one fails. The exit code is computed
+# from collected warning/error counters at the end, not from per-check
+# short-circuits. Do not "fix" the missing -e.
 set -uo pipefail
 
 SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"

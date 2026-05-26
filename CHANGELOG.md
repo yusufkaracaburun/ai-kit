@@ -2,6 +2,29 @@
 
 ## Unreleased
 
+## 1.28.1 — 2026-05-26
+
+### Fixed
+
+- **Self-audit P0/P1 fixes.** /ai:audit-architecture on ai-kit itself
+  surfaced 9 🟠 findings. Quick wins landed inline:
+  - **D5 comment-drift on primitive counts.** README, plugin.json,
+    docs/architecture.md, docs/install-plugin.md, docs/mental-model.md,
+    ONBOARDING.md all synced to reality: 37 skills · 10 commands ·
+    30 canonical rules. Root cause (no single source) tracked in
+    [#90](https://github.com/yusufkaracaburun/ai-kit/issues/90).
+  - **D5 ADR-0004 misleading after v3.0 rename.** Added a Superseded
+    banner; the `aikit-` prefix is no longer required — invocation
+    is plugin-scoped as `/ai:<skill>` now.
+  - **D8 strict-mode rationale comments** on warning-collector scripts
+    (`ai-kit-doctor.sh`, `ai-kit-dedupe.sh`, `ai-kit-audit-ecosystem.sh`)
+    explaining why `-e`/`-u` are intentionally omitted.
+  - **D4 empty `.planning/`** directory removed.
+  - Bigger lifts deferred: god-script split
+    ([#89](https://github.com/yusufkaracaburun/ai-kit/issues/89)),
+    single-source primitive counts
+    ([#90](https://github.com/yusufkaracaburun/ai-kit/issues/90)).
+
 ## 1.28.0 — 2026-05-26
 
 ### Added

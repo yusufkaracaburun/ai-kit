@@ -14,7 +14,7 @@ runtime daemon, no network calls, no telemetry.
 | Subagents | 3 | Claude Code |
 | Slash commands | 8 | Claude Code · Cursor |
 | Hooks | 2 | Claude Code |
-| Rules | 25 canonical mini-rules | Cursor · Claude Code (via emitter) |
+| Rules | 30 canonical mini-rules | Cursor · Claude Code (via emitter) |
 | Curated companions | 21 MCP servers · 25 hook recipes · 12 plugins | Recommend-only — never auto-installed |
 | Repo templates | 5 baseline files (`.editorconfig`, `.gitattributes`, `CODEOWNERS`, `renovate.json`, `.envrc`) | Drop-in via `/ai:setup` |
 
@@ -79,7 +79,7 @@ First moves:
 | Cross-cutting | `setup` · `setup-gh-workflow` · `recommend-rules` · `recommend-tools` · `improve-codebase-architecture` · `audit-architecture` |
 | Automation | `autonomous` (AFK queue drainer — wraps `tdd` → `review` → `ship`) |
 
-8 slash commands: `/ai:setup` · `/ai:doctor` · `/ai:dedupe` · `/ai:status` · `/ai:which` · `/ai:next` · `/ai:upgrade` · `/ai:no-globals` · `/ai:prefer-plugin`.
+10 slash commands: `/ai:setup` · `/ai:doctor` · `/ai:dedupe` · `/ai:status` · `/ai:which` · `/ai:next` · `/ai:upgrade` · `/ai:no-globals` · `/ai:prefer-plugin` · `/ai:hygiene`.
 
 See [docs/mental-model.md](docs/mental-model.md) for the "which skill, when" table and lifecycle diagram.
 

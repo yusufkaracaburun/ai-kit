@@ -1,6 +1,15 @@
-# ADR-0004: Prefix every skill with ``
+# ADR-0004: Prefix every skill with `aikit-`
 
 ## Status
+
+**Superseded by v3.0 rename (2026-05-23).** Plugin distribution moved
+namespace responsibility from skill-name prefix to the Claude Code
+plugin/marketplace mechanism — skills now invoke as `/ai:<skill>`
+(plugin-scope `ai-`, no `aikit-` prefix on the skill itself). Bare
+skill names (`setup`, `review`, `ship`, …) are the live convention;
+the `aikit-` prefix is no longer required for new skills. See
+`docs/install-plugin.md` for the live naming rules. This ADR is
+preserved as historical record of the v2.0 reasoning.
 
 Accepted (v2.0.0)
 
