@@ -233,6 +233,39 @@ into `setup` as opt-in.
   `PATH` override (no live network).
 - This findings section.
 
+## Research input: OpenHands patterns (2026-05-26)
+
+Targeted reading of `All-Hands-AI/OpenHands` `main` branch focused on
+the three spike contract gaps (triage-labels precondition, per-project
+`AI_KIT_ROOT` pinning, per-project merge-policy detection). Source files
+inspected via the GitHub Contents API + raw blob fetches; quoted code is
+verbatim from the upstream paths listed.
+
+| # | Pattern | Source path | Spike gap addressed | Adoption decision | Reasoning |
+| - | ------- | ----------- | ------------------- | ----------------- | --------- |
+| P1 | **Sandbox-per-session** — one Docker container per sandbox, identified by `SESSION_API_KEY_VARIABLE` env var; `pause_old_sandboxes()` evicts above `max_num_sandboxes` | `openhands/app_server/sandbox/docker_sandbox_service.py` | None (cross-cuts cwd isolation) | **Reject** | ADR-0006 scopes ai-kit to Claude Code + Cursor — ai-kit does not own a runtime. Our fresh-context invariant is already enforced via `/loop` scheduling and per-issue cwd discipline in step 0. Bringing a Docker sandbox layer in would violate ADR-0006's host-scope decision. |
+| P2 | **Conversation status state machine** — `WORKING → WAITING_FOR_SANDBOX → PREPARING_REPOSITORY → RUNNING_SETUP_SCRIPT → SETTING_UP_GIT_HOOKS → SETTING_UP_SKILLS → STARTING_CONVERSATION → READY`, async-generator yields status updates until terminal `READY|ERROR` | `openhands/app_server/app_conversation/app_conversation_service.py` | **Gap #1** (triage labels precondition) — generalises to "pre-flight phases gate the run" | **Adopt-as-pattern** | Formalise the existing `progress.txt` event vocabulary into a Ralph-flavoured status enum: `preflight → pick → brief-ok → cycle-attempt → cycle-done → tdd-green → review-pass → ship-ok | exit-*`. The preflight phase carries the triage-labels-exist + `AI_KIT_ROOT`-pinned + merge-policy-detected checks. Keep flat — no async-generator framework. |
+| P3 | **Filesystem-backed event store keyed by conversation id** — `FilesystemEventService` is the default; multi-backend (filesystem/database) interface; event-filtering + streaming endpoints | `openhands/app_server/event/...` (README + module) | Gap #3 (state persistence between iterations) — already covered | **Reject** | `progress.txt` is the deliberate Ralph-style minimal-state surface. Adding an event-store abstraction would invert the design (state-as-text vs. state-as-DB) for no win — Ralph's whole point is that cold-readable text is good enough. Re-evaluate only if `progress.txt` proves insufficient (tracked under Follow-ups). |
+| P4 | **Workspace-volume per sandbox** — `openhands-workspace-{sandbox_id}` named Docker volume holds the per-conversation working tree; survives container restart | `openhands/app_server/sandbox/docker_sandbox_service.py` | Gap #2 (per-project `AI_KIT_ROOT` pinning) — analogous problem | **Adopt-with-modification** | We don't ship volumes — but the principle (per-conversation working-state has its own root, pinned at creation) maps to **per-conversation `target_worktree`**. The skill already takes this from the Agent Brief; the modification is to make `AI_KIT_ROOT` the brief's `ai_kit_root:` key when present, falling back to `${HOME}/.config/ai-kit/root` only when omitted. Matches existing trust-model "never operate outside the brief's declared worktree". |
+| P5 | **No autonomous picker in core** — `app_conversation_start_task_service.py` is search/save/delete only; "no built-in queue or automatic work-picking mechanism"; the caller orchestrates | `openhands/app_server/app_conversation/app_conversation_start_task_service.py` | Gap #3 (merge policy detection) — confirms approach | **Adopt-with-modification** | OpenHands deliberately leaves picker + merge logic to the caller; ai-kit does the same. Our picker (`gh issue list --label ready-for-agent`) is the caller-side. Per-project merge policy detection lands as a preflight step that reads project config (e.g. `.ai-kit-setup` `branches.merge_policy` or `git config ai-kit.merge-policy`) and refuses to run a `ship` step whose mode (PR vs. direct-to-master) doesn't match. Default `pr`; ai-kit-the-repo + similar solo projects override to `direct`. |
+| P6 | **Pre-flight phases as first-class** — `SETTING_UP_GIT_HOOKS` + `SETTING_UP_SKILLS` are explicit status states, not implicit setup inside `STARTING_CONVERSATION` | `openhands/app_server/app_conversation/app_conversation_service.py` | Gap #1 (precondition gates) — formalisation | **Adopt-as-pattern** | The autonomous skill already runs step-0 checks (cwd + branch + heartbeat); P6 says **name them as events**. Promote step-0's checks to explicit `preflight-*` events in `progress.txt` (`preflight-cwd-ok`, `preflight-triage-labels-ok`, `preflight-merge-policy-detected:<pr|direct>`, `preflight-ai-kit-root-pinned:<path>`) — same cost as the silent checks, big cold-read win for the next iteration. |
+
+### Adopted-pattern landings (this PR)
+
+- **P2 status enum.** `workflow/skills/autonomous/SKILL.md` `progress.txt schema` section names a `preflight` event lifecycle alongside the existing pick/brief-ok/cycle/exit events.
+- **P4 modification — brief carries `ai_kit_root`.** SKILL.md step 0 parsing now looks for `ai_kit_root:` in the Agent Brief and pins `AI_KIT_ROOT` to it for the run; falls back to `${HOME}/.config/ai-kit/root` when absent (current behaviour).
+- **P5 modification — merge policy.** SKILL.md step 0 detects merge policy from `.ai-kit-setup` `branches.merge_policy` (when present), else from `git config --get ai-kit.merge-policy`, else default `pr`. New `exit-gate merge-policy-mismatch` for when the brief asks for one mode and project config says another.
+- **P6 preflight events.** SKILL.md `progress.txt schema` section adds the `preflight-*` event family with the four explicit checks.
+
+### Rejected-pattern notes
+
+- **P1 sandbox.** Out of host scope per ADR-0006; revisit only if ai-kit ever expands beyond Claude Code + Cursor.
+- **P3 event store.** Reconsider if `progress.txt` ever needs multi-reader / streaming consumption; today's single-cold-reader contract makes text-on-disk the right minimum.
+
+### What this leaves open
+
+- **Actual contract-gap closure in code** (the four preflight events implemented as bash + the merge-policy detection wired into step 0) lands in subsequent issues; this research arc + SKILL.md draft is the **doc-only** scope of #21. Promotion of `autonomous` from spike → released still requires those three implementation issues to close per the original spike verdict (above).
+
 ## Follow-ups (out of scope for spike)
 
 - `bin/autonomous.sh` helper (queue read, progress-log append) once
@@ -241,3 +274,6 @@ into `setup` as opt-in.
   scope per #17.
 - `autonomous-resume` companion skill — only if `progress.txt`
   proves insufficient for context recovery after long pauses.
+- **Implement the preflight events** named in the P6 row above as
+  follow-up issues — one per check (triage labels exist, merge policy
+  detected, AI_KIT_ROOT pinned, cwd ok).

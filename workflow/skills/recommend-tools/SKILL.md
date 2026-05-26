@@ -154,8 +154,31 @@ matches push the score up.
 ### Surface — never wire silently
 
 Present the ranked list grouped by `kind`. For each entry show: `name`,
-`category`, `score`, and the one-line `reason`. Then ask the user which
-to wire. Same trust posture as `/ai:recommend-rules`:
+`category`, `score`, the one-line `reason`, and a **source-count
+annotation** per [`standards/promotion-quorum.md`](../../../standards/promotion-quorum.md):
+
+- `(sources: N/M verified)` when at least 2 independent sources document
+  the same usage — eligible for default-on recommendation.
+- `(sources: 1 — preview only)` for single-source entries — surfaced but
+  **never** default-recommended. The skill must not pre-select them; the
+  user can still pick them explicitly.
+
+Vendored catalogs under `standards/external/` carry `source_url` +
+`pinned_sha` provenance, but the quorum bar is a *surface-layer* check: an
+entry can live in the catalog with one source and still be surfaced — only
+the default-recommend status is gated.
+
+Worked example output (excerpt):
+
+```
+mcp/
+  context7    (sources: 2/2 verified)  score=3   universal
+    reason: universal — library docs lookups
+  obscure-x   (sources: 1 — preview only)  score=1   universal
+    reason: gh-stars 12 + one blog post  (not default-recommended)
+```
+
+Then ask the user which to wire. Same trust posture as `/ai:recommend-rules`:
 
 - **MCP servers:** never auto-install. Walk the user through their
   preferred install path (`.mcp.json` checked in, `~/.claude.json`

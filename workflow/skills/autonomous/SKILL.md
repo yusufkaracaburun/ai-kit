@@ -73,6 +73,28 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
    - Determine `target_branch` from the brief (same parsing). Compare
      against `git rev-parse --abbrev-ref HEAD`. Mismatch → write
      `exit-gate branch-mismatch <expected-vs-actual>` and stop.
+   - **Pin `AI_KIT_ROOT` per-conversation** (P4 from
+     [`docs/spikes/aikit-autonomous-ralph.md`](../../../docs/spikes/aikit-autonomous-ralph.md)).
+     Parse the brief for an `ai_kit_root:` key. If present, `export
+     AI_KIT_ROOT=<that>` for the rest of the run; if absent, leave the
+     existing resolver alone (`${HOME}/.config/ai-kit/root` fallback).
+     Log `preflight-ai-kit-root-pinned <path>`.
+   - **Triage labels exist** (P6 preflight). Verify the project tracker
+     carries the labels the queue depends on:
+     ```bash
+     gh label list --repo "$(gh repo view --json nameWithOwner -q .nameWithOwner)" --json name --jq '.[].name' \
+       | grep -qx ready-for-agent || { echo 'exit-gate triage-labels-missing ready-for-agent' >> .ai-kit/autonomous/progress.txt; exit 1; }
+     ```
+     Log `preflight-triage-labels-ok` on success.
+   - **Detect merge policy** (P5 modification). Resolve in this order
+     and write `preflight-merge-policy-detected:<pr|direct>`:
+     1. Brief carries `merge_policy: pr|direct` key → use it.
+     2. `.ai-kit-setup` `branches.merge_policy` → use it.
+     3. `git config --get ai-kit.merge-policy` → use it.
+     4. Default `pr`.
+     If the brief asks for one mode and the project config says another
+     (steps 1 vs 2/3 disagree), write `exit-gate merge-policy-mismatch
+     <brief-vs-project>` and stop — never silently widen authority.
    - Start the heartbeat helper:
      ```bash
      "$AI_KIT_ROOT/bin/autonomous-heartbeat.sh" <issue#> \
@@ -155,6 +177,8 @@ Always exit with a one-line `exit-*` entry in `progress.txt`:
 | TDD cap (≤3 attempts per cycle) | `exit-gate tdd-stuck` | Human implementation |
 | Review blockers | `exit-gate review-blocked` | Human review |
 | Security ≥ high | `exit-gate security` | Human review |
+| Triage labels missing on tracker | `exit-gate triage-labels-missing <label>` | `gh label create <label>`; re-run |
+| Merge policy disagreement (brief vs project config) | `exit-gate merge-policy-mismatch <detail>` | Align brief or project config; re-run |
 | Push needs force / conflict resolution | `exit-gate git-conflict` | Human resolution |
 | User explicit stop OR harness instability skill cannot remediate | `exit-handoff <reason>` | Human drives remaining gates (see Handoff protocol) |
 | `max_iterations` reached | `exit-cap` | User re-invokes |
@@ -198,6 +222,13 @@ Path: `.ai-kit/autonomous/progress.txt`. Append-only, one event per line:
 ```
 
 Events:
+- **Preflight (P6 — pattern adopted from OpenHands status state
+  machine):** `preflight-cwd-ok`, `preflight-triage-labels-ok`,
+  `preflight-merge-policy-detected:<pr|direct>`,
+  `preflight-ai-kit-root-pinned <path>`. Emitted by step 0 before any
+  pick. Cold-readable proof the run started clean. Absence of a
+  `preflight-*` line on a fresh run = step 0 was skipped — refuse to
+  consume that progress.txt and start over.
 - **Lifecycle:** `pick`, `brief-ok`, `cycle-attempt`, `cycle-done`,
   `tdd-green`, `review-pass`, `ship-ok`.
 - **Liveness:** `heartbeat` — one per 60s wall-clock while the skill
@@ -209,6 +240,10 @@ Events:
 Example trace (columns separated by literal `\t`):
 
 ```
+2026-05-23T09:59:50Z \t -  \t preflight-cwd-ok                  \t /…/.agents/worktrees/feat-foo
+2026-05-23T09:59:51Z \t -  \t preflight-triage-labels-ok        \t ready-for-agent
+2026-05-23T09:59:52Z \t -  \t preflight-merge-policy-detected   \t pr
+2026-05-23T09:59:53Z \t -  \t preflight-ai-kit-root-pinned      \t /…/ai-kit
 2026-05-23T10:00:00Z \t 42 \t pick           \t feat: foo
 2026-05-23T10:00:05Z \t 42 \t brief-ok       \t 5 criteria
 2026-05-23T10:01:00Z \t 42 \t heartbeat      \t brewing

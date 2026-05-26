@@ -71,7 +71,25 @@ Filter results by:
 - GitHub stars as a weak signal (>50 stars worth surfacing; not a hard cut-off)
 - Source reputation (framework's own team > community > random gist)
 
-**Do not auto-install.** Surface ≤5 candidates with: name, URL, last-updated, license, one-line summary, "why it might apply here". The user picks.
+**Apply the promotion quorum.** Per [`standards/promotion-quorum.md`](../../../standards/promotion-quorum.md),
+a community rule reaches default-on tier only when ≥2 independent sources
+document the same usage. Annotate every surfaced candidate inline:
+
+- `(sources: N/M verified)` when at least 2 independent sources documented it.
+- `(sources: 1 — preview only)` for single-source candidates. **Never
+  default-recommend a `preview only` entry** — the user can still pick it,
+  but the skill must not pre-select it.
+
+Worked example output:
+
+```
+laravel-pint-strict-rules        (sources: 2/2 verified)
+  reason: laravel framework match; weight=high
+nextjs-app-router-flat-routes    (sources: 1 — preview only)
+  reason: nextjs framework match; weight=medium  (not default-recommended)
+```
+
+**Do not auto-install.** Surface ≤5 candidates with: name, URL, last-updated, license, one-line summary, source-count annotation, "why it might apply here". The user picks.
 
 After surfacing live results, persist them so the next invocation on the same stack skips the search:
 
