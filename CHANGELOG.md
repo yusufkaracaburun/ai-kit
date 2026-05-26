@@ -1,5 +1,74 @@
 # Changelog
 
+## 1.24.0 — 2026-05-26
+
+### Added
+
+- **Canonical feedback-rules layer** (#30, ADR-0007). New
+  `standards/rules/feedback/` subdir under canonical rules, emitted by
+  default at `/ai:setup` so every new project inherits cross-project
+  workflow / style / tool-gotcha defaults instead of re-discovering
+  them per project. v1 set (all `universal: true`):
+  `phase-scope-discipline`, `branch-cleanup-after-merge`,
+  `deployment-on-demand`, `minimal-comments`, `latest-stable-deps`
+  (defers to `project-lifecycle` for production phase),
+  `mark-recommended-option`, `bsd-sed-word-boundary`,
+  `gitignore-public-assets-trap`. Emitter recursion patched into
+  `bin/emit-rules.sh`, `bin/lib/recommend-lib.sh`,
+  `bin/ai-kit-audit-ecosystem.sh`, `bin/ai-kit-dedupe.sh` so
+  feedback-rules are first-class to every downstream consumer.
+  `/ai:setup` Branch 12 and `/ai:recommend-rules` Phase 1 name the
+  feedback bucket explicitly. `standards/promotion-quorum.md` gains a
+  sibling section documenting the manual feedback-rule promotion flow
+  (ai-kit-lessons → GH issue → curate during release).
+
+- **`/ai:upgrade` prints CHANGELOG slice between versions.** After
+  re-stamping `.ai-kit-setup`, the script slices the relevant
+  CHANGELOG section between the old marker version and the new one
+  and prints it so the user sees what changed across the upgrade
+  without cracking open CHANGELOG.md. Silent skip on same-version /
+  unknown-old / missing CHANGELOG / no matching headings.
+
+### Fixed
+
+- **Plugin packaging shipped no `context/`** — `setup-gh-workflow.sh`,
+  `bootstrap-project.sh`, `apply-docker.sh`, and several skills
+  resolve templates / prompts via `$AI_KIT_ROOT/context/**`, and the
+  cached plugin install hard-exited with `Templates missing:
+  <root>/context/templates/github` (or silently skipped: PR-template
+  scaffold, Docker apply). Root cause: ai-kit had no mirror script
+  for `context/` and the release flow never sync'd `standards/`
+  either. Fix: new `bin/sync-plugin-context.sh` mirror script,
+  symmetric to the existing sync-plugin-{bin,hooks,standards}; release
+  flow now calls both `sync-plugin-standards.sh` and
+  `sync-plugin-context.sh`. Three new asserts in `structure.sh` lock
+  the invariant. Doctor's "PR template missing — run
+  /ai:setup-gh-workflow" warning no longer chases a dead link.
+
+### Docs
+
+- `bin/setup-gh-workflow.sh` header comment listed only steps 1–4
+  (issue templates, workflows, labels, project board) — the script
+  also scaffolds the PR template (step 5) and applies branch
+  protection (step 6) since #66. Docblock now in sync.
+
+### Tests
+
+- `tests/bin/cases/release-install.sh`: `which --list` skill-count
+  assert bumped from 30 → 32 (audit-fix + doc-to-skill landed in
+  v1.23.0 without bumping the hardcode).
+- `tests/bin/cases/structure.sh`: skill-count assert bumped from 30
+  → 32; three new asserts cover `sync-plugin-standards --check`,
+  `sync-plugin-context --check`, and
+  `workflow/context/templates/github` presence in the plugin tree.
+- `tests/bin/cases/bootstrap-emit.sh`: `--list` count assert bumped
+  from 26 → 34 to cover the eight new feedback-rules.
+- `tests/eval/prompts/audit-fix/finding-a1.md` and
+  `tests/eval/prompts/doc-to-skill/pdf-to-scaffold.md`: missing eval
+  scenarios added so `eval-structure` is clean again.
+
+Test suite: 585 / 585 green.
+
 ## 1.23.0 — 2026-05-26
 
 ### Added
