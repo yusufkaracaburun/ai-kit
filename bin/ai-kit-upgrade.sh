@@ -31,11 +31,13 @@ if [ ! -f "$MARKER" ]; then
 fi
 
 COMPLETED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+CHANGELOG="$AIKIT/CHANGELOG.md"
 
-python3 - "$MARKER" "$VERSION" "$COMPLETED_AT" <<'PY'
-import json, sys
+python3 - "$MARKER" "$VERSION" "$COMPLETED_AT" "$CHANGELOG" <<'PY'
+import json, re, sys
+from pathlib import Path
 
-path, version, completed = sys.argv[1:4]
+path, version, completed, changelog_path = sys.argv[1:5]
 
 with open(path) as f:
     data = json.load(f)
@@ -49,6 +51,43 @@ with open(path, "w") as f:
     f.write("\n")
 
 print(f"Upgraded marker {old_version} -> {version}")
+
+if old_version == version or old_version == "unknown":
+    sys.exit(0)
+
+p = Path(changelog_path)
+if not p.is_file():
+    sys.exit(0)
+
+# CHANGELOG is reverse-chronological: slice from the heading matching
+# `version` down to (but not including) the heading matching `old_version`.
+text = p.read_text()
+heading_re = re.compile(r"^## ([0-9]+\.[0-9]+\.[0-9]+)(?:\s|$)", re.MULTILINE)
+matches = list(heading_re.finditer(text))
+if not matches:
+    sys.exit(0)
+
+start = None
+end = len(text)
+for m in matches:
+    ver = m.group(1)
+    if start is None and ver == version:
+        start = m.start()
+    elif start is not None and ver == old_version:
+        end = m.start()
+        break
+if start is None:
+    sys.exit(0)
+
+snippet = text[start:end].rstrip()
+if not snippet:
+    sys.exit(0)
+
+print()
+print(f"Changes since v{old_version}:")
+print("-" * 60)
+print(snippet)
 PY
 
+echo ""
 echo "Run: $AIKIT/bin/verify-setup.sh $TARGET --strict"
