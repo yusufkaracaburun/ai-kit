@@ -93,6 +93,12 @@ detect_frameworks() {
   if [ -f "$target/nx.json" ]; then
     FRAMEWORKS+=("nx")
   fi
+
+  # shadcn/ui: copy-paste components, no package.json dep. Signal is the
+  # `components.json` CLI config at repo root (created by `shadcn init`).
+  if [ -f "$target/components.json" ] && grep -qE '"\$schema"\s*:\s*"https://ui\.shadcn\.com/schema\.json"' "$target/components.json" 2>/dev/null; then
+    FRAMEWORKS+=("shadcn")
+  fi
 }
 
 detect_docker() {

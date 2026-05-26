@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+## 1.28.0 — 2026-05-26
+
+### Added
+
+- **`/ai:audit-architecture-shadcn` extension.** New
+  `workflow/skills/audit-architecture-shadcn/SKILL.md` adds 6
+  shadcn/ui-specific heuristics (S1-S6: `cn()` merge discipline, `cva()`
+  variant extension, `forwardRef` contract on primitives, deep-relative
+  import-path drift away from declared aliases, cross-primitive coupling
+  inside `components/ui/`, `components.json` alias drift). Auto-loads
+  alongside the React extension when `components.json` declares the
+  `https://ui.shadcn.com/schema.json` schema (detected via the new
+  `shadcn` framework key in `bin/lib/detect-lib.sh`).
+
 ## 1.27.0 — 2026-05-26
 
 ### Changed
