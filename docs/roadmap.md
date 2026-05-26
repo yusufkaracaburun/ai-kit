@@ -506,9 +506,11 @@ in priority order:
     lens). Two follow-ups filed as fresh issues: #34 (companion
     `audit-fix` skill that consumes the report and runs atomic
     per-finding fixes with user approval) and #35 (per-stack
-    tuning extensions `audit-architecture-laravel` / `-react` /
-    `-go` etc. that layer stack-specific heuristics on top of the
-    stack-agnostic core).
+    tuning extensions `audit-architecture-{laravel,react,typescript,flutter}`
+    v1 big-bang — PRD landed 2026-05-26 via `/ai:grill-me` + `/ai:to-prd`;
+    `ready-for-agent`. Laravel ext = strict-always-on with 22 heuristics
+    + api-only/full-stack mode-detect; other stacks = default strictness
+    with 8 heuristics each. Go/Rails deferred to follow-up issues.).
 
 20. **triage↔autonomous Agent Brief contract** (#36) — landed
     2026-05-23 in v1.14.1 (PR #37). Surfaced on a live naschool run
