@@ -1,18 +1,8 @@
 # Changelog
 
-## 1.25.0 — 2026-05-26
-
-- feat(hygiene): memory-audit section for orphan/stale feedback entries
-- chore(defer): capture #86 in roadmap
-- docs(audit): ADR-0008 + Unreleased CHANGELOG for per-stack extensions v1 (#84)
-- feat(audit): audit-architecture-typescript — 8 framework-agnostic heuristics (#82)
-- feat(audit): audit-architecture-react — 8 React 19 heuristics + RSC boundary (#81)
-- feat(audit): audit-architecture-laravel — 22 strict heuristics + api-only/full-stack mode-detect (#80)
-- feat(audit): foundational layer for per-stack audit-architecture extensions (#79)
-- docs(roadmap): #35 split into 6 tracer-bullet issues #79-#84
-- docs(roadmap): #35 PRD landed — scope locked to 4 stacks big-bang
-
 ## Unreleased
+
+## 1.25.0 — 2026-05-26
 
 ### Added
 
