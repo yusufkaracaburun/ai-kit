@@ -8,7 +8,7 @@ source "$AIKIT/tests/bin/lib/harness.sh"
 echo "=== skills-count ==="
 # section: skills-count
 SKILL_COUNT=$(find "$AIKIT/workflow/skills" -name SKILL.md | wc -l | tr -d ' ')
-assert "35 skills" '[ "$SKILL_COUNT" -eq 35 ]'
+assert "36 skills" '[ "$SKILL_COUNT" -eq 36 ]'
 assert "checkpoint skill exists" '[ -f "$AIKIT/workflow/skills/checkpoint/SKILL.md" ]'
 assert "resume skill exists" '[ -f "$AIKIT/workflow/skills/resume/SKILL.md" ]'
 assert "onboard skill exists" '[ -f "$AIKIT/workflow/skills/onboard/SKILL.md" ]'

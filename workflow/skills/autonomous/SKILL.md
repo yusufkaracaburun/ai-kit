@@ -1,14 +1,14 @@
 ---
 name: autonomous
-description: SPIKE / opt-in. Autonomous backlog grinder — drains issues labeled `ready-for-agent` one at a time, fresh agent context per issue, persistent progress log. Wraps tdd → review → ship. Use when the user wants an AFK queue-drain run, references "Ralph pattern", or invokes `/ai:autonomous`. Spike status — see docs/spikes/ai:autonomous-ralph.md before relying on it.
+description: Autonomous backlog grinder — drains issues labeled `ready-for-agent` one at a time, fresh agent context per issue, persistent progress log. Wraps tdd → review → ship. Use when the user wants an AFK queue-drain run, references "Ralph pattern", or invokes `/ai:autonomous`.
 ---
 
 # Autonomous backlog grinder
 
-> **Status:** spike draft (2026-05-23). Tracks
-> [#17](https://github.com/yusufkaracaburun/ai-kit/issues/17). Do not
-> wire into `setup` until first real-queue drain succeeds. See
-> [docs/spikes/ai:autonomous-ralph.md](../../../docs/spikes/ai:autonomous-ralph.md).
+> **Status:** stable (promoted 2026-05-26 after multiple real-queue drains
+> in `ai-kit` and `naschool`). Original spike research preserved at
+> [docs/spikes/aikit-autonomous-ralph.md](../../../docs/spikes/aikit-autonomous-ralph.md).
+> Tracks [#17](https://github.com/yusufkaracaburun/ai-kit/issues/17).
 
 Drains a `ready-for-agent` queue by running ai-kit's existing
 TDD → review → ship loop, one issue at a time, with cold-start

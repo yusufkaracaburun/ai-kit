@@ -2,6 +2,34 @@
 
 ## Unreleased
 
+## 1.27.0 — 2026-05-26
+
+### Changed
+
+- **`autonomous` skill promoted out of SPIKE.** Multiple real-queue
+  drains in `ai-kit` and `naschool` validated the cold-start /
+  fresh-context invariant + `progress.txt` discipline; no contract
+  changes versus the spike draft. README "Experimental" row replaced
+  by "Automation"; spike doc preserved at
+  `docs/spikes/aikit-autonomous-ralph.md` with a PROMOTED banner.
+
+### Added
+
+- **`/ai:audit-architecture-nextjs` extension.** New
+  `workflow/skills/audit-architecture-nextjs/SKILL.md` adds Next.js
+  App-Router-specific heuristics (server/client boundary, `use server`
+  payload safety, RSC streaming + caching, route handler typing,
+  middleware scope, `next/image` + `next/font` discipline). Auto-loads
+  alongside the React extension via
+  `bin/audit-extension-loader.sh` when a `next.config.{js,mjs,ts}` or
+  Next dependency is present.
+
+- **CI workflow for eval-suite.** New `.github/workflows/eval.yml`
+  runs `tests/bin/eval-structure.sh` and
+  `bin/eval-golden.sh --validate-all` as a dedicated job on push to
+  `master` and on PRs. Provides external visibility into eval-suite
+  health (structural + rubric) and gates regressions before merge.
+
 ## 1.26.0 — 2026-05-26
 
 ### Added

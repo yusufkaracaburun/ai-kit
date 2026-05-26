@@ -1,0 +1,23 @@
+name: eval
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  eval:
+    name: eval-suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python version
+        run: python3 --version
+
+      - name: Structural eval (SKILL.md + prompts)
+        run: ./tests/bin/eval-structure.sh
+
+      - name: Golden rubric eval (all goldens vs own rubric)
+        run: ./bin/eval-golden.sh --validate-all

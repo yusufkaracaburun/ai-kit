@@ -77,7 +77,7 @@ First moves:
 | Ops & review | `retro` · `feedback` · `contribute-eval` |
 | Session continuity | `checkpoint` ↔ `resume` · `handoff` · `onboard` |
 | Cross-cutting | `setup` · `setup-gh-workflow` · `recommend-rules` · `recommend-tools` · `improve-codebase-architecture` · `audit-architecture` |
-| Experimental | `autonomous` (spike — autonomous-loop variant of `tdd`, opt-in) |
+| Automation | `autonomous` (AFK queue drainer — wraps `tdd` → `review` → `ship`) |
 
 8 slash commands: `/ai:setup` · `/ai:doctor` · `/ai:dedupe` · `/ai:status` · `/ai:which` · `/ai:next` · `/ai:upgrade` · `/ai:no-globals` · `/ai:prefer-plugin`.
 

@@ -1,8 +1,11 @@
 # Spike — `autonomous` (Ralph pattern)
 
-> **Status:** SPIKE — exploratory artifact. Not yet a shippable skill.
-> Tracks [#17](https://github.com/yusufkaracaburun/ai-kit/issues/17).
-> Date: 2026-05-23.
+> **Status:** PROMOTED 2026-05-26. Skill is stable after multiple
+> real-queue drains in `ai-kit` + `naschool`. Document preserved as
+> historical research record; see `workflow/skills/autonomous/SKILL.md`
+> for the live contract. Tracks
+> [#17](https://github.com/yusufkaracaburun/ai-kit/issues/17).
+> Original date: 2026-05-23.
 
 ## Question
 
