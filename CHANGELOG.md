@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+## 1.34.0 — 2026-05-27
+
+### Changed
+
+- **`/ai:hygiene` repo-skill-hint surfaces both project + framework
+  docs-sync (closes #96).** `bin/ai-kit-repo-skill-hint.sh` now sources
+  `bin/lib/applicability.sh` and, after listing any project-scoped
+  hygiene-style skills under `.agents/skills/`, also surfaces the
+  framework `/ai:docs-sync` when applicable (any markdown file present,
+  `docs/` exists, or >1 local branch). When both apply, both are listed
+  side-by-side with a one-line "use which for what" hint: project skill
+  handles repo-specific drift (vocabulary, ADR triggers, status
+  tables); framework skill handles universal drift (dead links,
+  repo-hygiene, finished-work cleanup). Section stays silent when
+  neither source has anything to surface. Tests: 16 asserts cover the
+  matrix (both, project-skill-plus-framework, framework-only, neither)
+  plus a negative wiring audit confirming the script reuses the
+  shared applicability helper instead of duplicating detection.
+
+### Notes
+
+- Out-of-tree follow-up tracked separately: `naschool/.agents/skills/docs-sync/SKILL.md`
+  should be slimmed to drop the three generic checks (dead-links,
+  repo-hygiene, finished-work cleanup) now that `/ai:docs-sync` covers
+  them framework-side. That PR lands in the naschool repo.
+
 ## 1.33.0 — 2026-05-27
 
 ### Added
