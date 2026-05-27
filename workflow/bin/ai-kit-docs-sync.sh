@@ -2,8 +2,9 @@
 # Run all ai-kit docs-sync checks against the current project.
 #
 # Sections:
-#   1. dead-links   — markdown `[text](path)` link integrity (relative + repo-absolute paths)
-#   2. repo-hygiene — empty dirs, broken symlinks, orphan .agents/skills/<name>/ dirs
+#   1. dead-links     — markdown `[text](path)` link integrity (relative + repo-absolute paths)
+#   2. repo-hygiene   — empty dirs, broken symlinks, orphan .agents/skills/<name>/ dirs
+#   3. finished-work  — local merged branches + closable issues (merged-PR `closes #N`)
 #
 # Reports content + structural drift. Framework health lives in ai-kit-hygiene.sh.
 # Reports-only by default; per-finding fix suggestions surface behind an
@@ -19,29 +20,32 @@ AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
 
 usage() {
   cat <<USAGE
-Usage: $0 [path] [--skip-dead-links] [--skip-repo-hygiene] [--no-prompt]
+Usage: $0 [path] [--skip-dead-links] [--skip-repo-hygiene] [--skip-finished-work] [--no-prompt]
 
 Runs ai-kit docs-sync checks against the given project path (default: cwd).
 Exit code = max of the section exit codes (0 clean, 1 warn).
 
 Flags:
-  --skip-dead-links     Bypass the markdown dead-links section.
-  --skip-repo-hygiene   Bypass the repo-hygiene section (empty dirs, broken symlinks, orphan skill dirs).
-  --no-prompt           Never prompt for fix suggestions (auto-set when stdin is not a TTY).
+  --skip-dead-links      Bypass the markdown dead-links section.
+  --skip-repo-hygiene    Bypass the repo-hygiene section (empty dirs, broken symlinks, orphan skill dirs).
+  --skip-finished-work   Bypass the finished-work section (merged branches, closable issues).
+  --no-prompt            Never prompt for fix suggestions (auto-set when stdin is not a TTY).
 USAGE
 }
 
 PROJECT_PATH=""
 SKIP_DEAD_LINKS=0
 SKIP_REPO_HYGIENE=0
+SKIP_FINISHED_WORK=0
 NO_PROMPT=0
 
 for arg in "$@"; do
   case "$arg" in
     -h|--help) usage; exit 0 ;;
-    --skip-dead-links)   SKIP_DEAD_LINKS=1 ;;
-    --skip-repo-hygiene) SKIP_REPO_HYGIENE=1 ;;
-    --no-prompt)         NO_PROMPT=1 ;;
+    --skip-dead-links)    SKIP_DEAD_LINKS=1 ;;
+    --skip-repo-hygiene)  SKIP_REPO_HYGIENE=1 ;;
+    --skip-finished-work) SKIP_FINISHED_WORK=1 ;;
+    --no-prompt)          NO_PROMPT=1 ;;
     -*) echo "unknown flag: $arg" >&2; usage >&2; exit 2 ;;
     *)  PROJECT_PATH="$arg" ;;
   esac
@@ -79,6 +83,13 @@ fi
 if [ "$SKIP_REPO_HYGIENE" -eq 0 ]; then
   section "repo-hygiene (empty dirs / broken symlinks / orphan skill dirs)"
   bash "$AIKIT/bin/ai-kit-docs-sync-repo-hygiene.sh" "$PROJECT_PATH" \
+    $([ "$NO_PROMPT" -eq 1 ] && echo "--no-prompt")
+  record "$?"
+fi
+
+if [ "$SKIP_FINISHED_WORK" -eq 0 ]; then
+  section "finished-work (local merged branches / closable issues)"
+  bash "$AIKIT/bin/ai-kit-docs-sync-finished-work.sh" "$PROJECT_PATH" \
     $([ "$NO_PROMPT" -eq 1 ] && echo "--no-prompt")
   record "$?"
 fi

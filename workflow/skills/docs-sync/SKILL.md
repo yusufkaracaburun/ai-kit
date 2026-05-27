@@ -20,6 +20,21 @@ The driver runs each section in order, prints a per-section header, and exits wi
 
 ## Sections
 
+### finished-work — local merged branches / closable issues
+
+Two sub-checks, both read-only by default:
+
+1. **Local merged branches.** `git branch --merged <default>`. Default branch detected via `git remote show origin` HEAD, falling back to `master` then `main`. The default branch itself, `HEAD`, and the currently-checked-out branch are always excluded.
+2. **Closable issues.** For each recently merged PR (`gh pr list --state merged --limit 50`), extract `closes #N` / `fixes #N` / `resolves #N` from the body via strict regex (case-insensitive verb, NO fuzzy match for `addresses #N` / `see #N` / `for #N`). If the referenced issue is still `OPEN`, it counts as closable.
+
+Fix flow (strictest guardrails per #88 — destructive + visible to others):
+
+- **Local branch delete** → group-confirmable: `git branch -d <name>` per branch. `-d` refuses to delete unmerged branches as a safety net.
+- **Remote branch delete** → **always individual y/N per branch**: `git push origin --delete <name>`. There is no batch flag.
+- **`gh issue close`** → **always individual y/N per issue**, with the issue title + closing PR URL printed inline. There is no batch flag.
+
+Skips cleanly when the project is not a git repo, when no default branch can be detected, or when `gh` is unavailable / unauthenticated (closable-issues sub-check warns + skips, merged-branch sub-check still runs).
+
 ### repo-hygiene — empty dirs / broken symlinks / orphan skill dirs
 
 Three mechanical sub-checks, all `find`-based:

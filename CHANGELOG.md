@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+## 1.32.0 — 2026-05-27
+
+### Added
+
+- **`/ai:docs-sync` — finished-work section (closes #94).** Detects
+  local merged branches and closable GitHub issues. Default-branch
+  detection: `git remote show origin` HEAD, falling back to `master`
+  then `main`. Default branch, `HEAD`, and the currently-checked-out
+  branch are always excluded from the merged-branch list. Closable
+  issues come from a strict `(?<![A-Za-z])(?:closes|fixes|resolves)\s+#(\d+)`
+  regex against the bodies of the 50 most recently merged PRs — `addresses #N`,
+  `see #N`, and `for #N` are deliberately ignored. Fix flow: local
+  branch delete is group-confirmable (`git branch -d` refuses unmerged
+  as a safety net); remote-branch-delete (`git push origin --delete`)
+  and `gh issue close` are **always individual y/N per item** — no
+  `--yes-all` or `--batch` flag exists, by design. Skips cleanly on
+  non-git repos, when no default branch can be detected, and when `gh`
+  is unauthenticated. Tests: 18 asserts cover default-branch detection,
+  current-branch exclusion, strict regex (no fuzzy match), no-batch-flag
+  source audit, group-confirm accept path, and `--skip-finished-work`.
+
 ## 1.31.0 — 2026-05-27
 
 ### Added
