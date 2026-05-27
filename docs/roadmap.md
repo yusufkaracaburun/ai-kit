@@ -680,16 +680,11 @@ in priority order:
     (need second-project signal for heuristic tuning). Naschool
     slim-down (delete checks 8/9/10 from project-local docs-sync)
     lands separately in the naschool repo.
-26. **Audit /ai:checkpoint vs /ai:handoff — merge, split, or sharpen?**
-    (#91) — Both skills compact a session for resumption and share
-    overlapping trigger language ("context full, before `/clear`,
-    wrapping up"). checkpoint writes to project auto-memory (same-
-    project resume, pairs with `/ai:resume`); handoff writes to
-    `$TMPDIR` and supports `mid-session` mode (cross-context transfer).
-    Surfaced 2026-05-26 during #88 grilling — Q6 nudge-placement picked
-    checkpoint as docs-sync session-end carrier by gut, not by clear
-    rule, which suggests the skills aren't separating cleanly. Deferred
-    until #88 lands so the docs-sync nudge integration can target the
-    final shape rather than the current one. Recommendation: side-by-
-    side feature matrix → ADR → either merge with `--target` flag,
-    sharpen descriptions, or extract shared core.
+26. ~~**Audit /ai:checkpoint vs /ai:handoff — merge, split, or sharpen?**
+    (#91)~~ ✅ **Shipped** 2026-05-27 in v1.35.0 — merged `/ai:handoff`
+    into `/ai:checkpoint` with `--to memory|tmp` argument (default
+    `memory`). `--mid-session` works for either target. `/ai:handoff`
+    slash kept as deprecation stub for one release (removed v1.36.0).
+    Cross-refs in `/ai:resume`, `/ai:onboard`, and
+    `context-discipline.mini.md` updated. See `docs/adr/0009-checkpoint-handoff-merge.md`
+    for context and rejected alternatives (sharpen-only, extract-shared-core).

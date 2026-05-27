@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+## 1.35.0 — 2026-05-27
+
+### Changed
+
+- **Merged `/ai:handoff` into `/ai:checkpoint` (closes #91, ADR-0009).** One
+  skill, one trigger, destination is an argument:
+  - `/ai:checkpoint` (default `--to memory`) → same-project, same-machine
+    resume; writes to auto-memory; pairs with `/ai:resume`.
+  - `/ai:checkpoint --to tmp` → transfer briefing in `$TMPDIR` for another
+    agent, machine, or teammate; redaction always-on.
+  - `--mid-session` works for either target.
+  - `/ai:handoff` slash kept for one release as a deprecation stub
+    redirecting to `/ai:checkpoint --to tmp`; removed in v1.36.0.
+  - Updated cross-refs in `/ai:resume`, `/ai:onboard`, and
+    `standards/rules/context-discipline.mini.md`.
+  - Eval prompt `tests/eval/prompts/handoff/mid-migration.md` now targets
+    `skill: checkpoint` and asserts `--to tmp` + redaction.
+  - Rationale: trigger overlap between the two skills was the actual pain;
+    description-sharpening only fixed half. See ADR-0009 for the full
+    reasoning and the rejected alternatives.
+
 ## 1.34.0 — 2026-05-27
 
 ### Changed

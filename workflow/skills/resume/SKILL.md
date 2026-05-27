@@ -30,9 +30,9 @@ based on where the previous session stored its handoff:
   `/ai:checkpoint` on the same machine.
 - **`/gsd-resume-work`** — reads `.continue-here.md` and `STATE.md` in the
   project repo. Use in GSD projects (those with `.planning/`).
-- **`/ai:handoff`** doc on disk — if the user mentions a handoff at
-  `$TMPDIR/handoff-*.md`, point them at that file directly; this skill
-  does not look there.
+- **Transfer briefing on disk** (from `/ai:checkpoint --to tmp`) — if the
+  user mentions a briefing at `$TMPDIR/handoff-*.md`, point them at that
+  file directly; this skill does not look there.
 
 If the project has `.planning/` or `STATE.md` and you do not have a strong
 reason to override, stop and route the user to `/gsd-resume-work`.

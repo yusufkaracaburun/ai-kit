@@ -4,7 +4,7 @@ description: Generate an ONBOARDING.md for a new dev or agent arriving at this p
 argument-hint: "Optional: arriving audience (e.g. 'backend dev', 'reviewer', 'cursor agent')."
 ---
 
-Companion to `/ai:handoff`. **Handoff** leaves a machine; **onboard** arrives
+Companion to `/ai:checkpoint --to tmp`. **Transfer briefing** leaves a machine; **onboard** arrives
 at a project. Write a project-scoped `ONBOARDING.md` at the repo root, confirm
 the contents with the user, then publish via the harness `ShareOnboardingGuide`
 tool to get a sharable short-link.
@@ -166,10 +166,11 @@ After reading this, run:
 
 Do not delete and recreate (that would break shared links).
 
-## Coordination with `/ai:handoff`
+## Coordination with `/ai:checkpoint --to tmp`
 
-- **Handoff:** "I'm leaving — here's the work-in-progress and what I'd do next."
-  Project-internal, OS temp dir, never published.
+- **Transfer briefing** (`/ai:checkpoint --to tmp`): "I'm leaving — here's the
+  work-in-progress and what I'd do next." Project-internal, OS temp dir,
+  never published.
 - **Onboard:** "Welcome — here's how this project works, today."
   Project-scoped, repo-rooted, published via short-link.
 

@@ -27,7 +27,7 @@ Default behaviour of reading whole files, exploring broad swaths of code inline,
 - **Don't re-read what you read.** Once a file's relevant slice is in your context, don't `Read` it again unless something changed. The harness tracks edits.
 - **Skip the noise.** Never `Read` lockfiles (`package-lock.json`, `composer.lock`, `Cargo.lock`), `node_modules/`, `vendor/`, build artefacts, or generated code unless the user is asking about exactly that.
 - **Quote, don't paste.** When citing existing code in your reply, cite `file:line` — don't reproduce blocks the user can already see in their editor.
-- **Stop and hand off.** If context is approaching the limit *and* work is unfinished, run `/ai:handoff` to compact into a doc and `/clear` to start fresh. Mid-task token-exhaustion produces worse work than a deliberate restart.
+- **Stop and hand off.** If context is approaching the limit *and* work is unfinished, run `/ai:checkpoint --to tmp` (for cross-context transfer) or `/ai:checkpoint` (for same-machine resume) to compact into a doc, then `/clear` to start fresh. Mid-task token-exhaustion produces worse work than a deliberate restart.
 
 ## Trigger rules
 

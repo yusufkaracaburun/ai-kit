@@ -1,12 +1,14 @@
 ---
 id: mid-migration
-skill: handoff
+skill: checkpoint
 expects:
+  - selects --to tmp path because work crosses to "tomorrow" / different session
   - lists concrete next steps the picking-up agent can act on directly
   - identifies open blockers or unresolved decisions, not just status
   - names specific files / branches / commits the next agent should look at
   - does NOT regurgitate the diff or commit log verbatim
   - includes how to resume the conversation thread (what to ask the user first)
+  - redacts absolute home-dir paths and any secrets
 ---
 
 # Prompt
