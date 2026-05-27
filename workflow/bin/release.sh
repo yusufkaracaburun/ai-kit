@@ -226,6 +226,26 @@ else
 fi
 cd "$AIKIT"
 
-echo ""
-echo "Released v$NEW_VERSION end-to-end (ai-kit + marketplace)."
-echo "Downstream: /plugin update ai@yusufkaracaburun"
+# Postscript: surface the user-side steps the agent's auto-classifier blocks
+# on. Plugin lifecycle commands (uninstall/install) write under ~/.claude/
+# and trigger the self-modification refusal even when the intent is benign,
+# so they have to be run by the user. Same goes for `/plugin marketplace
+# update` if the client hasn't auto-refreshed. See docs/auto-classifier-
+# boundaries.md for the full classifier policy + workarounds.
+cat <<POSTSCRIPT
+
+Released v$NEW_VERSION end-to-end (ai-kit + marketplace).
+
+Next steps (user-runnable; agent is blocked by the auto-classifier on
+plugin lifecycle + ~/.claude/** writes):
+
+  1. Refresh the local marketplace clone so the new ref is visible:
+       /plugin marketplace update yusufkaracaburun
+  2. Reinstall the plugin to pick up v$NEW_VERSION:
+       /plugin uninstall ai && /plugin install ai@yusufkaracaburun
+     (or, when supported in your client: /plugin update ai@yusufkaracaburun)
+  3. In downstream projects already on ai-kit, re-stamp the marker:
+       /ai:upgrade
+
+Why this isn't automated: see docs/auto-classifier-boundaries.md.
+POSTSCRIPT

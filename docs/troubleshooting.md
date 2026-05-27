@@ -237,6 +237,20 @@ Run the structural eval to confirm nothing in the kit drifted:
 
 Then check the manual rubric for the affected skill (see [eval.md](eval.md)).
 
+## Release flows
+
+### Agent refuses to edit `~/.claude/...` during a release
+
+Auto-mode classifier blocks edits inside `~/.claude/**` and `claude plugin
+<verb>` invocations as self-modification — even when the operation is
+benign (e.g. bumping the marketplace catalog whose canonical local clone
+happens to live there). See
+[`docs/auto-classifier-boundaries.md`](auto-classifier-boundaries.md) for
+the boundary list, the tmpdir-clone workaround, and the user-runnable
+fallback for plugin lifecycle commands. `bin/release.sh --bump-marketplace`
+already encapsulates the tmpdir-clone pattern; its tail postscript prints
+the user-side checklist for the remaining lifecycle steps.
+
 ## Reporting bugs
 
 Use the `bug` issue template at https://github.com/yusufkaracaburun/ai-kit/issues/new/choose. Include:
