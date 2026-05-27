@@ -661,15 +661,14 @@ in priority order:
     candidate` label did not yet exist on this repo; v1.15.2 adds
     the label + relabels the three issues).
 
-24. **/ai:dedupe — inline ecosystem per-item table when divergent>0**
-    (#86) — Surface 5 currently prints divergence count plus a footer
-    with the absolute path to `bin/ai-kit-audit-ecosystem.sh`; user
-    must copy-paste to see the verdict table. Add `--verbose` (or
-    auto-expand when `ECOSYSTEM_DIVERGENT > 0`) that inlines the
-    per-item table under the Surface 5 header and drops the path
-    footer. Standalone script remains for `--scope` / `--json` / CI.
-    Nice-to-have polish — current split is functional. Surfaced
-    2026-05-26 during a dedupe ↔ audit-ecosystem session.
+24. ~~**/ai:dedupe — inline ecosystem per-item table when divergent>0**
+    (#86)~~ ✅ **Shipped** 2026-05-27 in v1.36.0 — auto-expand when
+    `ECOSYSTEM_DIVERGENT > 0`. Surface 5 captures the audit's human
+    output, strips its leading header block, and indents the rest
+    under its section header. Absolute-path footer dropped. Tests
+    cover the EXCLUDED fixture (audit's per-Surface section header
+    present + verdict row visible in inline table). Standalone script
+    remains for `--scope` / `--json` / CI.
 25. ~~**Promote framework-agnostic checks from naschool docs-sync to
     ai-kit** (#88)~~ ✅ **Shipped** 2026-05-27 across v1.30.0 → v1.34.0.
     `/ai:docs-sync` standalone skill with three checks (dead-links,
@@ -688,3 +687,13 @@ in priority order:
     Cross-refs in `/ai:resume`, `/ai:onboard`, and
     `context-discipline.mini.md` updated. See `docs/adr/0009-checkpoint-handoff-merge.md`
     for context and rejected alternatives (sharpen-only, extract-shared-core).
+27. ~~**Auto-classifier blocks `~/.claude/` writes; release flows need
+    tmpdir-clone primitive** (#87)~~ ✅ **Shipped** 2026-05-27 in
+    v1.36.0. `bin/release.sh --bump-marketplace` already encapsulated
+    the tmpdir-clone pattern; this release adds the two remaining
+    pieces: `docs/auto-classifier-boundaries.md` (names the boundary
+    + workarounds, cross-linked from `docs/troubleshooting.md`) and
+    `bin/release.sh` tail postscript (explicit numbered checklist for
+    the plugin lifecycle + downstream re-stamp steps the agent can't
+    run itself). No new standalone primitive — the work was already
+    done inside `release.sh`, the gap was documentation + handoff.
