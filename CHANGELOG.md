@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+## 1.31.0 — 2026-05-27
+
+### Added
+
+- **`/ai:docs-sync` — repo-hygiene section (closes #93).** Three
+  mechanical `find`-based sub-checks: empty directories (excludes
+  `.git`, `node_modules`, `vendor`, `.tmp`, `dist`, `build`, `.next`,
+  `.turbo`, `.cache`), broken symlinks (portable detection — no
+  GNU `-xtype l`), and orphan `.agents/skills/<name>/` dirs that
+  lack a `SKILL.md`. Empty-dir + broken-symlink fixes are
+  group-confirmable behind one `y/N` prompt (rmdir + rm). Orphan
+  skill dirs are report-only — never auto-deleted, since the dir
+  may be in-progress work. `--skip-repo-hygiene` bypasses the
+  section. Tests: 29 asserts cover all #93 acceptance criteria,
+  including the no-prompt safety path, the accept path (via
+  `AI_KIT_DOCS_SYNC_TEST_AUTO_YES=1` test-only env var), and the
+  orphan-skill-dir never-deleted guard.
+
 ## 1.30.0 — 2026-05-26
 
 ### Added

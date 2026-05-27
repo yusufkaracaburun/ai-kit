@@ -1,6 +1,6 @@
 ---
-description: One-shot content-drift check for the current project — dead markdown links (v1), repo-hygiene + finished-work cleanup (follow-up issues). Standalone counterpart to /ai:hygiene; never auto-edits files. Reports findings, exits 0 (clean) or 1 (findings).
-argument-hint: "[path] [--skip-dead-links] [--no-prompt]"
+description: One-shot content-drift check for the current project — dead markdown links + repo-hygiene (empty dirs / broken symlinks / orphan skill dirs). Standalone counterpart to /ai:hygiene; never auto-edits markdown files. Reports findings, exits 0 (clean) or 1 (findings). Safe filesystem cleanup (rmdir / rm broken symlink) gated behind a single group-confirm prompt.
+argument-hint: "[path] [--skip-dead-links] [--skip-repo-hygiene] [--no-prompt]"
 allowed-tools: Bash
 ---
 
@@ -11,6 +11,7 @@ Run `ai-kit-docs-sync.sh` against the current project and summarise findings sec
 For each section the script prints, surface:
 
 1. **dead-links** — every broken link with `file:line` + the offending `[text](target)` + the missing resolved path. For each finding, suggest the manual fix: open the file at that line and either repoint the link or delete the reference. Never propose an automated edit — `/ai:docs-sync` is deliberately read-only against markdown content.
+2. **repo-hygiene** — three sub-buckets: empty directories, broken symlinks, and orphan `.agents/skills/<name>/` dirs (skill scaffolds without a `SKILL.md`). The script's own prompt offers a single group-confirm `y/N` to rmdir the empty dirs + rm the broken symlinks; orphan skill dirs are always report-only because they often represent in-progress work.
 
 End with the driver's summary line (`docs-sync: all sections clean.` / `docs-sync: findings reported (exit 1).`).
 

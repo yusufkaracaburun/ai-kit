@@ -20,6 +20,19 @@ The driver runs each section in order, prints a per-section header, and exits wi
 
 ## Sections
 
+### repo-hygiene — empty dirs / broken symlinks / orphan skill dirs
+
+Three mechanical sub-checks, all `find`-based:
+
+1. **Empty directories.** Excludes `.git`, `node_modules`, `vendor`, `.tmp`, `dist`, `build`, `.next`, `.turbo`, `.cache`.
+2. **Broken symlinks.** Detected portably (works on both GNU find and macOS/BSD find).
+3. **Orphan `.agents/skills/<name>/` dirs.** Skill dir without a `SKILL.md`. **Report-only** — never auto-deleted, because the dir may be in-progress work.
+
+Fix flow (per #88 grilling, two-step with destructive guardrails):
+
+- Empty dirs + broken symlinks → **group-confirmable** single y/N prompt: `Fix N safe item(s) now (rmdir empty dirs + rm broken symlinks)?`. Accept = `rmdir` / `rm` each. Decline = nothing happens.
+- Orphan skill dirs → no fix prompt **ever**. The "skill scaffold without SKILL.md" pattern is how in-progress skills look; deleting them is dangerous.
+
 ### dead-links — markdown link integrity
 
 Scans every `*.md` file in the project for inline markdown links `[text](path)`. For each link:
