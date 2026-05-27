@@ -117,6 +117,14 @@ EX_JSON="$(HOME="$EX_WORK/home" "$DEDUPE" "$EX_WORK/proj" --json 2>&1)"
 set -e
 assert "dedupe ecosystem JSON contains EXCLUDED finding" 'echo "$EX_JSON" | python3 -c "import json,sys; d=json.load(sys.stdin); assert any(f[\"verdict\"]==\"EXCLUDED\" for f in d[\"ecosystem\"][\"findings\"])"'
 assert "dedupe human Surface 5 mentions excluded count distinctly" 'echo "$EX_HUMAN" | grep -qi "excluded"'
+# Issue #86: when divergent>0, Surface 5 inlines the per-item verdict table
+# from ai-kit-audit-ecosystem.sh (so users don't have to copy an absolute
+# path and re-run). Assertions: the audit's per-Surface section headers
+# appear under Surface 5, AND the EXCLUDED verdict token is visible in
+# the embedded table itself (not just the divergence summary).
+assert "dedupe Surface 5 inlines audit per-item table on divergence" 'echo "$EX_HUMAN" | grep -q "Surface — Plugins"'
+assert "dedupe Surface 5 inline table shows EXCLUDED verdict row" 'echo "$EX_HUMAN" | grep -E "^\s+EXCLUDED\b" >/dev/null'
+assert "dedupe Surface 5 drops absolute-path footer pointing at audit bin" '! echo "$EX_HUMAN" | grep -q "Run /.*ai-kit-audit-ecosystem.sh"'
 
 rm -rf "$EX_WORK"
 

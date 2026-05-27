@@ -284,7 +284,20 @@ else
   if [ "$ECOSYSTEM_EXCLUDED" -gt 0 ]; then
     echo "  $ECOSYSTEM_EXCLUDED EXCLUDED plugin(s) installed — ai-kit ships equivalents, uninstall suggested."
   fi
-  echo "  Run $AUDIT_BIN for the per-item verdict table, --converge for migration recipe."
+  # Inline the per-item verdict table directly under Surface 5. Capture the
+  # audit's human output (re-runs $AUDIT_BIN), strip its leading "ai-kit
+  # ecosystem audit" header block (everything up to the first "Surface —"
+  # line), and indent each remaining row with two extra spaces so it nests
+  # cleanly under "Surface 5".
+  echo ""
+  set +e
+  ECOSYSTEM_HUMAN="$("$AUDIT_BIN" 2>/dev/null)"
+  set -e
+  if [ -n "$ECOSYSTEM_HUMAN" ]; then
+    printf '%s\n' "$ECOSYSTEM_HUMAN" \
+      | awk 'started || /^Surface — /{started=1; print}' \
+      | sed 's/^/  /'
+  fi
 fi
 echo ""
 
