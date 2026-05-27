@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.37.0 — 2026-05-27
+
+### Added
+
+- `/ai:hygiene` now always prints a `Score: N/100` install-quality grade at the end of the run — even on a fully clean repo (then it just shows "Score: 100/100" with no recipe). When below 100, a ranked "To reach 100:" recipe lists each non-clean section sorted blocker-first with the exact standalone script path to re-run for full detail. Rubric: start at 100, each blocker section −20, each warning section −5, clean 0; floor at 0.
+
+### Notes
+
+LEAN scope: scoring layer lives entirely in `bin/ai-kit-hygiene.sh`. No new flags, no JSON mode, no opt-out. Per-section name + exit code were already captured for the summary block — the scoring loop just sums them. Test (`tests/bin/cases/hygiene.sh`) covers fully-skipped-run-scores-100, real-run-format, and recipe-block-only-when-below-100.
+
 ## 1.36.0 — 2026-05-27
 
 ### Added
