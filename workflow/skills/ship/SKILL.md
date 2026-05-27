@@ -36,6 +36,11 @@ Release a working increment. Stack-agnostic — derive deploy commands from `doc
    - Close release issues
    - Tag or changelog entry if the project uses semver/tags
    - Note deploy time and version in the issue or release
+   - Run the cross-cue helper and surface its output verbatim if it prints anything:
+     ```bash
+     bash "${CLAUDE_PLUGIN_ROOT}/bin/ai-kit-docs-sync-nudge.sh" "<project_path>" --context=ship
+     ```
+     It conditionally suggests `/ai:hygiene` (install + framework wiring health) and/or `/ai:docs-sync` (universal content drift — dead links, repo-hygiene, finished-work cleanup). The finished-work check in `/ai:docs-sync` is especially relevant right after a release: it spots merged branches still hanging around locally and GitHub issues whose closing PR is in the release. Silent when nothing applies.
 
 ## Output
 

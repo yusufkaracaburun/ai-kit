@@ -90,6 +90,12 @@ Show counts and a one-line summary per issue. Let the maintainer pick.
    - `wontfix` (enhancement) — write to `.out-of-scope/`, link to it from a comment, then close ([OUT-OF-SCOPE.md](OUT-OF-SCOPE.md)).
    - `needs-triage` — apply the role. Optional comment if there's partial progress.
 
+6. **After closing one or more issues** (via `wontfix` or maintainer-initiated close), run the cross-cue helper and surface its output verbatim if it prints anything:
+   ```bash
+   bash "${CLAUDE_PLUGIN_ROOT}/bin/ai-kit-docs-sync-nudge.sh" "<project_path>" --context=triage
+   ```
+   It points at `/ai:hygiene` (install + framework wiring health) and/or `/ai:docs-sync` (universal content drift — dead links, repo-hygiene, finished-work cleanup). The finished-work check is especially relevant here: closing an issue often leaves a merged branch + remote ref still hanging around. Silent when nothing applies.
+
 ## Quick state override
 
 If the maintainer says "move #42 to ready-for-agent", trust them and apply the role directly. Confirm what you're about to do (role changes, comment, close), then act. Skip grilling.

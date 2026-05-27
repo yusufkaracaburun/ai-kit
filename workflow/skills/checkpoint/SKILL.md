@@ -180,6 +180,26 @@ false confidence that the session was captured.
 Print to the user: "Checkpoint saved: `<relative-path>`. You can run /clear
 (or /compact) now." Do NOT run /clear yourself — that is user discretion.
 
+## 7. Cross-cue (applicability-gated)
+
+Before printing the final confirmation, run the cross-cue helper:
+
+```bash
+bash "${CLAUDE_PLUGIN_ROOT}/bin/ai-kit-docs-sync-nudge.sh" "<project_path>" --context=checkpoint
+```
+
+It prints a small "Before clear, consider:" block listing `/ai:hygiene`
+(install + framework wiring health) and/or `/ai:docs-sync` (content drift —
+dead links, repo-hygiene, finished-work cleanup) **only when applicable**:
+
+- `/ai:hygiene` shown when `.ai-kit-setup` marker exists in the project.
+- `/ai:docs-sync` shown when the project has a `docs/` dir, any `*.md` file, or more than one local branch.
+
+If neither applies the helper prints nothing — surface nothing in that
+case. The helper is fast (<50ms on a typical repo) and reuses the central
+applicability functions in `bin/lib/applicability.sh`, so checkpoint /
+ship / triage all stay in sync.
+
 </process>
 
 <style>

@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+## 1.33.0 — 2026-05-27
+
+### Added
+
+- **/ai:docs-sync nudge wiring across checkpoint / ship / triage (closes
+  #95).** New shared helper `bin/lib/applicability.sh` exposes
+  `is_docs_sync_applicable` (true if `docs/` exists, or any `*.md` file
+  is present, or the repo has >1 local branch) and
+  `is_hygiene_applicable` (true if `.ai-kit-setup` marker is present).
+  New thin wrapper `bin/ai-kit-docs-sync-nudge.sh [path] --context=...`
+  prints a context-headed cross-cue ("Before clear, consider:" /
+  "Closing this release? Consider:" / "After closing issues, consider:")
+  listing the applicable commands; silent when neither applies. The
+  three skill bodies now call the helper and surface its output verbatim
+  — they never re-implement the applicability logic, so all surfaces
+  stay in sync. Tests: 23 asserts cover the applicability matrix
+  (docs/, markdown-only, >1 branch, marker, none, both), the three
+  context headers, performance (<500ms wall budget for CI noise; <50ms
+  target on a typical repo), and a negative wiring audit confirming no
+  skill duplicates the helper logic.
+
 ## 1.32.0 — 2026-05-27
 
 ### Added
