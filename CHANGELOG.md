@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.36.0 — 2026-05-27
+
+### Added
+
+- `/ai:dedupe` Surface 5 now auto-inlines the per-item ecosystem-audit verdict table directly under its section header when `divergent > 0`. No more copying an absolute path and re-running `ai-kit-audit-ecosystem.sh` manually. EXCLUDED count is still surfaced separately above the table. (Closes #86.)
+- `docs/auto-classifier-boundaries.md` — names the CC auto-mode classifier boundaries that ai-kit release flows hit (`~/.claude/**` writes; `claude plugin uninstall/install`), the tmpdir-clone workaround, and the "surface the user-runnable command" pattern. Cross-linked from `docs/troubleshooting.md`. (Closes #87.)
+
+### Changed
+
+- `bin/release.sh` tail replaces the one-line "Downstream" hint with an explicit numbered checklist for the user-runnable steps (`/plugin marketplace update`, `/plugin uninstall ai && /plugin install ai@yusufkaracaburun`, `/ai:upgrade` in downstream projects) — these can't run agent-side because the classifier blocks plugin lifecycle commands.
+- `workflow/commands/dedupe.md` notes the new auto-inline behaviour so the summariser knows the verdict table is already on screen.
+
+### Notes
+
+`bin/release.sh --bump-marketplace` already encapsulated the tmpdir-clone pattern. This release is documentation + user-facing surfacing — no new primitive needed, the gap was the missing escape-hatch doc + the missing handoff postscript.
+
 ## Unreleased
 
 ## 1.35.0 — 2026-05-27
