@@ -1,5 +1,5 @@
 ---
-description: One-shot hygiene/housekeeping for the current ai-kit project — runs doctor (install health), dedupe (duplicate skills/agents/rules), audit-setup-symmetry (catalog ↔ wiring), memory-audit (orphan/stale entries across .agents/memory/*/), and repo-skill-hint (project-scoped hygiene skills like docs-sync). Reports only — never deletes.
+description: One-shot hygiene/housekeeping for the current ai-kit project — runs doctor (install health), dedupe (duplicate skills/agents/rules), audit-setup-symmetry (catalog ↔ wiring), memory-audit (orphan/stale entries across .agents/memory/*/), and repo-skill-hint (project-scoped hygiene skills like docs-sync). Always emits a `Score: N/100` install-quality grade with ranked "to reach 100" recipe. Reports only — never deletes.
 argument-hint: "[path] [--skip-doctor|--skip-dedupe|--skip-symmetry|--skip-memory|--skip-repo-skills]"
 allowed-tools: Bash
 ---
@@ -20,6 +20,8 @@ Summarise the output for the user, section by section:
 4. **memory-audit** — list ORPHAN entries (memory files not indexed in `.agents/memory/MEMORY.md`) and STALE entries (>90d untouched + 0 refs) across every typed subdir of `.agents/memory/` (typically `feedback/`, `reference/`, `decisions/`, `patterns/`, `project/`). README index files are ignored. Fix orphans by adding a bullet to MEMORY.md; resolve stale by refreshing content or archiving to `.agents/memory/archive/`. Skips silently when no `.agents/memory/` directory exists.
 5. **repo-skill-hint** — list project-scoped skills under `.agents/skills/` whose name or description matches hygiene-style triggers (docs-sync, repo-hygiene, prune, cleanup, audit, etc.), AND surface the framework `/ai:docs-sync` when applicable (any markdown file, `docs/` dir, or >1 local branch). When both a project-local docs-sync skill AND `/ai:docs-sync` apply, both are listed side-by-side with a one-line "use which for what" hint — project skill handles repo-specific drift (vocabulary, ADR triggers, status tables), framework skill handles universal drift (dead links, repo-hygiene, finished-work cleanup). Skips silently when neither source has anything to surface.
 
-End with one line: max exit code + meaning (`0 clean / 1 warn / 2 block`).
+End with the **score line** the script prints verbatim (`Score: N/100`) and — when below 100 — the ranked "To reach 100" recipe lines. Score rubric: start 100, each blocker section −20, each warning section −5, clean 0. Score is always emitted, even on a fully clean run; treat it as the canonical install-quality signal.
+
+Then one line: max exit code + meaning (`0 clean / 1 warn / 2 block`).
 
 Don't editorialise. Don't extend cleanup beyond what the scripts surfaced. Skip sections the user explicitly opted out via `--skip-*` flags.
