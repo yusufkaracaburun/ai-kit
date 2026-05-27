@@ -670,20 +670,16 @@ in priority order:
     footer. Standalone script remains for `--scope` / `--json` / CI.
     Nice-to-have polish — current split is functional. Surfaced
     2026-05-26 during a dedupe ↔ audit-ecosystem session.
-25. **Promote framework-agnostic checks from naschool docs-sync to
-    ai-kit** (#88) — naschool ships a 380-line repo-local `/docs-sync`
-    skill with 10 drift-checks. Five are framework-agnostic (stale
-    refs, orphan docs, dead links, repo-hygiene, finished-work
-    cleanup) and would benefit every ai-kit project. v1.26.0 added a
-    `repo-skill-hint` section to `/ai:hygiene` as the short-term
-    pointer, but real promotion needs a standalone `/ai:docs-sync`
-    skill that ships only the generic checks — naschool's RSO /
-    DUS-I / persona-name / Laravel-Next.js knowledge stays repo-local.
-    Deferred to let v1.26.0 settle and gather signal from other
-    projects before extracting; promote when a second project hits
-    the same friction. Recommendation: standalone skill, not a sixth
-    hygiene section. Surfaced 2026-05-26 during the hygiene-extension
-    session.
+25. ~~**Promote framework-agnostic checks from naschool docs-sync to
+    ai-kit** (#88)~~ ✅ **Shipped** 2026-05-27 across v1.30.0 → v1.34.0.
+    `/ai:docs-sync` standalone skill with three checks (dead-links,
+    repo-hygiene, finished-work cleanup), applicability-gated nudges
+    across `/ai:checkpoint` / `/ai:ship` / `/ai:triage`, and
+    `repo-skill-hint` evolved to surface both project + framework
+    surfaces. Stale-references + orphan-docs checks deferred to v2
+    (need second-project signal for heuristic tuning). Naschool
+    slim-down (delete checks 8/9/10 from project-local docs-sync)
+    lands separately in the naschool repo.
 26. **Audit /ai:checkpoint vs /ai:handoff — merge, split, or sharpen?**
     (#91) — Both skills compact a session for resumption and share
     overlapping trigger language ("context full, before `/clear`,
