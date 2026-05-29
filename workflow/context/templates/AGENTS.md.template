@@ -14,7 +14,7 @@ This project uses the ai-kit workflow (Claude Code + Cursor).
 | **Deployment** | Release naar productie | `ship` |
 | **Ops & Review** | Feedback, retrospective | `retro` |
 
-One-off: `setup` (onboarding), `handoff` (agent context), `improve-codebase-architecture` (brownfield).
+One-off: `setup` (onboarding), `checkpoint` (session continuation; `--to tmp` voor transfer naar andere agent/machine), `improve-codebase-architecture` (brownfield).
 
 Framework (Scrum/Kanban): see `docs/agents/workflow.md`.
 

@@ -39,22 +39,13 @@ PROJECT_PATH="$(cd "$PROJECT_PATH" && pwd)"
 
 [ -t 0 ] || NO_PROMPT=1
 
-# Standard excluded dirs.
-EXCLUDE_DIRS=(.git node_modules vendor .tmp dist build .next .turbo .cache)
+# Shared exclude logic: basename excludes + path-prefix excludes (active git
+# worktrees + `.docs-sync-ignore`). See bin/lib/docs-sync-excludes.sh.
+SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=lib/docs-sync-excludes.sh
+source "$SCRIPT_BIN/lib/docs-sync-excludes.sh"
 
-build_prune_args() {
-  local first=1
-  local out=""
-  for d in "${EXCLUDE_DIRS[@]}"; do
-    if [ "$first" -eq 1 ]; then
-      out="-name $d"
-      first=0
-    else
-      out="$out -o -name $d"
-    fi
-  done
-  printf '%s' "$out"
-}
+PRUNE_ARGS="$(dsync_build_prune_args "$PROJECT_PATH")"
 
 # Empty dirs.
 EMPTY_DIRS=()
@@ -63,9 +54,11 @@ while IFS= read -r d; do
   EMPTY_DIRS+=("$d")
 done < <(
   find "$PROJECT_PATH" \
-    -type d \( $(build_prune_args) \) -prune -o \
+    -type d \( $PRUNE_ARGS \) -prune -o \
     -type d -empty -print 2>/dev/null \
-  | grep -v "^$PROJECT_PATH$" | sort
+  | grep -v "^$PROJECT_PATH$" \
+  | dsync_filter_path_prefixes "$PROJECT_PATH" \
+  | sort
 )
 
 # Broken symlinks. `-xtype l` is GNU-only; on BSD/macOS find we list every
@@ -77,8 +70,10 @@ while IFS= read -r s; do
   BROKEN_SYMLINKS+=("$s")
 done < <(
   find "$PROJECT_PATH" \
-    -type d \( $(build_prune_args) \) -prune -o \
-    -type l -print 2>/dev/null | sort
+    -type d \( $PRUNE_ARGS \) -prune -o \
+    -type l -print 2>/dev/null \
+  | dsync_filter_path_prefixes "$PROJECT_PATH" \
+  | sort
 )
 
 # Orphan skill dirs — under .agents/skills/<name>/ without a SKILL.md.

@@ -38,17 +38,23 @@ PROJECT_PATH="$(cd "$PROJECT_PATH" && pwd)"
 
 [ -t 0 ] || NO_PROMPT=1
 
-# Find markdown files. Honour standard exclude dirs.
+# Shared exclude logic: basename excludes + path-prefix excludes (active git
+# worktrees + `.docs-sync-ignore`). See bin/lib/docs-sync-excludes.sh.
+SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=lib/docs-sync-excludes.sh
+source "$SCRIPT_BIN/lib/docs-sync-excludes.sh"
+
+PRUNE_ARGS="$(dsync_build_prune_args "$PROJECT_PATH")"
+
+# Find markdown files. Honour standard exclude dirs + .docs-sync-ignore + active worktrees.
 MD_FILES=()
 while IFS= read -r f; do
   MD_FILES+=("$f")
 done < <(find "$PROJECT_PATH" \
-  -type d \( \
-    -name '.git' -o -name 'node_modules' -o -name 'vendor' \
-    -o -name '.tmp' -o -name 'dist' -o -name 'build' \
-    -o -name '.next' -o -name '.turbo' -o -name '.cache' \
-  \) -prune -o \
-  -type f -name '*.md' -print | sort)
+  -type d \( $PRUNE_ARGS \) -prune -o \
+  -type f -name '*.md' -print \
+  | dsync_filter_path_prefixes "$PROJECT_PATH" \
+  | sort)
 
 if [ "${#MD_FILES[@]}" -eq 0 ]; then
   echo "dead-links: no markdown files found — clean."

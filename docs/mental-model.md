@@ -1,6 +1,6 @@
 # Mental model
 
-How the 38 skills fit together, plus the 3 subagents and 11 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
+How the 37 skills fit together, plus the 3 subagents and 11 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
 
 For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossary.md). For "I want to add X — which primitive?" see [primitives.md](primitives.md).
 
@@ -20,7 +20,7 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
    │   DEPLOYMENT    ship
    │      │
    │      ▼
-   │   OPS & REVIEW  retro · handoff
+   │   OPS & REVIEW  retro · checkpoint
    │      │
    └──────┘
 
@@ -45,7 +45,7 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
 | Hunt a hard bug or perf regression | `diagnose` |
 | Open the PR and prepare to merge | `ship` |
 | Close a sprint or cycle | `retro` |
-| Save context for a fresh session | `handoff` |
+| Transfer briefing to another machine / agent / teammate | `checkpoint --to tmp` |
 | Configure ai-kit in a new repo | `setup` |
 | Reshape the codebase architecture | `improve-codebase-architecture` |
 | Save context for `/clear`, resume later | `checkpoint` ↔ `resume` |

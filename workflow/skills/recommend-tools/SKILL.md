@@ -79,11 +79,16 @@ State, for each: present-or-not, fit for *this* repo, and the one-line why.
 Glue templates live in `$AI_KIT_ROOT/context/templates/companions/`. Wire only the tools the user agreed to.
 
 **graphify:**
-1. Append `companions/graphify.md` to the project `AGENTS.md` (agent-agnostic — both Claude Code and Cursor read it). Skip if an equivalent block is already there.
-2. Claude Code only: merge the `PreToolUse` hook from `companions/graphify-hook.json` into the project `.claude/settings.json`. It nudges the agent toward `graphify query` over raw grep once `graphify-out/graph.json` exists. Merge into the existing `hooks` object — do not clobber other hooks.
-3. Copy `companions/graphifyignore` to the project root as `.graphifyignore`. **Skip if the file already exists** — never clobber a project's own ignore list. The starter file excludes `node_modules/`, `vendor/`, build outputs, lockfiles, agent scratch dirs, binary assets, and `graphify-out/` itself, so the first `graphify .` run produces a clean graph instead of indexing generated junk.
-4. Tell the user to run `graphify .` (or the upstream's init command) once to build `graphify-out/`, then `graphify update .` after code changes.
-5. **Wiki tier (opt-in).** If `graphify-out/` exists but `graphify-out/wiki/` does not, mention the opt-in tier: `graphify . --wiki` generates a Markdown wiki of the graph (AST-only, no LLM cost). Useful when the agent does many symbol-lookup grep'ing — wiki-page browsing is faster than per-query subgraphs for navigation. Decision rule: recommend only when the user explicitly asks for it, the repo is large enough that `query` results scroll past a page, or the recent transcript shows >3 grep/find calls for symbol locations. Otherwise skip — `query`/`path`/`explain` cover the common case. Companion catalog entry: `standards/external/companions.json` → `graphify.tiers.wiki`.
+1. Append `companions/graphify.md` to the project `AGENTS.md` (agent-agnostic — Cursor + plain-agent reads). Skip if an equivalent block is already there.
+2. **Claude Code present (`.claude/` exists at project root).** Auto-loading: Claude Code reads `CLAUDE.md` directly; `AGENTS.md` only fires via explicit reference. To make the "query graph first, don't grep" rule fire reliably, *also* write the graphify block to `CLAUDE.md`. Two paths, in order of preference:
+   1. If `graphify` CLI is available, run `graphify claude install` in the project — upstream owns the wording, exact-idempotent on re-run.
+   2. Otherwise append `companions/graphify.md` to `CLAUDE.md` directly. Use a fenced marker `<!-- ai-kit:graphify -->` (open + close) around the block so re-runs replace-in-place instead of stacking duplicates. Skip if an equivalent block (heading `## graphify` followed by `graphify query`) is already present.
+
+   Cursor-only projects (no `.claude/`) stop at step 1 — `AGENTS.md` is enough.
+3. Claude Code only: merge the `PreToolUse` hook from `companions/graphify-hook.json` into the project `.claude/settings.json`. It nudges the agent toward `graphify query` over raw grep once `graphify-out/graph.json` exists. Merge into the existing `hooks` object — do not clobber other hooks.
+4. Copy `companions/graphifyignore` to the project root as `.graphifyignore`. **Skip if the file already exists** — never clobber a project's own ignore list. The starter file excludes `node_modules/`, `vendor/`, build outputs, lockfiles, agent scratch dirs, binary assets, and `graphify-out/` itself, so the first `graphify .` run produces a clean graph instead of indexing generated junk.
+5. Tell the user to run `graphify .` (or the upstream's init command) once to build `graphify-out/`, then `graphify update .` after code changes.
+6. **Wiki tier (opt-in).** If `graphify-out/` exists but `graphify-out/wiki/` does not, mention the opt-in tier: `graphify . --wiki` generates a Markdown wiki of the graph (AST-only, no LLM cost). Useful when the agent does many symbol-lookup grep'ing — wiki-page browsing is faster than per-query subgraphs for navigation. Decision rule: recommend only when the user explicitly asks for it, the repo is large enough that `query` results scroll past a page, or the recent transcript shows >3 grep/find calls for symbol locations. Otherwise skip — `query`/`path`/`explain` cover the common case. Companion catalog entry: `standards/external/companions.json` → `graphify.tiers.wiki`.
 
 **caveman:**
 1. Append `companions/caveman.md` to the project `AGENTS.md` — a short note that the mode exists and how to toggle it. caveman ships its own skills via its own installer; ai-kit only documents it.
@@ -100,7 +105,7 @@ Glue templates live in `$AI_KIT_ROOT/context/templates/companions/`. Wire only t
 
 End by reporting:
 
-- **Wired:** which tools, which files changed (`AGENTS.md`, `.claude/settings.json`, `.graphifyignore` for graphify when newly written).
+- **Wired:** which tools, which files changed (`AGENTS.md`, `CLAUDE.md` when Claude Code project, `.claude/settings.json`, `.graphifyignore` for graphify when newly written).
 - **Needs install:** any recommended tool whose CLI/skills are missing — with the upstream pointer.
 - **Deferred:** tools the user said "later" to.
 - **Next step:** for graphify, the init command to run.
