@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.38.0 — 2026-05-29
+
+### Added
+
+- `/ai:docs-sync` repo-hygiene + dead-links now honour project-local excludes (closes #98, closes #100):
+  - Built-in defaults extended with `.pnpm-store`, `phpunit-storage`, `.archive`, `_originals`, `test-results`, `playwright-report`, `.vite-temp`, `coverage`, `.nyc_output`.
+  - Active git worktrees (`git worktree list`) are auto-excluded — broken relative paths inside `.agents/worktrees/feat-x/...` stop drowning real findings. Only fires when the project path is the toplevel of its own git repo (no false-positives inside fixtures).
+  - New `.docs-sync-ignore` file at repo root (gitignore-style subset): basenames without `/` extend the prune list; entries with `/` extend the path-prefix excludes. Comments + blank lines OK.
+- `/ai:recommend-tools` now writes the graphify rule block to **both** `AGENTS.md` and `CLAUDE.md` when `.claude/` is present (closes #99). Prefers `graphify claude install` when the CLI is available; otherwise appends a fenced `<!-- ai-kit:graphify -->` block to `CLAUDE.md`. Auto-loading was the missing half — Claude Code only auto-reads `CLAUDE.md`.
+
+### Removed
+
+- `/ai:handoff` skill (stub since v1.35.0; was scheduled for v1.36.0, slipped). Use `/ai:checkpoint --to tmp` for transfer briefings. Refs cleaned from `docs/mental-model.md`, `docs/eval.md`, and `workflow/context/templates/AGENTS.md.template`. ADR-0009 retained as historical record.
+
+### Notes
+
+LEAN scope: shared exclude logic lives in `bin/lib/docs-sync-excludes.sh`, sourced by both scanners. No new flags, no JSON mode, no per-section opt-out. Test cases added: extra-default-excludes, docs-sync-ignore, git-worktree-exclude. Skill count: 38 → 37.
+
 ## 1.37.0 — 2026-05-27
 
 ### Added
