@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.40.0 — 2026-05-29
+
+### Added
+
+- `/ai:exploratory-test` skill (closes #97) — captures a long human-driven UI/UX manual review session and bundles findings into one clean parent GH issue per scope. Tester emits 50-100+ free-form findings across roles/apps/pages; skill acks each with one short line (`#N [scope] <one-line>. Gelogd.`), tracks scope-shifts silently, and on end-trigger (`klaar` / `bundel naar github` / EN equivalents) normalizes into an overview table + per-finding repro/expected/actual + cross-references cluster + open-questions section, then creates one parent issue per scope via `gh issue create`. Defaults: capture-only (no diagnose during flow), free-form (no strict template), per-scope bundling (new host → new parent), NL acks (with `--lang en` flag for English). Hands off to `/ai:triage` or `/ai:to-issues` for phase-2. Sibling to `/ai:review` (static-code review) but for human-driven UI/UX review.
+- Eval fixture: `tests/eval/prompts/exploratory-test/multi-role-bundle.md` — multi-role / multi-host capture scenario with 9 expectations covering ack format, scope-tracking, label detection, parent-per-scope, body structure, and phase-2 hand-off.
+
+### Notes
+
+LEAN scope: SKILL.md + eval fixture only. No new bin/helpers — the skill is conversational, not deterministic. Defaults come from a proven manual run (naschool#81 / naschool#82, 2026-05-28, 89 findings across 4 roles on 2 hosts). Skill count: 37 → 38.
+
 ## 1.39.0 — 2026-05-29
 
 ### Added

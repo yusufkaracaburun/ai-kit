@@ -10,7 +10,7 @@ Stack-agnostic. Pure Bash + Markdown. One canonical source emits skills,
 subagents, slash commands, hooks, and rules to both hosts — no per-host
 duplication, no runtime daemon, no network calls, no telemetry.
 
-Today (v1.30.0): **37 skills · 3 subagents · 11 slash commands · 2 hooks ·
+Today (v1.39.0): **38 skills · 3 subagents · 11 slash commands · 2 hooks ·
 30 canonical mini-rules · 21 curated MCP servers · 25 curated hook recipes ·
 12 curated plugins · 5 baseline repo templates.**
 

@@ -702,3 +702,21 @@ in priority order:
     the plugin lifecycle + downstream re-stamp steps the agent can't
     run itself). No new standalone primitive — the work was already
     done inside `release.sh`, the gap was documentation + handoff.
+28. ~~**`/ai:exploratory-test` — capture + bundle human-driven UI/UX
+    manual review** (#97)~~ ✅ **Shipped** 2026-05-29 in v1.40.0.
+    Tester emits 50-100+ free-form findings across roles/apps/pages
+    in a single session; skill acks each with one short line
+    (`#N [scope] <one-line>. Gelogd.`), tracks scope-shifts silently,
+    then on end-trigger (`klaar` / `bundel naar github` / EN variants)
+    normalizes into an overview table + per-finding repro/expected/
+    actual + cross-references cluster + open-questions, and creates
+    one parent GH issue per scope via `gh issue create`. Defaults:
+    capture-only, free-form, per-scope bundling, NL acks (`--lang en`
+    flag for English). Sibling to `/ai:review` (static-code review)
+    but for human-driven UI/UX review. Hands off to `/ai:triage` or
+    `/ai:to-issues` for phase-2. Eval fixture
+    (`tests/eval/prompts/exploratory-test/multi-role-bundle.md`)
+    captures the 9 contract expectations. Defaults all derived from
+    proven manual run 2026-05-28 on naschool (89 findings, 4 roles,
+    2 hosts, 2-3 hrs → naschool#81 + #82 + #83 + #84). LEAN scope:
+    no helper bin/, skill is conversational. Skill count: 37 → 38.
