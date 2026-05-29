@@ -79,6 +79,8 @@ rm -rf "$REC_TMP"
 
 echo "=== recommend-tools ==="
 # section: recommend-tools
+# Strip Coolify env vars so dev-machine values don't bleed into fixtures.
+unset COOLIFY_URL COOLIFY_TOKEN COOLIFY_API_KEY
 TOOLS_TMP=$(mktemp -d)
 cp -R "$AIKIT/tests/fixtures/architecture-laravel/." "$TOOLS_TMP/"
 touch "$TOOLS_TMP/pint.json" "$TOOLS_TMP/.env"
@@ -87,7 +89,7 @@ assert "recommend-tools: context7 surfaced (laravel framework match)" 'echo "$JS
 assert "recommend-tools: laravel-pint surfaced (file + framework)" 'echo "$JSON_TOOLS" | grep -q "\"name\": \"laravel-pint\""'
 assert "recommend-tools: block-env-edits surfaced (.env present)" 'echo "$JSON_TOOLS" | grep -q "\"name\": \"block-env-edits\""'
 assert "recommend-tools: score is integer" 'echo "$JSON_TOOLS" | python3 -c "import json,sys; d=json.load(sys.stdin); assert all(isinstance(r[\"score\"], int) for r in d[\"recommendations\"])"'
-assert "recommend-tools: kind in {mcp,hook,plugin,subagent}" 'echo "$JSON_TOOLS" | python3 -c "import json,sys; d=json.load(sys.stdin); assert all(r[\"kind\"] in (\"mcp\",\"hook\",\"plugin\",\"subagent\") for r in d[\"recommendations\"])"'
+assert "recommend-tools: kind in {mcp,hook,plugin,subagent,paas}" 'echo "$JSON_TOOLS" | python3 -c "import json,sys; d=json.load(sys.stdin); assert all(r[\"kind\"] in (\"mcp\",\"hook\",\"plugin\",\"subagent\",\"paas\") for r in d[\"recommendations\"])"'
 assert "recommend-tools: sorted desc by score" 'echo "$JSON_TOOLS" | python3 -c "import json,sys; d=json.load(sys.stdin); s=[r[\"score\"] for r in d[\"recommendations\"]]; assert s == sorted(s, reverse=True)"'
 assert "recommend-tools: laravel-boost plugin surfaced (laravel framework match)" 'echo "$JSON_TOOLS" | grep -q "\"name\": \"laravel-boost\""'
 assert "recommend-tools: claude-mem plugin surfaced (universal)" 'echo "$JSON_TOOLS" | grep -q "\"name\": \"claude-mem\""'
@@ -113,6 +115,43 @@ assert "recommend-tools empty stack: only universal MCPs surface (context7), no 
 rm -rf "$EMPTY_TMP"
 
 assert "recommend-tools: rejects unknown --kind" '! "$AIKIT/bin/recommend-tools.sh" "$AIKIT" --kind bogus >/dev/null 2>&1'
+
+
+echo "=== recommend-tools-paas ==="
+# section: recommend-tools-paas
+# Strip Coolify env vars so dev-machine values don't bleed into fixtures.
+unset COOLIFY_URL COOLIFY_TOKEN COOLIFY_API_KEY
+
+PAAS_SELF=$(mktemp -d)
+echo "FROM alpine" > "$PAAS_SELF/Dockerfile"
+echo "version: '3'" > "$PAAS_SELF/compose.yaml"
+JSON_PAAS_SELF="$("$AIKIT/bin/recommend-tools.sh" "$PAAS_SELF" --json --kind paas)"
+assert "paas: coolify surfaced on self-host (Dockerfile+compose)" 'echo "$JSON_PAAS_SELF" | grep -q "\"name\": \"coolify\""'
+assert "paas: coolify scored via deploy_shape signal" 'echo "$JSON_PAAS_SELF" | python3 -c "import json,sys; d=json.load(sys.stdin); coolify=[r for r in d[\"recommendations\"] if r[\"name\"]==\"coolify\"][0]; assert \"deploy:self-host\" in coolify[\"reason\"], coolify[\"reason\"]"'
+JSON_MCP_SELF="$("$AIKIT/bin/recommend-tools.sh" "$PAAS_SELF" --json --kind mcp)"
+assert "mcp: coolify MCP surfaced on self-host (second-order)" 'echo "$JSON_MCP_SELF" | grep -q "\"name\": \"coolify\""'
+rm -rf "$PAAS_SELF"
+
+PAAS_SLS=$(mktemp -d)
+echo '{}' > "$PAAS_SLS/vercel.json"
+JSON_PAAS_SLS="$("$AIKIT/bin/recommend-tools.sh" "$PAAS_SLS" --json --kind paas)"
+assert "paas: no paas recommended on serverless (vercel.json)" 'echo "$JSON_PAAS_SLS" | python3 -c "import json,sys; d=json.load(sys.stdin); assert d[\"recommendations\"]==[], d[\"recommendations\"]"'
+JSON_MCP_SLS="$("$AIKIT/bin/recommend-tools.sh" "$PAAS_SLS" --json --kind mcp)"
+assert "mcp: no Coolify MCP on serverless" 'echo "$JSON_MCP_SLS" | python3 -c "import json,sys; d=json.load(sys.stdin); assert not any(r[\"name\"]==\"coolify\" for r in d[\"recommendations\"])"'
+rm -rf "$PAAS_SLS"
+
+PAAS_COOLIFY=$(mktemp -d)
+mkdir "$PAAS_COOLIFY/.coolify"
+JSON_PAAS_C="$("$AIKIT/bin/recommend-tools.sh" "$PAAS_COOLIFY" --json --kind paas)"
+assert "paas: .coolify marker triggers self-host + coolify recommendation" 'echo "$JSON_PAAS_C" | python3 -c "import json,sys; d=json.load(sys.stdin); coolify=[r for r in d[\"recommendations\"] if r[\"name\"]==\"coolify\"][0]; assert \"deploy:self-host\" in coolify[\"reason\"] and \"file:.coolify\" in coolify[\"reason\"], coolify[\"reason\"]"'
+rm -rf "$PAAS_COOLIFY"
+
+PAAS_ENV=$(mktemp -d)
+echo "FROM alpine" > "$PAAS_ENV/Dockerfile"
+echo "version: '3'" > "$PAAS_ENV/compose.yaml"
+JSON_PAAS_ENV="$(COOLIFY_API_KEY=test "$AIKIT/bin/recommend-tools.sh" "$PAAS_ENV" --json --kind paas)"
+assert "paas: COOLIFY_API_KEY env adds env signal" 'echo "$JSON_PAAS_ENV" | python3 -c "import json,sys; d=json.load(sys.stdin); coolify=[r for r in d[\"recommendations\"] if r[\"name\"]==\"coolify\"][0]; assert \"env:COOLIFY_API_KEY\" in coolify[\"reason\"], coolify[\"reason\"]"'
+rm -rf "$PAAS_ENV"
 
 TMP_LINK=$(mktemp -d)
 "$AIKIT/bin/bootstrap-project.sh" --minimal --link-all "$TMP_LINK"

@@ -153,6 +153,17 @@
       }
     },
     {
+      "name": "coolify",
+      "category": "self-host-paas",
+      "best_for": "Projects deployed via Coolify — agent lists/deploys/inspects Coolify resources directly",
+      "value": "List apps/services/databases, trigger deploys, tail deploy logs, read environment variables, create resources. Second-order to the Coolify catalog entry (standards/external/paas.json): user-validated path on naschool/emeq.",
+      "signals": {
+        "deploy_shape": "self-host",
+        "files": [".coolify", "coolify.json", "coolify.yml", "coolify.yaml"],
+        "env": ["COOLIFY_URL", "COOLIFY_TOKEN", "COOLIFY_API_KEY"]
+      }
+    },
+    {
       "name": "obsidian",
       "category": "knowledge",
       "best_for": "Projects with an Obsidian vault — markdown notes, PARA/Zettelkasten knowledge bases",

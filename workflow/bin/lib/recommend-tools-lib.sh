@@ -22,10 +22,11 @@ recommend_tools_external() {
   local hooks_json="$aikit_root/standards/external/hooks-patterns.json"
   local plugins_json="$aikit_root/standards/external/plugins.json"
   local subagents_json="$aikit_root/standards/external/subagents.json"
+  local paas_json="$aikit_root/standards/external/paas.json"
 
   [ -f "$mcp_json" ] || { echo "Missing: $mcp_json" >&2; return 2; }
   [ -f "$hooks_json" ] || { echo "Missing: $hooks_json" >&2; return 2; }
-  # plugins.json + subagents.json are optional — older clones may not have them. Skip silently if missing.
+  # plugins.json + subagents.json + paas.json optional — older clones may not have them. Skip silently if missing.
 
   local detect_json
   detect_json="$("$aikit_root/bin/detect-tooling.sh" "$target" --json 2>/dev/null || echo '{}')"
@@ -35,6 +36,7 @@ recommend_tools_external() {
   AIKIT_RECOMMEND_HOOKS="$hooks_json" \
   AIKIT_RECOMMEND_PLUGINS="$plugins_json" \
   AIKIT_RECOMMEND_SUBAGENTS="$subagents_json" \
+  AIKIT_RECOMMEND_PAAS="$paas_json" \
   python3 - "$detect_json" <<'PY'
 import json, os, sys
 from pathlib import Path
@@ -46,6 +48,8 @@ plugins_path_str = os.environ.get("AIKIT_RECOMMEND_PLUGINS", "")
 plugins_path = Path(plugins_path_str) if plugins_path_str else None
 subagents_path_str = os.environ.get("AIKIT_RECOMMEND_SUBAGENTS", "")
 subagents_path = Path(subagents_path_str) if subagents_path_str else None
+paas_path_str = os.environ.get("AIKIT_RECOMMEND_PAAS", "")
+paas_path = Path(paas_path_str) if paas_path_str else None
 
 try:
     detect = json.loads(sys.argv[1])
@@ -61,6 +65,7 @@ if fe: archs.add(fe.lower())
 if be: archs.add(be.lower())
 
 remote = ((detect.get("issue_tracker", {}) or {}).get("remote", "") or "").lower()
+deploy_shape = ((detect.get("deploy", {}) or {}).get("shape", "") or "").lower()
 
 
 def file_exists(rel):
@@ -108,6 +113,24 @@ def score_entry(entry, kind):
             reasons.append(f"remote:{host}")
             break
 
+    shape_signal = signals.get("deploy_shape", "")
+    if shape_signal:
+        if isinstance(shape_signal, str):
+            shape_signals = [shape_signal]
+        else:
+            shape_signals = list(shape_signal)
+        for s in shape_signals:
+            if s.lower() == deploy_shape and deploy_shape:
+                score += 3
+                reasons.append(f"deploy:{s}")
+                break
+
+    for env_var in signals.get("env", []) or []:
+        if os.environ.get(env_var):
+            score += 2
+            reasons.append(f"env:{env_var}")
+            break
+
     return name, score, category, kind, "; ".join(reasons) if reasons else "no signals"
 
 
@@ -130,6 +153,8 @@ if plugins_path is not None and plugins_path.is_file():
     rows += emit(plugins_path, "plugin")
 if subagents_path is not None and subagents_path.is_file():
     rows += emit(subagents_path, "subagent")
+if paas_path is not None and paas_path.is_file():
+    rows += emit(paas_path, "paas")
 rows.sort(key=lambda r: (-r[1], r[3], r[0]))
 for name, score, category, kind, reason in rows:
     print(f"{name}\t{score}\t{category}\t{kind}\t{reason}")

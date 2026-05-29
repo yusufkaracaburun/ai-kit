@@ -121,6 +121,56 @@ detect_docker() {
   fi
 }
 
+detect_deploy_shape() {
+  local target="$1"
+  DEPLOY_SHAPE="unknown"
+  DEPLOY_SERVERLESS_MARKERS=()
+  DEPLOY_SELF_HOST_MARKERS=()
+  DEPLOY_COOLIFY=false
+
+  for f in vercel.json netlify.toml wrangler.toml wrangler.jsonc wrangler.json serverless.yml serverless.yaml template.yaml sam-template.yaml; do
+    if [ -f "$target/$f" ]; then
+      DEPLOY_SERVERLESS_MARKERS+=("$f")
+    fi
+  done
+
+  local has_dockerfile=false
+  local has_compose=false
+  [ -f "$target/Dockerfile" ] && has_dockerfile=true
+  for f in compose.yaml compose.yml docker-compose.yml docker-compose.yaml; do
+    if [ -f "$target/$f" ]; then
+      has_compose=true
+      DEPLOY_SELF_HOST_MARKERS+=("$f")
+    fi
+  done
+  if [ "$has_dockerfile" = true ]; then
+    DEPLOY_SELF_HOST_MARKERS+=("Dockerfile")
+  fi
+
+  for f in .coolify coolify.json coolify.yml coolify.yaml; do
+    if [ -e "$target/$f" ]; then
+      DEPLOY_COOLIFY=true
+      DEPLOY_SELF_HOST_MARKERS+=("$f")
+    fi
+  done
+
+  local has_serverless=false
+  local has_self_host=false
+  [ "${#DEPLOY_SERVERLESS_MARKERS[@]}" -gt 0 ] && has_serverless=true
+  if [ "$has_dockerfile" = true ] && [ "$has_compose" = true ]; then
+    has_self_host=true
+  fi
+  [ "$DEPLOY_COOLIFY" = true ] && has_self_host=true
+
+  if [ "$has_serverless" = true ] && [ "$has_self_host" = true ]; then
+    DEPLOY_SHAPE="mixed"
+  elif [ "$has_serverless" = true ]; then
+    DEPLOY_SHAPE="serverless"
+  elif [ "$has_self_host" = true ]; then
+    DEPLOY_SHAPE="self-host"
+  fi
+}
+
 detect_issue_tracker() {
   local target="$1"
   TRACKER_REC="unknown"

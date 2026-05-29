@@ -251,18 +251,24 @@ in priority order:
    2026-05-23 — the verdict on Qdrant itself was **Ignore** (wrong
    category for the meta-tool), but the downstream-project advisory
    layer is missing entirely.
-9. **Deploy / self-host PaaS advisory** (#20) — sibling of #8 for the
-   deploy category. Detect server-shaped projects (`Dockerfile` +
-   `docker-compose.yml`, no `vercel.json` / `netlify.toml` /
-   `wrangler.toml` / serverless markers) and surface self-hosted PaaS
-   options — Coolify (55k★, AGPL-3.0), Dokku, Caprover, Kamal — with
-   the same preview-then-confirm trust model. Split from #19 because
-   the deploy decision has a sharper either/or shape than the additive
-   vector-DB / observability buckets, and each PaaS needs its own
-   `/should-i-use` pass before vendoring signal tables. Gap surfaced
-   by `/should-i-use` Coolify 2026-05-23 — Coolify itself = **Ignore**
-   for ai-kit-the-repo (wrong category + AGPL-3.0 incompatible with
-   MIT), but the downstream-project deploy advisory is missing.
+9. **Deploy / self-host PaaS advisory** (#20) — landed 2026-05-29 in
+   v1.39.0, Coolify-only v1. `bin/detect-tooling.sh` now emits a
+   `deploy.shape` field (`serverless` / `self-host` / `mixed` /
+   `unknown`) from `vercel.json` / `netlify.toml` / `wrangler.{toml,jsonc,
+   json}` / `serverless.{yml,yaml}` / SAM serverless markers vs
+   `Dockerfile`+compose / `.coolify` self-host markers. New catalog
+   `standards/external/paas.json` carries the Coolify entry (AGPL-3.0,
+   UI-driven, single-host or multi-server) with trade-off copy vs
+   Dokku/Caprover/Kamal. `bin/recommend-tools.sh` gains `--kind paas`;
+   the scorer learned new `deploy_shape` + `env` signal types. A
+   companion MCP recommendation (Coolify MCP server in
+   `mcp-servers.json`) fires on the same self-host signals — pick PaaS
+   first, then optionally wire the MCP. Dokku / Caprover / Kamal
+   deferred to follow-up issues — catalog grows from validated adoption
+   signal (the user runs Coolify in production via naschool), not
+   speculation. `recommend-tools/SKILL.md` + `setup/SKILL.md` Branch 14
+   wire the surface; preview-then-confirm trust model. 10 new test
+   asserts cover detect + scorer across 5 fixtures.
 10. **Research OpenHands runtime patterns before promoting
     `autonomous` spike** (#21) — research-arc input for closing
     the three contract gaps the spike walkthrough (#18) flagged

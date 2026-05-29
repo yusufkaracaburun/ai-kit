@@ -112,9 +112,9 @@ End by reporting:
 
 If a file edit or merge failed, say so. Never report a tool wired when its glue is not on disk.
 
-## Extended: MCP servers + Claude Code hooks + Claude Code plugins + Claude Code subagents
+## Extended: MCP servers + Claude Code hooks + Claude Code plugins + Claude Code subagents + self-host PaaS
 
-A separate, deterministic recommender scores four vendored tables under
+A separate, deterministic recommender scores five vendored tables under
 `standards/external/`:
 
 - `mcp-servers.json` — stack-signal → MCP server
@@ -123,10 +123,18 @@ A separate, deterministic recommender scores four vendored tables under
   marketplaces the user trusts)
 - `subagents.json` — stack-signal → Claude Code subagent (Agent tool
   specialists from third-party plugins)
+- `paas.json` — `deploy_shape=self-host` → self-host PaaS (v1: Coolify
+  only; Dokku / Caprover / Kamal deferred to follow-up issues)
 
 against the same `detect-tooling.sh` output that drives
 `/ai:recommend-rules`, so the suggestions are reproducible and never
-guessed.
+guessed. The PaaS row uses the new `deploy.shape` field emitted by
+`detect-tooling.sh`: `serverless` (vercel.json / netlify.toml / wrangler /
+serverless.yml / SAM), `self-host` (Dockerfile + compose, or Coolify
+marker like `.coolify/`), `mixed`, or `unknown`. Coolify also emits a
+companion MCP recommendation (`mcp-servers.json` → `coolify`) when the
+same signals match — second-order: pick the PaaS, then optionally wire
+the MCP server.
 
 ### When to surface
 
@@ -136,6 +144,8 @@ Add this layer when the user wants more than companion tools:
 - "Any hooks I should turn on?"
 - "Which Claude Code plugins should I install for this stack?"
 - "Which specialist subagents should I have available?"
+- "Where should I self-host this?" (PaaS row fires only when
+  `detect-tooling.sh` reports `deploy.shape=self-host` or `mixed`)
 - After the companions phase, when the user is willing to spend a few
   more minutes hardening the setup.
 
@@ -148,6 +158,7 @@ Add this layer when the user wants more than companion tools:
 "$AI_KIT_ROOT"/bin/recommend-tools.sh <project-path> --kind hook
 "$AI_KIT_ROOT"/bin/recommend-tools.sh <project-path> --kind plugin
 "$AI_KIT_ROOT"/bin/recommend-tools.sh <project-path> --kind subagent
+"$AI_KIT_ROOT"/bin/recommend-tools.sh <project-path> --kind paas
 ```
 
 Output rows: `name`, `score`, `category`, `kind` (`mcp`|`hook`|`plugin`|
@@ -206,6 +217,13 @@ Then ask the user which to wire. Same trust posture as `/ai:recommend-rules`:
   subagent gets (Bash / Read / Edit / etc.); surface it inline so the
   user can judge the trust surface before installing the parent
   plugin. ai-kit does not vendor subagent source.
+- **PaaS:** never auto-install, never write Docker / compose / server
+  config. Surface the entry's `tradeoffs` (interface, topology,
+  `vs_alternatives`) + `license` posture verbatim. Point the user at
+  `upstream` for installation — they own the VPS and the install.
+  After the user picks a PaaS, surface the second-order MCP server
+  recommendation from `mcp-servers.json` if it scored alongside (e.g.
+  picking Coolify → offer Coolify MCP).
 - **No web search.** This phase is fully deterministic from the
   vendored tables. If the user wants MCP servers / hooks / plugins /
   subagents beyond what is vendored, they can extend

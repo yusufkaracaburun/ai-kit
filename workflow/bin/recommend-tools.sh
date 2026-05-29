@@ -10,20 +10,20 @@ source "$AIKIT/bin/lib/recommend-tools-lib.sh"
 
 usage() {
   cat <<EOF
-Usage: $0 <project> [--json] [--kind mcp|hook|plugin|subagent|all]
+Usage: $0 <project> [--json] [--kind mcp|hook|plugin|subagent|paas|all]
 
 Score MCP servers + Claude Code hook recipes + Claude Code plugins + Claude
-Code subagents (from standards/external/{mcp-servers,hooks-patterns,plugins,
-subagents}.json) for relevance to a target project. Detection runs via
-bin/detect-tooling.sh; file-presence signals are checked against the project
-root.
+Code subagents + self-host PaaS (from standards/external/{mcp-servers,
+hooks-patterns,plugins,subagents,paas}.json) for relevance to a target
+project. Detection runs via bin/detect-tooling.sh; file-presence and
+deploy_shape signals are checked against the project root.
 
 Output: ranked table (default) or JSON. Filter kind with --kind.
 
 This is the deterministic scorer. The /ai:recommend-tools skill
-invokes it for stack-specific MCP + hook + plugin + subagent suggestions,
-then surfaces the results to the user with the same trust model as
-/ai:recommend-rules.
+invokes it for stack-specific MCP + hook + plugin + subagent + paas
+suggestions, then surfaces the results to the user with the same trust
+model as /ai:recommend-rules.
 EOF
   exit 1
 }
@@ -50,8 +50,8 @@ done
 PROJECT="$(cd "$PROJECT" && pwd)"
 
 case "$KIND" in
-  all|mcp|hook|plugin|subagent) ;;
-  *) echo "--kind must be mcp|hook|plugin|subagent|all" >&2; exit 2 ;;
+  all|mcp|hook|plugin|subagent|paas) ;;
+  *) echo "--kind must be mcp|hook|plugin|subagent|paas|all" >&2; exit 2 ;;
 esac
 
 ROWS="$(recommend_tools_external "$AIKIT" "$PROJECT")"

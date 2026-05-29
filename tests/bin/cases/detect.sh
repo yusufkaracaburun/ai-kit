@@ -121,4 +121,56 @@ assert "json has architecture.frontend" 'grep -q "\"detected\": \"laravel-inerti
 assert "json has architecture.backend" 'grep -q "\"detected\": \"laravel-default\"" <<<"$JSON_OUT"'
 
 
+echo "=== detect-deploy-shape ==="
+# section: detect-deploy-shape
+TMP_DEPLOY_UNK=$(mktemp -d)
+detect_deploy_shape "$TMP_DEPLOY_UNK"
+assert "empty repo → deploy_shape=unknown" '[ "$DEPLOY_SHAPE" = "unknown" ]'
+assert "empty repo → coolify_detected=false" '[ "$DEPLOY_COOLIFY" = false ]'
+rm -rf "$TMP_DEPLOY_UNK"
+
+TMP_DEPLOY_SELF=$(mktemp -d)
+echo "FROM alpine" > "$TMP_DEPLOY_SELF/Dockerfile"
+echo "version: '3'" > "$TMP_DEPLOY_SELF/compose.yaml"
+detect_deploy_shape "$TMP_DEPLOY_SELF"
+assert "Dockerfile + compose → deploy_shape=self-host" '[ "$DEPLOY_SHAPE" = "self-host" ]'
+rm -rf "$TMP_DEPLOY_SELF"
+
+TMP_DEPLOY_DF_ONLY=$(mktemp -d)
+echo "FROM alpine" > "$TMP_DEPLOY_DF_ONLY/Dockerfile"
+detect_deploy_shape "$TMP_DEPLOY_DF_ONLY"
+assert "Dockerfile-only → still unknown (needs compose or Coolify)" '[ "$DEPLOY_SHAPE" = "unknown" ]'
+rm -rf "$TMP_DEPLOY_DF_ONLY"
+
+TMP_DEPLOY_SLS=$(mktemp -d)
+echo "{}" > "$TMP_DEPLOY_SLS/vercel.json"
+detect_deploy_shape "$TMP_DEPLOY_SLS"
+assert "vercel.json → deploy_shape=serverless" '[ "$DEPLOY_SHAPE" = "serverless" ]'
+rm -rf "$TMP_DEPLOY_SLS"
+
+TMP_DEPLOY_MIX=$(mktemp -d)
+echo "FROM alpine" > "$TMP_DEPLOY_MIX/Dockerfile"
+echo "version: '3'" > "$TMP_DEPLOY_MIX/compose.yaml"
+echo "{}" > "$TMP_DEPLOY_MIX/vercel.json"
+detect_deploy_shape "$TMP_DEPLOY_MIX"
+assert "Dockerfile + compose + vercel.json → deploy_shape=mixed" '[ "$DEPLOY_SHAPE" = "mixed" ]'
+rm -rf "$TMP_DEPLOY_MIX"
+
+TMP_DEPLOY_C=$(mktemp -d)
+mkdir "$TMP_DEPLOY_C/.coolify"
+detect_deploy_shape "$TMP_DEPLOY_C"
+assert ".coolify marker → coolify_detected=true" '[ "$DEPLOY_COOLIFY" = true ]'
+assert ".coolify marker → deploy_shape=self-host (no Dockerfile needed)" '[ "$DEPLOY_SHAPE" = "self-host" ]'
+rm -rf "$TMP_DEPLOY_C"
+
+# JSON surface check
+TMP_DEPLOY_JSON=$(mktemp -d)
+echo "FROM alpine" > "$TMP_DEPLOY_JSON/Dockerfile"
+echo "version: '3'" > "$TMP_DEPLOY_JSON/compose.yaml"
+JSON_DEPLOY="$("$AIKIT/bin/detect-tooling.sh" "$TMP_DEPLOY_JSON" --json)"
+assert "JSON output has deploy.shape=self-host" 'echo "$JSON_DEPLOY" | python3 -c "import json,sys; assert json.load(sys.stdin)[\"deploy\"][\"shape\"] == \"self-host\""'
+assert "JSON output lists self_host_markers" 'echo "$JSON_DEPLOY" | python3 -c "import json,sys; assert \"Dockerfile\" in json.load(sys.stdin)[\"deploy\"][\"self_host_markers\"]"'
+rm -rf "$TMP_DEPLOY_JSON"
+
+
 print_summary_and_exit

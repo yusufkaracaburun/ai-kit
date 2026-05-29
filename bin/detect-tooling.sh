@@ -35,6 +35,7 @@ done
 detect_package_manager "$TARGET"
 detect_frameworks "$TARGET"
 detect_docker "$TARGET"
+detect_deploy_shape "$TARGET"
 detect_issue_tracker "$TARGET"
 detect_domain_layout "$TARGET"
 detect_bootstrap_state "$TARGET"
@@ -177,6 +178,10 @@ if [ "$JSON" = true ]; then
   # Use ${ARR[@]+...} so empty arrays don't trip set -u on bash 3.2 (macOS).
   fw_json="$(_json_array ${FRAMEWORKS[@]+"${FRAMEWORKS[@]}"})"
   docker_files="$(_json_array ${DOCKER_FILES[@]+"${DOCKER_FILES[@]}"})"
+  deploy_serverless_markers="$(_json_array ${DEPLOY_SERVERLESS_MARKERS[@]+"${DEPLOY_SERVERLESS_MARKERS[@]}"})"
+  deploy_self_host_markers="$(_json_array ${DEPLOY_SELF_HOST_MARKERS[@]+"${DEPLOY_SELF_HOST_MARKERS[@]}"})"
+  deploy_coolify_json="false"
+  [ "$DEPLOY_COOLIFY" = true ] && deploy_coolify_json="true"
   bootstrap_missing="$(_json_array ${BOOTSTRAP_MISSING[@]+"${BOOTSTRAP_MISSING[@]}"})"
   fe_paths="$(_json_array ${ARCH_FE_PATHS[@]+"${ARCH_FE_PATHS[@]}"})"
   be_paths="$(_json_array ${ARCH_BE_PATHS[@]+"${ARCH_BE_PATHS[@]}"})"
@@ -232,6 +237,12 @@ if [ "$JSON" = true ]; then
   "docker": {
     "recommendation": "${DOCKER_REC}",
     "files": ${docker_files}
+  },
+  "deploy": {
+    "shape": "${DEPLOY_SHAPE}",
+    "serverless_markers": ${deploy_serverless_markers},
+    "self_host_markers": ${deploy_self_host_markers},
+    "coolify_detected": ${deploy_coolify_json}
   },
   "issue_tracker": {
     "recommendation": "${TRACKER_REC}",
@@ -303,6 +314,8 @@ if [ "${#FRAMEWORKS[@]}" -gt 0 ]; then
 fi
 echo "- **Docker:** ${DOCKER_REC}"
 [ "${#DOCKER_FILES[@]}" -gt 0 ] && echo "  - files: $(IFS=', '; echo "${DOCKER_FILES[*]}")"
+echo "- **Deploy shape:** ${DEPLOY_SHAPE}"
+[ "$DEPLOY_COOLIFY" = true ] && echo "  - Coolify marker detected"
 echo "- **Issue tracker:** ${TRACKER_REC}"
 [ -n "$TRACKER_REMOTE" ] && echo "  - remote: ${TRACKER_REMOTE}"
 echo "- **Domain:** ${DOMAIN_LAYOUT} (context=${HAS_CONTEXT}, adr=${HAS_ADR})"

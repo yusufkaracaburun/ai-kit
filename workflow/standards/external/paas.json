@@ -1,0 +1,38 @@
+{
+  "_meta": {
+    "title": "Self-host PaaS recommendations — deploy_shape signal → PaaS map",
+    "derived_from": "ai-kit internal catalog (not vendored from upstream)",
+    "source_url": "https://github.com/yusufkaracaburun/ai-kit/blob/master/standards/external/paas.json",
+    "source_license": "MIT",
+    "vendored_at": "2026-05-29",
+    "notes": "Catalogues open-source self-host PaaS layers surfaced by /ai:recommend-tools and /ai:setup when bin/detect-tooling.sh reports deploy_shape=self-host. v1 ships Coolify-only — the user-validated path on naschool/emeq. Dokku (single-host buildpack), Caprover (Swarm cluster), and Kamal (CLI-driven) deferred to follow-up issues so the catalog grows from real adoption signal, not speculation. Preview-then-confirm: ai-kit never writes Docker/server config without explicit user approval."
+  },
+  "recommendations": [
+    {
+      "name": "coolify",
+      "category": "self-host-paas",
+      "best_for": "Docker-shaped projects that have outgrown Vercel/Railway/fly.io and want a UI-driven self-host PaaS on their own VPS",
+      "value": "Heroku-style git-push deploys + UI for environments, services, databases, backups. Built on Docker (no Swarm/Kubernetes overhead). Coolify MCP server available — when wired, the agent can list/deploy/inspect Coolify resources directly.",
+      "risk": "Medium — self-hosted control plane; user owns ops + upgrades. AGPL-3.0 is viral for Coolify itself but does not affect deployed projects (deploying via Coolify is not 'distributing' Coolify).",
+      "license": "AGPL-3.0",
+      "tradeoffs": {
+        "interface": "UI-driven (web dashboard) + git-push deploys",
+        "topology": "single-host or multi-server (no Kubernetes required)",
+        "vs_alternatives": "Dokku (CLI, buildpack, single-host) · Caprover (UI, Docker Swarm cluster) · Kamal (CLI-only, 37signals' Capistrano-style). Coolify wins on UI + DX; loses to Kamal on simplicity + GitOps and to Dokku on resource footprint."
+      },
+      "signals": {
+        "deploy_shape": "self-host",
+        "files": [".coolify", "coolify.json", "coolify.yml", "coolify.yaml"],
+        "env": ["COOLIFY_URL", "COOLIFY_TOKEN", "COOLIFY_API_KEY"]
+      },
+      "companion_mcp": "coolify",
+      "upstream": "https://coolify.io",
+      "source_repo": "https://github.com/coollabsio/coolify",
+      "install": {
+        "auto_install": false,
+        "default_state": "preview-then-confirm",
+        "post_recommend_action": "Open coolify.io/docs/installation in browser; ai-kit never writes Docker/server config without explicit approval."
+      }
+    }
+  ]
+}

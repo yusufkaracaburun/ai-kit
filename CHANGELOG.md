@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.39.0 — 2026-05-29
+
+### Added
+
+- Self-host PaaS advisory (closes #20) — Coolify-only v1:
+  - `bin/detect-tooling.sh` emits new `deploy` block: `shape` (`serverless` / `self-host` / `mixed` / `unknown`), `serverless_markers`, `self_host_markers`, `coolify_detected`. Serverless markers: `vercel.json`, `netlify.toml`, `wrangler.{toml,jsonc,json}`, `serverless.{yml,yaml}`, SAM templates. Self-host markers: `Dockerfile` + compose pair, or any `.coolify/` / `coolify.{json,yml,yaml}` marker.
+  - New catalog `standards/external/paas.json` — Coolify entry (AGPL-3.0, UI-driven, single-host or multi-server). Trade-offs vs Dokku/Caprover/Kamal documented inline. Dokku, Caprover, Kamal deferred to follow-up issues — catalog grows from real adoption signal, not speculation.
+  - `bin/recommend-tools.sh` gains `--kind paas`; scorer (`bin/lib/recommend-tools-lib.sh`) honours new `deploy_shape` + `env` signal types.
+  - Companion MCP recommendation: Coolify MCP server entry added to `mcp-servers.json` (gated on the same `deploy_shape=self-host` + marker + `COOLIFY_*` env signals). Second-order: pick PaaS first, then optionally wire MCP.
+  - `recommend-tools/SKILL.md` + `setup/SKILL.md` Branch 14 wire the new surface; preview-then-confirm trust model — ai-kit never writes Docker/server config without explicit approval.
+- Tests: 10 new asserts across `tests/bin/cases/detect.sh` (deploy_shape detection across 5 fixtures + JSON surface) and `tests/bin/cases/recommend.sh` (PaaS scoring on self-host / serverless / `.coolify` marker / `COOLIFY_API_KEY` env). `audit-setup-symmetry.sh` validates paas.json wiring path automatically (no edit needed — generic catalog detection).
+
+### Notes
+
+LEAN scope: Coolify only. Dokku/Caprover/Kamal deferred per the principle that the catalog should grow from validated adoption (the user runs Coolify in production via naschool, hence v1). The `env` signal type added to the scorer is generic — usable by any future catalog entry.
+
 ## 1.38.0 — 2026-05-29
 
 ### Added

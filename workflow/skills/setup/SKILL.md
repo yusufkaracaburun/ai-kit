@@ -365,22 +365,27 @@ already exists is left alone unless the user explicitly chose `overwrite`.
 
 Sibling to Branch 12 for the tool-class catalogs. `/ai:recommend-tools` scores
 companion tools (graphify, caveman, llm-wiki), MCP servers
-(`standards/external/mcp-servers.json`), and Claude Code hooks
-(`standards/external/hooks-patterns.json`) against the detected stack and
-project shape. ai-kit never auto-installs — the skill previews each
-candidate and lets the user pick per item.
+(`standards/external/mcp-servers.json`), Claude Code hooks
+(`standards/external/hooks-patterns.json`), Claude Code plugins +
+subagents, and self-host PaaS (`standards/external/paas.json`) against
+the detected stack and project shape. ai-kit never auto-installs — the
+skill previews each candidate and lets the user pick per item.
 
 Offer it once. The skill may search the web for upstream install commands, so
 never run it silently:
 
-> Optional: `/ai:recommend-tools` scores companion tools, MCP servers, and
-> Claude Code hooks against this stack. Wire any in now?
+> Optional: `/ai:recommend-tools` scores companion tools, MCP servers,
+> Claude Code hooks, and (when `detect-tooling.sh` reports
+> `deploy.shape=self-host`) a self-host PaaS recommendation against
+> this stack. Wire any in now?
 > [1] Refine now    → run `/ai:recommend-tools`, then record `completed`
 > [2] Later         → `deferred`
 > [3] Keep default  → `skipped`
 
 Default: brownfield with a framework in `detect-tooling` → offer; otherwise
-`skipped`. Record the choice in the marker (`--tool-recommendation=...`).
+`skipped`. When `deploy.shape=self-host`, prefer `Refine now` even on
+greenfield — picking a host shapes downstream config. Record the choice
+in the marker (`--tool-recommendation=...`).
 
 Full setup Done:
 
