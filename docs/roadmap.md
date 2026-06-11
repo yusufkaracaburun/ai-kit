@@ -720,3 +720,15 @@ in priority order:
     proven manual run 2026-05-28 on naschool (89 findings, 4 roles,
     2 hosts, 2-3 hrs → naschool#81 + #82 + #83 + #84). LEAN scope:
     no helper bin/, skill is conversational. Skill count: 37 → 38.
+29. **Cite Osmani "Loop Engineering" as external validation in Ralph
+    spike** (#107) — `/ai:should-i-use
+    https://addyosmani.com/blog/loop-engineering/` 2026-06-11 returned
+    **Ignore** (essay, not tool; all six primitives — automations,
+    worktrees, skills, MCP connectors, ideate≠verify sub-agents,
+    external state — already shipped in ai-kit or the CC harness).
+    Single salvage: one-line external-validation cite in
+    `docs/spikes/aikit-autonomous-ralph.md` (+ optional mental-model
+    line), plus the article's "comprehension debt" / "cognitive
+    surrender" vocabulary as candidate copy for the autonomous
+    trust-model. Defer-rationale: pure docs polish — batch with #21's
+    OpenHands research pass, which already edits the same spike doc.
