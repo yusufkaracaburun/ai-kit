@@ -101,6 +101,18 @@
       }
     },
     {
+      "name": "ui-ux-pro-max",
+      "marketplace": "ui-ux-pro-max-skill",
+      "install": "/plugin install ui-ux-pro-max@ui-ux-pro-max-skill",
+      "category": "design",
+      "best_for": "Frontend projects wanting a reasoned design system — priority-ranked, domain-queryable rules for styles, palettes, type pairings, UX guidelines, and charts",
+      "value": "Searchable design-rule database with priority-based, --domain-queryable recommendations + shadcn MCP. Goes beyond frontend-design's critique into structured token/pattern output. Single-source — surfaced, never default. Note: upstream count claims drift across its own manifests (styles 50+ vs 67, stacks 10 vs 15); capability verified on disk, specific counts treated as advisory.",
+      "signals": {
+        "frameworks": ["react", "vue", "angular", "nextjs", "nuxt", "svelte", "remix", "astro"],
+        "architectures": ["frontend"]
+      }
+    },
+    {
       "name": "chrome-devtools-mcp",
       "marketplace": "claude-plugins-official",
       "install": "/plugin install chrome-devtools-mcp@claude-plugins-official",

@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.41.0 — 2026-06-14
+
+### Added
+
+- `recommend-tools` plugin catalog: `ui-ux-pro-max` (`standards/external/plugins.json`, category `design`) — surfaced for frontend stacks alongside `frontend-design` / `lazyweb`. Genuinely additive: priority-ranked, `--domain`-queryable design-rule database + shadcn MCP (structured token/pattern output, not just critique). Marketplace-clean (`/plugin install ui-ux-pro-max@ui-ux-pro-max-skill`); single-source → surfaced, never default-recommended.
+
+### Changed
+
+- Decision-ledger discipline: `/ai:should-i-use` Ignore verdicts on catalog-eligible tools are now recorded in `standards/external/plugins-excluded.json` instead of evaporating into chat. First entry: `taste-skill` (Leonxlnx/taste-skill) — Ignore (overlaps existing design entries + ui-ux-pro-max; `npx skills add` install doesn't fit the plugin schema; motion/image-board *generation* is out of scope for durable per-project infra).
+
+### Notes
+
+LEAN scope: data-only — two `standards/external/*.json` entries + plugin-copy sync (`bin/sync-plugin-standards.sh`). No scorer/skill code touched. uupm cleared a VETTING.md parity pass with one caveat recorded in its catalog `value`: upstream count claims drift across its own manifests (styles 50+/67, stacks 10/15; README "161 reasoning rules" vs manifest "161 palettes") — capability verified on disk, specific counts treated as advisory.
+
 ## 1.40.0 — 2026-05-29
 
 ### Added

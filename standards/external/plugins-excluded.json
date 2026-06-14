@@ -9,6 +9,11 @@
       "name": "superpowers",
       "reason": "Meta-skill bundle (obra/superpowers-marketplace). Overlaps with ai-kit's /ai:tdd, /ai:review, /ai:retro, /ai:ship, /ai:plan-* and others — best patterns were distilled into ai-kit's own lifecycle during initial design. Adding it as a recommended plugin would create double-bundle noise.",
       "alternative": "Use ai-kit's own lifecycle skills."
+    },
+    {
+      "name": "taste-skill",
+      "reason": "Anti-slop frontend design pack (Leonxlnx/taste-skill, installs via `npx skills add` — not a Claude Code marketplace plugin, so it does not fit the plugins.json schema). Overlaps the existing design entries (frontend-design / lazyweb) and ui-ux-pro-max; single-source preview. Its distinctive value (GSAP motion code skeletons + AI image-board generation) is design *generation*, out of scope for what ai-kit recommends as durable per-project infra. should-i-use verdict: Ignore.",
+      "alternative": "If a project specifically wants its motion/image-board generation, install directly: `npx skills add https://github.com/Leonxlnx/taste-skill`. Use ui-ux-pro-max for reasoned design-system output."
     }
   ]
 }
