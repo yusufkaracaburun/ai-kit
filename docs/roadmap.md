@@ -732,3 +732,46 @@ in priority order:
     surrender" vocabulary as candidate copy for the autonomous
     trust-model. Defer-rationale: pure docs polish — batch with #21's
     OpenHands research pass, which already edits the same spike doc.
+
+### Inbox triaged 2026-06-14
+
+Feedback issues #101–#106 (+ older #31) reconciled into the roadmap with
+priorities. No P0; #105 is the only real bug.
+
+30. **emit-rules.sh emits dead cross-reference links** (#105) — **bug ·
+    P1.** `bin/emit-rules.sh` writes flat `.claude/rules/<name>.md` but
+    "See also" links keep `.mini.md`/`.nano.md` suffixes + `../parent`
+    paths → 27 dead links that ai-kit's *own* `/ai:docs-sync` flags.
+    Self-consistency failure in shipped output. Highest-value fix in the
+    batch: rewrite cross-refs to the emitted flat layout during emit.
+31. **CLAUDE.md hard-rules not gated pre-implementation** (#101) —
+    enhancement · P2 · primitive:rule. Agent ran fix-work with no ai-kit
+    skill active and over-engineered (a `FeedbackProvider` context for one
+    boolean toggle). The pre-write 4-principle checklist is documented but
+    not *enforced* at implementation time. Wants a gating mechanism (hook
+    or rule) that fires before edits, not just during planning.
+32. **recommend-tools misses shadcn MCP coverage** (#102) — enhancement ·
+    P2. `/ai:recommend-tools` doesn't surface shadcn MCP for projects with
+    `components.json`. Small, deterministic: add a `components.json` signal
+    → shadcn MCP entry in `mcp-servers.json`. Adjacent to v1.41.0 (uupm
+    carries shadcn MCP, but recommend-tools should surface the server
+    itself on detect).
+33. **Brownfield first-install friction cluster** (#104) — enhancement ·
+    P2. 15 friction points / 6 themes from a first `/ai:setup` on a
+    brownfield Laravel multi-app workspace (setup · doctor · dedupe ·
+    status · plugin). Cluster, not a single fix → decompose via
+    `/ai:to-issues` before scheduling.
+34. **/ai:checkpoint auto-run + auto-fix hygiene + docs-sync** (#103) —
+    enhancement · P3. Checkpoint nudges to run hygiene + docs-sync but
+    stops there; wants the session-loop closed automatically. Works today,
+    just clunky.
+35. **Fold Pencil design→code→verify skill into ai-kit** (#106) —
+    enhancement · P3 · catalog-candidate. "Win" feedback proposing the
+    project-local `pencil` umbrella skill (design / audit / build / parity)
+    become an ai-kit primitive. Adopt-candidate → routes through
+    `/ai:should-i-use` + the plugins-excluded.json / catalog ledger before
+    any fold.
+36. **Per-claim validation → propose 3 primitives** (#31) — enhancement ·
+    P3 · needs-info. Older inbox item, previously unlisted; structured
+    per-claim validation as a cheap tech-debt surfacer. Stays needs-info
+    until scoped.
