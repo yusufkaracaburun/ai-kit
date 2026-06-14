@@ -152,6 +152,11 @@ echo "  rules:   ${RULES[*]}"
 [ "$DRY_RUN" = true ] && echo "  mode:    dry-run (no files written)"
 echo ""
 
+# The set of rules emitted in this run drives cross-reference link rewriting in
+# _emitter_body — links to a rule in this set resolve to a flat sibling, links to
+# anything else are unlinked. (issue #105)
+export AIKIT_EMITTED_RULES="${RULES[*]}"
+
 for rule in "${RULES[@]}"; do
   rule_path="$(resolve_rule_path "$rule" || true)"
   if [ -z "$rule_path" ]; then

@@ -45,6 +45,16 @@ mkdir -p "$EMIT_TMP/.cursor" "$EMIT_TMP/.claude"
 assert "emit-rules: cursor file"   '[ -f "$EMIT_TMP/.cursor/rules/git-hygiene.mdc" ]'
 assert "emit-rules: claude file"   '[ -f "$EMIT_TMP/.claude/rules/git-hygiene.md" ]'
 assert "emit-rules: generic index" '[ -f "$EMIT_TMP/docs/agents/active-rules.md" ]'
+# Cross-reference links must resolve in the flat emitted layout (issue #105):
+# emit writes .claude/rules/<name>.md, so .mini.md/.nano.md suffixes, ../ depths,
+# and never-emitted targets (skills, non-universal rules) must be rewritten or
+# unlinked — not left as dead links the project's own docs-sync flags.
+assert "emit-rules: emitted rules pass dead-link check (#105)" \
+  'bash "$AIKIT/bin/ai-kit-docs-sync-dead-links.sh" "$EMIT_TMP" 2>/dev/null | grep -q "0 broken"'
+assert "emit-rules: no .mini/.nano/../ link targets in claude rules (#105)" \
+  '! grep -rqE "\]\([^)]*(\.\./|\.mini\.md|\.nano\.md)" "$EMIT_TMP/.claude/rules"'
+assert "emit-rules: never-emitted skill cross-refs unlinked (#105)" \
+  '! grep -rqE "\]\([^)]*workflow/" "$EMIT_TMP/.claude/rules"'
 # Re-emit and verify the active-rules index doesn't duplicate rows.
 # (Earlier revisions captured mtime here via `stat -f %m` — macOS-only syntax
 # that broke Ubuntu CI. The mtimes were never actually asserted; the real

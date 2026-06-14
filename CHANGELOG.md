@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.41.1 — 2026-06-14
+
+### Fixed
+
+- `emit-rules.sh` no longer emits dead cross-reference links (closes #105). "See also" links in `standards/rules/*.mini.md` used `.mini.md`/`.nano.md` suffixes and `../` depths that 404 in the flat emitted layout (`.claude/rules/<name>.md`, `.cursor/rules/<name>.mdc`) — 27 broken links that ai-kit's own `/ai:docs-sync` flagged. New `_emitter_body` (shared lib) rewrites each link against the set of rules actually emitted this run (`$AIKIT_EMITTED_RULES`): a link to an emitted rule → flat `./<name>.<ext>` sibling (ext-aware: `md` for Claude Code, `mdc` for Cursor), filename-style labels de-suffixed; everything else (non-emitted rule, skill, external doc) → unlinked, label text kept. Emitted output now passes the dead-link check (0 broken). Regression: 3 asserts in `tests/bin/cases/bootstrap-emit.sh`.
+
 ## 1.41.0 — 2026-06-14
 
 ### Added
