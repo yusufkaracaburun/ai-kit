@@ -34,7 +34,7 @@ If the user gives a vague answer, ask the smallest follow-up that pins it down â
 
 When all branches are settled, write a short summary (5â€“15 bullets) of the decisions and their rationale, and ask: "Anything that feels wrong now that you see it written down?" Surprises here are common and cheap to fix; ignore at the user's peril.
 
-Then route to the next skill: usually [to-prd](../ai:to-prd/SKILL.md), [to-issues](../ai:to-issues/SKILL.md), or directly to writing an ADR.
+Then route to the next skill: usually [to-prd](../to-prd/SKILL.md), [to-issues](../to-issues/SKILL.md), or directly to writing an ADR.
 
 ## Anti-patterns
 

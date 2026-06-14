@@ -305,7 +305,7 @@ the cross-project workflow / style / tool-gotcha rules under
 `standards/rules/feedback/` (the canonical feedback-rules layer — see
 [`docs/adr/0007-canonical-feedback-rules.md`](../../../docs/adr/0007-canonical-feedback-rules.md)).
 For a brownfield repo on a specific stack,
-[`/ai:recommend-rules`](../ai:recommend-rules/SKILL.md) tailors the set — it
+[`/ai:recommend-rules`](../recommend-rules/SKILL.md) tailors the set — it
 scores canonical rules against the detected frameworks and can surface
 community rule packs from the web.
 

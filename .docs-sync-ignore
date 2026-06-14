@@ -1,0 +1,19 @@
+# ai-kit self-scan exclusions for /ai:docs-sync (dead-links + repo-hygiene).
+# Only non-authored, duplicate, or intentionally-broken trees belong here —
+# real cross-reference bugs in canonical sources get fixed, not hidden.
+
+# Third-party installed skills + agent scratch (worktrees, memory) — not
+# ai-kit-authored navigational docs.
+.agents/
+
+# Test fixtures deliberately contain broken links to exercise the checker.
+tests/fixtures/
+
+# Synced plugin mirrors of root standards/ + context/. The canonical copies are
+# scanned; the mirror's relative "See also" links resolve at the canonical depth
+# (standards/… ../../workflow/…), not one level deeper under workflow/.
+workflow/standards/
+workflow/context/
+
+# Frozen historical roadmap snapshot — not maintained; see roadmap.md + CHANGELOG.md.
+docs/roadmap-archive.md

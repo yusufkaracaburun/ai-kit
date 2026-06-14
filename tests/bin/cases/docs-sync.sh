@@ -64,6 +64,8 @@ assert "image link (does-not-exist.png) is NOT reported" \
   '! echo "$OUTPUT_BROKEN" | grep -F -q "does-not-exist.png"'
 assert "link inside code fence is NOT reported" \
   '! echo "$OUTPUT_BROKEN" | grep -F -q "this-does-not-exist.md"'
+assert "link inside inline code span is NOT reported" \
+  '! echo "$OUTPUT_BROKEN" | grep -F -q "inline-code-nope.md"'
 
 echo "=== clean-fixture ==="
 OUTPUT_CLEAN="$(bash "$DRIVER" "$FIX_CLEAN" --no-prompt 2>&1)"

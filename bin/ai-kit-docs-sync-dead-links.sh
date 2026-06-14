@@ -107,7 +107,14 @@ with open(md_file, 'r', encoding='utf-8', errors='replace') as fh:
             continue
         if in_code_fence:
             continue
+        # Inline code spans hold link *syntax examples* (`[text](path)`), not
+        # navigable links — skip a link only when the whole match sits inside a
+        # span. A backtick *label* like [`tdd`](./x.md) stays checked: the link
+        # match starts at `[`, outside the span. (issue #105)
+        code_spans = [(cm.start(), cm.end()) for cm in re.finditer(r'`+[^`]*`+', line)]
         for m in LINK_RE.finditer(line):
+            if any(s <= m.start() < e for s, e in code_spans):
+                continue
             text = m.group(1)
             raw_target = m.group(2)
             # Strip optional title: "..."

@@ -23,3 +23,5 @@ Link inside fenced code block — must NOT be reported:
 ```
 [ignored in code fence](./this-does-not-exist.md)
 ```
+
+Inline code span — must NOT be reported: `[ignored in backticks](./inline-code-nope.md)`.

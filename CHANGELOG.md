@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.41.2 — 2026-06-14
+
+### Fixed
+
+- ai-kit's own `/ai:docs-sync` now reports **0 dead links** on the repo (was 28). Root causes, all fixed:
+  - **5 real cross-reference bugs** in canonical skills — `grill-me`, `improve-codebase-architecture`, `setup` linked siblings as `../ai:<skill>/SKILL.md`, but the directories are `<skill>` (no `ai:` prefix). Stripped the prefix; all targets resolve.
+  - **Dead-link checker matched links inside inline code spans** — `` `[text](path)` `` syntax examples (in CHANGELOG, docs-sync/commands SKILLs) were flagged as navigable. Now a link is skipped only when the whole match sits inside a backtick span; a backtick *label* like `` [`tdd`](./x.md) `` stays checked (`bin/ai-kit-docs-sync-dead-links.sh`).
+  - **`.docs-sync-ignore` path-prefix entries were broken** (`bin/lib/docs-sync-excludes.sh`): the `${line#**/}` glob collapsed `tests/fixtures` → basename `fixtures` (would prune canonical `standards/`), and `awk -v` choked on the newline-joined prefix list (silently dropped every file). Both fixed — `**/` strip now guarded to literal prefixes; prefix filter rewritten in pure bash.
+- Added repo `.docs-sync-ignore` excluding non-authored / duplicate trees from ai-kit's self-scan: `.agents/` (third-party installed skills), `tests/fixtures/` (intentional broken links), the synced `workflow/standards` + `workflow/context` mirrors (canonical copies are scanned), and the frozen `docs/roadmap-archive.md`.
+- Regression: inline-code-span fixture + assert in the docs-sync test. Full suite 910 passed / 0 failed.
+
 ## 1.41.1 — 2026-06-14
 
 ### Fixed

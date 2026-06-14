@@ -62,8 +62,10 @@ dsync_basename_excludes() {
       case "$line" in \#*) continue ;; esac
       # trailing slash → strip
       line="${line%/}"
-      # **/ prefix → strip (treat as basename)
-      line="${line#**/}"
+      # literal **/ prefix → strip (treat as basename). Guard so a path entry
+      # like tests/fixtures is NOT collapsed to its last component — the glob
+      # `${line#**/}` would otherwise strip any `dir/` prefix (issue #105).
+      case "$line" in '**/'*) line="${line#**/}" ;; esac
       case "$line" in
         */*) ;;  # path-prefix entry, handled by dsync_path_prefix_excludes
         *)   printf '%s\n' "$line" ;;
@@ -141,24 +143,22 @@ dsync_build_prune_args() {
 dsync_filter_path_prefixes() {
   local project_path="${1:-$PWD}"
   project_path="$(cd "$project_path" && pwd)"
-  local prefixes
-  prefixes="$(dsync_path_prefix_excludes "$project_path" | awk 'NF && !seen[$0]++')"
-  if [ -z "$prefixes" ]; then
+  local -a prefixes=()
+  local p
+  while IFS= read -r p; do
+    [ -n "$p" ] && prefixes+=("$p")
+  done < <(dsync_path_prefix_excludes "$project_path" | awk 'NF && !seen[$0]++')
+  if [ "${#prefixes[@]}" -eq 0 ]; then
     cat
     return
   fi
-  awk -v plist="$prefixes" '
-    BEGIN {
-      n = split(plist, arr, /\n/)
-    }
-    {
-      keep = 1
-      for (i = 1; i <= n; i++) {
-        p = arr[i]
-        if (p == "") continue
-        if (index($0, p "/") == 1 || $0 == p) { keep = 0; break }
-      }
-      if (keep) print
-    }
-  '
+  # Pure-bash prefix match — avoids `awk -v` choking on the newline-joined list.
+  local line keep
+  while IFS= read -r line; do
+    keep=1
+    for p in "${prefixes[@]}"; do
+      case "$line" in "$p"|"$p"/*) keep=0; break ;; esac
+    done
+    [ "$keep" -eq 1 ] && printf '%s\n' "$line"
+  done
 }
