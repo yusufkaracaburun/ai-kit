@@ -1,12 +1,31 @@
 # Changelog
 
+## 1.42.0 — 2026-06-14
+
+### Added
+
+- **shadcn MCP recommendation** (closes #102) — `standards/external/mcp-servers.json` gains a `shadcn` entry keyed on the existing `shadcn` framework signal (a `components.json` with the shadcn schema). `/ai:recommend-tools` now surfaces it for any shadcn project with install paths (`npx shadcn@latest mcp init --client claude` for project scope; `claude mcp add --scope user shadcn -- npx shadcn@latest mcp` for monorepos) + scope guidance (one components.json → project, several → user). Commands verified against shadcn docs.
+- **`pre-write-gate` hook recipe** (closes #101) — `standards/external/hooks-patterns.json` gains a universal `PreToolUse` (Edit|Write|MultiEdit) hook recommendation that surfaces the 4-principle pre-write checklist (assumptions · minimum · surgical · verifiable) as non-blocking context before edits. Closes the gap where auto-loaded CLAUDE.md rules are present but never gated at edit time — an enforcement layer that holds regardless of which skill is active. Opt-in via `/ai:recommend-tools` (ai-kit recommends, never auto-wires).
+
+### Changed
+
+- **`/ai:checkpoint` housekeeping** (closes #103) — the end-of-checkpoint hygiene/docs-sync nudge becomes an inline run. Default is **report-only**: it runs `/ai:hygiene` + `/ai:docs-sync` (same applicability gates), embeds a `## Housekeeping` section (score + per-check summary + Applied/Needs-approval split) in the memo, and mutates nothing. `--also-housekeeping` additionally auto-applies the safe idempotent fixes (MEMORY.md dead-links, empty-dir rmdir, finished-work branch cleanup); risky items are never auto-applied. `--skip-housekeeping` falls back to the old cheap nudge. (Default kept non-mutating by design — a memo command should not change branches/files unprompted.)
+
+### Docs
+
+- Cite Addy Osmani's *Loop Engineering* as external validation in `docs/spikes/aikit-autonomous-ralph.md` (closes #107) — new `## External validation` section maps the essay's six primitives 1:1 onto ai-kit/CC-harness surfaces and ties its "comprehension debt / cognitive surrender" framing to the spike's trust model.
+
+### Notes
+
+LEAN: #101/#102 are catalog data only (no scorer code); #103/#107 are SKILL.md / doc prose. Regression asserts added for shadcn (#102) and pre-write-gate (#101). Full suite 912 passed / 0 failed.
+
 ## 1.41.2 — 2026-06-14
 
 ### Fixed
 
 - ai-kit's own `/ai:docs-sync` now reports **0 dead links** on the repo (was 28). Root causes, all fixed:
   - **5 real cross-reference bugs** in canonical skills — `grill-me`, `improve-codebase-architecture`, `setup` linked siblings as `../ai:<skill>/SKILL.md`, but the directories are `<skill>` (no `ai:` prefix). Stripped the prefix; all targets resolve.
-  - **Dead-link checker matched links inside inline code spans** — `` `[text](path)` `` syntax examples (in CHANGELOG, docs-sync/commands SKILLs) were flagged as navigable. Now a link is skipped only when the whole match sits inside a backtick span; a backtick *label* like `` [`tdd`](./x.md) `` stays checked (`bin/ai-kit-docs-sync-dead-links.sh`).
+  - **Dead-link checker matched links inside inline code spans** — link-syntax examples written as inline code (in CHANGELOG, the docs-sync/commands SKILLs) were flagged as navigable. Now a link is skipped only when the whole match sits inside a backtick span; a link whose *label* is inline-code stays checked (`bin/ai-kit-docs-sync-dead-links.sh`).
   - **`.docs-sync-ignore` path-prefix entries were broken** (`bin/lib/docs-sync-excludes.sh`): the `${line#**/}` glob collapsed `tests/fixtures` → basename `fixtures` (would prune canonical `standards/`), and `awk -v` choked on the newline-joined prefix list (silently dropped every file). Both fixed — `**/` strip now guarded to literal prefixes; prefix filter rewritten in pure bash.
 - Added repo `.docs-sync-ignore` excluding non-authored / duplicate trees from ai-kit's self-scan: `.agents/` (third-party installed skills), `tests/fixtures/` (intentional broken links), the synced `workflow/standards` + `workflow/context` mirrors (canonical copies are scanned), and the frozen `docs/roadmap-archive.md`.
 - Regression: inline-code-span fixture + assert in the docs-sync test. Full suite 910 passed / 0 failed.

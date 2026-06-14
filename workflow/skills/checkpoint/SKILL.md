@@ -1,7 +1,7 @@
 ---
 name: checkpoint
 description: "Compact the current session for resumption. Default writes to project auto-memory for same-project, same-machine resume (pairs with /ai:resume). Pass --to tmp to write a transfer briefing to $TMPDIR for another agent, machine, or teammate (includes redaction). Pass --mid-session to compact in place without /clear. Use when context is getting big, before clearing or compacting, before pausing, when wrapping up, or when handing work off."
-argument-hint: "[slug] [--to memory|tmp] [--mid-session]"
+argument-hint: "[slug] [--to memory|tmp] [--mid-session] [--also-housekeeping] [--skip-housekeeping]"
 allowed-tools:
   - Read
   - Write
@@ -49,6 +49,12 @@ Parse the slash arguments before anything else:
 - `--to memory|tmp` — destination. Default `memory`.
 - `--mid-session` — compact without ending the session; the user explicitly
   stays in this conversation.
+- `--also-housekeeping` — after writing the memo, also **auto-apply** the safe,
+  idempotent fixes surfaced by the §7 housekeeping run. Off by default (the run
+  is report-only).
+- `--skip-housekeeping` — skip the §7 housekeeping run entirely; fall back to the
+  cheap "Before clear, consider:" nudge. Use for trivial or cost-sensitive
+  sessions. Mutually exclusive with `--also-housekeeping`.
 
 If `--to` value is anything other than `memory` or `tmp`, stop and ask. Never
 silently default away from an explicit user choice.
@@ -154,6 +160,14 @@ type: project
 <3-6 lines: what to read first, where the work resumes,
 which architectural decisions are already locked, what the user wants
 verified or still ambiguous.>
+
+## Housekeeping
+<populated by §7 — omit entirely when --skip-housekeeping or nothing applied>
+- Score: <N>/100
+- hygiene: <one-line summary or "clean">
+- docs-sync: <one-line summary or "clean">
+- Applied: <fixes auto-applied with --also-housekeeping, else "none (report-only)">
+- Needs approval: <items left for the user, or "none">
 ```
 
 Keep it scannable: bullets > paragraphs, exact paths > prose, file:line
@@ -199,30 +213,45 @@ If any check fails, regenerate the sparse sections — do NOT ship a hollow
 memo. A hollow checkpoint is worse than no checkpoint because it gives
 false confidence that the session was captured.
 
-## 7. Confirm, fire cross-cue, stop
+## 7. Housekeeping run, confirm, stop
 
-Before printing the final confirmation, run the cross-cue helper:
+Close the session loop inline instead of leaving a nudge the user has to act on
+later. **Default = report-only run** (no mutation). Honour the flags from `<args>`:
+
+**`--skip-housekeeping`** — skip the run; just fire the cheap cross-cue nudge and
+go to the confirm print:
 
 ```bash
 bash "${CLAUDE_PLUGIN_ROOT}/bin/ai-kit-docs-sync-nudge.sh" "<project_path>" --context=checkpoint
 ```
 
-It prints a small "Before clear, consider:" block listing `/ai:hygiene`
-(install + framework wiring health) and/or `/ai:docs-sync` (content drift —
-dead links, repo-hygiene, finished-work cleanup) **only when applicable**:
+**Default and `--also-housekeeping`** — run both checks read-only and capture the
+output, applying the same applicability gates the nudge used:
 
-- `/ai:hygiene` shown when `.ai-kit-setup` marker exists in the project.
-- `/ai:docs-sync` shown when the project has a `docs/` dir, any `*.md` file, or more than one local branch.
+```bash
+# /ai:hygiene  — only when an .ai-kit-setup marker exists in the project
+bash "${CLAUDE_PLUGIN_ROOT}/bin/ai-kit-hygiene.sh" "<project_path>"
+# /ai:docs-sync — only when the project has a docs/ dir, any *.md, or >1 local branch
+bash "${CLAUDE_PLUGIN_ROOT}/bin/ai-kit-docs-sync.sh" "<project_path>" --no-prompt
+```
 
-If neither applies the helper prints nothing — surface nothing in that
-case. The helper is fast (<50ms on a typical repo) and reuses the central
-applicability functions in `bin/lib/applicability.sh`, so checkpoint /
-ship / triage all stay in sync.
+(The same `bin/lib/applicability.sh` functions decide each; if neither applies,
+run nothing and omit the `## Housekeeping` section.) Fold the results into the
+memo's `## Housekeeping` section (§4): the hygiene `Score: N/100`, a one-line
+summary per check, and an explicit **Applied** vs **Needs approval** split.
+
+- **Default (report-only):** mutate nothing. List what *could* be auto-fixed
+  under "Needs approval"; leave it for the user.
+- **`--also-housekeeping`:** additionally apply the safe, idempotent fixes now —
+  dead-link removal from `MEMORY.md`, empty-dir `rmdir`, finished-work branch
+  cleanup. Anything risky (ai-kit version bumps, hook-wiring drift, content
+  rewrites) is **never** auto-applied — surface it under "Needs approval" as a
+  single closing question, not separate skill-runs.
 
 Then print: "Checkpoint saved: `<relative-path>`. You can run /clear
 (or /compact) now."
 
-In `--mid-session` mode: same memo, same path, but print "Checkpoint saved
+In `--mid-session` mode: same memo + housekeeping, but print "Checkpoint saved
 (mid-session): `<relative-path>`. Continue in this session — focus on the
 next 1-3 items from Open/next; defer the rest to the doc." Do NOT suggest
 /clear.

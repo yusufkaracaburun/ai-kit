@@ -263,6 +263,15 @@
       "signals": {
         "files": [".pre-commit-config.yaml", ".pre-commit-config.yml"]
       }
+    },
+    {
+      "name": "pre-write-gate",
+      "category": "discipline",
+      "event": "PreToolUse",
+      "matcher": "Edit|Write|MultiEdit",
+      "best_for": "Projects whose CLAUDE.md / AGENTS.md carry pre-implementation rules (minimum-code, surgical-scope, push-back-before-coding) that get skipped when the agent jumps straight to editing",
+      "value": "Fires before every Edit/Write and surfaces the 4-principle pre-write checklist (state assumptions · minimum code · surgical scope · verifiable goal) as non-blocking additionalContext — an enforcement layer that holds regardless of which skill is active. Closes the gap where auto-loaded CLAUDE.md rules are present but never gated at edit time (#101).",
+      "universal": true
     }
   ]
 }

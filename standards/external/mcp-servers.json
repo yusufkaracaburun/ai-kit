@@ -216,6 +216,21 @@
       "signals": {
         "dependencies": ["exa-py", "exa-js"]
       }
+    },
+    {
+      "name": "shadcn",
+      "category": "ui",
+      "best_for": "Projects using shadcn/ui (a components.json with the shadcn schema is present) — agent searches the registry and pulls component source + usage examples instead of guessing",
+      "value": "First-class shadcn MCP (Claude Code / Cursor / VS Code / Codex): search components, read source, install from any registry. Fires on the shadcn framework signal (components.json schema match). Scope: a single components.json → project-scope (.mcp.json); a monorepo with several components.json → user-scope, so one install serves every app.",
+      "install_paths": {
+        "preferred": "npx shadcn@latest mcp init --client claude",
+        "fallback_user_scope": "claude mcp add --scope user shadcn -- npx shadcn@latest mcp",
+        "detection": "claude mcp list 2>/dev/null | grep -qi shadcn",
+        "conflict_note": "Skip if a shadcn MCP entry already exists. `mcp init` writes a project .mcp.json; in a monorepo with multiple components.json prefer the user-scope add (one server, cwd-relative) over per-app .mcp.json writes."
+      },
+      "signals": {
+        "frameworks": ["shadcn"]
+      }
     }
   ]
 }

@@ -106,9 +106,18 @@ JSON_PLUGIN="$("$AIKIT/bin/recommend-tools.sh" "$TOOLS_TMP" --json --kind plugin
 assert "recommend-tools --kind plugin: only plugins" 'echo "$JSON_PLUGIN" | python3 -c "import json,sys; d=json.load(sys.stdin); assert all(r[\"kind\"]==\"plugin\" for r in d[\"recommendations\"]) and len(d[\"recommendations\"])>0"'
 rm -rf "$TOOLS_TMP"
 
+# #102: a components.json with the shadcn schema → shadcn MCP recommended.
+SHADCN_TMP=$(mktemp -d)
+printf '{"$schema":"https://ui.shadcn.com/schema.json","style":"new-york"}' > "$SHADCN_TMP/components.json"
+JSON_SHADCN_MCP="$("$AIKIT/bin/recommend-tools.sh" "$SHADCN_TMP" --json --kind mcp)"
+assert "recommend-tools: components.json surfaces shadcn MCP (#102)" \
+  'echo "$JSON_SHADCN_MCP" | python3 -c "import json,sys; d=json.load(sys.stdin); assert \"shadcn\" in [r[\"name\"] for r in d[\"recommendations\"]]"'
+rm -rf "$SHADCN_TMP"
+
 EMPTY_TMP=$(mktemp -d)
 JSON_EMPTY="$("$AIKIT/bin/recommend-tools.sh" "$EMPTY_TMP" --json)"
 assert "recommend-tools empty stack: universal hooks still surfaced" 'echo "$JSON_EMPTY" | grep -q "\"name\": \"block-lockfile-edits\""'
+assert "recommend-tools empty stack: pre-write-gate hook surfaced (#101)" 'echo "$JSON_EMPTY" | grep -q "\"name\": \"pre-write-gate\""'
 assert "recommend-tools empty stack: universal plugins still surfaced" 'echo "$JSON_EMPTY" | grep -q "\"name\": \"claude-mem\""'
 assert "recommend-tools empty stack: universal MCP (context7) still surfaced" 'echo "$JSON_EMPTY" | grep -q "\"name\": \"context7\""'
 assert "recommend-tools empty stack: only universal MCPs surface (context7), no stack-specific MCPs" 'echo "$JSON_EMPTY" | python3 -c "import json,sys; d=json.load(sys.stdin); mcp_names = [r[\"name\"] for r in d[\"recommendations\"] if r[\"kind\"]==\"mcp\"]; assert mcp_names == [\"context7\"], f\"expected only context7, got {mcp_names}\""'

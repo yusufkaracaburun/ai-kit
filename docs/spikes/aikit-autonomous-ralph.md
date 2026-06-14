@@ -269,6 +269,20 @@ verbatim from the upstream paths listed.
 
 - **Actual contract-gap closure in code** (the four preflight events implemented as bash + the merge-policy detection wired into step 0) lands in subsequent issues; this research arc + SKILL.md draft is the **doc-only** scope of #21. Promotion of `autonomous` from spike → released still requires those three implementation issues to close per the original spike verdict (above).
 
+## External validation
+
+Addy Osmani, *Loop Engineering* (https://addyosmani.com/blog/loop-engineering/,
+2026) — independent confirmation that this design is now mainstream practice, not
+a solo bet. The essay's six primitives map 1:1 onto the surfaces above:
+automations, worktrees, skills, MCP connectors, ideate≠verify sub-agents, and
+external state — every one already shipped in ai-kit or the Claude Code harness
+(see the [primitives mapping](#mapping-to-ai-kit-primitives)). It also names the
+core risk this spike's [trust model](#trust-model) guards against: **comprehension
+debt** / **cognitive surrender** — the loop runs faster than a human can verify,
+so the verification burden must stay explicitly human. `/ai:should-i-use` verdict
+on the article was **Ignore** (essay, not a tool — nothing to wire); this cite is
+the salvage.
+
 ## Follow-ups (out of scope for spike)
 
 - `bin/autonomous.sh` helper (queue read, progress-log append) once
