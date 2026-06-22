@@ -7,7 +7,7 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-06-14 against 7 open issues (#101/#102/#103/#107 shipped in v1.42.0; #105 in v1.41.1)._
+_Last reconciled: 2026-06-22 against 8 open issues (#109 added — codebase-memory-mcp graphify-replacement spike; #101/#102/#103/#107 shipped in v1.42.0; #105 in v1.41.1)._
 
 ## P2 — next up
 
@@ -17,6 +17,12 @@ _Last reconciled: 2026-06-14 against 7 open issues (#101/#102/#103/#107 shipped 
 
 ## P3 — backlog
 
+- **#109** `enhancement · catalog-candidate` — spike: evaluate
+  `codebase-memory-mcp` (DeusData) as a graphify *replacement*. should-i-use
+  verdict was Ignore for the catalog (alternative, not complementary; logged in
+  `plugins-excluded.json`); only open question is whether its type-aware /
+  semantic / Cypher engine beats graphify enough to migrate, against the MCP
+  footprint cost (ADR-0006). No pain with graphify today.
 - **#106** `enhancement · catalog-candidate` — fold the Pencil design→code→verify
   skill into ai-kit. Adopt-candidate → routes through `/ai:should-i-use` + the
   `plugins-excluded.json` / catalog ledger before any fold.
