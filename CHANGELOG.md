@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.43.0 — 2026-06-22
+
+### Added
+
+- **`recommend-tools` surfaces deliberate exclusions** — new Phase 2b reads `standards/external/plugins-excluded.json` and lists every excluded tool (name + one-line reason) as a "considered, not adopted" curation boundary. Closes the gap where the ecosystem audit's `KEEP-EXTERNAL` path only fired for *already-installed* tools, so a fresh project never learned what ai-kit deliberately rejected. `/ai:setup` Branch 14 points at the behavior; surfaced in the recommend-tools output contract.
+
+### Changed
+
+- **`plugins-excluded.json` +1: `designlang`** (Manavarya09/design-extract). should-i-use verdict **Ignore**: a live-DOM design-system *extraction* tool that ships an MCP server (structurally mcp-bucket-eligible) but optimizes none of the companion catalog's AI-loop dimensions, fails the promotion-quorum bar (single-maintainer, v12.x high-churn, sponsor-affiliate README → preview-only), and is one-shot task tooling, not durable per-project infra. Same out-of-scope bucket as `taste-skill`. Direct-install pointer kept in the entry's `alternative`.
+
+### Notes
+
+LEAN: catalog data + SKILL.md prose only; no scorer/script/schema change. `audit-setup-symmetry` green; standards mirror identical.
+
 ## 1.42.0 — 2026-06-14
 
 ### Added
