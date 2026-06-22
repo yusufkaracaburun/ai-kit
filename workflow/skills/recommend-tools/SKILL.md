@@ -74,6 +74,20 @@ Judge fit against the actual repo, do not blanket-recommend:
 
 State, for each: present-or-not, fit for *this* repo, and the one-line why.
 
+### Phase 2b — Surface deliberate exclusions
+
+Recommendations have a flip side: tools ai-kit **considered and deliberately does
+not adopt**. The audit (`ai-kit-audit-ecosystem.sh`, Phase 0) only emits
+`EXCLUDED` / KEEP-EXTERNAL when the tool is *already installed* on the host — so a
+fresh project never learns what was rejected. Close that gap here.
+
+Read `standards/external/plugins-excluded.json` and surface every `excluded[]`
+entry as a short "considered, not adopted" list — `name` + the one-line gist of
+`reason`. Frame it as a deliberate curation boundary, not a backlog: these are
+*not* promotion candidates. Keep it to one line each; point the user at the
+`alternative` field (direct-install pointer) only if they ask about a specific
+entry. This is the complement to the audit's installed-only KEEP-EXTERNAL path.
+
 ### Phase 3 — Wire what the user picks
 
 Glue templates live in `$AI_KIT_ROOT/context/templates/companions/`. Wire only the tools the user agreed to.
@@ -108,6 +122,7 @@ End by reporting:
 - **Wired:** which tools, which files changed (`AGENTS.md`, `CLAUDE.md` when Claude Code project, `.claude/settings.json`, `.graphifyignore` for graphify when newly written).
 - **Needs install:** any recommended tool whose CLI/skills are missing — with the upstream pointer.
 - **Deferred:** tools the user said "later" to.
+- **Deliberately excluded:** the names surfaced in Phase 2b, one line — so the user sees the curation boundary, not a gap.
 - **Next step:** for graphify, the init command to run.
 
 If a file edit or merge failed, say so. Never report a tool wired when its glue is not on disk.

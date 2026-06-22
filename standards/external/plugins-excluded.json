@@ -14,6 +14,11 @@
       "name": "taste-skill",
       "reason": "Anti-slop frontend design pack (Leonxlnx/taste-skill, installs via `npx skills add` — not a Claude Code marketplace plugin, so it does not fit the plugins.json schema). Overlaps the existing design entries (frontend-design / lazyweb) and ui-ux-pro-max; single-source preview. Its distinctive value (GSAP motion code skeletons + AI image-board generation) is design *generation*, out of scope for what ai-kit recommends as durable per-project infra. should-i-use verdict: Ignore.",
       "alternative": "If a project specifically wants its motion/image-board generation, install directly: `npx skills add https://github.com/Leonxlnx/taste-skill`. Use ui-ux-pro-max for reasoned design-system output."
+    },
+    {
+      "name": "designlang",
+      "reason": "Live-DOM design-system EXTRACTION tool (Manavarya09/design-extract, npm `designlang`). Ships an MCP server + Claude Code plugin, so it is structurally eligible for the mcp-servers.json bucket — but it optimizes none of the AI-loop dimensions the companion catalog is for (graphify=input, caveman=output, llm-wiki=memory, context7=docs); it emits frontend artefacts (DTCG tokens / Tailwind / shadcn / Figma) from a URL. That is one-shot task tooling you run when cloning/matching a design, not durable per-project infra that compounds each session. Fails the promotion-quorum bar (single-maintainer, v12.23 high-churn, sponsor-affiliate README → 1 source, preview-only, never default-recommended). Same out-of-scope bucket as taste-skill (design generation/extraction). should-i-use verdict: Ignore.",
+      "alternative": "If a frontend project genuinely needs live-site token extraction or CI drift-check against a deployed source-of-truth, install directly and wire its MCP: `npx designlang <url>` / `designlang mcp`. Use ui-ux-pro-max for reasoned design-system output."
     }
   ]
 }

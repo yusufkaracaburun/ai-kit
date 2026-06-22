@@ -369,7 +369,10 @@ companion tools (graphify, caveman, llm-wiki), MCP servers
 (`standards/external/hooks-patterns.json`), Claude Code plugins +
 subagents, and self-host PaaS (`standards/external/paas.json`) against
 the detected stack and project shape. ai-kit never auto-installs — the
-skill previews each candidate and lets the user pick per item.
+skill previews each candidate and lets the user pick per item. It also
+surfaces the **deliberately-excluded** list (`plugins-excluded.json`) so the
+user sees what ai-kit considered and chose not to adopt, not just what it
+recommends.
 
 Offer it once. The skill may search the web for upstream install commands, so
 never run it silently:
