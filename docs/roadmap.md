@@ -7,7 +7,7 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-06-22 against 8 open issues (#109 added — codebase-memory-mcp graphify-replacement spike; #101/#102/#103/#107 shipped in v1.42.0; #105 in v1.41.1)._
+_Last reconciled: 2026-06-23 against 9 open issues (#110 added — headroom tool-output-compression companion spike; #109 codebase-memory-mcp graphify-replacement spike; #101/#102/#103/#107 shipped in v1.42.0; #105 in v1.41.1)._
 
 ## P2 — next up
 
@@ -17,6 +17,13 @@ _Last reconciled: 2026-06-22 against 8 open issues (#109 added — codebase-memo
 
 ## P3 — backlog
 
+- **#110** `enhancement · catalog-candidate` — spike: evaluate `headroom`
+  (headroomlabs-ai) as a proxy-level **tool-output compression** companion.
+  should-i-use verdict was Ignore for the catalog (logged in
+  `plugins-excluded.json`); in-category + popular (~47k stars) but blocked on
+  footprint (ADR-0006), trust surface (proxy MITMs all prompts + auto-edits
+  CLAUDE.md), and overlap (output-shaper vs caveman, memory vs llm-wiki). Only
+  its tool-output compression is genuinely new vs graphify. No pain today.
 - **#109** `enhancement · catalog-candidate` — spike: evaluate
   `codebase-memory-mcp` (DeusData) as a graphify *replacement*. should-i-use
   verdict was Ignore for the catalog (alternative, not complementary; logged in
