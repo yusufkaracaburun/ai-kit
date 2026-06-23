@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.43.1 — 2026-06-23
+
+### Changed
+
+- **`plugins-excluded.json` +1: `codebase-memory-mcp`** (DeusData/codebase-memory-mcp, MIT). should-i-use verdict **Ignore**: a tree-sitter + Hybrid-LSP code-intelligence MCP that is an *alternative* to graphify (ai-kit's knowledge-graph/input companion), not complementary — its own README calls itself "similar in spirit to graphify's graphify-out/". Two knowledge-graph tools = double-bundle noise; also runs against ADR-0006 (ai-kit deliberately dropped MCP, stays pure Bash+Markdown). Whether it should *replace* graphify is a deliberate spike, not a catalog add — tracked in #109.
+
+### Notes
+
+Patch release: marketplace was stranded at v1.40.0 (3 releases behind); this cut captures the untagged `codebase-memory-mcp` ledger commit so the marketplace can advance to a tag that includes all of master. Data-only (catalog ledger); no scorer/skill/schema change.
+
 ## 1.43.0 — 2026-06-22
 
 ### Added
