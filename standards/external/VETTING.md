@@ -18,9 +18,9 @@ license trap, or category-confused with something already shipped.
 Catalogs grow by addition. Without a bar, drift accumulates. With a bar,
 additions stay deliberate.
 
-## The seven criteria
+## The eight criteria
 
-A candidate **must clear all seven** before it lands in any
+A candidate **must clear all eight** before it lands in any
 `standards/external/*.json` table.
 
 ### 1. Storage / data-shape parity with marketing
@@ -132,6 +132,35 @@ A candidate without a pinnable upstream cannot be vendored — fall back to
 HTTP/MCP-client recommendation only, or skip. Mark as `PROVENANCE:
 <sha>|<unpinnable>`.
 
+### 8. Security / malicious-pattern scan
+
+The first seven criteria check whether a candidate is *honest* and *compatible*.
+This one checks whether it is *safe to execute*. Skills, plugins, and hooks run
+with implicit trust — a category-correct, license-clean, accurately-marketed
+skill can still ship a prompt injection or an exfil payload.
+
+Surfaced by `/should-i-use` on NVIDIA/SkillSpector 2026-06-26 (verdict: Ignore
+for the catalog, wire as ai-kit's own gate — #111). The tool itself is not
+required; the *check* is.
+
+- **Probe:** run a static skill-security scan over the candidate's source —
+  `skillspector scan <dir> --no-llm` (zero-API, no network beyond OSV.dev) or
+  an equivalent. Triage prompt-injection, data-exfiltration,
+  privilege-escalation, supply-chain, excessive-agency, and tool-poisoning hits.
+- **Probe:** read `SKILL.md` / system prompts by hand for instruction
+  injection, system-prompt-leak phrasing, anti-refusal / trigger-abuse wording.
+- **Probe (least privilege):** does the candidate request broader tool,
+  filesystem, or network scope than its stated job needs? Unexplained breadth
+  is a finding even with no overt payload.
+
+**Fail mode:** any high-severity malicious pattern, or unjustified broad agency.
+Mark as `SECURITY-SCAN: pass|fail (<finding>)`.
+
+**Scope:** applies to candidates whose source is vendored or whose skill files
+are fetchable. An MCP server contacted purely over the wire is not
+source-scannable — mark `SECURITY-SCAN: n/a (remote)` and defer to a runtime
+least-privilege review at install time.
+
 ## Audit format
 
 Every entry that lives in a `standards/external/*.json` table must have a
@@ -146,8 +175,13 @@ matching row in this file's [Audit log](#audit-log) below. Format:
   MATURITY:         pass|fail (<note>)
   DATA-LOCALITY:    local|self-host|vendor:<region>|opaque
   PROVENANCE:       <sha>|n/a (built-in)
+  SECURITY-SCAN:    pass|fail|n/a (<note>)
   VERDICT:          ADD|REJECT|REVISIT (<reason>)
 ```
+
+Rows audited before criterion #8 landed (2026-06-26) carry
+`SECURITY-SCAN: not-run (pre-#8)` until the next annual re-walk — they are not
+retroactively rewritten, only re-scanned on cadence.
 
 `n/a` is allowed only where a criterion does not apply (e.g., a built-in
 formatter recipe with no upstream repo to pin — `PROVENANCE: n/a`).
@@ -155,11 +189,12 @@ formatter recipe with no upstream repo to pin — `PROVENANCE: n/a`).
 
 ## Re-audit cadence
 
-- **On every new catalog addition** — run the seven criteria, append to the
+- **On every new catalog addition** — run the eight criteria, append to the
   audit log, commit alongside the entry. PRs adding entries without an
   audit row are blocked.
 - **Annually** — re-walk existing entries; flag any whose upstream has
-  drifted (license change, abandonment, claim shift). Move drifted entries
+  drifted (license change, abandonment, claim shift) and run the #8 security
+  scan on any row still marked `not-run (pre-#8)`. Move drifted entries
   to a `REVISIT` section.
 - **On any `/should-i-use` finding** — if a usage check surfaces a parity
   gap, update the entry's audit row inline.
@@ -286,4 +321,4 @@ catalog.
 
 When `/should-i-use` returns **Adopt-as-pattern** with explicit catalog
 implication (e.g. "this should land in `standards/external/`"), that's
-the signal to run the seven criteria here.
+the signal to run the eight criteria here.
