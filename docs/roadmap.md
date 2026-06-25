@@ -7,7 +7,7 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-06-23 against 9 open issues (#110 added — headroom tool-output-compression companion spike; #109 codebase-memory-mcp graphify-replacement spike; #101/#102/#103/#107 shipped in v1.42.0; #105 in v1.41.1)._
+_Last reconciled: 2026-06-26 against 10 open issues (#111 added — SkillSpector skill-security scanner: Ignore for catalog, spike to wire into ai-kit's own CI + vetting; #110 headroom tool-output-compression companion spike; #109 codebase-memory-mcp graphify-replacement spike; #101/#102/#103/#107 shipped in v1.42.0; #105 in v1.41.1)._
 
 ## P2 — next up
 
@@ -17,6 +17,17 @@ _Last reconciled: 2026-06-23 against 9 open issues (#110 added — headroom tool
 
 ## P3 — backlog
 
+- **#111** `enhancement · catalog-candidate` — spike: wire `SkillSpector` (NVIDIA,
+  Apache-2.0) skill-security scanner into ai-kit's **own** CI + should-i-use
+  vetting. should-i-use verdict was Ignore for the catalog (one-shot scanner, not
+  a compounding companion; Python+LLM+MCP footprint vs ADR-0006; logged in
+  `plugins-excluded.json`) — but UNLIKE the other Ignores it plugs a real gap:
+  VETTING.md's seven criteria have no automated security/malicious-pattern
+  dimension, yet ai-kit emits 27 skills + recommends 12 plugins under an implicit
+  "safe to wire" endorsement. First slice: `skillspector scan --no-llm` (static,
+  zero-API) as an advisory SARIF gate on emitted skills + a should-i-use probe for
+  community skills. Arguably more actionable than #109/#110 — closes a hole rather
+  than re-litigating an existing companion.
 - **#110** `enhancement · catalog-candidate` — spike: evaluate `headroom`
   (headroomlabs-ai) as a proxy-level **tool-output compression** companion.
   should-i-use verdict was Ignore for the catalog (logged in
