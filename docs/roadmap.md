@@ -7,7 +7,8 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-07-09 against 12 open issues (#112 added — OpenSpec: Ignore for catalog, spike on whether `to-issues` should emit an in-repo spec-delta; #108 was untracked + unlabelled, now P2; #111 SkillSpector skill-security scanner spike; #110 headroom tool-output-compression companion spike; #109 codebase-memory-mcp graphify-replacement spike; #101/#102/#103/#107 shipped in v1.42.0; #105 in v1.41.1)._
+_Last reconciled: 2026-07-09 against 13 open issues (#113 added — marker ↔ hook-wiring
+cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore for catalog, spike on whether `to-issues` should emit an in-repo spec-delta; #108 was untracked + unlabelled, now P2; #111 SkillSpector skill-security scanner spike; #110 headroom tool-output-compression companion spike; #109 codebase-memory-mcp graphify-replacement spike; #101/#102/#103/#107 shipped in v1.42.0; #105 in v1.41.1)._
 
 ## P2 — next up
 
@@ -23,6 +24,13 @@ _Last reconciled: 2026-07-09 against 12 open issues (#112 added — OpenSpec: Ig
 
 ## P3 — backlog
 
+- **#113** `enhancement` — nothing cross-checks a project's `.ai-kit-setup` marker
+  against the real wiring in `.claude/settings.json`: `ai-kit-upgrade.sh` re-stamps
+  two keys, `audit-setup-symmetry.sh` only greps ai-kit's own source, and
+  `verify-setup.sh` never mentions `hook` or `settings.json`. Found in the wild —
+  `emeq/.ai-kit-setup` claims 9 `hooks_wired`, three of which fire nowhere. Blocked
+  on one design call: is the marker authoritative or advisory? Fix shape: a
+  marker ↔ settings.json check in `verify-setup.sh`, surfaced via `/ai:hygiene`.
 - **#112** `enhancement` — spike: should `to-issues` emit an in-repo **spec-delta**
   reviewable in the same PR as the code? Surfaced by `/ai:should-i-use` on
   OpenSpec (Fission-AI), whose verdict was Ignore for the catalog — alternative
