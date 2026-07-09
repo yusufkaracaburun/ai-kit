@@ -28,9 +28,10 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
   against the real wiring in `.claude/settings.json`: `ai-kit-upgrade.sh` re-stamps
   two keys, `audit-setup-symmetry.sh` only greps ai-kit's own source, and
   `verify-setup.sh` never mentions `hook` or `settings.json`. Found in the wild —
-  `emeq/.ai-kit-setup` claims 9 `hooks_wired`, three of which fire nowhere. Blocked
-  on one design call: is the marker authoritative or advisory? Fix shape: a
-  marker ↔ settings.json check in `verify-setup.sh`, surfaced via `/ai:hygiene`.
+  `emeq/.ai-kit-setup` claims 9 `hooks_wired`, three of which fire nowhere. Decided
+  2026-07-09: the marker is **advisory** — `verify-setup.sh` derives truth from
+  `settings.json` alone (dangling commands + orphan scripts), no `hooks_wired` key.
+  Unblocked; ready to scope. Surfaced via `/ai:hygiene`.
 - **#112** `enhancement` — spike: should `to-issues` emit an in-repo **spec-delta**
   reviewable in the same PR as the code? Surfaced by `/ai:should-i-use` on
   OpenSpec (Fission-AI), whose verdict was Ignore for the catalog — alternative
