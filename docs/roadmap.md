@@ -7,7 +7,8 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-07-09 against 14 open issues (#114 added — bootstrap pins the versioned
+_Last reconciled: 2026-07-09 against 15 open issues (#115 added — GitHub Copilot as a rules-only
+third host, blocked on ADR-0010; #114 added — bootstrap pins the versioned
 plugin-cache path, bricked emeq's 114 skill symlinks, naschool primed to follow; #113 added — marker ↔ hook-wiring
 cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore for catalog, spike on whether `to-issues` should emit an in-repo spec-delta; #108 was untracked + unlabelled, now P2; #111 SkillSpector skill-security scanner spike; #110 headroom tool-output-compression companion spike; #109 codebase-memory-mcp graphify-replacement spike; #101/#102/#103/#107 shipped in v1.42.0; #105 in v1.41.1)._
 
@@ -27,6 +28,14 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P2 — next up
 
+- **#115** `enhancement · primitive:rule` — add **GitHub Copilot** as a third,
+  rules-only host: one `bin/lib/emitters/copilot.sh` emitting a single
+  `.github/copilot-instructions.md`. Copilot has no `SKILL.md` primitive, and no
+  ai-kit rule carries file-glob metadata, so 30 `.instructions.md` files would be
+  `applyTo: "**"` each — identical behaviour, 30× the surface. Skills are
+  deliberately not ported (`*.prompt.md` cannot auto-route on description).
+  Blocked on accepting [ADR-0010](adr/0010-add-github-copilot-as-rules-only-host.md),
+  which amends ADR-0006 and carries a six-month delete-if-unused guard.
 - **#108** `enhancement` — auto-memory `MEMORY.md` grows unbounded: `/ai:checkpoint`
   appends one index line per session, and the index loads into context *every*
   session. Observed at ~25KB / 40+ lines before manual trimming. The only open
