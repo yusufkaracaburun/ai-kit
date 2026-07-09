@@ -7,8 +7,23 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-07-09 against 13 open issues (#113 added — marker ↔ hook-wiring
+_Last reconciled: 2026-07-09 against 14 open issues (#114 added — bootstrap pins the versioned
+plugin-cache path, bricked emeq's 114 skill symlinks, naschool primed to follow; #113 added — marker ↔ hook-wiring
 cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore for catalog, spike on whether `to-issues` should emit an in-repo spec-delta; #108 was untracked + unlabelled, now P2; #111 SkillSpector skill-security scanner spike; #110 headroom tool-output-compression companion spike; #109 codebase-memory-mcp graphify-replacement spike; #101/#102/#103/#107 shipped in v1.42.0; #105 in v1.41.1)._
+
+## P1 — broken in the wild
+
+- **#114** `bug` — `bootstrap-project.sh` symlinks skills to the **version-numbered
+  plugin-cache path** (`~/.claude/plugins/cache/…/ai/<VERSION>/skills/`), so every
+  `/plugin update` orphans every project symlink. Bricked `emeq` (114 dead links,
+  score 80/100 → 95 after removal); `naschool` is pinned to `1.43.1` with `1.43.2`
+  already installed and reproduces on the next cache GC. Doctor compounds it:
+  `ai-kit-doctor.sh:276` blames "ai-kit moved?" and prescribes the very command that
+  recreates the bug, then warns when the dirs are absent — penalising the healthy
+  plugin-only config that `emeq-hub` runs at 95/100. Fix = stable indirection
+  (`~/.config/ai-kit/plugin-current`) + plugin-aware doctor checks. Open question:
+  Cursor has no plugin channel, so `.cursor/skills` removal must key off actual
+  Cursor usage.
 
 ## P2 — next up
 
