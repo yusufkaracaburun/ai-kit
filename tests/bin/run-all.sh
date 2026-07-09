@@ -50,14 +50,16 @@ run_case() {
 CASE_FILES=()
 while IFS= read -r f; do CASE_FILES+=("$f"); done < <(find "$CASES" -maxdepth 1 -name '*.sh' -type f | sort)
 
-# All-at-once fan-out. Case count is small (≤ ~12) so an explicit pool isn't
-# worth the bash 3.2 portability cost (macOS lacks `wait -n`).
-PIDS=()
+# Bounded fan-out: never more than JOBS cases in flight. Throttling on
+# `jobs -pr` keeps this portable to bash 3.2 (macOS lacks `wait -n`).
+# Unbounded fan-out starves the wall-clock assertions in perf-sensitive cases.
 for case_file in "${CASE_FILES[@]}"; do
+  while [ "$(jobs -pr | wc -l)" -ge "$JOBS" ]; do
+    sleep 0.1
+  done
   run_case "$case_file" &
-  PIDS+=($!)
 done
-for pid in "${PIDS[@]}"; do wait "$pid" || true; done
+wait
 
 END=$(date +%s)
 ELAPSED=$((END - START))
@@ -71,7 +73,9 @@ for log in "$TMPDIR_RUN"/*.log; do
   name=$(basename "$log" .log)
   rc=$(cat "${log%.log}.rc")
   pass_line=$(grep -E '^(PASS|FAIL):' "$log" | tail -1 || true)
-  pass=$(echo "$pass_line" | grep -oE 'PASS: [0-9]+' | awk '{print $2}' || true)
+  # A passing case ends with `PASS: N`; a failing one with `FAIL: N passed: M`.
+  # Match both spellings of the pass count, else failing cases report pass=0.
+  pass=$(echo "$pass_line" | grep -oE '(PASS|passed): [0-9]+' | grep -oE '[0-9]+' | tail -1 || true)
   fail=$(echo "$pass_line" | grep -oE 'FAIL: [0-9]+' | awk '{print $2}' || true)
   pass="${pass:-0}"
   fail="${fail:-0}"

@@ -20,6 +20,11 @@ DRIVER="$AIKIT/bin/ai-kit-docs-sync.sh"
 HYGIENE="$AIKIT/bin/ai-kit-docs-sync-repo-hygiene.sh"
 FIX_RH="$AIKIT/tests/fixtures/docs-sync-repo-hygiene"
 
+# git cannot track an empty directory, and the confirm-fix path below deletes
+# this one. Recreate it every run so a fresh clone, `git clean`, or a stash
+# round-trip cannot leave the fixture half-built.
+mkdir -p "$FIX_RH/empty_dir"
+
 echo "=== artefacts-exist ==="
 assert "repo-hygiene script exists + executable" '[ -x "$HYGIENE" ]'
 assert "repo-hygiene fixture dir exists" '[ -d "$FIX_RH" ]'
