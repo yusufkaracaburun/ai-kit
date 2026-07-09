@@ -43,8 +43,12 @@ emit_human() {
 PATTERNS=(
   "README.md|%RULES% canonical mini-rules"
   "README.md|%COMMANDS% slash commands"
-  "docs/architecture.md|%SKILLS% skills (SKILL.md)"
-  "docs/architecture.md|%COMMANDS% slash commands"
+  "README.md|| Skills | %SKILLS% |"
+  "README.md|| Slash commands | %COMMANDS% |"
+  "README.md|%SKILLS% skills covering one loop"
+  "docs/diagrams.md|%SKILLS% skills"
+  "docs/diagrams.md|%COMMANDS% slash commands"
+  "docs/diagrams.md|%RULES% agent-agnostic rules"
   "docs/install-plugin.md|All %SKILLS% skills"
   "docs/install-plugin.md|All %COMMANDS% slash commands"
   "docs/mental-model.md|How the %SKILLS% skills"
@@ -82,7 +86,9 @@ check_drift() {
       # Surface the nearest stale match so the fix is obvious.
       local stale_template stale_re
       stale_template="$template"
-      stale_re="$stale_template"
+      # Escape ERE metacharacters before the placeholders become `[0-9]+`,
+      # otherwise a literal `|` or `(` in the template reads as regex syntax.
+      stale_re="$(printf '%s' "$stale_template" | sed 's/[][\.^$*+?(){}|]/\\&/g')"
       stale_re="${stale_re//%SKILLS%/[0-9]+}"
       stale_re="${stale_re//%COMMANDS%/[0-9]+}"
       stale_re="${stale_re//%RULES%/[0-9]+}"

@@ -10,34 +10,8 @@ Read this before adding a new primitive type or moving files between layers. For
 2. **Distribution layer** — scripts and manifests that hand artifacts to the host: `bin/install-global.sh` (symlinks), `bin/bootstrap-project.sh` (per-project), the Claude Code plugin (`workflow/.claude-plugin/plugin.json` + `.claude-plugin/marketplace.json`).
 3. **Host layer** — the IDE/CLI that loads the artifacts: Claude Code or Cursor.
 
-```
-┌─────────────────────── source layer ────────────────────────┐
-│  workflow/skills/        38 skills (SKILL.md)               │
-│  workflow/agents/        3 subagents (AGENT.md)             │
-│  workflow/commands/      11 slash commands (.md)            │
-│  standards/rules/        agent-agnostic rule books          │
-│  .claude/settings.json   PostToolUse hook (Skill→log)       │
-│  context/templates/      per-project doc templates          │
-│  bin/                    scripts (install, doctor, emit…)   │
-└────────────────────────────┬────────────────────────────────┘
-                             │
-        ┌────────────────────┼────────────────────────┐
-        ▼                    ▼                        ▼
-  ┌──────────────┐    ┌───────────────┐      ┌────────────────┐
-  │ install-     │    │ bootstrap-    │      │ .claude-plugin/│
-  │ global.sh    │    │ project.sh    │      │ + marketplace  │
-  │ (symlinks)   │    │ (per-project) │      │ (Claude Code)  │
-  └──────┬───────┘    └───────┬───────┘      └────────┬───────┘
-         │                    │                       │
-         ▼                    ▼                       ▼
-  ~/.claude/skills/    <proj>/.claude/skills/   Claude Code
-  ~/.claude/agents/    <proj>/.claude/agents/    plugin loader
-  ~/.claude/commands/  <proj>/.claude/commands/  (skills, agents,
-  ~/.agents/skills/    <proj>/.cursor/skills/    commands, hooks)
-  ~/.cursor/skills/    <proj>/AGENTS.md
-                       <proj>/CONTEXT.md
-                       <proj>/.ai-kit-setup
-```
+[diagrams.md](diagrams.md#wiring--how-a-primitive-reaches-the-host) renders these
+three layers, including every path each distribution channel writes to.
 
 ## How a primitive reaches the host
 
@@ -111,6 +85,7 @@ and bundling the hook in the plugin.
 
 ## See also
 
+- [diagrams.md](diagrams.md) — mermaid views of the wiring and of one runtime turn
 - [glossary.md](glossary.md) — definitions of every term used above
 - [primitives.md](primitives.md) — "I want to automate X — which primitive?"
 - [roadmap.md](roadmap.md) — what's coming next

@@ -10,9 +10,9 @@ runtime daemon, no network calls, no telemetry.
 
 | Primitive | Count | Reaches |
 | --------- | -----:| ------- |
-| Skills | 27 | Claude Code · Cursor |
+| Skills | 38 | Claude Code · Cursor |
 | Subagents | 3 | Claude Code |
-| Slash commands | 8 | Claude Code · Cursor |
+| Slash commands | 11 | Claude Code · Cursor |
 | Hooks | 2 | Claude Code |
 | Rules | 30 canonical mini-rules | Cursor · Claude Code (via emitter) |
 | Curated companions | 21 MCP servers · 25 hook recipes · 12 plugins | Recommend-only — never auto-installed |
@@ -66,7 +66,7 @@ First moves:
 
 ## The agile lifecycle
 
-28 skills covering one loop — idea to retro:
+38 skills covering one loop — idea to retro:
 
 | Phase | Skills |
 | ----- | ------ |
