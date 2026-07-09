@@ -7,10 +7,16 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-07-09 against 11 open issues (#112 added — OpenSpec: Ignore for catalog, spike on whether `to-issues` should emit an in-repo spec-delta; #111 SkillSpector skill-security scanner spike; #110 headroom tool-output-compression companion spike; #109 codebase-memory-mcp graphify-replacement spike; #101/#102/#103/#107 shipped in v1.42.0; #105 in v1.41.1)._
+_Last reconciled: 2026-07-09 against 12 open issues (#112 added — OpenSpec: Ignore for catalog, spike on whether `to-issues` should emit an in-repo spec-delta; #108 was untracked + unlabelled, now P2; #111 SkillSpector skill-security scanner spike; #110 headroom tool-output-compression companion spike; #109 codebase-memory-mcp graphify-replacement spike; #101/#102/#103/#107 shipped in v1.42.0; #105 in v1.41.1)._
 
 ## P2 — next up
 
+- **#108** `enhancement` — auto-memory `MEMORY.md` grows unbounded: `/ai:checkpoint`
+  appends one index line per session, and the index loads into context *every*
+  session. Observed at ~25KB / 40+ lines before manual trimming. The only open
+  issue that costs tokens in every project on every run. Fix shape: checkpoint
+  overwrites a single "latest" pointer (append-then-prune); older checkpoint files
+  stay on disk un-indexed; `/ai:resume` picks newest by date. No extra archive file.
 - **#104** `enhancement` — brownfield first-install friction: 15 points / 6 themes
   across setup · doctor · dedupe · status · plugin. Cluster, not one fix →
   decompose via `/ai:to-issues` before scheduling.
