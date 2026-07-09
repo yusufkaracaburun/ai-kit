@@ -1,16 +1,5 @@
 {
   "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "^Skill$",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PROJECT_DIR}/bin/hooks/post-skill-log.sh"
-          }
-        ]
-      }
-    ],
     "PreToolUse": [
       {
         "matcher": "Bash",
