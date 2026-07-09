@@ -7,7 +7,7 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-06-26 against 10 open issues (#111 added — SkillSpector skill-security scanner: Ignore for catalog, spike to wire into ai-kit's own CI + vetting; #110 headroom tool-output-compression companion spike; #109 codebase-memory-mcp graphify-replacement spike; #101/#102/#103/#107 shipped in v1.42.0; #105 in v1.41.1)._
+_Last reconciled: 2026-07-09 against 11 open issues (#112 added — OpenSpec: Ignore for catalog, spike on whether `to-issues` should emit an in-repo spec-delta; #111 SkillSpector skill-security scanner spike; #110 headroom tool-output-compression companion spike; #109 codebase-memory-mcp graphify-replacement spike; #101/#102/#103/#107 shipped in v1.42.0; #105 in v1.41.1)._
 
 ## P2 — next up
 
@@ -17,6 +17,17 @@ _Last reconciled: 2026-06-26 against 10 open issues (#111 added — SkillSpector
 
 ## P3 — backlog
 
+- **#112** `enhancement` — spike: should `to-issues` emit an in-repo **spec-delta**
+  reviewable in the same PR as the code? Surfaced by `/ai:should-i-use` on
+  OpenSpec (Fission-AI), whose verdict was Ignore for the catalog — alternative
+  lifecycle, not a companion; every stage duplicates an ai-kit skill, and
+  `openspec init` forks both the command namespace and the contract surface
+  (logged in `plugins-excluded.json`). Its one novel idea survives the rejection:
+  requirement deltas live in the diff, whereas ai-kit's contract surface is the GH
+  issue body — deliberately outside it. First across five Ignores where ai-kit has
+  no answer, same shape as #111 exposing VETTING.md's missing security criterion.
+  Tension to resolve before building: a second contract surface is the exact
+  cohesion failure OpenSpec was rejected for. No pain today.
 - **#111** `enhancement · catalog-candidate` — spike: wire `SkillSpector` (NVIDIA,
   Apache-2.0) skill-security scanner into ai-kit's **own** CI + should-i-use
   vetting. should-i-use verdict was Ignore for the catalog (one-shot scanner, not
