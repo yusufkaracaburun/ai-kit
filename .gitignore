@@ -27,3 +27,7 @@ tests/eval/results/*
 .claude/skills/
 skills-lock.json
 graphify-out/
+
+# Scratch clones and throwaway working files. Never committed — this repo is
+# public, and scratch material is frequently not.
+.tmp/
