@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.43.2 — 2026-07-09
+
+### Added
+
+- **`docs/diagrams.md`** — mermaid views of the kit: a wiring diagram (source → distribution → host, per primitive) and a runtime diagram (one turn: skill routing, subagent delegation vs. Cursor's inline fallback, `PreToolUse`/`PostToolUse` hook events). `docs/architecture.md` now points at it instead of carrying a second, drift-prone ASCII copy.
+
+### Fixed
+
+- **Primitive-count guard (#90) had holes.** `count-primitives.sh --check` verified README's rule and command counts but never its skill count, and matched none of its table cells. README had advertised 27 skills and 8 slash commands since v1.12.0 with CI green; the real numbers are 38 and 11. Added patterns for the table cells, the prose skill count, and `docs/diagrams.md`.
+- **`count-primitives.sh` stale-match hint mis-parsed its own patterns.** The pattern was fed to `grep -nE` without escaping, so a literal `|` read as alternation and `(SKILL.md)` as a capture group. Escape ERE metacharacters before placeholder substitution.
+- **`tests/bin/run-all.sh` ignored `JOBS`.** It set the variable, printed it in the summary, and launched all 36 cases at once. The 500ms wall-clock assertion in `docs-sync-nudge` failed under contention the runner itself created, and `--serial` was a no-op (157s vs 156s, identical failure). Fan-out is now throttled on `jobs -pr`, portable to bash 3.2.
+- **`run-all.sh` under-counted passes on failing cases.** It matched `PASS: N` only, so a case ending in `FAIL: 1 passed: 22` reported `pass=0`.
+- **`docs-sync-repo-hygiene` fixture could not survive a clean checkout.** It depends on an empty directory — untrackable by git, and deleted by the test's own confirm-fix path. The case now creates it during setup.
+
+### Notes
+
+Patch release: documentation, count-guard coverage, and test-harness correctness. No skill, scorer, or schema change. The full suite now reports 912 passed / 0 failed; before this cut it was 847 passed / 4 failed on master.
+
 ## 1.43.1 — 2026-06-23
 
 ### Changed
