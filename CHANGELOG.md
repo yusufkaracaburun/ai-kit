@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.44.1 — 2026-07-10
+
+### Fixed
+
+- **context-lean no longer warns on Boost-managed files.** Laravel Boost writes `AGENTS.md` as one wholesale `<laravel-boost-guidelines>` block — not user-curatable, so a size warning there is a permanent false positive (−5 on every hygiene run) that can only be silenced by disabling Boost. The check now detects the Boost wrapper on line 1 and emits a note instead of a warning; files with user content above a Boost block still warn. Found in the field on emeq-hub within an hour of the v1.44.0 release.
+
+### Notes
+
+Suite: 929 passed / 0 failed (+2 new asserts).
+
 ## 1.44.0 — 2026-07-10
 
 ### Added
