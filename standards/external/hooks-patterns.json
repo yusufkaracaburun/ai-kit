@@ -265,6 +265,16 @@
       }
     },
     {
+      "name": "test-suite-stop-gate",
+      "category": "tests",
+      "event": "Stop",
+      "best_for": "Block turn end while the project test suite fails — failures feed back (exit 2 + stderr) so the agent fixes before finishing",
+      "value": "Turn-level green gate. Complements the per-edit related-test hooks (jest/pytest/vitest-related) without paying full-suite latency on every edit. Recipe requirements: (1) exit 0 when stop_hook_active is true — prevents infinite fix-loops; (2) skip when the working tree is clean (pure Q&A turns); (3) cache a green-run hash of the diff so an unchanged tree never re-runs the suite; (4) measure suite runtime first — wire only when the full run stays under ~60s, otherwise gate a scoped subset.",
+      "signals": {
+        "files": ["phpunit.xml", "phpunit.xml.dist", "vitest.config.ts", "vitest.config.js", "jest.config.js", "jest.config.ts", "pytest.ini"]
+      }
+    },
+    {
       "name": "pre-write-gate",
       "category": "discipline",
       "event": "PreToolUse",
