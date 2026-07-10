@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.44.0 — 2026-07-10
+
+### Added
+
+- **`/ai:hygiene` section 6: context-lean.** Root `CLAUDE.md` / `AGENTS.md` load at the start of every session — a fixed token tax before the first prompt, and past ~200 lines they reduce adherence rather than help. The new `ai-kit-context-lean.sh` warns (−5 score) when either file exceeds 200 lines and prescribes the curation fix: directory-specific notes → `<subdir>/CLAUDE.md`, stack conventions → path-scoped rules, multi-step procedures → a skill. Skips silently when neither file exists. Opt out per run with `--skip-context-lean`.
+- **`context-discipline` rule: always-loaded files bullet.** Curation beats compression — content moved out of the always-loaded path costs zero tokens per session, while compressing it in place still pays the tax every start.
+
+### Notes
+
+Pattern adopted from a community article on the CLAUDE.md context tax, assessed via `/ai:should-i-use` (verdict: adopt as pattern, narrow slice). Suite: 927 passed / 0 failed (+15 new).
+
 ## 1.43.2 — 2026-07-09
 
 ### Added
