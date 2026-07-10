@@ -41,6 +41,14 @@ OUT_AGENTS="$("$LEAN" "$TMP/agents" 2>&1)" && RC_AGENTS=0 || RC_AGENTS=$?
 assert "context-lean exits 1 on 250-line AGENTS.md" '[ "$RC_AGENTS" -eq 1 ]'
 assert "context-lean warns on AGENTS.md" 'echo "$OUT_AGENTS" | grep -q "WARN: AGENTS.md is 250 lines"'
 
+# Boost-managed AGENTS.md (wholesale <laravel-boost-guidelines> block) is
+# skipped with a note, never warned — its size is Boost's call.
+mkdir -p "$TMP/boost"
+{ echo "<laravel-boost-guidelines>"; seq 1 250 | sed 's/^/line /'; echo "</laravel-boost-guidelines>"; } > "$TMP/boost/AGENTS.md"
+OUT_BOOST="$("$LEAN" "$TMP/boost" 2>&1)"; RC_BOOST=$?
+assert "context-lean exits 0 on Boost-managed 252-line AGENTS.md" '[ "$RC_BOOST" -eq 0 ]'
+assert "context-lean notes Boost-managed skip" 'echo "$OUT_BOOST" | grep -q "Boost-managed"'
+
 # Exactly 200 lines is still clean (threshold is "over", not "at").
 mkdir -p "$TMP/edge"
 seq 1 200 | sed 's/^/line /' > "$TMP/edge/CLAUDE.md"

@@ -24,6 +24,12 @@ for name in CLAUDE.md AGENTS.md; do
   f="$PROJECT_PATH/$name"
   [ -f "$f" ] || continue
   found=1
+  # A file that IS a tool-managed block (Laravel Boost writes AGENTS.md
+  # wholesale) is not user-curatable — its size is the tool's call.
+  if head -1 "$f" | grep -q '^<laravel-boost-guidelines>'; then
+    echo "note: $name is Boost-managed (<laravel-boost-guidelines>) — size is Boost's call, not curatable here; skipped."
+    continue
+  fi
   lines="$(wc -l < "$f" | tr -d ' ')"
   if [ "$lines" -gt "$MAX_LINES" ]; then
     warned=1
