@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.45.0 — 2026-07-10
+
+### Added
+- `test-suite-stop-gate` hook recipe in `standards/external/hooks-patterns.json` — Stop-event gate that blocks turn end while the project test suite fails; failures feed back (exit 2 + stderr) so the agent fixes before finishing. Recipe mandates a `stop_hook_active` loop-guard, clean-tree skip, a green-hash cache so an unchanged tree never re-runs the suite, and a measured-runtime bar (~60s) before wiring. Complements the per-edit `jest/pytest/vitest-related` hooks with a turn-level green gate.
+
 ## 1.44.1 — 2026-07-10
 
 ### Fixed
