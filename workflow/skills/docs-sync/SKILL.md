@@ -64,18 +64,23 @@ When findings exist, the script prints `file:line` + the offending link + the mi
 
 ### graph-fresh — graphify knowledge graph vs HEAD
 
-graphify stamps the commit it indexed into `graphify-out/graph.json` as `built_at_commit`. This check compares it to `HEAD` and counts the files changed since (excluding `graphify-out/` itself — the graph's own output is not code drift).
+graphify stamps a commit into `graphify-out/graph.json` as `built_at_commit`. This check compares it to `HEAD` and counts the files changed since (excluding `graphify-out/` itself — the graph's own output is not code drift).
 
 A stale graph is worse than no graph: `CLAUDE.md` and the search-delegation hook both route the agent to `graphify query` instead of grep, so it answers confidently from a map of code that has already moved.
+
+**Git drift is a candidate, not proof.** graphify only rewrites `graph.json` when the AST topology actually moves, and it strips `built_at_commit` before that comparison (`watch.py`). So the stamp means *"the commit at which graph content last changed"*, not *"the commit the graph has seen"*. A commit touching only config, docs, or comments leaves the stamp behind permanently — and `graphify update` will never advance it. Only graphify can settle whether a changed file moved the graph.
 
 Outcomes:
 
 - **Graph at HEAD**, or commits since the graph touched no files → clean.
-- **Files changed since `built_at_commit`** → warn with the counts + `graphify update .` (AST-only, no API cost).
+- **HEAD recorded in `graphify-out/.ai-kit-graph-verified`** → clean; a previous run already confirmed with graphify that the graph matches the code.
+- **Files changed since `built_at_commit`** → warn (exit 1). On a TTY, offers to run `graphify update .` (AST-only, free). If graphify rebuilds, the graph is now current. If graphify reports *no topology change*, the graph already matched the code — only the stamp was behind — and that HEAD is recorded in `.ai-kit-graph-verified` so it stops nagging.
 - **`built_at_commit` unreachable** (rebased or squashed away) → warn; the graph is anchored to history that no longer exists.
 - **No `built_at_commit` key** → warn; drift is not computable until the graph is rebuilt.
 
-Skips silently when the project has no `graphify-out/graph.json` (most projects) or is not a git repo. Report-only — never runs `graphify update` itself.
+Never recommend a full `graphify .` as the routine refresh — that runs the LLM extractor and costs real money. `graphify update .` is the free, AST-only path.
+
+Skips silently when the project has no `graphify-out/graph.json` (most projects) or is not a git repo. Under `--no-prompt` / non-TTY (CI) it is strictly report-only and never mutates the graph.
 
 ## Non-goals
 

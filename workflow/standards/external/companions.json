@@ -44,9 +44,11 @@
         }
       ],
       "install": {
-        "upstream": "https://github.com/yusufkaracaburun/graphify",
+        "upstream": "https://github.com/Graphify-Labs/graphify",
+        "pypi_package": "graphifyy",
         "auto_install": false,
-        "post_install_command": "graphify ."
+        "post_install_command": "graphify update .",
+        "notes": "Third-party (Graphify-Labs, MIT). The PyPI package is `graphifyy` (double y) while the `graphify` name is being reclaimed upstream; the CLI is still `graphify`. `graphify update .` is AST-only and free; a full `graphify .` calls an LLM extractor and costs real money — never recommend it as the routine refresh."
       }
     },
     {

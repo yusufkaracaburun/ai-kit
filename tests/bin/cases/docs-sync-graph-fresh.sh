@@ -51,17 +51,34 @@ assert "graph-fresh exits 0 when graph is at HEAD" '[ "$RC_CUR" -eq 0 ]'
 assert "graph-fresh reports current" 'echo "$OUT_CUR" | grep -q "graph current at"'
 
 # Graph behind HEAD with real file changes → warn, exit 1, counts + fix hint.
+# Non-TTY, so the settle-prompt is suppressed and nothing is mutated.
 make_repo "$TMP/stale" ""
 STALE_SHA="$(git -C "$TMP/stale" rev-parse HEAD)"
 stamp_graph "$TMP/stale" "$STALE_SHA"
 echo two > "$TMP/stale/b.txt"
 git -C "$TMP/stale" add -A
 git -C "$TMP/stale" commit -qm two
-OUT_STALE="$("$FRESH" "$TMP/stale" 2>&1)" && RC_STALE=0 || RC_STALE=$?
+OUT_STALE="$("$FRESH" "$TMP/stale" --no-prompt 2>&1)" && RC_STALE=0 || RC_STALE=$?
 assert "graph-fresh exits 1 when graph is behind HEAD" '[ "$RC_STALE" -eq 1 ]'
-assert "graph-fresh warns graph is stale" 'echo "$OUT_STALE" | grep -q "WARN: graph is stale"'
+assert "graph-fresh warns graph may be stale" 'echo "$OUT_STALE" | grep -q "WARN: graph may be stale"'
 assert "graph-fresh reports changed-file count" 'echo "$OUT_STALE" | grep -q "1 file(s) changed, 1 commit(s) behind"'
 assert "graph-fresh suggests graphify update" 'echo "$OUT_STALE" | grep -q "graphify update \."'
+assert "graph-fresh explains topology-vs-stamp" 'echo "$OUT_STALE" | grep -q "no topology change"'
+assert "graph-fresh never prompts under --no-prompt" '! echo "$OUT_STALE" | grep -q "\[y/N\]"'
+
+# The naschool case: graphify was run, reported no topology change, so the
+# stamp never advanced. A recorded verified-HEAD settles it — no nagging.
+printf '%s\n' "$(git -C "$TMP/stale" rev-parse HEAD)" > "$TMP/stale/graphify-out/.ai-kit-graph-verified"
+OUT_VERIFIED="$("$FRESH" "$TMP/stale" --no-prompt 2>&1)"; RC_VERIFIED=$?
+assert "graph-fresh exits 0 when HEAD is recorded as verified" '[ "$RC_VERIFIED" -eq 0 ]'
+assert "graph-fresh reports verified-current" 'echo "$OUT_VERIFIED" | grep -q "graph verified current at"'
+
+# A stale verified-marker (older HEAD) must NOT suppress a fresh candidate.
+echo three > "$TMP/stale/c.txt"
+git -C "$TMP/stale" add -A
+git -C "$TMP/stale" commit -qm three
+OUT_MOVED="$("$FRESH" "$TMP/stale" --no-prompt 2>&1)" && RC_MOVED=0 || RC_MOVED=$?
+assert "graph-fresh warns again once HEAD moves past the verified marker" '[ "$RC_MOVED" -eq 1 ]'
 
 # Commits since the graph but no file changes (empty commit) → still accurate, exit 0.
 make_repo "$TMP/nodiff" ""
@@ -99,7 +116,7 @@ echo "=== docs-sync integration: graph-fresh section ==="
 
 OUT_SYNC="$("$SYNC" "$TMP/stale" --skip-dead-links --skip-repo-hygiene --skip-finished-work 2>&1)" || true
 assert "docs-sync runs graph-fresh section" 'echo "$OUT_SYNC" | grep -q "=== graph-fresh"'
-assert "docs-sync surfaces the stale graph" 'echo "$OUT_SYNC" | grep -q "WARN: graph is stale"'
+assert "docs-sync surfaces the stale graph" 'echo "$OUT_SYNC" | grep -q "WARN: graph may be stale"'
 assert "docs-sync reports findings on stale graph" 'echo "$OUT_SYNC" | grep -q "docs-sync: findings reported"'
 
 OUT_SKIP="$("$SYNC" "$TMP/stale" --skip-dead-links --skip-repo-hygiene --skip-finished-work --skip-graph-fresh 2>&1)"

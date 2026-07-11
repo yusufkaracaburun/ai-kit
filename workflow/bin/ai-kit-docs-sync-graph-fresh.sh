@@ -16,11 +16,11 @@
 set -uo pipefail
 
 PROJECT_PATH=""
+NO_PROMPT=0
 
 for arg in "$@"; do
   case "$arg" in
-    # Accepted for aggregator parity; this check never prompts.
-    --no-prompt) ;;
+    --no-prompt) NO_PROMPT=1 ;;
     -*) echo "unknown flag: $arg" >&2; exit 2 ;;
     *)  PROJECT_PATH="$arg" ;;
   esac
@@ -72,6 +72,21 @@ if [ "$built_at" = "$head_sha" ]; then
   exit 0
 fi
 
+# graphify only rewrites graph.json when the AST topology actually moves, and
+# it strips built_at_commit before that comparison (watch.py). So the stamp
+# means "commit at which graph CONTENT last changed" — not "commit the graph
+# has seen". A commit that touches only config, docs, or comments leaves the
+# stamp behind forever, and `graphify update` will never advance it.
+#
+# Consequence: git drift is a CANDIDATE, not proof of staleness. Only graphify
+# can settle it. When a run confirms the graph still matches the code, record
+# the verified HEAD here so the candidate does not nag on every run.
+VERIFIED="$PROJECT_PATH/graphify-out/.ai-kit-graph-verified"
+if [ -f "$VERIFIED" ] && [ "$(cat "$VERIFIED" 2>/dev/null)" = "$head_sha" ]; then
+  echo "graph-fresh: graph verified current at ${head_sha:0:7} (graphify reported no topology change since ${built_at:0:7})."
+  exit 0
+fi
+
 # graphify-out/ is the graph's own output — a change there is not code drift.
 changed="$(git -C "$PROJECT_PATH" diff --name-only "$built_at" HEAD -- . ':(exclude)graphify-out' 2>/dev/null | grep -cv '^$' || true)"
 commits="$(git -C "$PROJECT_PATH" rev-list --count "$built_at".."$head_sha" 2>/dev/null || echo 0)"
@@ -81,11 +96,55 @@ if [ "${changed:-0}" -eq 0 ]; then
   exit 0
 fi
 
-echo "WARN: graph is stale — built at ${built_at:0:7}, HEAD is ${head_sha:0:7} ($changed file(s) changed, $commits commit(s) behind)."
+echo "WARN: graph may be stale — content last changed at ${built_at:0:7}, HEAD is ${head_sha:0:7} ($changed file(s) changed, $commits commit(s) behind)."
 cat <<'HINT'
-Fix: run `graphify update .` (AST-only, no API cost).
 A stale graph is worse than none: CLAUDE.md and the search-delegation hook
 route the agent to `graphify query` instead of grep, so it answers from a map
 of code that has already moved.
+
+Settle it with `graphify update .` (AST-only, no API cost). If graphify reports
+no topology change, the graph already matches the code and only the stamp is
+behind — that is not staleness.
 HINT
-exit 1
+
+if [ "$NO_PROMPT" -eq 1 ] || [ ! -t 0 ]; then
+  exit 1
+fi
+
+printf '\nRun `graphify update .` now to settle this? [y/N] '
+read -r reply
+case "$reply" in
+  [yY]*) ;;
+  *) exit 1 ;;
+esac
+
+if ! command -v graphify >/dev/null 2>&1; then
+  echo "graphify not on PATH — install it or run the update yourself." >&2
+  exit 1
+fi
+
+echo ""
+(cd "$PROJECT_PATH" && graphify update .) || { echo "graphify update failed — graph left untouched." >&2; exit 1; }
+
+new_stamp="$(python3 -c "
+import json, sys
+try:
+    print(json.load(open('$GRAPH')).get('built_at_commit', '') or '')
+except Exception:
+    sys.exit(0)
+" 2>/dev/null)"
+
+if [ "$new_stamp" = "$head_sha" ]; then
+  echo ""
+  echo "graph-fresh: graph rebuilt — now current at ${head_sha:0:7}."
+  exit 0
+fi
+
+# graphify left the graph untouched: the changed files moved no topology, so
+# the graph still matches the code. Record it so this stops nagging.
+mkdir -p "$PROJECT_PATH/graphify-out"
+printf '%s\n' "$head_sha" > "$VERIFIED"
+echo ""
+echo "graph-fresh: graphify reported no topology change — the graph matches the code."
+echo "Verified at ${head_sha:0:7} (recorded in graphify-out/.ai-kit-graph-verified)."
+exit 0
