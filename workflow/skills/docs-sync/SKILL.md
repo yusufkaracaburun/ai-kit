@@ -11,7 +11,7 @@ Standalone content-drift surface for ai-kit. Stays focused on *content correctne
 ## How it runs
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/bin/ai-kit-docs-sync.sh" [path] [--skip-dead-links] [--no-prompt]
+bash "${CLAUDE_PLUGIN_ROOT}/bin/ai-kit-docs-sync.sh" [path] [--skip-dead-links] [--skip-graph-fresh] [--no-prompt]
 ```
 
 The driver runs each section in order, prints a per-section header, and exits with the max section exit code (`0 clean` / `1 findings`).
@@ -61,6 +61,21 @@ Scans every `*.md` file in the project for inline markdown links `[text](path)`.
 Code fences (` ``` `, `~~~`) are skipped — links inside code blocks are illustrative, not navigable.
 
 When findings exist, the script prints `file:line` + the offending link + the missing resolved path, then offers an opt-in fix-suggestion prompt. Suggestions are advisory only — `/ai:docs-sync` **never** auto-edits markdown files.
+
+### graph-fresh — graphify knowledge graph vs HEAD
+
+graphify stamps the commit it indexed into `graphify-out/graph.json` as `built_at_commit`. This check compares it to `HEAD` and counts the files changed since (excluding `graphify-out/` itself — the graph's own output is not code drift).
+
+A stale graph is worse than no graph: `CLAUDE.md` and the search-delegation hook both route the agent to `graphify query` instead of grep, so it answers confidently from a map of code that has already moved.
+
+Outcomes:
+
+- **Graph at HEAD**, or commits since the graph touched no files → clean.
+- **Files changed since `built_at_commit`** → warn with the counts + `graphify update .` (AST-only, no API cost).
+- **`built_at_commit` unreachable** (rebased or squashed away) → warn; the graph is anchored to history that no longer exists.
+- **No `built_at_commit` key** → warn; drift is not computable until the graph is rebuilt.
+
+Skips silently when the project has no `graphify-out/graph.json` (most projects) or is not a git repo. Report-only — never runs `graphify update` itself.
 
 ## Non-goals
 

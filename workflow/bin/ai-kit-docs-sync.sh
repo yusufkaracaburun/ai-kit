@@ -5,6 +5,7 @@
 #   1. dead-links     — markdown `[text](path)` link integrity (relative + repo-absolute paths)
 #   2. repo-hygiene   — empty dirs, broken symlinks, orphan .agents/skills/<name>/ dirs
 #   3. finished-work  — local merged branches + closable issues (merged-PR `closes #N`)
+#   4. graph-fresh    — graphify knowledge graph behind HEAD (built_at_commit vs HEAD)
 #
 # Reports content + structural drift. Framework health lives in ai-kit-hygiene.sh.
 # Reports-only by default; per-finding fix suggestions surface behind an
@@ -20,7 +21,7 @@ AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
 
 usage() {
   cat <<USAGE
-Usage: $0 [path] [--skip-dead-links] [--skip-repo-hygiene] [--skip-finished-work] [--no-prompt]
+Usage: $0 [path] [--skip-dead-links] [--skip-repo-hygiene] [--skip-finished-work] [--skip-graph-fresh] [--no-prompt]
 
 Runs ai-kit docs-sync checks against the given project path (default: cwd).
 Exit code = max of the section exit codes (0 clean, 1 warn).
@@ -29,6 +30,7 @@ Flags:
   --skip-dead-links      Bypass the markdown dead-links section.
   --skip-repo-hygiene    Bypass the repo-hygiene section (empty dirs, broken symlinks, orphan skill dirs).
   --skip-finished-work   Bypass the finished-work section (merged branches, closable issues).
+  --skip-graph-fresh     Bypass the graph-fresh section (graphify graph behind HEAD).
   --no-prompt            Never prompt for fix suggestions (auto-set when stdin is not a TTY).
 USAGE
 }
@@ -37,6 +39,7 @@ PROJECT_PATH=""
 SKIP_DEAD_LINKS=0
 SKIP_REPO_HYGIENE=0
 SKIP_FINISHED_WORK=0
+SKIP_GRAPH_FRESH=0
 NO_PROMPT=0
 
 for arg in "$@"; do
@@ -45,6 +48,7 @@ for arg in "$@"; do
     --skip-dead-links)    SKIP_DEAD_LINKS=1 ;;
     --skip-repo-hygiene)  SKIP_REPO_HYGIENE=1 ;;
     --skip-finished-work) SKIP_FINISHED_WORK=1 ;;
+    --skip-graph-fresh)   SKIP_GRAPH_FRESH=1 ;;
     --no-prompt)          NO_PROMPT=1 ;;
     -*) echo "unknown flag: $arg" >&2; usage >&2; exit 2 ;;
     *)  PROJECT_PATH="$arg" ;;
@@ -90,6 +94,13 @@ fi
 if [ "$SKIP_FINISHED_WORK" -eq 0 ]; then
   section "finished-work (local merged branches / closable issues)"
   bash "$AIKIT/bin/ai-kit-docs-sync-finished-work.sh" "$PROJECT_PATH" \
+    $([ "$NO_PROMPT" -eq 1 ] && echo "--no-prompt")
+  record "$?"
+fi
+
+if [ "$SKIP_GRAPH_FRESH" -eq 0 ]; then
+  section "graph-fresh (graphify graph vs HEAD)"
+  bash "$AIKIT/bin/ai-kit-docs-sync-graph-fresh.sh" "$PROJECT_PATH" \
     $([ "$NO_PROMPT" -eq 1 ] && echo "--no-prompt")
   record "$?"
 fi
