@@ -17,11 +17,10 @@
       "tiers": [
         {
           "name": "base",
-          "description": "Default tier — query/path/explain over graphify-out/graph.json; no auto-generated wiki.",
-          "wired_via": "workflow/skills/recommend-tools/SKILL.md Phase 3 graphify branch",
+          "description": "Default tier — query/path/explain over graphify-out/graph.json; no auto-generated wiki. The 'grep → query the graph instead' nudge is NOT a graphify-specific hook: /ai:setup wires bin/hooks/search-delegation-check.sh into every project (Tier A), and that hook emits the graphify message the moment graphify-out/graph.json appears. Nothing to wire here.",
+          "wired_via": "workflow/skills/recommend-tools/SKILL.md Phase 3 graphify branch (docs + ignore file); the PreToolUse nudge comes from bin/apply-search-delegation-hook.sh",
           "glue_files": [
             "context/templates/companions/graphify.md",
-            "context/templates/companions/graphify-hook.json",
             "context/templates/companions/graphifyignore"
           ]
         },
@@ -53,25 +52,48 @@
     {
       "name": "caveman",
       "category": "output-compression",
-      "best_for": "Sessions where the user explicitly wants compressed responses (~65% fewer output tokens)",
-      "value": "Caveman mode — drops articles/filler/hedging; technical content + code intact.",
-      "risk": "Medium — opinionated communication mode.",
+      "best_for": "Every project — compressed agent responses (~65% fewer output tokens) plus the cavecrew sub-agents, whose compressed returns keep raw search output out of the main context",
+      "value": "Caveman mode — drops articles/filler/hedging; technical content + code intact. Ships cavecrew-investigator / -builder / -reviewer sub-agents (see subagents.json).",
+      "risk": "Medium — opinionated communication mode, and activation is machine-wide (every project on the machine, not just the target).",
+      "universal": true,
       "tiers": [
         {
           "name": "base",
-          "description": "Document the mode exists; never enable by default.",
-          "wired_via": "workflow/skills/recommend-tools/SKILL.md Phase 3 caveman branch",
-          "glue_files": ["context/templates/companions/caveman.md"]
+          "description": "Universal — auto-prompted by /ai:setup Tier-A Branch 2e. Installs the plugin via the official CLI and writes AGENTS.md glue. Never silently installed: the branch always asks, default yes.",
+          "wired_via": "workflow/skills/setup/SKILL.md Branch 2e + bin/apply-caveman.sh + workflow/skills/recommend-tools/SKILL.md Phase 3 caveman branch",
+          "glue_files": ["context/templates/companions/caveman.md"],
+          "auto_prompted": true
+        },
+        {
+          "name": "activated",
+          "description": "Sets caveman's own defaultMode so the mode is explicit and durable rather than resting on caveman's built-in 'full' fallback. Writes {\"defaultMode\": \"full\"} into ${XDG_CONFIG_HOME:-~/.config}/caveman/config.json (merged, never clobbered).",
+          "wired_via": "bin/apply-caveman.sh (--mode)",
+          "machine_wide": true
         }
       ],
       "detection": {
-        "skills": "test -d ~/.claude/skills/caveman -o -d .claude/skills/caveman"
+        "plugin": "claude plugin list 2>/dev/null | grep -qi caveman",
+        "settings": "grep -q '\"caveman@caveman\"[[:space:]]*:[[:space:]]*true' ~/.claude/settings.json",
+        "skills": "test -d ~/.claude/skills/caveman -o -d .claude/skills/caveman",
+        "status": "bin/apply-caveman.sh --status"
       },
-      "conflicts": [],
+      "conflicts": [
+        {
+          "with": "caveman's own bin/install.js --with-hooks",
+          "check": "bin/apply-caveman.sh --status | grep -q 'duplicate hooks   : [1-9]'",
+          "warning": "caveman's standalone installer copies its hooks into ~/.claude/hooks/ AND writes them into ~/.claude/settings.json, but the plugin manifest already declares the same SessionStart + UserPromptSubmit hooks. A machine that ran both fires every caveman hook twice per event. `bin/apply-caveman.sh` detects this and strips the standalone copies (`--dedupe-only`), leaving the plugin manifest as the single source."
+        }
+      ],
       "install": {
-        "upstream": "https://github.com/yusufkaracaburun/caveman",
+        "upstream": "https://github.com/JuliusBrussee/caveman",
+        "marketplace": "JuliusBrussee/caveman",
+        "commands": [
+          "claude plugin marketplace add JuliusBrussee/caveman --scope user",
+          "claude plugin install caveman@caveman --scope user"
+        ],
         "auto_install": false,
-        "default_state": "opt-in"
+        "default_state": "auto-prompted",
+        "applier": "bin/apply-caveman.sh"
       }
     },
     {

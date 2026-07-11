@@ -69,7 +69,7 @@ Report the lines plainly. Detection drives the recommendation — never claim a 
 Judge fit against the actual repo, do not blanket-recommend:
 
 - **graphify** — strong fit when the repo has many files / is brownfield / the user greps a lot. Weak fit for a tiny single-file repo. If the CLI is missing, point the user at the upstream install (one line); a focused web search for the current install command is fine — do not guess it.
-- **caveman** — a cost saver, low risk to *install*, but it changes how the agent talks. **Always opt-in, never a default.** Recommend only if the user explicitly wants compressed output. Nobody should be surprised by caveman prose.
+- **caveman** — universal (`universal: true`), so `/ai:setup` Branch 2e already auto-prompts it; by the time this skill runs the answer is usually recorded in `branches.universal_companions_prompted`. **Check the marker first and do not re-ask.** Only surface it here when the project has no marker, or the user is explicitly revisiting the decision. It stays **auto-prompted, never silently installed** — the machine-wide blast radius (it changes the agent's output style in *every* repo on the machine) must be stated whenever it is offered. Applier: `bin/apply-caveman.sh`.
 - **llm-wiki** — strong fit when the project accumulates **non-code documents** (PRDs, meeting transcripts, competitor research, PDFs) the user re-reads to find things. Weak fit for a pure code repo — **graphify** already indexes code. Do not recommend graphify and llm-wiki for the *same* need; they cover code vs. documents respectively.
 
 State, for each: present-or-not, fit for *this* repo, and the one-line why.
@@ -99,14 +99,15 @@ Glue templates live in `$AI_KIT_ROOT/context/templates/companions/`. Wire only t
    2. Otherwise append `companions/graphify.md` to `CLAUDE.md` directly. Use a fenced marker `<!-- ai-kit:graphify -->` (open + close) around the block so re-runs replace-in-place instead of stacking duplicates. Skip if an equivalent block (heading `## graphify` followed by `graphify query`) is already present.
 
    Cursor-only projects (no `.claude/`) stop at step 1 — `AGENTS.md` is enough.
-3. Claude Code only: merge the `PreToolUse` hook from `companions/graphify-hook.json` into the project `.claude/settings.json`. It nudges the agent toward `graphify query` over raw grep once `graphify-out/graph.json` exists. Merge into the existing `hooks` object — do not clobber other hooks.
+3. **No hook to wire.** `/ai:setup` Branch 2d already installed `search-delegation-check.sh` (a `PreToolUse(Bash|Grep|Glob)` hook), and it emits the "run `graphify query` instead of grepping" nudge automatically the moment `graphify-out/graph.json` exists. If the project has no marker (never ran `/ai:setup`), wire it now: `$AI_KIT_ROOT/bin/apply-search-delegation-hook.sh "$(pwd)"`. The applier replaces any older graphify-only nudge instead of stacking a second entry.
 4. Copy `companions/graphifyignore` to the project root as `.graphifyignore`. **Skip if the file already exists** — never clobber a project's own ignore list. The starter file excludes `node_modules/`, `vendor/`, build outputs, lockfiles, agent scratch dirs, binary assets, and `graphify-out/` itself, so the first `graphify .` run produces a clean graph instead of indexing generated junk.
 5. Tell the user to run `graphify .` (or the upstream's init command) once to build `graphify-out/`, then `graphify update .` after code changes.
 6. **Wiki tier (opt-in).** If `graphify-out/` exists but `graphify-out/wiki/` does not, mention the opt-in tier: `graphify . --wiki` generates a Markdown wiki of the graph (AST-only, no LLM cost). Useful when the agent does many symbol-lookup grep'ing — wiki-page browsing is faster than per-query subgraphs for navigation. Decision rule: recommend only when the user explicitly asks for it, the repo is large enough that `query` results scroll past a page, or the recent transcript shows >3 grep/find calls for symbol locations. Otherwise skip — `query`/`path`/`explain` cover the common case. Companion catalog entry: `standards/external/companions.json` → `graphify.tiers.wiki`.
 
 **caveman:**
-1. Append `companions/caveman.md` to the project `AGENTS.md` — a short note that the mode exists and how to toggle it. caveman ships its own skills via its own installer; ai-kit only documents it.
-2. Do not enable it. The note states it is opt-in.
+1. **Check the marker first.** If `branches.universal_companions_prompted` already contains `caveman`, `/ai:setup` Branch 2e handled it — do not re-ask, do not re-run the applier. Report the current state (`bin/apply-caveman.sh --status`) and move on.
+2. Otherwise, offer it with the machine-wide caveat stated (see Branch 2e for the prompt wording). On yes: `$AI_KIT_ROOT/bin/apply-caveman.sh`. It adds the marketplace, installs the plugin via the official `claude plugin` CLI, writes caveman's `defaultMode`, and strips the duplicate hooks caveman's own standalone installer leaves behind.
+3. Append `companions/caveman.md` to the project `AGENTS.md` — a short note that the mode exists and how to toggle it. ai-kit vendors no caveman source; the plugin comes from its own marketplace.
 
 **llm-wiki:**
 1. **Conflict-check first.** If `docs/` exists, surface the conflict warning from `standards/external/companions.json` → `llm-wiki.conflicts[0]` verbatim: *llm-wiki is orthogonal to docs/ — use it for raw-input ingestion (PDFs, transcripts), NOT to migrate existing curated docs. Existing docs/ stays as-is; raw/ is for new untreated source material.* Confirm the user understands the split before scaffolding. The agent must never relocate, rewrite, or "consolidate" files under the existing `docs/` tree into `wiki/`.
@@ -257,7 +258,7 @@ not silently fetch new upstream content during a run.
 
 - **Never vendor the tool itself.** ai-kit does not copy graphify or caveman source into the repo, and does not include MCP server source. They install from their own upstreams; ai-kit writes only the glue. For llm-wiki, ai-kit ships its own schema adapting a public pattern (Karpathy's `llm-wiki.md`) — it vendors no upstream repo. The only things ai-kit vendors are the **signal → recommendation tables** under `standards/external/`, with provenance frontmatter.
 - **llm-wiki: `raw/` is the user's, `wiki/` is the agent's.** The agent never edits or deletes anything under `raw/`.
-- **Never auto-install** the tool itself — surface the install pointer, the user runs it.
-- **caveman is never a default.** Opt-in only; the agent must not start compressing output unprompted.
-- The graphify hook is additive context only — it cannot block a tool call, only suggest.
+- **Never auto-install** the tool itself — surface the install pointer, the user runs it. The one exception is a `universal: true` companion, which `/ai:setup` **auto-prompts** and, on an explicit yes, installs via the tool's own official CLI (`bin/apply-caveman.sh` → `claude plugin install`). Prompted is not silent: no companion is ever installed without the user saying yes to a prompt that names the blast radius.
+- **caveman is never *silent*.** It is auto-prompted (default yes) by `/ai:setup` Branch 2e, never enabled behind the user's back, and the prompt states that activation is machine-wide — it changes the agent's output style in every repo on the machine. `bin/apply-caveman.sh --uninstall` reverses it.
+- The search-delegation hook is additive context only — it cannot block a tool call, only suggest.
 - **MCP / hook / plugin / subagent recommendations are suggestions, not installs.** The scorer ranks; the user picks per entry; only then is anything written.

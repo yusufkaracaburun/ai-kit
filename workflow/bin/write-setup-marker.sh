@@ -27,6 +27,8 @@ usage() {
   echo "  --repo-templates=all|picked|skipped"
   echo "  --lifecycle=development|production"
   echo "  --universal-mcps-prompted=name1,name2  (CSV; appended to existing list — names not re-prompted on next /ai:setup)"
+  echo "  --universal-companions-prompted=name1,name2  (CSV; same accumulating semantics)"
+  echo "  --search-delegation-hook=wired|skipped"
   exit 1
 }
 
@@ -50,6 +52,8 @@ TOOL_RECOMMENDATION=""
 REPO_TEMPLATES=""
 LIFECYCLE=""
 UNIVERSAL_MCPS_PROMPTED=""
+UNIVERSAL_COMPANIONS_PROMPTED=""
+SEARCH_DELEGATION_HOOK=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -69,6 +73,8 @@ while [ $# -gt 0 ]; do
     --repo-templates=*) REPO_TEMPLATES="${1#*=}"; shift ;;
     --lifecycle=*) LIFECYCLE="${1#*=}"; shift ;;
     --universal-mcps-prompted=*) UNIVERSAL_MCPS_PROMPTED="${1#*=}"; shift ;;
+    --universal-companions-prompted=*) UNIVERSAL_COMPANIONS_PROMPTED="${1#*=}"; shift ;;
+    --search-delegation-hook=*) SEARCH_DELEGATION_HOOK="${1#*=}"; shift ;;
     -h | --help) usage ;;
     *) echo "Unknown option: $1" >&2; usage ;;
   esac
@@ -87,11 +93,11 @@ COMPLETED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 python3 - "$SETUP_FILE" "$VERSION" "$COMPLETED_AT" \
   "$SETUP_MODE" "$SETUP_TIER" "$DOCKER" "$TRACKER" "$WORKFLOW" "$DOMAIN_DOCS" "$ARCHITECTURE" "$SANDCASTLE" \
   "$AUTOMATION_RECOMMENDER" "$CONTEXT_DRIFT_HOOK" "$RULE_RECOMMENDATION" "$TOOL_RECOMMENDATION" "$REPO_TEMPLATES" \
-  "$LIFECYCLE" "$UNIVERSAL_MCPS_PROMPTED" <<'PY'
+  "$LIFECYCLE" "$UNIVERSAL_MCPS_PROMPTED" "$UNIVERSAL_COMPANIONS_PROMPTED" "$SEARCH_DELEGATION_HOOK" <<'PY'
 import json, sys, os
 
 path, version, completed = sys.argv[1:4]
-setup_mode, tier, docker, tracker, workflow, domain_docs, architecture, sandcastle, automation_recommender, context_drift_hook, rule_recommendation, tool_recommendation, repo_templates, lifecycle, universal_mcps_prompted = sys.argv[4:19]
+setup_mode, tier, docker, tracker, workflow, domain_docs, architecture, sandcastle, automation_recommender, context_drift_hook, rule_recommendation, tool_recommendation, repo_templates, lifecycle, universal_mcps_prompted, universal_companions_prompted, search_delegation_hook = sys.argv[4:21]
 
 VALID_LIFECYCLE = {"development", "production"}
 if lifecycle and lifecycle not in VALID_LIFECYCLE:
@@ -140,11 +146,21 @@ if repo_templates:
     branches["repo_templates"] = repo_templates
 if lifecycle:
     branches["lifecycle"] = lifecycle
-if universal_mcps_prompted:
-    existing = branches.get("universal_mcps_prompted", []) or []
-    incoming = [n.strip() for n in universal_mcps_prompted.split(",") if n.strip()]
-    merged = list(dict.fromkeys(existing + incoming))
-    branches["universal_mcps_prompted"] = merged
+if search_delegation_hook:
+    branches["search_delegation_hook"] = search_delegation_hook
+
+
+def accumulate(key, csv):
+    """Union-merge a CSV into an existing list field — re-runs accumulate, never clobber."""
+    if not csv:
+        return
+    existing = branches.get(key, []) or []
+    incoming = [n.strip() for n in csv.split(",") if n.strip()]
+    branches[key] = list(dict.fromkeys(existing + incoming))
+
+
+accumulate("universal_mcps_prompted", universal_mcps_prompted)
+accumulate("universal_companions_prompted", universal_companions_prompted)
 
 data["branches"] = branches
 

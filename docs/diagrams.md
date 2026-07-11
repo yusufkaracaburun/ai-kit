@@ -103,7 +103,7 @@ flowchart TD
   SK --> HK2
 
   subgraph HOOKS["Hooks — deterministic, outside the model's control"]
-    HK1["PreToolUse matcher=Bash<br/>saw grep/find → inject graphify nudge"]
+    HK1["PreToolUse matcher=Bash|Grep|Glob<br/>repo-wide sweep → delegate to a sub-agent<br/>(or query the graph, when graphify-out/ exists)"]
     HK2["PostToolUse matcher=Skill<br/>usage log, only when AI_KIT_USAGE=1"]
   end
 
@@ -121,7 +121,10 @@ flowchart TD
 - **Slash command** — a thin wrapper around a bash script. No LLM decision, so
   the output is reproducible.
 - **Hook** — the only layer guaranteed to run regardless of what the model
-  decides. That is why the graphify nudge lives here and not in a rule.
+  decides. That is why the search-delegation nudge lives here and not in a rule:
+  `context-discipline` already *says* "delegate wide exploration", but a rule is
+  prose the model skips under pressure. The hook fires anyway — and only on a
+  repo-wide sweep, so a scoped `Grep` stays silent and the nudge stays signal.
 - **Rule** — cross-cutting guidance with no trigger, emitted to host format at
   `/ai:setup` time.
 - **Tool** — what a skill has in hand (Read/Bash/Edit). Provided by the host,

@@ -93,7 +93,7 @@ command; install the tools from their own upstreams.
 scaffold):
 
 - **graphify** — codebase knowledge graph. Scoped subgraph per query instead of raw grep.
-- **caveman** — token-compressed agent responses (~65% fewer output tokens).
+- **caveman** — token-compressed agent responses (~65% fewer output tokens), plus the `cavecrew-*` sub-agents. Universal: `/ai:setup` **asks** for it in Tier A (default yes) and installs via the official plugin CLI on an explicit yes. Never silent — activation is machine-wide, and the prompt says so.
 - **llm-wiki** — self-maintaining knowledge base for non-code documents.
 
 **Recommend-only** (deterministic scorer reads vendored `standards/external/*.json`

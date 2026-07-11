@@ -48,7 +48,8 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
 | Transfer briefing to another machine / agent / teammate | `checkpoint --to tmp` |
 | Configure ai-kit in a new repo | `setup` |
 | Reshape the codebase architecture | `improve-codebase-architecture` |
-| Save context for `/clear`, resume later | `checkpoint` ↔ `resume` |
+| Save session state for `/clear`, resume later | `checkpoint` ↔ `resume` |
+| Context is big and you want to keep working | `/compact` — not `checkpoint`, which writes a memo without shrinking context |
 | Recommend canonical rules for the detected stack | `recommend-rules` |
 | Wire optional companion tools (graphify, caveman) | `recommend-tools` |
 | Defer ONE surfaced lead — one issue + one roadmap paragraph (not for breaking down planned work; use `to-issues` for that) | `to-prd` (defer mode) |

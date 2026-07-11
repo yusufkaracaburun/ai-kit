@@ -1,6 +1,6 @@
 ---
 name: checkpoint
-description: "Compact the current session for resumption. Default writes to project auto-memory for same-project, same-machine resume (pairs with /ai:resume). Pass --to tmp to write a transfer briefing to $TMPDIR for another agent, machine, or teammate (includes redaction). Pass --mid-session to compact in place without /clear. Use when context is getting big, before clearing or compacting, before pausing, when wrapping up, or when handing work off."
+description: "Write a session-continuation memo so the next session can resume. Default writes to project auto-memory (pairs with /ai:resume); --to tmp writes a redacted transfer briefing to $TMPDIR for another agent, machine, or teammate; --mid-session when staying in the session. Use before /clear, before pausing, when wrapping up, or when handing work off. NOT a way to shrink context: it writes a memo to disk — only /compact and /clear free context. Just want a smaller context? Run /compact."
 argument-hint: "[slug] [--to memory|tmp] [--mid-session] [--also-housekeeping] [--skip-housekeeping]"
 allowed-tools:
   - Read
@@ -47,8 +47,10 @@ Parse the slash arguments before anything else:
 - `[slug]` (positional) — 2-5 word kebab-case topic. If absent, derive from the
   conversation.
 - `--to memory|tmp` — destination. Default `memory`.
-- `--mid-session` — compact without ending the session; the user explicitly
-  stays in this conversation.
+- `--mid-session` — the user explicitly stays in this conversation, so do not
+  suggest `/clear`. This writes the memo as insurance against an abrupt end; it
+  does **not** shrink the context. If the user's actual goal was a smaller
+  context, tell them to run `/compact` after this.
 - `--also-housekeeping` — after writing the memo, also **auto-apply** the safe,
   idempotent fixes surfaced by the §7 housekeeping run. Off by default (the run
   is report-only).
@@ -251,10 +253,21 @@ summary per check, and an explicit **Applied** vs **Needs approval** split.
 Then print: "Checkpoint saved: `<relative-path>`. You can run /clear
 (or /compact) now."
 
-In `--mid-session` mode: same memo + housekeeping, but print "Checkpoint saved
-(mid-session): `<relative-path>`. Continue in this session — focus on the
-next 1-3 items from Open/next; defer the rest to the doc." Do NOT suggest
-/clear.
+In `--mid-session` mode: same memo + housekeeping, but print:
+
+```
+Checkpoint saved (mid-session): <relative-path>
+
+This did NOT shrink your context — it wrote a memo to disk. To actually free
+context: run /compact (keeps the thread) or /clear + /ai:resume (if the context
+is polluted with junk a summary would carry forward).
+
+Continue in this session — focus on the next 1-3 items from Open/next; defer
+the rest to the doc.
+```
+
+Say it plainly. A user who reads "mid-session compaction" and keeps working in
+a context that never got smaller has been misled by this skill.
 
 ## 8. `--to tmp` path — transfer briefing
 
@@ -433,7 +446,8 @@ the agent is new to the project.
 You can run /clear now (or copy the file off the machine first).
 ```
 
-In `--mid-session` mode, swap the trailing "/clear" line for: "Continue in
-this session — work the next 1-3 items in focus."
+In `--mid-session` mode, swap the trailing "/clear" line for: "This did not
+shrink your context — run `/compact` to do that. Then continue in this session:
+work the next 1-3 items in focus."
 
 </output>

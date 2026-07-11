@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.46.0 — 2026-07-11
+
+Context-budget release. The theme: ai-kit already *said* the right things about context discipline, in a universal always-on rule — and the agent skipped them under pressure, because a rule is prose. This moves the load-bearing parts into layers the model cannot skip, and corrects a piece of guidance that was actively teaching the expensive habit.
+
+### Added
+
+- **`search-delegation-check.sh` hook (Tier A, auto-wired).** `PreToolUse(Bash|Grep|Glob)` — fires **only on repo-wide sweeps** (a Bash `grep`/`rg`/`find`, or a `Grep`/`Glob` with no `path` to narrow it) and points the agent at the cheaper route: `graphify query` when `graphify-out/graph.json` exists, otherwise a sub-agent (`Explore`, `ai:explore`, `cavecrew-investigator`) so the raw output lands in the sub-agent's context instead of the main one. A `Grep` already scoped to a directory stays silent — without that distinction the nudge would fire on all 20-30 `Grep` calls in a session and cost more context than it saves. New setup Branch 2d; applied without asking (ai-kit's own primitive, advisory `additionalContext` only, blast radius stops at the project). Applier: `bin/apply-search-delegation-hook.sh`, which **replaces** the older graphify-only nudge rather than stacking a second hook beside it.
+- **caveman as a universal companion (Tier A, auto-prompted).** New setup Branch 2e, cloned from the Branch 2c universal-MCP pattern: catalog-driven, prompt-per-candidate, outcome recorded in the marker, never re-asked. `bin/apply-caveman.sh` adds the marketplace, installs the plugin via the official `claude plugin` CLI, and writes caveman's own `defaultMode` so the mode is explicit instead of resting on its built-in fallback. Supports `--status`, `--dedupe-only`, `--uninstall`, `--mode`.
+- **Duplicate-hook guard for caveman.** caveman's standalone installer (`bin/install.js --with-hooks`) copies its hooks into `~/.claude/hooks/` **and** writes them into `~/.claude/settings.json` — but the plugin manifest already declares the same `SessionStart` + `UserPromptSubmit` hooks. A machine that ran both fires every caveman hook twice per event. `apply-caveman.sh` detects this and strips the standalone copies (backing settings.json up first), leaving the plugin manifest as the single source. It refuses to strip when the plugin is *not* enabled, since that would disable caveman outright.
+- Marker fields `branches.universal_companions_prompted` (accumulating, union-merged like `universal_mcps_prompted`) and `branches.search_delegation_hook`.
+
+### Changed
+
+- **`context-discipline` now distinguishes three ways to shrink context, not one.** The old "Stop and hand off" bullet pointed at `/ai:checkpoint` → `/clear` for every situation, which taught the most expensive cycle available as the default. Now: `/compact` mid-task (the default), checkpoint→clear→resume only when the context is *polluted* with junk a summary would carry forward, and a full checkpoint only at a real break (session end, pause, topic switch). The "delegate wide exploration" bullet names the sub-agents that actually exist and clarifies that a scoped `grep` is fine — the rule is about sweeps.
+- **caveman doctrine: "never a default" → "never *silent*".** Five places said caveman must never be enabled by default. It is now auto-prompted with default yes, and every offer states the machine-wide blast radius: activation changes the agent's output style in *every* repo on the machine, not just the target. ai-kit still vendors nothing — the plugin installs from its own marketplace via the official CLI.
+- `README.md`, `docs/mental-model.md`, `docs/diagrams.md` updated for both.
+
+### Fixed
+
+- **`/ai:checkpoint --mid-session` no longer claims to do something it does not.** Its description promised "compact in place without `/clear`", but the flag only writes a memo — the context does not shrink. A user who read that and kept working sat in a context that never got smaller. The flag now says so plainly and points at `/compact`, which is what actually frees context.
+- `standards/external/companions.json` pointed caveman's upstream at `yusufkaracaburun/caveman`; the real marketplace is `JuliusBrussee/caveman` (which the glue template already had right).
+
+### Removed
+
+- `context/templates/companions/graphify-hook.json`. The search-delegation hook supersedes it — one hook that switches message on graphify's presence, instead of two overlapping ones.
+
 ## 1.45.0 — 2026-07-10
 
 ### Added

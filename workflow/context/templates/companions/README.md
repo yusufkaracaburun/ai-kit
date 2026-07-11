@@ -12,10 +12,15 @@ upstream; ai-kit owns only the integration glue in this directory. Same pattern 
 | File | Companion | Goes into |
 | ---- | --------- | --------- |
 | `graphify.md` | graphify | project `AGENTS.md` (agent-agnostic rules block) |
-| `graphify-hook.json` | graphify | project `.claude/settings.json` (Claude Code `PreToolUse` hook) |
 | `graphifyignore` | graphify | project `.graphifyignore` (root) — copied verbatim, skip-if-present |
-| `caveman.md` | caveman | project `AGENTS.md` (opt-in note) |
+| `caveman.md` | caveman | project `AGENTS.md` (mode note + how to toggle) |
 | `llm-wiki/` | llm-wiki | project `wiki/` + `raw/` skeleton + `AGENTS.md` pointer |
+
+There is no `graphify-hook.json`. The "grep → query the graph instead" nudge is
+not graphify-specific: `/ai:setup` Branch 2d wires
+[`bin/hooks/search-delegation-check.sh`](../../../bin/hooks/search-delegation-check.sh)
+into **every** project, and that hook switches to the graphify message on its own
+once `graphify-out/graph.json` appears. One hook, not two overlapping ones.
 
 Adding a new companion tool: drop its glue here and add a row to the table in
 `workflow/skills/recommend-tools/SKILL.md`.

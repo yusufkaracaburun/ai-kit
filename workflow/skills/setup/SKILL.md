@@ -76,6 +76,8 @@ Ask once: **Fast (Tier A, ~5 min)** or **Full (Tier B)**?
 | 2 | Dev environment | `--write` + refine URLs |
 | 2b | Lifecycle | one question (below) — default `development` |
 | 2c | Universal MCPs | auto-prompt each `universal: true` MCP not yet handled |
+| 2d | Search-delegation hook | auto-apply, no question (below) |
+| 2e | Universal companions | auto-prompt each `universal: true` companion not yet handled |
 
 Then:
 
@@ -85,6 +87,8 @@ $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" \
   --tier=minimal \
   --lifecycle=development|production \
   --universal-mcps-prompted=context7,... \
+  --universal-companions-prompted=caveman,... \
+  --search-delegation-hook=wired \
   --docker=skipped --tracker=skipped --workflow=skipped \
   --domain-docs=skipped --architecture=skipped --sandcastle=false --context-drift-hook=skipped
 $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict --minimal
@@ -191,6 +195,73 @@ run automatically — no skill-body edit needed.
 **Trust model.** Prompt-per-tool, never silent install. User-scope means one
 install covers all repos on the machine; this branch is intentionally
 Tier-A because the universals' value is stack-agnostic.
+
+### Branch 2d — Search-delegation hook (auto-apply)
+
+```bash
+$AI_KIT_ROOT/bin/apply-search-delegation-hook.sh "$(pwd)"
+```
+
+Wires a `PreToolUse(Bash|Grep|Glob)` hook that fires **only on repo-wide
+sweeps** — a Bash `grep`/`rg`/`find`, or a `Grep`/`Glob` with no `path` to
+narrow it. A search already scoped to a directory stays silent.
+
+On a wide sweep it points the agent at the cheaper route: `graphify query`
+when `graphify-out/graph.json` exists, otherwise a sub-agent (`Explore`,
+`ai:explore`, `cavecrew-investigator`) so the raw output lands in the
+sub-agent's context instead of the main one.
+
+**Why this one does not ask.** Raw search output is the single biggest source
+of context bloat, and [`context-discipline`](../../../standards/rules/context-discipline.mini.md)
+already mandates delegation — but a rule is prose an agent skips under
+pressure. This hook is ai-kit's own primitive, emits advisory
+`additionalContext` only (it can never block a tool call), and its blast
+radius stops at the project. Same category as bootstrap and dev-environment:
+applied, not negotiated. Record `--search-delegation-hook=wired`.
+
+It supersedes the older graphify-only nudge that `/ai:recommend-tools` used to
+merge; the applier **replaces** that entry rather than stacking a second one.
+
+### Branch 2e — Universal companions (auto-prompt)
+
+Some companions are worth having on every project regardless of stack — they
+are marked `universal: true` in
+[`standards/external/companions.json`](../../../standards/external/companions.json).
+Today that means `caveman`; future-proof for more.
+
+Same six steps as Branch 2c, with `branches.universal_companions_prompted` as
+the already-handled list:
+
+1. **Read catalog.** Filter `recommendations` for `universal: true`.
+2. **Read marker.** Collect `branches.universal_companions_prompted`.
+3. **Detect already-installed.** Run the entry's `detection.status` when it has
+   one — for caveman: `$AI_KIT_ROOT/bin/apply-caveman.sh --status`.
+4. **Prompt per candidate** that is neither in the prompted-list nor already
+   installed. For caveman:
+
+   > Optional: install + activate `caveman` (machine-wide)?
+   > ~65% fewer output tokens — drops articles, filler, hedging; technical
+   > content and code stay intact. Ships the `cavecrew-*` sub-agents, whose
+   > compressed returns keep raw search output out of your main context.
+   > **This changes the agent's output style in every project on this machine,
+   > not just this one.**
+   > [1] Yes, install + activate (default) → `bin/apply-caveman.sh`
+   > [2] No thanks → record skipped, never re-prompt
+
+5. **On Yes:** run the entry's `install.applier`
+   (`$AI_KIT_ROOT/bin/apply-caveman.sh`). It adds the marketplace, installs the
+   plugin via the official `claude plugin` CLI, writes caveman's own
+   `defaultMode`, and strips the duplicate hooks that caveman's standalone
+   installer leaves behind. Idempotent — safe to re-run.
+6. **Record outcome.** Append the name to `--universal-companions-prompted=`
+   on the Tier-A marker write. Yes and No both record, so a second `/ai:setup`
+   never re-asks.
+
+**Trust model.** Prompt-per-tool, never silent install — the machine-wide blast
+radius is stated in the prompt itself, because a user who says yes in one repo
+is changing every other repo too. ai-kit still vendors nothing: the plugin is
+installed from its own marketplace by the official CLI, and ai-kit writes only
+the glue.
 
 ## Tier B branches (optional)
 
@@ -395,6 +466,10 @@ Full setup Done:
 ```bash
 $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" \
   --setup-mode=... --tier=full \
+  --lifecycle=development|production \
+  --universal-mcps-prompted=context7,... \
+  --universal-companions-prompted=caveman,... \
+  --search-delegation-hook=wired \
   --docker=... --tracker=... --workflow=... \
   --domain-docs=scaffolded|filled|skipped \
   --architecture=... --sandcastle=... \
@@ -417,6 +492,10 @@ $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict
     "setup_mode": "solo-both",
     "setup_tier": "minimal",
     "dev_environment": true,
+    "lifecycle": "development",
+    "universal_mcps_prompted": ["context7"],
+    "universal_companions_prompted": ["caveman"],
+    "search_delegation_hook": "wired",
     "docker": "skipped",
     "issue_tracker": "skipped",
     "architecture": "skipped",
@@ -430,6 +509,11 @@ $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict
   }
 }
 ```
+
+The two `*_prompted` lists accumulate across re-runs (union-merge) — a name in
+either list is never re-prompted, whether the answer was yes or no. Adding a
+new `universal: true` entry to `mcp-servers.json` or `companions.json` is
+picked up automatically on the next `/ai:setup`; no skill-body edit needed.
 
 Summarise what was configured. Re-run `/ai:setup` to extend Tier A → Tier B later.
 
