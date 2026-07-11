@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.48.0 — 2026-07-11
+
+### Added
+
+- **`pre-write-discipline` rule** (universal, always-on) — four gates before the first `Edit`/`Write` of any change ≥ 10 LOC or new file: state assumptions, minimum diff, surgical scope, verifiable goal. Plus the anti-patterns each gate blocks (speculative flags, single-implementation abstractions, error handling for impossible states, drive-by "improvements", comments restating the code) and a trivial-task escape hatch. ai-kit has run these four rules in its **own** `CLAUDE.md` since the first release and never shipped them: the rules catalog covered how an agent should *read* (`context-discipline`) but not how it should *write*. Downstream `/ai:setup` projects now get both. Adapted from [andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills) (Karpathy's observations on LLM coding pitfalls); rules 30 → 31.
+
 ## 1.47.1 — 2026-07-11
 
 ### Fixed
