@@ -7,7 +7,10 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-07-09 against 15 open issues (#116 added — plugin skill shadows same-named
+_Last reconciled: 2026-07-11 against 17 open issues (#118 added — `graph-fresh` cannot check umbrella
+repos like emeq, whose root is not a git repo; #117 added — surface `graph-fresh` in the
+search-delegation hook, where a stale graph actually misleads the agent. Both deferred from the
+v1.47.0/v1.47.1 `graph-fresh` session.) Prior: 2026-07-09 against 15 open issues (#116 added — plugin skill shadows same-named
 project skill, shares bootstrap root with #114; #115 opened + closed same day — GitHub Copilot
 rejected as a third host, ADR-0010 kept as Rejected; #114 added — bootstrap pins the versioned
 plugin-cache path, bricked emeq's 114 skill symlinks, naschool primed to follow; #113 added — marker ↔ hook-wiring
@@ -29,6 +32,21 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P2 — next up
 
+- **#117** `enhancement · primitive:hook` — surface `graph-fresh` in the
+  search-delegation hook, where the damage actually happens. `/ai:docs-sync`
+  catches a stale graphify graph once per session; the hook fires on *every* Bash
+  call and routes the agent to `graphify query` — pointing it at a map of code
+  that has already moved. Open question is cost (a `git diff` per Bash call) →
+  cache the verdict per HEAD, or warn once per session. Must reuse
+  `ai-kit-docs-sync-graph-fresh.sh`'s "candidate, not proof" semantics, not
+  re-derive them.
+- **#118** `enhancement` — `graph-fresh` cannot check umbrella repos. emeq's root
+  is not a git repo; it holds `admin/`, `system/`, `emeq-app/` as separate repos
+  with graphify indexing across all three, so there is no single HEAD to compare.
+  The check skips cleanly — but that leaves the project *most* likely to drift
+  (three repos moving independently) with no drift signal at all. Cheapest fix
+  needs nothing upstream: record a composite `{repo: HEAD}` stamp in
+  `graphify-out/.ai-kit-graph-verified`.
 - **#116** `bug · primitive:plugin` — a plugin skill silently shadows a same-named
   project skill: `bootstrap-project.sh` merges ai-kit skills with `ln -sfn`, which
   overwrites on name collision while the echo claims "custom entries preserved".
