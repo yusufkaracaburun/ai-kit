@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.47.0 — 2026-07-11
+
+### Added
+
+- **`/ai:docs-sync` → `graph-fresh`** — detects a stale graphify knowledge graph. graphify stamps `built_at_commit` into `graphify-out/graph.json`; ai-kit now compares it to `HEAD` and counts the files changed since (excluding `graphify-out/` itself). A stale graph is worse than no graph: `CLAUDE.md` and the search-delegation hook both route the agent to `graphify query` instead of grep, so it answers from a map of code that has already moved. Warns on drift, on an unreachable `built_at_commit` (rebased/squashed away), and on a graph with no stamp. Skips silently when there is no `graphify-out/` or the project is not a git repo. Report-only — never runs `graphify update` for you. New: `bin/ai-kit-docs-sync-graph-fresh.sh`, `--skip-graph-fresh`, 21 test assertions.
+
+### Changed
+
+- **`standards/external/plugins-excluded.json`** — `openwiki` (langchain-ai/openwiki) recorded as **Ignore**. Ignored on category, not trust: its code mode duplicates graphify (and is a strict downgrade — LLM-written prose bakes hallucination to disk where graphify is AST-derived, deterministic and free), its personal mode duplicates llm-wiki. Its one genuinely reusable idea — anchoring a generated artifact to a git head so staleness is computable — needed no adoption; it shipped as `graph-fresh` above.
+
 ## 1.46.0 — 2026-07-11
 
 Context-budget release. The theme: ai-kit already *said* the right things about context discipline, in a universal always-on rule — and the agent skipped them under pressure, because a rule is prose. This moves the load-bearing parts into layers the model cannot skip, and corrects a piece of guidance that was actively teaching the expensive habit.
