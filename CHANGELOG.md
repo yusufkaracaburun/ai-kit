@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.47.1 — 2026-07-11
+
+### Fixed
+
+- **`graph-fresh` misread `built_at_commit`.** graphify only rewrites `graph.json` when the AST topology actually moves, and strips `built_at_commit` before that comparison (`watch.py`). The stamp means *"the commit at which graph content last changed"*, not *"the commit the graph has seen"*. v1.47.0 read it as the latter, so a commit touching only config, docs, or comments warned forever — and the `graphify update .` it recommended could never clear the warning. Git drift is now treated as a **candidate, not proof**: on a TTY the check offers to run the free `graphify update .`, and if graphify reports no topology change the graph already matched the code — that HEAD is recorded in `graphify-out/.ai-kit-graph-verified` so it stops nagging. Under `--no-prompt` / CI it stays strictly report-only.
+- **`companions.json` pointed graphify at a repo that does not exist** (`github.com/yusufkaracaburun/graphify`). The real upstream is [`Graphify-Labs/graphify`](https://github.com/Graphify-Labs/graphify) (MIT); the PyPI package is `graphifyy` (double y) while the `graphify` name is being reclaimed upstream. A false provenance claim in our own catalog is exactly the marketing-parity failure `VETTING.md` exists to catch.
+- **`post_install_command` recommended a paid command.** It was a full `graphify .`, which runs the LLM extractor and costs real money ($0.05 on a mid-size repo). The routine refresh is `graphify update .` — AST-only and free.
+
 ## 1.47.0 — 2026-07-11
 
 ### Added
