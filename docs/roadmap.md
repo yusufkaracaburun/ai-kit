@@ -7,9 +7,10 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-07-26 against 18 open issues (#119 added — spike: measure
-`pre-write-discipline` effectiveness, surfaced by `/ai:should-i-use` on ponytail (Ignore); adopt its
-benchmark insight only if it fits ADR-0002's deterministic zero-cost constraints). Prior:
+_Last reconciled: 2026-07-26 against 17 open issues (#119 opened + closed same session — spike:
+measure `pre-write-discipline` effectiveness, surfaced by `/ai:should-i-use` on ponytail (Ignore);
+declined — measuring a behavioural rule needs A/B agent runs that reverse ADR-0002, whose Revisited
+note now records the decision). Prior:
 2026-07-11 against 17 open issues (#118 added — `graph-fresh` cannot check umbrella
 repos like emeq, whose root is not a git repo; #117 added — surface `graph-fresh` in the
 search-delegation hook, where a stale graph actually misleads the agent. Both deferred from the
@@ -71,18 +72,6 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P3 — backlog
 
-- **#119** `enhancement` — spike: does `pre-write-discipline` actually cut over-building,
-  and can we prove it *without* reversing ADR-0002? Surfaced by `/ai:should-i-use` on
-  `ponytail` (DietrichGebert), whose verdict was Ignore for the catalog — redundant with
-  `pre-write-discipline.mini.md` (universal, always-on) + caveman, logged in
-  `plugins-excluded.json`. Its one novel contribution survives the rejection: a
-  reproducible agentic benchmark (~54% LOC cut, safety intact). ADR-0002 deliberately
-  excluded run-metrics / LLM-judge on cost + determinism grounds, and `bin/eval-golden.sh`
-  is skill-scoped while this is a *rule* — so "measure it" means either a rule-scoped
-  `max_lines` golden (cheap, deterministic, doesn't reproduce the numbers) or an agentic
-  harness (reverses ADR-0002, costs API money, not CI-gatable). Decide can/should before
-  building anything. No pain today. Same shape as #109–#112: an Ignore that leaves one
-  reusable idea behind.
 - **#113** `enhancement` — nothing cross-checks a project's `.ai-kit-setup` marker
   against the real wiring in `.claude/settings.json`: `ai-kit-upgrade.sh` re-stamps
   two keys, `audit-setup-symmetry.sh` only greps ai-kit's own source, and
