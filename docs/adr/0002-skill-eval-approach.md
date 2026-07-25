@@ -41,3 +41,16 @@ The harness:
 - The kit gets a second active contributor (rubric scaling matters).
 - 30+ fixtures exist and you need to diff a skill change across all of them.
 - An LLM-judge model gets cheap and faithful enough that the trade is favourable. Today, it isn't.
+
+## Revisited
+
+**2026-07-26 (#119) — measuring the always-on `pre-write-discipline` rule. Reaffirmed: no.**
+
+`ponytail` (DietrichGebert, Ignored — see `standards/external/plugins-excluded.json`) published an agentic benchmark showing the *same* discipline (an identical YAGNI ladder, safety guards preserved) cuts ~54% LOC on a real repo. That raised the question: should ai-kit measure its own `pre-write-discipline.mini.md` the same way? Two findings say no.
+
+- **The deterministic harness cannot measure a behavioural rule's effect.** `eval-golden.sh` scores a response a human pastes in; it never runs the model. A rule-scoped golden with a `max_lines` rubric can document *one exemplar* of minimal output, but it cannot A/B rule-on vs rule-off, so it proves nothing about the rule's causal effect. Measuring that effect requires running the agent both ways — an LLM in the loop.
+- **Running the agent A/B is exactly what this ADR declined**, one step worse than LLM-judge: real API cost *and* non-determinism *and* no CI gate. None of the three "Revisit when" triggers is met.
+
+So the effect is measurable only by reversing this ADR, and the evidence for the rule's *direction* already exists externally (ponytail's controlled study of the identical ladder). Reproducing it on ai-kit's phrasing spends real money to re-derive a known result and still yields no CI regression gate (a one-time number can't run in CI). Declined — `pre-write-discipline`'s value rests on that external evidence plus review, not a native benchmark.
+
+Revisit under the same trigger as LLM-judge: when agent-run A/B benchmarking becomes cheap and deterministic enough to gate CI. If a manual spot-check is ever wanted before then, it fits the existing manual-rubric layer (a fixture + `max_lines` golden) on the honour system, like every other `eval-skill.sh` rating — no new harness.
