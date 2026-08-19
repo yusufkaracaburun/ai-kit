@@ -40,6 +40,10 @@ session starts warm. On yes, write both files:
 - one bullet under the relevant section of `.agents/memory/MEMORY.md` pointing
   at it. Without that line `/ai:hygiene` reports the file as an orphan.
 
+Create `.agents/memory/project/` and `MEMORY.md` when the project has no memory
+tree yet; many repos do not. Create only the directories you are about to fill,
+because an empty one trips `/ai:docs-sync` repo-hygiene.
+
 Never write either file without asking.
 
 **When the text is Dutch, load
