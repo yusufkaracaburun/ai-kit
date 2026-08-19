@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.49.0 — 2026-08-19
+
+### Added
+
+- **`/ai:copywriter` skill** (vendored) — a reader-first copywriter plus a humanizer, in one skill. The copywriter side interviews for the ICP, the category and the story before writing, then delivers variants across angles for headlines, short descriptions, microcopy, error messages, empty states, subject lines, LinkedIn posts and strategic blog posts, and picks one with the reason tied to the reader's feeling. The humanizer side detects and fixes 33 AI-writing patterns (promotional language, false ranges, rule of three, negative parallelisms, em dash overuse, copula avoidance, and the rest). It refuses to invent product facts: when the strongest line needs a number or a partner name, it asks instead of filling the gap. Skills 38 → 39.
+
+  Vendored from [mikiarlo3/ai-copywriter](https://github.com/mikiarlo3/ai-copywriter) at `08b53b1a`, not recommended as an external install, because ai-kit will extend it: the 33 patterns derive from **English** Wikipedia, so Dutch AI-tells ("daarnaast", "bovendien", "het is belangrijk om te vermelden") are not covered yet. A native NL pattern layer and a per-project copy-context are the planned follow-ups. For the same reason it is **not** in `plugins.json` — vendoring and recommending the upstream install would double-bundle.
+
+  **Licence carve-out.** This one file is not covered by ai-kit's repo-wide MIT. The humanizer patterns come from [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) (CC BY-SA 4.0) via [blader/humanizer](https://github.com/blader/humanizer) (MIT, © 2025 Siqi Chen) and mikiarlo3/ai-copywriter (MIT, © 2026 Mickey Haslavsky). The attribution block at the foot of `SKILL.md` must travel with any copy. The rest of ai-kit stays MIT.
+
+  Vetted against all eight `VETTING.md` criteria before landing. Two findings worth carrying forward: upstream's default branch is an agent working branch (`claude/humanizer-copywriting-skill-u5x4vd`) with `main` trailing it by a release, so the SHA is pinned rather than the branch; and a skillspector static scan returned five findings that were **all five false positives**, matching example prose and MIT warranty boilerplate rather than instructions. That last one is evidence against wiring skillspector's static mode as a CI gate over ai-kit's own Markdown skills.
+
+### Fixed
+
+- **Count guard missed the Cursor manifest.** `workflow/.cursor-plugin/plugin.json` carries a skill count in its description, but no surface in `bin/count-primitives.sh` was watching it, so it silently drifted while every tracked surface stayed correct. Now tracked for both skills and commands.
+
 ## 1.48.0 — 2026-07-11
 
 ### Added
