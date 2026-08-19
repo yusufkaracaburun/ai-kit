@@ -56,6 +56,8 @@ PATTERNS=(
   "workflow/.claude-plugin/plugin.json|%SKILLS% skills"
   "workflow/.claude-plugin/plugin.json|%COMMANDS% slash commands"
   "workflow/.claude-plugin/plugin.json|%RULES% canonical rules"
+  "workflow/.cursor-plugin/plugin.json|%SKILLS% skills"
+  "workflow/.cursor-plugin/plugin.json|%COMMANDS% commands"
   "ONBOARDING.md|%SKILLS% skills"
   "ONBOARDING.md|%COMMANDS% slash commands"
   "ONBOARDING.md|%RULES% canonical mini-rules"

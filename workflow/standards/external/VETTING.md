@@ -322,3 +322,58 @@ catalog.
 When `/should-i-use` returns **Adopt-as-pattern** with explicit catalog
 implication (e.g. "this should land in `standards/external/`"), that's
 the signal to run the eight criteria here.
+
+### `copywriter` skill — evaluated 2026-08-19 (VENDORED)
+
+Copy + humanizer skill vendored into `workflow/skills/copywriter/` from
+`mikiarlo3/ai-copywriter`. Vendored rather than recommended-external on an
+explicit owner decision: ai-kit will extend it (Dutch AI-tell patterns, a
+per-project copy-context) and a fork cannot track upstream anyway. Deliberately
+**not** added to `plugins.json` — vendoring and recommending the upstream
+install at the same time would double-bundle.
+
+```
+copywriter · category=content · vendored 2026-08-19
+  STORAGE-PARITY:   n/a (no storage layer; pure Markdown prompt)
+  BENCHMARK:        n/a (no numeric claims)
+  MARKETING-AUDIT:  pass with notes — 33 patterns claimed, 33 present (verified
+                    by section numbering). README understates size: claims
+                    "about 8,000 tokens", actual SKILL.md is 48,451 bytes
+                    (~12-13k tokens). README trails SKILL.md by one release.
+  LICENSE:          MIT AND CC-BY-SA-4.0. Three-layer chain: Wikipedia "Signs of
+                    AI writing" (CC BY-SA 4.0) -> blader/humanizer v2.9.1
+                    (MIT, (c) 2025 Siqi Chen) -> mikiarlo3/ai-copywriter
+                    (MIT, (c) 2026 Mickey Haslavsky). Because the pattern text
+                    is Wikipedia-derived, this ONE file is carved out of
+                    ai-kit's repo-wide MIT. The attribution block at the foot of
+                    SKILL.md is load-bearing: it must travel with any copy.
+  MATURITY:         caution — not age, release surface. Upstream default branch
+                    is an agent working branch
+                    (`claude/humanizer-copywriting-skill-u5x4vd`); `main` sits
+                    one commit behind and misses v1.6.0. Six releases in 24h
+                    (2026-07-24/25), quiet since 2026-08-01. Vendoring removes
+                    this risk for ai-kit; it is why the SHA is pinned.
+  DATA-LOCALITY:    pass — pure Markdown. No network calls, no telemetry, no
+                    API keys, no runtime.
+  PROVENANCE:       08b53b1ad39887cd94cbaab61cac3b6aae2d8518 (upstream v1.6.0)
+  SECURITY-SCAN:    pass — skillspector 2.3.7, static-only. Score 49/MEDIUM,
+                    safe_to_install=true, 5 findings, ALL 5 false positives:
+                    2x HIGH "Anti-Refusal" matched the literal words "without
+                    warning" inside an example sentence demonstrating em-dash
+                    removal; 1x "Excessive Agency" matched contributor advice in
+                    AGENTS.md; 1x "Scope Creep" matched the MIT warranty
+                    disclaimer boilerplate; 1x LP3 wants an MCP `permissions`
+                    field that Claude Code skills do not have. No real risk.
+  VERDICT:          VENDOR
+```
+
+Two follow-ups this audit produced:
+
+- **Known gap — Dutch.** The 33 patterns derive from English Wikipedia. Dutch
+  AI-tells ("daarnaast", "bovendien", "het is belangrijk om te vermelden") are
+  not in the list. Voice calibration partly covers it; a native NL pattern layer
+  does not exist yet and is the first planned ai-kit extension.
+- **Evidence against #111.** skillspector static mode returned 5/5 false
+  positives on a prose-heavy Markdown skill, matching example text and licence
+  boilerplate. Wiring it as a CI gate over ai-kit's own Markdown skills would
+  produce noise, not signal. Re-scope #111 before building on it.

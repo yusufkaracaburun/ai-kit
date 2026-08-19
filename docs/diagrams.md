@@ -10,7 +10,7 @@ second shows what happens *during* a turn. For the prose version see
 ```mermaid
 flowchart LR
   subgraph SRC["Source layer — ai-kit repo (single source of truth)"]
-    S["workflow/skills/*/SKILL.md<br/>38 skills"]
+    S["workflow/skills/*/SKILL.md<br/>39 skills"]
     A["workflow/agents/*/AGENT.md<br/>3 subagents"]
     C["workflow/commands/*.md<br/>11 slash commands"]
     R["standards/rules/*.mini.md<br/>31 agent-agnostic rules"]
