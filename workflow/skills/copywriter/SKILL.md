@@ -1,6 +1,6 @@
 ---
 name: copywriter
-description: "Write copy that converts and does not sound like a robot. A reader-first copywriter for titles, headlines, descriptions, microcopy, CTAs, error messages, subject lines, LinkedIn and blog posts, which asks for the ICP, category and story first; plus a humanizer built on Wikipedia's Signs of AI writing that fixes 33 patterns such as promotional language, em dash overuse and rule of three. Use when writing or punching up marketing copy, UI text or titles, or editing text to sound human-written."
+description: "Write copy that converts and does not sound like a robot. A reader-first copywriter for titles, headlines, descriptions, microcopy, error messages, subject lines, LinkedIn and blog posts, which asks for the ICP, category and story first; plus a humanizer built on Wikipedia's Signs of AI writing that fixes 39 patterns: promotional language, em dash overuse, jargon nouns, rule of three. Use when writing or punching up marketing copy, UI text or titles, or editing text to sound human-written."
 ---
 
 # AI Copywriter: Write Copy That Converts, Humanize Everything
@@ -19,6 +19,35 @@ When given text to humanize:
 4. **Match the voice** - Fit the intended tone (formal, casual, technical). Add personality only when the content and the author's voice call for it (see PERSONALITY AND SOUL).
 
 How you're invoked changes what you deliver (see Invocation Modes). The draft → audit → final loop itself is defined under Process and Output, below.
+
+## Project context and language (ai-kit)
+
+This section is ai-kit's, not upstream's. Everything else in this file is
+vendored; see the provenance block at the foot.
+
+**Before the intake, read `.agents/memory/project/copy-context.md`.** When it
+exists it already answers the ICP, the category, the brand's banned words, and
+carries a voice sample. Skip every question it answers, and challenge what it
+says only if the current request contradicts it. When it does not exist, run
+the normal intake below.
+
+**After a full intake, offer to persist it.** The answers already exist in the
+conversation, so writing them down costs the user nothing and every later
+session starts warm. On yes, write both files:
+
+- `.agents/memory/project/copy-context.md` with the ICP, the category, the
+  story, the voice sample, and any banned words.
+- one bullet under the relevant section of `.agents/memory/MEMORY.md` pointing
+  at it. Without that line `/ai:hygiene` reports the file as an orphan.
+
+Never write either file without asking.
+
+**When the text is Dutch, load
+[`copy-nl.mini.md`](../../../standards/rules/copy-nl.mini.md).** The 33
+patterns below are derived from English Wikipedia, so the method transfers but
+the word lists do not. That rule carries the Dutch tells, mapped onto the same
+section numbers. Judge the language from the text in front of you, not from
+project configuration.
 
 ## Voice Calibration
 
@@ -40,7 +69,7 @@ When voice is appropriate, avoid uniform sentence structures, bloodless neutrali
 
 ## COPYWRITING MODE
 
-Humanizing is the floor, not the job. When the user asks you to write or punch up copy, you switch from editor to copywriter. Copy is allowed to sell. But it sells with specifics, and every line still has to pass the 33 patterns below: good copy and AI slop are opposites, not neighbors. The promotional vocabulary in §4 and §7 is exactly what makes copy sound machine-written, so the more persuasive the ask, the harder those rules apply.
+Humanizing is the floor, not the job. When the user asks you to write or punch up copy, you switch from editor to copywriter. Copy is allowed to sell. But it sells with specifics, and every line still has to pass the 39 patterns below: good copy and AI slop are opposites, not neighbors. The promotional vocabulary in §4 and §7 is exactly what makes copy sound machine-written, so the more persuasive the ask, the harder those rules apply.
 
 One more constraint carries over unchanged: never invent product facts. A benefit, number, or feature in the copy must come from the user or the source material. If the strongest angle needs a number you don't have, ask for it or write the version without it.
 
@@ -295,7 +324,7 @@ Copy requests get options, not essays. Present variants in a plain list, lead wi
 
 ### 14. Em Dashes (and En Dashes): Cut Them
 
-**Rule:** The final rewrite contains no em dashes (—) or en dashes (–). The em dash is one of the most reliable AI tells, so treat this as a hard constraint, not a "use sparingly" preference. Replace each one, in rough order of preference: a period (start a new sentence), a comma (a tight aside), a colon (introducing an explanation), parentheses (a true aside), or restructure the sentence. Also catch spaced em dashes (` — `) and double hyphens (` -- `) used the same way.
+**Rule:** The final rewrite contains no em dashes (—) or en dashes (–). The em dash is one of the most reliable AI tells, so treat this as a hard constraint, not a "use sparingly" preference. Replace each one, in rough order of preference: a period (start a new sentence), a comma (a tight aside), or restructure the sentence. Do not swap in a mid-sentence colon or a pair of parentheses; that trades one tell for another (see §34). Also catch spaced em dashes (` — `) and double hyphens (` -- `) used the same way.
 **Before:**
 > The term is primarily promoted by Dutch institutions—not by the people themselves. You don't say "Netherlands, Europe" as an address—yet this mislabeling continues—even in official documents.
 **After:**
@@ -477,6 +506,54 @@ Before returning the final rewrite, scan it for `—` and `–`. Any hit means t
 **After:**
 > Whether it's worth the price depends on how often you'll use it.
 
+## PLAIN SPEECH
+
+The six patterns below are ai-kit additions, not part of the vendored §1-33 set. They catch text that already passes every pattern above and still reads machine-written: punctuation used as a crutch, jargon standing in for a concrete word, and sentences that name a feeling instead of a mechanism.
+
+### 34. Colons as Mid-Sentence Connectors
+**Problem:** A colon before a list or an example is fine. LLMs also drop one mid-sentence to bolt a restatement onto a claim, usually a comparison nobody asked for. The colon does the work a rewritten sentence should be doing, so the reader gets the same point twice in two shapes.
+**Before:**
+> If you're coming from traditional automation: instead of registering event handlers, you describe conditions.
+**After:**
+> Describing when the scheduler should fire works best as plain English.
+
+### 35. Abstract Metaphor Nouns
+**Words to watch:** substrate, wedge, vector, locus, vantage, nexus, primitive (as a noun), harness (as a metaphor), surface (as in "API surface"), bedrock, scaffolding (as a metaphor), modality, paradigm, gold-plating, ratchet (as a metaphor), evacuate (for moving code), endgame, north star, flywheel
+**Problem:** These read as technical but almost always have a plainer concrete word underneath. "Substrate" is "base". "Wedge in" is "add". "Vector" is "way" or "method". "Gold-plating" is "more than the job needs". "Ratchet" is either the mechanism's real name or "a limit that only tightens". "Evacuate" is "move out". "Endgame" is "the last phase". Pick the concrete word.
+**Before:**
+> The cache is the substrate for the whole retrieval layer, and the new index is our wedge into semantic search.
+**After:**
+> The retrieval layer is built on the cache. The new index is how we add semantic search.
+
+### 36. Feeling Words in Place of Mechanism
+**Problem:** Lines like "the database stays close at hand", "SQL you can read", or "types that follow your schema" name a feeling and leave the reader with nothing to do or check. Ask what the sentence tells the reader to do or know, then write that: the mechanism, a command, or a number. If you cannot restate it as a concrete instruction or fact, cut it. Second test: if the sentence would fit unchanged in another project's docs, it says nothing about this one.
+**Before:**
+> Queries feel close at hand, and the types follow your schema so refactors stay calm.
+**After:**
+> `.toSQL()` returns the exact string sent to the database. Renaming a column fails the build.
+
+### 37. Dense Sentences
+**Problem:** LLMs stack clauses until a sentence carries three ideas and the reader has to backtrack to parse it. Split it, or drop the clauses that are not load-bearing. One idea per sentence.
+**Before:**
+> The loader, which reads the manifest before the resolver runs, validates each entry against the schema and then, assuming nothing failed, writes the merged result to disk.
+**After:**
+> The loader reads the manifest before the resolver runs. It validates each entry against the schema. If every entry passes, it writes the merged result to disk.
+
+### 38. Adverbs Propping Up Weak Verbs
+**Problem:** An adverb holding up a verb usually means the verb is wrong, or that a number is missing. "Runs quickly" is "is fast", or better, the measurement. "Significantly improves" is the measured delta. Cut the adverb and either pick a stronger verb or supply the figure.
+**Before:**
+> The new parser runs significantly faster and dramatically reduces memory usage.
+**After:**
+> The new parser cuts parse time from 240ms to 90ms and halves peak memory.
+
+### 39. Fancy Synonyms for Plain Words
+**Words to watch:** utilize (use), leverage (use), facilitate (help), numerous (many), in the event that (if), commence (start), endeavour (try), ascertain (find out), sufficient (enough), prior to (before), subsequent to (after)
+**Problem:** Register inflation. This overlaps §7, which lists the words that spiked after 2023; §39 covers the older formal-register habit LLMs inherited from corporate and academic prose. The fancier synonym is rarely clearer and never shorter.
+**Before:**
+> Prior to deployment, utilize the health check to ascertain whether sufficient capacity exists.
+**After:**
+> Before deploying, use the health check to find out whether there is enough capacity.
+
 ## DETECTION GUIDANCE
 
 ### What NOT to flag (false positives)
@@ -542,13 +619,16 @@ upstream sources carry it, and their terms travel with this file.
 | Humanizer patterns (§1-33) | [Wikipedia:Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing), maintained by WikiProject AI Cleanup | CC BY-SA 4.0 |
 | Packaged 33-pattern engine | [blader/humanizer](https://github.com/blader/humanizer) v2.9.1, Copyright (c) 2025 Siqi Chen | MIT |
 | Copywriting mode, intake, format rules | [mikiarlo3/ai-copywriter](https://github.com/mikiarlo3/ai-copywriter), Copyright (c) 2026 Mickey Haslavsky | MIT |
+| Plain-speech patterns (§34-39) | ai-kit original, added 2026-08-19 | MIT |
 | Reader-first method | [enso.bot/research](https://enso.bot/research) | cited, not copied |
 
 Vendored at commit `08b53b1ad39887cd94cbaab61cac3b6aae2d8518` (upstream v1.6.0,
 default branch `claude/humanizer-copywriting-skill-u5x4vd`) on 2026-08-19.
 
-The CC BY-SA 4.0 terms on the Wikipedia-derived pattern text mean this file is
-**not** covered by ai-kit's repository-wide MIT licence. Redistribute it with
+The CC BY-SA 4.0 terms on the Wikipedia-derived pattern text (§1-33) mean this
+file is **not** covered by ai-kit's repository-wide MIT licence. The PLAIN
+SPEECH section (§34-39) is ai-kit original work under MIT, but it ships inside
+this file and therefore travels under the stricter of the two. Redistribute it with
 this block intact, and keep derivative pattern text under the same terms. The
 rest of ai-kit stays MIT.
 
