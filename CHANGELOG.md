@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.50.0 — 2026-08-19
+
+### Added
+
+- **`copy-nl` rule** (on-demand) — the Dutch half of the humanizer. `/ai:copywriter`'s 33 patterns come from English Wikipedia: the method transfers to Dutch, the word lists do not. About 30 Dutch tells across vocabulary (daarnaast, bovendien, middels, naadloos), constructions (naamwoordstijl, "niet alleen X maar ook Y", "of het nu gaat om"), openers and closers ("In de wereld van", "Kortom"), and punctuation, each mapped onto the English section number so a finding reads the same in either language. Scope is deliberately narrow: language facts only. Register (je/u), brand-banned words and tone are positioning choices, and a rule that decided them would impose one register on every repo. Those live in the project's copy-context instead. Rules 31 → 33.
+
+- **`writing-style` rule** (always-on, universal) — a prose floor for everything the agent emits, not only text a user asks it to write: commit bodies, PR descriptions, issue text, docs, release notes. No em dashes, plain word over jargon noun, name the mechanism rather than the feeling, cut the adverb or give the number. It scopes itself against caveman ("compression modes set their own register; this rule still governs word choice"), so the two compose rather than fight.
+
+- **`/ai:copywriter` now reads project context.** A new ai-kit-owned block, marked as such and separate from the vendored body, teaches the skill to read `.agents/memory/project/copy-context.md` before its intake and skip every question that file already answers. After a full intake it offers to persist the answers, writing both the memory file and its `MEMORY.md` index line, and creating the memory tree when the project has none. It never writes either file unasked. Dutch is judged from the text in front of it rather than from project configuration, so `copy-nl` also loads on a first run where no copy-context exists yet; `detect-tooling.sh` emits no language axis, so there is nothing to detect against.
+
+  Proven on a real repo before shipping. A cold intake against emeq-hub's landing page produced a copy-context whose value was mostly in what it refused: asked twice to invent a build-time number and customer quotes, the skill declined both, and the detour produced better material than the invention would have. The number came out of git instead (23 working days for one connector, measured across 1040 commits, with the caveat that the window includes maintenance), and the customer voice was replaced by founder voice sourced from artefacts the repo already contained. The intake also surfaced two claims on the live site with no coverage behind them.
+
+- **New eval fixture** `copywriter/dutch-tells.md` asserts the Dutch path end to end: that `copy-nl` loads unprompted, that specific tells are caught and mapped to a section number, and that the skill declines to decide je/u.
+
+### Fixed
+
+- **Count guard missed the Cursor manifest.** `workflow/.cursor-plugin/plugin.json` carries a skill count in its description that no surface in `bin/count-primitives.sh` was watching, so it drifted silently while every tracked surface stayed correct. Now tracked for both skills and commands.
+
 ## 1.49.0 — 2026-08-19
 
 ### Added
