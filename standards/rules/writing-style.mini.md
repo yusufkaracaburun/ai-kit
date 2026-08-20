@@ -25,7 +25,7 @@ the underlying substrate" survives review because nobody can disagree
 with it, while "reads from the cache" can be checked and corrected.
 Plain sentences make wrong claims visible.
 
-This is a floor, applied continuously and cheaply. The full 33-pattern
+This is a floor, applied continuously and cheaply. The full 39-pattern
 editor lives in the `copywriter` skill; reach for it when text matters
 enough to iterate on.
 
@@ -62,7 +62,7 @@ enough to iterate on.
 
 ## See also
 
-- `copywriter` skill (`/ai:copywriter`) for the full 33 patterns, the
+- `copywriter` skill (`/ai:copywriter`) for the full 39 patterns, the
   audit loop, and file-mode rewrites.
 - [`minimal-comments.mini.md`](feedback/minimal-comments.mini.md) for
   the adjacent rule on when a comment earns its line.
@@ -74,8 +74,13 @@ mechanism over feeling, dense sentences, active voice, adverbs, plain word) plus
 its style tells (boldface, sentence case, emoji, straight quotes) and its
 chatbot-residue rule. The jargon list and the plain-word list are unslop's.
 
+The same six patterns also landed in `/ai:copywriter` as its ai-kit-original
+sections 34 to 39. That is deliberate, not drift: this rule is the always-on
+floor and the skill is the full editor, so both need them. Change one and
+change the other.
+
 That lineage runs back to [Wikipedia: Signs of AI
 writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing), the same
-source as the 33 patterns in `/ai:copywriter`. The two overlap on purpose: this
+source as patterns 1 to 33 in `/ai:copywriter`. The two overlap on purpose: this
 rule is the always-on floor, and the skill is the full editor you reach for when
 a document is worth iterating on.
