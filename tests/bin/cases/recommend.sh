@@ -114,6 +114,43 @@ assert "recommend-tools: components.json surfaces shadcn MCP (#102)" \
   'echo "$JSON_SHADCN_MCP" | python3 -c "import json,sys; d=json.load(sys.stdin); assert \"shadcn\" in [r[\"name\"] for r in d[\"recommendations\"]]"'
 rm -rf "$SHADCN_TMP"
 
+# dependencies signal: declared packages in composer.json / package.json score their
+# catalog entry. Regression guard — the signal shipped in 14 of 23 MCP entries but had
+# no handler, so every dependency-only entry silently scored zero.
+DEP_PHP=$(mktemp -d)
+printf '{"require":{"php":"^8.4","predis/predis":"^2.0"}}' > "$DEP_PHP/composer.json"
+JSON_DEP_PHP="$("$AIKIT/bin/recommend-tools.sh" "$DEP_PHP" --json --kind mcp)"
+assert "deps: composer require surfaces redis MCP" \
+  'echo "$JSON_DEP_PHP" | python3 -c "import json,sys; d=json.load(sys.stdin); assert \"redis\" in [r[\"name\"] for r in d[\"recommendations\"]]"'
+assert "deps: redis scored via dep signal, not another" \
+  'echo "$JSON_DEP_PHP" | python3 -c "import json,sys; d=json.load(sys.stdin); r=[x for x in d[\"recommendations\"] if x[\"name\"]==\"redis\"][0]; assert \"dep:predis/predis\" in r[\"reason\"], r[\"reason\"]"'
+assert "deps: bare php constraint is not treated as a package" \
+  'echo "$JSON_DEP_PHP" | python3 -c "import json,sys; d=json.load(sys.stdin); assert not any(\"dep:php\" in r[\"reason\"] for r in d[\"recommendations\"])"'
+rm -rf "$DEP_PHP"
+
+DEP_JS=$(mktemp -d)
+printf '{"dependencies":{"puppeteer":"^23.0.0"}}' > "$DEP_JS/package.json"
+JSON_DEP_JS="$("$AIKIT/bin/recommend-tools.sh" "$DEP_JS" --json --kind mcp)"
+assert "deps: package.json surfaces puppeteer MCP" \
+  'echo "$JSON_DEP_JS" | python3 -c "import json,sys; d=json.load(sys.stdin); r=[x for x in d[\"recommendations\"] if x[\"name\"]==\"puppeteer\"][0]; assert \"dep:puppeteer\" in r[\"reason\"], r[\"reason\"]"'
+rm -rf "$DEP_JS"
+
+# A catalog entry ending in "/" is a namespace prefix, so @sentry/react must match "@sentry/".
+DEP_PREFIX=$(mktemp -d)
+printf '{"devDependencies":{"@sentry/react":"^8.0.0"}}' > "$DEP_PREFIX/package.json"
+JSON_DEP_PREFIX="$("$AIKIT/bin/recommend-tools.sh" "$DEP_PREFIX" --json --kind mcp)"
+assert "deps: namespace prefix matches scoped package" \
+  'echo "$JSON_DEP_PREFIX" | python3 -c "import json,sys; d=json.load(sys.stdin); r=[x for x in d[\"recommendations\"] if x[\"name\"]==\"sentry\"][0]; assert \"dep:@sentry/\" in r[\"reason\"], r[\"reason\"]"'
+rm -rf "$DEP_PREFIX"
+
+# Exact names must not match on substring — "redis" must not fire for "redis-om".
+DEP_NEG=$(mktemp -d)
+printf '{"dependencies":{"redis-om":"^0.4.0"}}' > "$DEP_NEG/package.json"
+JSON_DEP_NEG="$("$AIKIT/bin/recommend-tools.sh" "$DEP_NEG" --json --kind mcp)"
+assert "deps: exact name does not match on substring" \
+  'echo "$JSON_DEP_NEG" | python3 -c "import json,sys; d=json.load(sys.stdin); assert not any(\"dep:redis\" in r[\"reason\"] for r in d[\"recommendations\"])"'
+rm -rf "$DEP_NEG"
+
 EMPTY_TMP=$(mktemp -d)
 JSON_EMPTY="$("$AIKIT/bin/recommend-tools.sh" "$EMPTY_TMP" --json)"
 assert "recommend-tools empty stack: universal hooks still surfaced" 'echo "$JSON_EMPTY" | grep -q "\"name\": \"block-lockfile-edits\""'

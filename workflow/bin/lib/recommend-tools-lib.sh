@@ -66,6 +66,7 @@ if be: archs.add(be.lower())
 
 remote = ((detect.get("issue_tracker", {}) or {}).get("remote", "") or "").lower()
 deploy_shape = ((detect.get("deploy", {}) or {}).get("shape", "") or "").lower()
+dependencies = {s.lower() for s in detect.get("dependencies", []) if isinstance(s, str)}
 
 
 def file_exists(rel):
@@ -124,6 +125,19 @@ def score_entry(entry, kind):
                 score += 3
                 reasons.append(f"deploy:{s}")
                 break
+
+    for dep in signals.get("dependencies", []) or []:
+        depl = dep.lower()
+        # A trailing slash marks a namespace prefix (e.g. "@aws-sdk/"); anything
+        # else is an exact package name, slashes included ("sentry/sentry-laravel").
+        if depl.endswith("/"):
+            hit = any(d.startswith(depl) for d in dependencies)
+        else:
+            hit = depl in dependencies
+        if hit:
+            score += 3
+            reasons.append(f"dep:{dep}")
+            break
 
     for env_var in signals.get("env", []) or []:
         if os.environ.get(env_var):

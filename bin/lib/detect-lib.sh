@@ -65,6 +65,36 @@ detect_package_manager() {
   fi
 }
 
+detect_dependencies() {
+  local target="$1"
+  DEPENDENCIES_JSON="[]"
+
+  DEPENDENCIES_JSON="$(python3 -c "
+import json
+
+names = set()
+
+def collect(path, keys):
+    try:
+        data = json.load(open(path))
+    except Exception:
+        return
+    for key in keys:
+        section = data.get(key) or {}
+        if isinstance(section, dict):
+            names.update(str(n) for n in section)
+
+collect('$target/package.json', ('dependencies', 'devDependencies'))
+collect('$target/composer.json', ('require', 'require-dev'))
+names.discard('php')
+print(json.dumps(sorted(names)))
+" 2>/dev/null || true)"
+
+  if [ -z "$DEPENDENCIES_JSON" ]; then
+    DEPENDENCIES_JSON="[]"
+  fi
+}
+
 detect_frameworks() {
   local target="$1"
   FRAMEWORKS=()

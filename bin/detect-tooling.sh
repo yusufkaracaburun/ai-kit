@@ -33,6 +33,7 @@ while [ $# -gt 0 ]; do
 done
 
 detect_package_manager "$TARGET"
+detect_dependencies "$TARGET"
 detect_frameworks "$TARGET"
 detect_docker "$TARGET"
 detect_deploy_shape "$TARGET"
@@ -233,6 +234,7 @@ if [ "$JSON" = true ]; then
     "has_js": ${HAS_JS:-false},
     "has_php": ${HAS_PHP:-false}
   },
+  "dependencies": ${DEPENDENCIES_JSON:-[]},
   "frameworks": ${fw_json},
   "docker": {
     "recommendation": "${DOCKER_REC}",
