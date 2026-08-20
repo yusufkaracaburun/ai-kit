@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.55.1 — 2026-08-20
+
+### Fixed
+
+- **A test case was mutating the repository the other cases were reading.** `structure`'s drift block wrote `0.0.0-drift` into the real `workflow/.claude-plugin/plugin.json` and restored it three commands later, while the runner dispatches cases four at a time. Any case invoking `ai-kit-doctor.sh` inside that window read the corrupted manifest, got a warning, and exited 1 — which is every intermittent doctor failure seen on CI, including the one that made v1.55.0's own tag land on a red commit.
+
+  Shared mutable state in a parallel suite, though it read as a platform quirk for weeks: the window is milliseconds wide, doctor run on its own never reproduced it, and it landed on whichever assertion happened to fall inside — `opt-out alone exits 0` one run, `project-only exit 0` the next. Reproduced locally for the first time by hammering doctor while the case runs: one failure in sixty with the old block, none in sixty with the new one, which matches the rate CI showed.
+
+  `resolve_ai_kit_root` honours `AI_KIT_ROOT` ahead of script location, so the drift now happens in a throwaway root holding a copy of `VERSION` and the manifest. No change to `sync-plugin-version.sh`, and no serialising the suite to make one case safe. A new assertion checks the repo's own manifest survives the case, which is the property every other case depends on.
+
+  Found by the failure diagnostics added one release earlier, on their first real failure — the log printed doctor's output and the offending line named itself. Without them it would have said only that a number was wrong.
+
+- **A verdict line past the truncation cap is now surfaced.** Diagnosing the above still needed a manual log re-fetch: doctor's single `warn` sat on line 16 of 34 and the cap stopped at 15, so the answer was captured, printed, and cut off one line too early. The line that explains a failure is rarely in the first twelve. The tail is now scanned for `warn` / `err` / `fail` lines and up to five are shown beneath the elision marker.
+
+### Notes
+
+v1.55.0's tag points at a commit whose test run is red — from this flake rather than a regression. This release is the same content on a green one.
+
+Tests: 1067 → 1069 passing.
+
 ## 1.55.0 — 2026-08-20
 
 ### Added
