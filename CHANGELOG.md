@@ -1,5 +1,33 @@
 # Changelog
 
+## 1.56.0 — 2026-08-20
+
+### Fixed
+
+- **The most-used signal in the MCP catalog was never read.** `dependencies` carries fourteen of the twenty-three entries in `standards/external/mcp-servers.json` — redis, sentry, stripe, supabase, postgresql, puppeteer, aws, cloudflare, slack, mysql, linear, firecrawl, exa — several of them with no other signal at all. The scorer handled frameworks, architectures, files, `git_remote_host`, `deploy_shape` and `env`; `dependencies` was not among them, and `detect-tooling.sh` never emitted the key it would have read. Every dependency-only entry scored zero and stayed under the surfacing threshold.
+
+  Silent in the worst way, because a signal that is never read looks exactly like a project that genuinely does not match. A Laravel app with `predis/predis` in `composer.json` was told nothing about the redis MCP, and the output gave no hint that a question had gone unasked.
+
+  `detect_dependencies` merges `package.json` (`dependencies` + `devDependencies`) with `composer.json` (`require` + `require-dev`). The bare `php` constraint is dropped: it is a platform requirement rather than a package, and would otherwise sit in every PHP project's list matching nothing.
+
+  Matching is exact on the package name, slashes included, so `sentry/sentry-laravel` means that package. A catalog entry ending in `/` is the deliberate namespace form — `@aws-sdk/`, `@sentry/` — and prefix-matches instead. Without that split `redis` would fire on `redis-om`, which is the case the new assertions pin down.
+
+  Weighted at three, level with frameworks. A declared dependency is a direct statement that the project uses the thing, which is stronger evidence than a file existing. Existing rankings do shift, but only because the signal was contributing nothing before — there is no prior weighting to preserve.
+
+### Added
+
+- **The Resend plugin is catalogued.** The ecosystem audit had been flagging `resend@claude-plugins-official` as ADOPT — installed at user scope, absent from the catalog — and the promotion had to wait for the signal above, because there was no honest way to express it. There is no marker file meaning "this project sends mail through Resend", and the `env` signal reads the agent's own process environment, so a project's `RESEND_API_KEY` in `.env` would never have matched.
+
+  Keyed on `resend`, `resend/resend-php` and `resend-laravel`. A project using Resend purely over SMTP declares no package and correctly gets nothing: with no SDK in play there is no Resend-specific knowledge to offer.
+
+### Notes
+
+Six assertions were added to the `recommend` case, covering both match modes, the `php` exclusion, and the substring case that motivated the exact-versus-prefix split.
+
+The `env` signal still reads the process environment rather than the project's `.env` files, and is left for its own release.
+
+Tests: 1069 → 1075 passing.
+
 ## 1.55.1 — 2026-08-20
 
 ### Fixed
