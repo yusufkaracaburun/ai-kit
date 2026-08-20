@@ -1,0 +1,20 @@
+2026-08-20T10:38:36Z	-	preflight-cwd-ok	/Users/yusufkaracaburun/Sites/localhost/ws/ai-kit
+2026-08-20T10:38:37Z	-	preflight-triage-labels-ok	ready-for-agent
+2026-08-20T10:38:37Z	-	preflight-merge-policy-detected	direct
+2026-08-20T10:38:37Z	-	preflight-ai-kit-root-pinned	/Users/yusufkaracaburun/Sites/localhost/ws/ai-kit
+2026-08-20T10:38:52Z	121	pick	secrets-scan: ranked, redacted history scan
+2026-08-20T10:38:55Z	121	exit-gate	brief-thin body-not-promoted
+2026-08-20T10:43:23Z	-	preflight-cwd-ok	/Users/yusufkaracaburun/Sites/localhost/ws/ai-kit
+2026-08-20T10:43:23Z	-	preflight-triage-labels-ok	ready-for-agent
+2026-08-20T10:43:23Z	-	preflight-merge-policy-detected	direct
+2026-08-20T10:43:23Z	-	preflight-ai-kit-root-pinned	/Users/yusufkaracaburun/Sites/localhost/ws/ai-kit
+2026-08-20T10:43:25Z	121	pick	secrets-scan + drop the PreToolUse recipe
+2026-08-20T10:43:25Z	121	brief-ok	12 criteria inline
+2026-08-20T10:47:50Z	121	cycle-attempt	C1 attempt=1 result=pass
+2026-08-20T10:47:50Z	121	cycle-done	C1 result=pass
+2026-08-20T10:52:47Z	121	cycle-attempt	C2 attempt=1 result=red (failed scan reported clean)
+2026-08-20T10:52:47Z	121	cycle-attempt	C2 attempt=2 result=pass
+2026-08-20T10:52:47Z	121	cycle-done	C2 result=pass
+2026-08-20T10:52:47Z	121	tdd-green	cycles=2
+2026-08-20T10:58:14Z	121	review-pass	mode=comprehensive; 1 blocker found+fixed (failed scan reported clean)
+2026-08-20T10:58:14Z	121	ship-ok	pr=#125

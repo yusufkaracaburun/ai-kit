@@ -38,7 +38,7 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
   and both public repos are clean. Fix = repo-**entry** scan in `/ai:setup` +
   `/ai:hygiene` (redacted to paths + rule ids, since findings enter agent context),
   emitted pre-commit + CI for prevention, and keep `block-env-edits` as PreToolUse
-  where the shape is right. Compounding: all 27 recipes are advisory metadata with no
+  where the shape is right. Compounding: every recipe is advisory metadata with no
   `command` field — though that is deliberate, not a gap: `recommend-tools` generates
   the script at approval time, so the defect is a wrong spec rather than a missing one.
   **Design settled** via `/ai:grill-me` across five branches: a one-time discovery scan
