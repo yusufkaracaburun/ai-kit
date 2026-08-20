@@ -66,3 +66,16 @@ enough to iterate on.
   audit loop, and file-mode rewrites.
 - [`minimal-comments.mini.md`](feedback/minimal-comments.mini.md) for
   the adjacent rule on when a comment earns its line.
+
+## Provenance
+
+Adapted from the `unslop` skill: patterns 26 to 31 (abstract metaphor nouns,
+mechanism over feeling, dense sentences, active voice, adverbs, plain word) plus
+its style tells (boldface, sentence case, emoji, straight quotes) and its
+chatbot-residue rule. The jargon list and the plain-word list are unslop's.
+
+That lineage runs back to [Wikipedia: Signs of AI
+writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing), the same
+source as the 33 patterns in `/ai:copywriter`. The two overlap on purpose: this
+rule is the always-on floor, and the skill is the full editor you reach for when
+a document is worth iterating on.
