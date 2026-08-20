@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.52.0 — 2026-08-20
+
+### Changed
+
+- **`/ai:should-i-use` now refuses a verdict it cannot ground in your repo.** Two days of running the skill on real candidates exposed six ways a wrong answer got through, and the largest was structural: the skill spent fifty lines assessing the candidate and four lines on "read the repo", so a complete six-part verdict could be produced without a single fact from the project it was about. Project fit is now the first step rather than a note beside the verdict, and it carries a rule: **no verdict without a path or a count from this project.** Four questions run in order and stop at the first one that cannot be answered: where does it hurt here, where would it fire (paths and counts, never categories), who would run it, and what does it cost here. "Added value" must now restate that evidence instead of accepting the candidate's own marketing.
+
+  The other five, each traced to a real failure. Fetching a README from `main` assessed a version nobody installs, because the repo's default branch was a working branch and `main` trailed it by a release: the input step now resolves the default branch, pins the HEAD SHA, and diffs any local install against it. Overlap was checked by name only, so a tool already inside the project under a different name read as new: it is now checked by derivation, by grepping the candidate's distinctive word lists, examples and rule numbering against the repo. Scope was absent although it decided two verdicts here, so a table now separates value that hangs on the repo, on the person, and on a task that ends. Licence was one noun in "what it is", and now says to follow the chain past the `LICENSE` file, because packaged work carries terms the wrapper does not restate. A candidate that delegated half its job to a companion was judged as a whole thing, so the skill asks for the missing half first.
+
+- **A verdict is now recorded, not just spoken.** A new section says to write it where the project keeps decisions, with the reason next to an Ignore rather than the verdict alone: "we looked at this and said no" is worth nothing six months on, while "this is the same material as X, already in two of our files" stops the next person re-adopting it. In ai-kit that means `standards/external/VETTING.md` for adoptions and `standards/external/plugins-excluded.json` for Ignores. In a project with no such place the skill says so and proposes one instead of inventing a file nobody will read.
+
+  Two eval fixtures cover the new behaviour: a synthetic candidate that trips all six failures at once, and an evidence expect added to the existing one.
+
 ## 1.51.0 — 2026-08-20
 
 ### Added
