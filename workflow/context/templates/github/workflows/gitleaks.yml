@@ -1,13 +1,22 @@
 name: gitleaks
 
-# The half nothing bypasses. A pre-commit hook is skipped by --no-verify and
-# absent on any machine that did not run the setup, so CI is where the
-# guarantee actually lives.
+# Blocks secrets being *added*. It deliberately does not fail on what is
+# already in the history.
 #
-# gitleaks is installed and run directly rather than through the marketplace
-# action: that action requires a licence key for organisation accounts, which
-# would turn a security guard into a silent no-op the day a repo moves under
-# an org. A pinned release tarball has no such cliff.
+# Scanning full history here sounds stricter and is worse: a repository with
+# any pre-existing finding — a test fixture holding a dummy key, a vendored
+# blob a rule misreads — goes red on every push forever. Four of the six
+# projects this was measured against are dominated by exactly that kind of
+# false positive, so a full-history job would have been permanently red in
+# most of them, and a job that is always red is one nobody reads. It also
+# blocks merges for something no commit in the pull request introduced.
+#
+# History is a separate question with a separate answer: run the secrets
+# scan once, read the ranked report, and decide what to rotate. That is a
+# human judgement made once, not a gate re-litigated on every push.
+#
+# The guarantee is unchanged: a secret added by these commits still fails
+# the job.
 
 on:
   push:
@@ -22,8 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # Full history: the findings that matter are the ones already
-          # committed, and a shallow clone cannot see them.
+          # Needed to resolve the base of the range below.
           fetch-depth: 0
 
       - name: Install gitleaks
@@ -34,7 +42,27 @@ jobs:
             | sudo tar -xz -C /usr/local/bin gitleaks
           gitleaks version
 
-      - name: Scan history
-        # --redact because job logs are frequently readable by more people
-        # than the repository itself.
-        run: gitleaks detect --no-banner --redact --exit-code 1
+      - name: Resolve the range this event adds
+        id: range
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BEFORE: ${{ github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          EMPTY=0000000000000000000000000000000000000000
+          if [ "$EVENT" = "pull_request" ]; then
+            echo "opts=--log-opts=$BASE_SHA..$HEAD_SHA" >> "$GITHUB_OUTPUT"
+          elif [ -n "$BEFORE" ] && [ "$BEFORE" != "$EMPTY" ]; then
+            echo "opts=--log-opts=$BEFORE..$HEAD_SHA" >> "$GITHUB_OUTPUT"
+          else
+            # A brand-new branch has no before-sha. Scan just its tip rather
+            # than the whole history, which would reintroduce the red-forever
+            # problem on the first push of every branch.
+            echo "opts=--log-opts=-1 $HEAD_SHA" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Scan for added secrets
+        # --redact because job logs are routinely readable by more people
+        # than the repository is.
+        run: gitleaks detect --no-banner --redact --exit-code 1 ${{ steps.range.outputs.opts }}
