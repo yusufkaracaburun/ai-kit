@@ -7,7 +7,11 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-08-20 against 19 open issues (#121 and #122 shipped the same day via
+_Last reconciled: 2026-08-20 against 22 open issues (#127, #128 and #129 filed from friction hit
+during the same session — the to-issues ↔ autonomous contract disagreement, drain re-picking a
+shipped issue, and a printed recipe that no-ops under an interactive `mv -i` shell. That last one
+explains how v1.53.1 reached a pushed tag while the marketplace catalog still pointed at v1.53.0;
+both are now published at v1.54.0. Prior the same day: 19 open issues, #121 and #122 shipped via
 `/ai:autonomous`, PRs #125 and #126, unreleased — the next bump carries them. Both runs' reviews
 caught a blocker each: a failed scan reporting "no findings", and a husky-configured project being
 told it had no pre-commit mechanism. #123 is unblocked and queued; #124 stays human-driven. Prior
@@ -80,6 +84,17 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P2 — next up
 
+- **#127** `bug` — `to-issues` and `autonomous` state contradictory contracts, so
+  every issue the first produces is rejected by the second. `to-issues` applies
+  `ready-for-agent` and declares the body the contract surface; `autonomous` requires
+  a `## Agent Brief` **comment** and reads a spec-complete body as `brief-thin`. The
+  brief contract it cites is triage → autonomous, which `to-issues` was never part of
+  while labelling as though it were. Hit live: `/ai:to-issues 120` produced #121–#124,
+  and the next `/ai:autonomous one` gated on pick with `body-not-promoted` despite
+  inline checkbox criteria. Unblocking cost two `triage` calls that restated bodies
+  already written for cold pickup. Either `to-issues` emits the brief itself — it has
+  the material, it wrote the body — or it stops applying the label and leaves that to
+  `triage`. Doing neither keeps the two skills disagreeing.
 - **#117** `enhancement · primitive:hook` — surface `graph-fresh` in the
   search-delegation hook, where the damage actually happens. `/ai:docs-sync`
   catches a stale graphify graph once per session; the hook fires on *every* Bash
@@ -116,6 +131,21 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P3 — backlog
 
+- **#128** `bug` — `autonomous` in `drain` mode re-picks an issue it just shipped.
+  Step 7 opens a PR and never merges, but nothing the picker can see changes: the
+  issue keeps `ready-for-agent` until the PR merges, so the next iteration picks it
+  again and rebuilds work already sitting in review. There is no state between
+  queued and closed. `one` mode hides it. Cheapest fix reads the tracker for an open
+  PR referencing the issue rather than adding a label that would drift the moment
+  someone merges through the web UI.
+- **#129** `bug` — the marketplace recipe `release.sh` prints for manual use ends in
+  a bare `mv`, and on a macOS shell where `mv` is aliased to `mv -i` that declines
+  the overwrite **and still exits 0**. The `&&` chain succeeds, no error is shown,
+  and the catalog is not bumped — which is how `v1.53.1` reached a pushed tag while
+  the catalog still pointed at `v1.53.0`. The script itself is unaffected: it runs
+  under `bash`, where interactive zsh aliases do not apply. Same class as the
+  `ln -sfn` remedy wording fixed in v1.53.1; the printed recipes never got the sweep.
+  `dedupe` prints bare `rm` lines with the same assumption.
 - **#113** `enhancement` — nothing cross-checks a project's `.ai-kit-setup` marker
   against the real wiring in `.claude/settings.json`: `ai-kit-upgrade.sh` re-stamps
   two keys, `audit-setup-symmetry.sh` only greps ai-kit's own source, and
