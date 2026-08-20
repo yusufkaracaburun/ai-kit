@@ -7,7 +7,11 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-08-20 against 22 open issues (#120 added — the catalogued `gitleaks-scan`
+_Last reconciled: 2026-08-20 against 19 open issues (#121 and #122 shipped the same day via
+`/ai:autonomous`, PRs #125 and #126, unreleased — the next bump carries them. Both runs' reviews
+caught a blocker each: a failed scan reporting "no findings", and a husky-configured project being
+told it had no pre-commit mechanism. #123 is unblocked and queued; #124 stays human-driven. Prior
+the same day: #120 added — the catalogued `gitleaks-scan`
 recipe guards the wrong moment; surfaced by `/ai:should-i-use` on kakashi (Ignore), which prompted
 a gitleaks sweep over six real projects. Design settled the same day via `/ai:grill-me`, then split
 into #121–#124 via `/ai:to-issues`; #120 keeps its row as the parent and no longer carries
@@ -53,20 +57,15 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
   `block-env-edits`, no verification pass over the other 26. Remediation for the affected
   repo is tracked outside ai-kit as `emeq-system#209`. Now a parent only — split into
   four tracer-bullet slices, `ready-for-agent` dropped here so the picker cannot choose
-  the parent over its own children:
-  - **#121** `AFK`, queued — `bin/ai-kit-secrets-scan.sh`: tool-gated, redacted to paths
-    and rule ids, ranked by file with a collapsed low-signal tail; drops the
-    `gitleaks-scan` row in the same slice so the wrong recipe never outlives its
-    replacement. Verifies against `emeq-system` (must surface the `private-key` hit) and
-    `emeq-hub` (must stay silent — its three hits are all false positives).
-  - **#122** `AFK`, queued — emit the CI workflow unconditionally; append
-    `gitleaks protect --staged` only to a pre-commit mechanism that already exists, and
-    never emit `.pre-commit-config.yaml`.
-  - **#123** `AFK`, blocked by #122, unlabelled until it lands — hygiene section grading
-    gate wiring at `warn`/`-5`, which never invokes the scanner.
-  - **#124** `HITL`, blocked by #121 — `/ai:setup` wiring, `branches.secrets_scan`, and
-    the acknowledgement gate. Human-driven: it adds the first stop-point to a skill that
-    has none.
+  the parent over its own children. #121 (scanner + recipe drop) and #122 (CI emit +
+  pre-commit append) shipped unreleased in PRs #125 and #126; both are awaiting the next
+  version bump. Remaining:
+  - **#123** `AFK`, unblocked by #122, queued — hygiene section grading gate wiring at
+    `warn`/`-5`, which never invokes the scanner. It recognises what #122 emits: the
+    workflow file, and the guard line in whichever pre-commit mechanism the project runs.
+  - **#124** `HITL` — `/ai:setup` wiring, `branches.secrets_scan`, and the
+    acknowledgement gate. Human-driven: it adds the first stop-point to a skill that has
+    none, and the wording of a pause in an onboarding flow wants human judgement.
 - **#114** `bug` — `bootstrap-project.sh` symlinks skills to the **version-numbered
   plugin-cache path** (`~/.claude/plugins/cache/…/ai/<VERSION>/skills/`), so every
   `/plugin update` orphans every project symlink. Bricked `emeq` (114 dead links,
