@@ -72,6 +72,28 @@ Read `git diff --staged` before every commit. You are committing what is
 staged, not what you remember changing. If the diff surprises you, that is the
 check working.
 
+## Issue references
+
+`closes`, `fixes` and `resolves` before a `#number` close that issue on merge.
+So do their variants — `fix`, `fixed`, `close`, `closed`, `resolve`, `resolved`.
+Use one only when you mean it.
+
+The parser reads the keyword and the number, and nothing around them. It does
+not read your sentence. Both of these closed an issue that was not finished:
+
+    chore(catalog): ledger kakashi as Ignore; track entry-scan fix #120
+    It does not fix #134's flake.
+
+The first meant "the entry-scan fix, tracked as #120". The second says the
+opposite of what GitHub did. Both landed on a push and both needed reopening
+with a comment explaining why the issue was not actually done — noise in the
+record of a decision nobody made.
+
+When you mean to reference without closing, say `refs #120` or `see #120`, or
+put the number somewhere no keyword precedes it. When you mean to close, put
+it on its own line so it is visible while you write the message rather than
+discovered afterwards.
+
 ## Quick checklist before commit
 
 - [ ] Staged by path, no `-a` / `-am`
@@ -80,5 +102,6 @@ check working.
 - [ ] Commit subject is imperative + scoped
 - [ ] Body explains why
 - [ ] No `--no-verify`
+- [ ] No accidental `fix`/`close`/`resolve` before a `#number`
 - [ ] No secrets, no absolute user paths
 - [ ] Tests pass locally
