@@ -18,3 +18,15 @@
 2026-08-20T10:52:47Z	121	tdd-green	cycles=2
 2026-08-20T10:58:14Z	121	review-pass	mode=comprehensive; 1 blocker found+fixed (failed scan reported clean)
 2026-08-20T10:58:14Z	121	ship-ok	pr=#125
+2026-08-20T11:07:26Z	-	preflight-cwd-ok	/Users/yusufkaracaburun/Sites/localhost/ws/ai-kit
+2026-08-20T11:07:26Z	-	preflight-triage-labels-ok	ready-for-agent
+2026-08-20T11:07:26Z	-	preflight-merge-policy-detected	direct
+2026-08-20T11:07:26Z	-	preflight-ai-kit-root-pinned	/Users/yusufkaracaburun/Sites/localhost/ws/ai-kit
+2026-08-20T11:07:37Z	122	pick	secrets gate: CI emit + pre-commit append
+2026-08-20T11:07:37Z	122	brief-ok	9 criteria inline
+2026-08-20T11:10:53Z	122	cycle-attempt	C1 attempt=1 result=pass
+2026-08-20T11:10:53Z	122	cycle-attempt	C2 attempt=1 result=red (husky w/o hook called mechanism-less)
+2026-08-20T11:10:53Z	122	cycle-attempt	C2 attempt=2 result=pass
+2026-08-20T11:10:53Z	122	tdd-green	cycles=2
+2026-08-20T11:14:54Z	122	review-pass	mode=comprehensive; 1 blocker found+fixed (husky w/o hook misreported)
+2026-08-20T11:14:54Z	122	ship-ok	pr=#126

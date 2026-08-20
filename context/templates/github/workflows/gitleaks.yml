@@ -1,0 +1,40 @@
+name: gitleaks
+
+# The half nothing bypasses. A pre-commit hook is skipped by --no-verify and
+# absent on any machine that did not run the setup, so CI is where the
+# guarantee actually lives.
+#
+# gitleaks is installed and run directly rather than through the marketplace
+# action: that action requires a licence key for organisation accounts, which
+# would turn a security guard into a silent no-op the day a repo moves under
+# an org. A pinned release tarball has no such cliff.
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history: the findings that matter are the ones already
+          # committed, and a shallow clone cannot see them.
+          fetch-depth: 0
+
+      - name: Install gitleaks
+        env:
+          GITLEAKS_VERSION: 8.30.1
+        run: |
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            | sudo tar -xz -C /usr/local/bin gitleaks
+          gitleaks version
+
+      - name: Scan history
+        # --redact because job logs are frequently readable by more people
+        # than the repository itself.
+        run: gitleaks detect --no-banner --redact --exit-code 1
