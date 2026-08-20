@@ -78,26 +78,48 @@ assert "VERSION/plugin.json version equality" \
 echo "=== sync-plugin-version-drift ==="
 # section: sync-plugin-version-drift
 # sync-plugin-version.sh stamps drift away.
-TMP_PLUGIN_CHECK=$(mktemp -d)
-cp "$PLUGIN_JSON" "$TMP_PLUGIN_CHECK/plugin.json"
-# Deliberately corrupt the manifest version, verify --check spots it, then restore.
+#
+# Against a throwaway root, never the repo. This block used to write
+# `0.0.0-drift` into the real workflow/.claude-plugin/plugin.json and restore
+# it three commands later, while run-all.sh dispatches cases four at a time.
+# Any case invoking ai-kit-doctor.sh inside that window saw the corrupted
+# manifest, got a warning, and exited 1 — which is the whole of #134. It read
+# as an environment quirk because the window is milliseconds wide, it never
+# reproduced when doctor was run on its own, and it landed on a different
+# assertion each time depending on which doctor call happened to fall inside
+# it. Shared mutable state in a parallel suite, not a platform divergence.
+#
+# resolve_ai_kit_root honours AI_KIT_ROOT ahead of script location, so a root
+# holding just VERSION and the manifest is enough. No change to
+# sync-plugin-version.sh, and no serialising the suite to make one test safe.
+TMP_PLUGIN_ROOT=$(mktemp -d)
+mkdir -p "$TMP_PLUGIN_ROOT/workflow/.claude-plugin"
+cp "$AIKIT/VERSION" "$TMP_PLUGIN_ROOT/VERSION"
+cp "$PLUGIN_JSON" "$TMP_PLUGIN_ROOT/workflow/.claude-plugin/plugin.json"
+
 python3 -c "
 import json
-d=json.load(open('$PLUGIN_JSON'))
+p='$TMP_PLUGIN_ROOT/workflow/.claude-plugin/plugin.json'
+d=json.load(open(p))
 d['version']='0.0.0-drift'
-json.dump(d, open('$PLUGIN_JSON','w'), indent=2)
-open('$PLUGIN_JSON','a').write('\n')
+json.dump(d, open(p,'w'), indent=2)
+open(p,'a').write('\n')
 "
 set +e
-bash "$AIKIT/bin/sync-plugin-version.sh" --check >/dev/null 2>&1
+AI_KIT_ROOT="$TMP_PLUGIN_ROOT" bash "$AIKIT/bin/sync-plugin-version.sh" --check >/dev/null 2>&1
 SYNC_DRIFT_EXIT=$?
 set -e
 assert "sync-plugin-version --check detects drift" '[ "$SYNC_DRIFT_EXIT" -eq 1 ]'
-bash "$AIKIT/bin/sync-plugin-version.sh" >/dev/null
-bash "$AIKIT/bin/sync-plugin-version.sh" --check >/dev/null 2>&1
+AI_KIT_ROOT="$TMP_PLUGIN_ROOT" bash "$AIKIT/bin/sync-plugin-version.sh" >/dev/null
+AI_KIT_ROOT="$TMP_PLUGIN_ROOT" bash "$AIKIT/bin/sync-plugin-version.sh" --check >/dev/null 2>&1
 SYNC_STAMP_EXIT=$?
 assert "sync-plugin-version stamps drift away" '[ "$SYNC_STAMP_EXIT" -eq 0 ]'
-rm -rf "$TMP_PLUGIN_CHECK"
+
+# The repo's own manifest must be untouched throughout — that is the property
+# the parallel suite depends on.
+assert "the repo manifest was never mutated" \
+  'bash "$AIKIT/bin/sync-plugin-version.sh" --check >/dev/null 2>&1'
+rm -rf "$TMP_PLUGIN_ROOT"
 
 
 echo "=== sync-plugin-hooks-bundled-hook-scripts- ==="

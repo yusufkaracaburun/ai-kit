@@ -58,7 +58,7 @@ THING_EXIT=1
 assert "exit code with sibling output" '[ "\$THING_EXIT" -eq 0 ]'
 # Long output must be capped rather than dumped whole. Named to the
 # convention the lookup relies on — OUT_<stem> beside <stem>_EXIT.
-OUT_BIGTHING="\$(seq 1 60)"
+OUT_BIGTHING="\$(seq 1 20; echo '  warn  buried verdict line'; seq 21 40)"
 BIGTHING_EXIT=1
 assert "long sibling output" '[ "\$BIGTHING_EXIT" -eq 0 ]'
 assert "passing" 'true'
@@ -74,6 +74,11 @@ assert "a failure prints the output paired with an exit code" \
   'echo "$SUB_OUT" | grep -q "warn  something went sideways"'
 assert "long captured output is truncated, not dumped whole" \
   'echo "$SUB_OUT" | grep -qE "\| … [0-9]+ more"'
+# The line explaining a failure is rarely in the first twelve — doctor's one
+# warn sat on line 16 of 34, so the cap hid the answer and the log had to be
+# re-fetched by hand. Verdict lines past the cap are pulled out.
+assert "a verdict line past the cap is still surfaced" \
+  'echo "$SUB_OUT" | grep -q "buried verdict line"'
 assert "an empty variable is reported as empty, not skipped" 'echo "$SUB_OUT" | grep -q "EMPTYVAR = (empty)"'
 assert "a passing assert prints no context" '[ "$(echo "$SUB_OUT" | grep -c "        ")" -gt 0 ] && ! echo "$SUB_OUT" | grep -A1 "OK: passing" | grep -q "        "'
 assert "a false expression still fails" 'echo "$SUB_OUT" | grep -q "FAIL: false expression"'
