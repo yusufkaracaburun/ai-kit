@@ -17,7 +17,13 @@
       "best_for": "Auto-format JS/TS on save",
       "value": "Code stays formatted without thinking about it",
       "signals": {
-        "files": [".prettierrc", ".prettierrc.json", ".prettierrc.yml", "prettier.config.js", "prettier.config.mjs"]
+        "files": [
+          ".prettierrc",
+          ".prettierrc.json",
+          ".prettierrc.yml",
+          "prettier.config.js",
+          "prettier.config.mjs"
+        ]
       }
     },
     {
@@ -27,7 +33,13 @@
       "matcher": "Edit|Write",
       "best_for": "Auto-fix lint errors on save (JS/TS)",
       "signals": {
-        "files": [".eslintrc", ".eslintrc.json", ".eslintrc.js", "eslint.config.js", "eslint.config.mjs"]
+        "files": [
+          ".eslintrc",
+          ".eslintrc.json",
+          ".eslintrc.js",
+          "eslint.config.js",
+          "eslint.config.mjs"
+        ]
       }
     },
     {
@@ -37,8 +49,16 @@
       "matcher": "Edit|Write",
       "best_for": "Format Python with black + isort",
       "signals": {
-        "files": ["pyproject.toml", ".black", "setup.cfg"],
-        "frameworks": ["django", "fastapi", "flask"]
+        "files": [
+          "pyproject.toml",
+          ".black",
+          "setup.cfg"
+        ],
+        "frameworks": [
+          "django",
+          "fastapi",
+          "flask"
+        ]
       }
     },
     {
@@ -48,7 +68,10 @@
       "matcher": "Edit|Write",
       "best_for": "Modern Python lint + format (faster than black/isort)",
       "signals": {
-        "files": ["ruff.toml", ".ruff.toml"]
+        "files": [
+          "ruff.toml",
+          ".ruff.toml"
+        ]
       }
     },
     {
@@ -58,7 +81,9 @@
       "matcher": "Edit|Write",
       "best_for": "Standard Go formatting",
       "signals": {
-        "files": ["go.mod"]
+        "files": [
+          "go.mod"
+        ]
       }
     },
     {
@@ -68,7 +93,9 @@
       "matcher": "Edit|Write",
       "best_for": "Standard Rust formatting",
       "signals": {
-        "files": ["Cargo.toml"]
+        "files": [
+          "Cargo.toml"
+        ]
       }
     },
     {
@@ -78,8 +105,12 @@
       "matcher": "Edit|Write",
       "best_for": "PSR-12 PHP formatting via Laravel Pint",
       "signals": {
-        "files": ["pint.json"],
-        "frameworks": ["laravel"]
+        "files": [
+          "pint.json"
+        ],
+        "frameworks": [
+          "laravel"
+        ]
       }
     },
     {
@@ -89,7 +120,9 @@
       "matcher": "Edit|Write",
       "best_for": "Catch type errors immediately after edits",
       "signals": {
-        "files": ["tsconfig.json"]
+        "files": [
+          "tsconfig.json"
+        ]
       }
     },
     {
@@ -99,7 +132,10 @@
       "matcher": "Edit|Write",
       "best_for": "Python type checking",
       "signals": {
-        "files": ["mypy.ini", "pyrightconfig.json"]
+        "files": [
+          "mypy.ini",
+          "pyrightconfig.json"
+        ]
       }
     },
     {
@@ -110,7 +146,13 @@
       "best_for": "Prevent accidental edits to .env / secrets files",
       "value": "Stops secret leakage and credential corruption",
       "signals": {
-        "files": [".env", ".env.local", ".env.production", "credentials.json", "secrets.yaml"]
+        "files": [
+          ".env",
+          ".env.local",
+          ".env.production",
+          "credentials.json",
+          "secrets.yaml"
+        ]
       },
       "universal": true
     },
@@ -121,7 +163,15 @@
       "matcher": "Edit|Write",
       "best_for": "Prevent direct edits to lock files (package manager owns them)",
       "signals": {
-        "files": ["package-lock.json", "yarn.lock", "pnpm-lock.yaml", "Cargo.lock", "poetry.lock", "Pipfile.lock", "composer.lock"]
+        "files": [
+          "package-lock.json",
+          "yarn.lock",
+          "pnpm-lock.yaml",
+          "Cargo.lock",
+          "poetry.lock",
+          "Pipfile.lock",
+          "composer.lock"
+        ]
       },
       "universal": true
     },
@@ -132,8 +182,13 @@
       "matcher": "Edit|Write",
       "best_for": "Run related Jest tests after a change",
       "signals": {
-        "files": ["jest.config.js", "jest.config.ts"],
-        "dependencies": ["jest"]
+        "files": [
+          "jest.config.js",
+          "jest.config.ts"
+        ],
+        "dependencies": [
+          "jest"
+        ]
       }
     },
     {
@@ -143,8 +198,13 @@
       "matcher": "Edit|Write",
       "best_for": "Run pytest on changed files",
       "signals": {
-        "files": ["pytest.ini", "pyproject.toml"],
-        "dependencies": ["pytest"]
+        "files": [
+          "pytest.ini",
+          "pyproject.toml"
+        ],
+        "dependencies": [
+          "pytest"
+        ]
       }
     },
     {
@@ -154,8 +214,13 @@
       "matcher": "Edit|Write",
       "best_for": "Run Vitest on changed files",
       "signals": {
-        "files": ["vitest.config.ts", "vitest.config.js"],
-        "dependencies": ["vitest"]
+        "files": [
+          "vitest.config.ts",
+          "vitest.config.js"
+        ],
+        "dependencies": [
+          "vitest"
+        ]
       }
     },
     {
@@ -182,7 +247,11 @@
       "best_for": "Static analysis on PHP edits (vanilla or larastan for Laravel)",
       "value": "Catches type errors and dead code before tests run.",
       "signals": {
-        "files": ["phpstan.neon", "phpstan.neon.dist", "phpstan.dist.neon"]
+        "files": [
+          "phpstan.neon",
+          "phpstan.neon.dist",
+          "phpstan.dist.neon"
+        ]
       }
     },
     {
@@ -192,7 +261,10 @@
       "matcher": "Edit|Write",
       "best_for": "Rust lint on edit — idiomatic suggestions + correctness checks",
       "signals": {
-        "files": ["Cargo.toml", "Cargo.lock"]
+        "files": [
+          "Cargo.toml",
+          "Cargo.lock"
+        ]
       }
     },
     {
@@ -202,7 +274,10 @@
       "matcher": "Edit|Write",
       "best_for": "Apple swift-format on Swift edits",
       "signals": {
-        "files": ["Package.swift", ".swift-format"]
+        "files": [
+          "Package.swift",
+          ".swift-format"
+        ]
       }
     },
     {
@@ -212,7 +287,10 @@
       "matcher": "Edit|Write",
       "best_for": "Dart/Flutter format on edit",
       "signals": {
-        "files": ["pubspec.yaml", "analysis_options.yaml"]
+        "files": [
+          "pubspec.yaml",
+          "analysis_options.yaml"
+        ]
       }
     },
     {
@@ -223,17 +301,16 @@
       "best_for": "Enforce Conventional Commits on git commit",
       "value": "Blocks malformed commit messages before they land in history.",
       "signals": {
-        "files": ["commitlint.config.js", "commitlint.config.mjs", "commitlint.config.cjs", "commitlint.config.ts", ".commitlintrc", ".commitlintrc.json", ".commitlintrc.yml"]
+        "files": [
+          "commitlint.config.js",
+          "commitlint.config.mjs",
+          "commitlint.config.cjs",
+          "commitlint.config.ts",
+          ".commitlintrc",
+          ".commitlintrc.json",
+          ".commitlintrc.yml"
+        ]
       }
-    },
-    {
-      "name": "gitleaks-scan",
-      "category": "security",
-      "event": "PreToolUse",
-      "matcher": "Edit|Write",
-      "best_for": "Block secret strings being written to disk (API keys, tokens, private keys)",
-      "value": "Last-line defence — catches secrets the developer pastes by accident.",
-      "universal": true
     },
     {
       "name": "branch-guard",
@@ -261,7 +338,10 @@
       "best_for": "Run the project's pre-commit framework on changed files",
       "value": "Reuses the team's existing hook config instead of duplicating per-tool entries.",
       "signals": {
-        "files": [".pre-commit-config.yaml", ".pre-commit-config.yml"]
+        "files": [
+          ".pre-commit-config.yaml",
+          ".pre-commit-config.yml"
+        ]
       }
     },
     {
@@ -271,7 +351,15 @@
       "best_for": "Block turn end while the project test suite fails — failures feed back (exit 2 + stderr) so the agent fixes before finishing",
       "value": "Turn-level green gate. Complements the per-edit related-test hooks (jest/pytest/vitest-related) without paying full-suite latency on every edit. Recipe requirements: (1) exit 0 when stop_hook_active is true — prevents infinite fix-loops; (2) skip when the working tree is clean (pure Q&A turns); (3) cache a green-run hash of the diff so an unchanged tree never re-runs the suite; (4) measure suite runtime first — wire only when the full run stays under ~60s, otherwise gate a scoped subset.",
       "signals": {
-        "files": ["phpunit.xml", "phpunit.xml.dist", "vitest.config.ts", "vitest.config.js", "jest.config.js", "jest.config.ts", "pytest.ini"]
+        "files": [
+          "phpunit.xml",
+          "phpunit.xml.dist",
+          "vitest.config.ts",
+          "vitest.config.js",
+          "jest.config.js",
+          "jest.config.ts",
+          "pytest.ini"
+        ]
       }
     },
     {
