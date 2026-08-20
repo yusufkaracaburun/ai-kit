@@ -2,6 +2,7 @@
 id: random-repo-stumble
 skill: should-i-use
 expects:
+  - cites a path or a count from this project, not only the candidate's claims
   - leads with a single verdict (vendor / wire / adopt-as-pattern / ignore)
   - names whether the candidate overlaps with anything already in the project
   - says whether the value is concrete or generic marketing
