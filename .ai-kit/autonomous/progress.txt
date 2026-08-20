@@ -16,3 +16,5 @@
 2026-08-20T10:52:47Z	121	cycle-attempt	C2 attempt=2 result=pass
 2026-08-20T10:52:47Z	121	cycle-done	C2 result=pass
 2026-08-20T10:52:47Z	121	tdd-green	cycles=2
+2026-08-20T10:58:14Z	121	review-pass	mode=comprehensive; 1 blocker found+fixed (failed scan reported clean)
+2026-08-20T10:58:14Z	121	ship-ok	pr=#125
