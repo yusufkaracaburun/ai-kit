@@ -7,7 +7,13 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-08-20 against 22 open issues (#127, #128 and #129 filed from friction hit
+_Last reconciled: 2026-08-20 against 21 open issues (#131 filed and closed the same day — the
+`test` workflow had been red on every master commit checked, across four release tags, and nobody
+looked. Two deterministic causes, plus seven shellcheck warnings failing lint separately. Master is
+green again for the first time since at least v1.52.0. Note for whoever reads a green run next: the
+ubuntu suite still carries a SIGPIPE flake in `recommend` and `structure`, proven by a re-run of an
+unchanged commit, so one green run is not yet proof. #123 shipped in PR #130. Prior the same day:
+22 open issues, #127, #128 and #129 filed from friction hit
 during the same session — the to-issues ↔ autonomous contract disagreement, drain re-picking a
 shipped issue, and a printed recipe that no-ops under an interactive `mv -i` shell. That last one
 explains how v1.53.1 reached a pushed tag while the marketplace catalog still pointed at v1.53.0;
@@ -62,11 +68,11 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
   repo is tracked outside ai-kit as `emeq-system#209`. Now a parent only — split into
   four tracer-bullet slices, `ready-for-agent` dropped here so the picker cannot choose
   the parent over its own children. #121 (scanner + recipe drop) and #122 (CI emit +
-  pre-commit append) shipped unreleased in PRs #125 and #126; both are awaiting the next
-  version bump. Remaining:
-  - **#123** `AFK`, unblocked by #122, queued — hygiene section grading gate wiring at
-    `warn`/`-5`, which never invokes the scanner. It recognises what #122 emits: the
-    workflow file, and the guard line in whichever pre-commit mechanism the project runs.
+  pre-commit append) shipped in v1.54.0; #123 (hygiene section) shipped unreleased in
+  PR #130, which also corrected #122's template — dogfooding the gate on ai-kit itself
+  exposed that scanning full history in CI goes red forever on any repo carrying a
+  pre-existing finding, which was four of the six measured. CI now scans only the range
+  an event adds. Remaining:
   - **#124** `HITL` — `/ai:setup` wiring, `branches.secrets_scan`, and the
     acknowledgement gate. Human-driven: it adds the first stop-point to a skill that has
     none, and the wording of a pause in an onboarding flow wants human judgement.
