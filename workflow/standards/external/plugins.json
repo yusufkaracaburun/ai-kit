@@ -166,6 +166,17 @@
       "universal": true
     },
     {
+      "name": "resend",
+      "marketplace": "claude-plugins-official",
+      "install": "/plugin install resend@claude-plugins-official",
+      "category": "email",
+      "best_for": "Projects sending transactional or marketing email through Resend",
+      "value": "Skills for the Resend API, CLI, React Email templates and deliverability \u2014 carries the gotchas (idempotency keys, webhook signature verification, template variable syntax) that otherwise fail silently in production.",
+      "signals": {
+        "dependencies": ["resend", "resend/resend-php", "resend-laravel"]
+      }
+    },
+    {
       "name": "caveman",
       "marketplace": "caveman",
       "install": "/plugin install caveman@caveman",
