@@ -1,5 +1,47 @@
 # Changelog
 
+## 1.55.0 — 2026-08-20
+
+### Added
+
+- **`/ai:hygiene` grades the secret-prevention wiring.** A seventh section, reporting whether the gate emitted in v1.54.0 is still there — the CI workflow, and the guard line in whichever pre-commit mechanism the project runs. It never scans history: a full scan costs tens of seconds and returns the same answer until somebody commits, so running it per hygiene call would end hygiene's use as a command you reach for casually. What decays is the wiring; that is what this reads, in milliseconds.
+
+  Weighted as a warning worth five points, never a blocker. Blocker weight in this score model means the install is broken, and every project surveyed lacks a gate today — shipping it as a blocker would drop all of them twenty points at once and put every repository under the floor simultaneously, which stops the floor meaning anything. A project with no pre-commit mechanism is not marked down for the half it cannot have.
+
+- **A failed assertion prints what it was looking at.** Previously it printed its own name and nothing else, which is fine when you can reproduce the failure and useless when you cannot. An intermittent CI failure is exactly the one that has to be diagnosable from the log alone, because by the time anyone looks the runner is gone — and that is precisely where the suite said least.
+
+  A failure now prints every variable the expression named, and for an exit code the output that came with it: this suite pairs `FOO_EXIT` with `OUT_FOO` or `FOO_OUT` about half the time, and an exit code alone rarely says why. Output is capped at fifteen lines with a count of the rest. No call site changed.
+
+- **`git-hygiene` gains an issue-references section.** `closes`, `fixes`, `resolves` and their variants close an issue on merge, and the parser reads the keyword and the number and nothing around them — not the sentence, and not the negation. Two issues closed by accident on one day: a subject reading `track entry-scan fix #120`, meaning the fix tracked as #120, and a body sentence reading "It does not fix #134's flake", which says the opposite of what happened. Both needed reopening with a comment explaining a decision nobody had made. Same treatment the Staging section got after being burned twice: written down rather than remembered.
+
+### Fixed
+
+- **CI blocked secrets being added; it no longer fails on history.** The workflow shipped in v1.54.0 scanned full history with `--exit-code 1`. Wiring the gate on ai-kit itself is what exposed the problem: eight findings, all in this kit's own scan fixture, all correctly demoted to low signal by the scanner — and the job would still have gone red on every push, forever.
+
+  It generalises badly. Four of the six projects measured are dominated by that kind of false positive, so the emitted job would have been permanently red in most of them, blocking merges over something no commit in the pull request introduced. A job that is always red is one nobody reads. History is answered once, by a human reading the ranked report; what CI can usefully gate is what the event adds, so the job now resolves that range and scans only it. Verified three ways: full history exits 1 on ai-kit, the range exits 0, and a newly committed private key inside the range still exits 1.
+
+- **The `test` workflow had been red on master for at least twelve commits, across four release tags.** Nobody looked, including during two releases cut that same day. Two unrelated causes, neither a platform divergence, though both looked like one because the suite is green on macOS.
+
+  `docs-sync-repo-hygiene` asserted against a fixture git cannot carry: `.gitignore` holds a bare `.agents/`, which matches at any depth and swallows the fixture's copy too. Locally the directories were still on disk from a run months earlier, so five assertions passed against leftovers while a fresh checkout had nothing to assert against. Rebuilt at the top of the case, beside the `empty_dir` self-heal that already existed for the same reason.
+
+  `release-install` had never run on a pull request at all. `install.sh` clones with `--branch master`, `actions/checkout` leaves a pull request on a detached HEAD, so the clone aborted at `rc=128` and the case reported zero assertions. The case that verifies the installer end to end had therefore verified nothing on every pull request it ever ran in.
+
+- **`pipefail` no longer turns a SIGPIPEd writer into a failed assertion.** `recommend` and `structure` failed one CI run and passed a re-run of the identical commit. An assertion asks what the output contains, not whether the process that produced it survived writing — but `echo "$VAR" | grep -q x` makes grep exit on the first match and SIGPIPE the writer, and under `pipefail` that 141 became the pipeline's status. Whether it fired depended on payload size against the pipe buffer, so it surfaced as flakiness rather than a clean failure, which is the worst shape: a red run looks like bad luck and a green one proves nothing.
+
+  Fixed in `assert()` rather than at the call sites. The suite has 262 such pipelines across 20 case files, and an earlier per-site fix left every other one standing. Suppressing pipefail must not suppress real failures, so the harness case asserts both directions.
+
+- **Seven shellcheck warnings that were failing lint separately.** Four were `SC2046` on `$([ … ] && echo --no-prompt)`, which are deliberately unquoted and rely on word splitting to vanish when the flag is off — quoting them would have handed each section an empty argument instead of none, so they became an array with the `${arr[@]+…}` guard that keeps an empty array expandable under `set -u` on bash 3.2. Two were `SC2155`. One was a `case` arm that could never fire, since `*grep*` already matches `ripgrep` as a substring.
+
+### Changed
+
+- **ai-kit wired its own secrets gate.** Adding the hygiene section made the kit fail its own check, which is the honest signal that it was recommending something it had not adopted. CI only — there is no hooks path, no husky directory and no pre-commit hook here, so the emitter correctly wrote nothing rather than standing one up. This is also what caught the CI template bug above, before it reached six projects.
+
+### Notes
+
+One flake remains open and known: `doctor` exits non-zero intermittently on `ubuntu-latest`, and does not reproduce locally across fifteen runs. The diagnosability work above means the next occurrence should finally name what fired, rather than reporting that a number was wrong.
+
+Tests: 1038 → 1067 passing.
+
 ## 1.54.0 — 2026-08-20
 
 ### Added
