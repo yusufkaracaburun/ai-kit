@@ -103,9 +103,20 @@ _assert_show() {
     echo "        $__name = $__val"
   else
     echo "        $__name ($__lines lines):"
-    printf '%s\n' "$__val" | head -15 | sed 's/^/          | /'
-    if [ "$__lines" -gt 15 ]; then
-      echo "          | … $(( __lines - 15 )) more"
+    printf '%s\n' "$__val" | head -12 | sed 's/^/          | /'
+    if [ "$__lines" -gt 12 ]; then
+      echo "          | … $(( __lines - 12 )) more"
+      # The line that explains a failure is rarely in the first twelve. In
+      # doctor's output the header and the clean checks come first and the one
+      # `warn` that made it exit non-zero sat on line 16 of 34 — the cap hid
+      # the answer and the log had to be re-fetched by hand. Pull anything
+      # that looks like a verdict out of the tail.
+      local __rest
+      __rest="$(printf '%s\n' "$__val" | tail -n +13 | grep -iE '^[[:space:]]*(warn|err|error|fail)' | head -5)"
+      if [ -n "$__rest" ]; then
+        echo "          | ── from the truncated part:"
+        printf '%s\n' "$__rest" | sed 's/^/          | /'
+      fi
     fi
   fi
   # Never let diagnostics decide the run: a bare `[ … ] && echo` as the last
