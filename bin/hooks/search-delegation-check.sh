@@ -84,7 +84,10 @@ case "$tool" in
     cmd="$(read_field '.tool_input.command')"
     [ -z "$cmd" ] && exit 0
     case "$cmd" in
-      *grep*|*"rg "*|*ripgrep*|*"find "*|*"fd "*|*"ack "*|*"ag "*) wide=1 ;;
+      # No *ripgrep* arm: `*grep*` already matches it as a substring, so it
+      # was dead — same outcome either way, but shellcheck is right that a
+      # branch that can never fire is a claim the code does not keep.
+      *grep*|*"rg "*|*"find "*|*"fd "*|*"ack "*|*"ag "*) wide=1 ;;
     esac
     ;;
   Grep|Glob)

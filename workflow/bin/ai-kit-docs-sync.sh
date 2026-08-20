@@ -77,31 +77,40 @@ section() {
   printf '\n=== %s ===\n' "$1"
 }
 
+# Passed through to every section. Built as an array rather than an unquoted
+# command substitution: `$(... && echo --no-prompt)` relies on word splitting
+# to vanish when the flag is off, which is what shellcheck flags, and quoting
+# it would hand each section an empty argument instead of none. The
+# `${arr[@]+...}` guard keeps an empty array expandable under `set -u` on
+# bash 3.2, which is what macOS ships.
+NO_PROMPT_ARG=()
+[ "$NO_PROMPT" -eq 1 ] && NO_PROMPT_ARG=(--no-prompt)
+
 if [ "$SKIP_DEAD_LINKS" -eq 0 ]; then
   section "dead-links (markdown link integrity)"
   bash "$AIKIT/bin/ai-kit-docs-sync-dead-links.sh" "$PROJECT_PATH" \
-    $([ "$NO_PROMPT" -eq 1 ] && echo "--no-prompt")
+    ${NO_PROMPT_ARG[@]+"${NO_PROMPT_ARG[@]}"}
   record "$?"
 fi
 
 if [ "$SKIP_REPO_HYGIENE" -eq 0 ]; then
   section "repo-hygiene (empty dirs / broken symlinks / orphan skill dirs)"
   bash "$AIKIT/bin/ai-kit-docs-sync-repo-hygiene.sh" "$PROJECT_PATH" \
-    $([ "$NO_PROMPT" -eq 1 ] && echo "--no-prompt")
+    ${NO_PROMPT_ARG[@]+"${NO_PROMPT_ARG[@]}"}
   record "$?"
 fi
 
 if [ "$SKIP_FINISHED_WORK" -eq 0 ]; then
   section "finished-work (local merged branches / closable issues)"
   bash "$AIKIT/bin/ai-kit-docs-sync-finished-work.sh" "$PROJECT_PATH" \
-    $([ "$NO_PROMPT" -eq 1 ] && echo "--no-prompt")
+    ${NO_PROMPT_ARG[@]+"${NO_PROMPT_ARG[@]}"}
   record "$?"
 fi
 
 if [ "$SKIP_GRAPH_FRESH" -eq 0 ]; then
   section "graph-fresh (graphify graph vs HEAD)"
   bash "$AIKIT/bin/ai-kit-docs-sync-graph-fresh.sh" "$PROJECT_PATH" \
-    $([ "$NO_PROMPT" -eq 1 ] && echo "--no-prompt")
+    ${NO_PROMPT_ARG[@]+"${NO_PROMPT_ARG[@]}"}
   record "$?"
 fi
 
