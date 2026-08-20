@@ -7,7 +7,11 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-07-26 against 17 open issues (#119 opened + closed same session — spike:
+_Last reconciled: 2026-08-20 against 18 open issues (#120 added — the catalogued `gitleaks-scan`
+recipe guards the wrong moment; surfaced by `/ai:should-i-use` on kakashi (Ignore), which prompted
+a gitleaks sweep over six real projects. Remediation for the one repo with real findings is
+`emeq-system#209`.) Prior:
+2026-07-26 against 17 open issues (#119 opened + closed same session — spike:
 measure `pre-write-discipline` effectiveness, surfaced by `/ai:should-i-use` on ponytail (Ignore);
 declined — measuring a behavioural rule needs A/B agent runs that reverse ADR-0002, whose Revisited
 note now records the decision). Prior:
@@ -22,6 +26,21 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P1 — broken in the wild
 
+- **#120** `enhancement · primitive:hook` — `hooks-patterns.json` recommends
+  `gitleaks-scan` as a PreToolUse `Edit|Write` guard, which only inspects what the
+  agent writes next. A `gitleaks detect` sweep over six real projects returned 104
+  hits, **every one already in history** — the recipe would have caught nothing.
+  Only `emeq-system` holds real findings (a live Ibanity PSD2 private key, a Mailgun
+  signing key, WordPress DB dumps); the other five are dominated by false positives,
+  and both public repos are clean. Fix = repo-**entry** scan in `/ai:setup` +
+  `/ai:hygiene` (redacted to paths + rule ids, since findings enter agent context),
+  emitted pre-commit + CI for prevention, and keep `block-env-edits` as PreToolUse
+  where the shape is right. Compounding: all 27 recipes are advisory metadata with no
+  `command` field, so none has ever run. Open questions before code — binary sourcing
+  (gitleaks is Go, no npx path), whether findings move the `Score: N/100` (if yes,
+  every brownfield repo onboards under the 94 floor), `.gitleaksignore` convention for
+  the FP majority, and scan cost (44s over 2578 commits). Grill before building.
+  Remediation for the affected repo is tracked outside ai-kit as `emeq-system#209`.
 - **#114** `bug` — `bootstrap-project.sh` symlinks skills to the **version-numbered
   plugin-cache path** (`~/.claude/plugins/cache/…/ai/<VERSION>/skills/`), so every
   `/plugin update` orphans every project symlink. Bricked `emeq` (114 dead links,
