@@ -24,6 +24,7 @@ tests/eval/results/*
 # recommends these — see context/templates/companions/ — but does not
 # vendor them, and their generated output is not committed.
 .agents/
+.codex/
 .claude/skills/
 skills-lock.json
 graphify-out/

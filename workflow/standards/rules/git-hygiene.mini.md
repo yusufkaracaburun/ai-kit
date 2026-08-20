@@ -58,8 +58,24 @@ Default: **squash + merge** for feature/fix branches → single conventional-com
 - `git reset --hard`, `git clean -fd`, `git checkout --` against uncommitted work — explain what's lost.
 - Amending a published commit — the rewrite affects everyone who pulled it.
 
+## Staging
+
+Stage by path. Never `git commit -a` or `-am`.
+
+`-a` sweeps in every modified tracked file, including work you did not write
+and did not read. In a repo where more than one session is open, that is not a
+rare edge case: it is the normal state. The commit message then describes one
+change and the commit carries two, and nobody notices until someone reads the
+history later.
+
+Read `git diff --staged` before every commit. You are committing what is
+staged, not what you remember changing. If the diff surprises you, that is the
+check working.
+
 ## Quick checklist before commit
 
+- [ ] Staged by path, no `-a` / `-am`
+- [ ] `git diff --staged` read, and it contains only your change
 - [ ] Branch name follows convention
 - [ ] Commit subject is imperative + scoped
 - [ ] Body explains why
