@@ -5,7 +5,8 @@ expects:
   - names which of the 33 patterns each flagged line trips, quoting the line
   - catches the false range ("Van webhooks tot audit-trails en tenant-scheiding")
   - catches the rule of three ("product, klanten en groei")
-  - catches the em dashes in the section eyebrows
+  - catches "Integreer zonder grenzen" as promotional language (§4)
+  - does not flag the middot in the section eyebrow; it is not an em dash
   - delivers several hero variants and picks one, justified by the reader's feeling
   - invents no product facts, partner names or numbers; asks for them instead
   - keeps the output in Dutch
@@ -22,7 +23,7 @@ Hero sub: "Bouw productintegraties zonder maanden werk aan OAuth, tokenbeheer en
 webhooks. Emeq Hub is jouw integratielaag; jij focust op product, klanten en
 groei."
 
-Section eyebrow: "01 — Waarom Emeq Hub"
+Section eyebrow: "01 · Waarom Emeq Hub"
 Value card: "Volledige grip op elke koppeling." / "Van webhooks tot audit-trails
 en tenant-scheiding: je ziet wat er gebeurt en houdt controle op schaal."
 Step card: "Je start met één token. Geen complexe configuratie, wel direct een
