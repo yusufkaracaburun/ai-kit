@@ -264,22 +264,83 @@ if [ -n "$TARGET" ]; then
   else
     TARGET="$(cd "$TARGET" && pwd)"
     echo "Project: $TARGET"
-    for d in .claude/skills .agents/skills .cursor/skills; do
+
+    # One line per dead symlink: the link, the target it lost, and a remedy
+    # that fits the case. A same-named file surviving elsewhere in the project
+    # means the target moved (Laravel Boost renaming .ai/ to .agents/, say)
+    # and the link can be repointed; nothing found means the link is dead
+    # weight. `ln -sfn` rather than rm + ln — rm is aliased interactive on
+    # many macs, where a pasted rm + ln recipe stalls on the prompt.
+    broken_link_detail() {
+      local link="$1" target replacement
+      target="$(readlink "$link" 2>/dev/null || echo '<unreadable>')"
+      replacement="$(find "$TARGET" \
+        \( -name .git -o -name node_modules -o -name vendor \) -prune -o \
+        \( -type f -o -type d \) -name "$(basename "$link")" -print 2>/dev/null | head -2)"
+      if [ "$(printf '%s' "$replacement" | grep -c . )" -eq 1 ]; then
+        echo "${link#$TARGET/} -> $target (dead; repoint: ln -sfn \"$replacement\" \"$link\")"
+      else
+        echo "${link#$TARGET/} -> $target (dead, no unique replacement in project; remove: rm -f \"$link\")"
+      fi
+    }
+
+    # Directories ai-kit writes into: */skills carries bootstrap-project.sh's
+    # symlinks, */rules carries emit-rules.sh output. Both are scanned for
+    # dead links — the rules directories were not, so the links ai-kit itself
+    # emits went unchecked.
+    for d in .claude/skills .agents/skills .cursor/skills .claude/rules .cursor/rules; do
       p="$TARGET/$d"
       if [ ! -d "$p" ]; then
-        warn "$d absent (run bootstrap-project.sh)"
+        # */rules exists only once emit-rules.sh has run; a --no-rules project
+        # legitimately has none, so absence there is not a finding.
+        case "$d" in
+          */rules) ;;
+          *) warn "$d absent (run bootstrap-project.sh)" ;;
+        esac
         continue
       fi
-      entries="$(find "$p" -mindepth 1 -maxdepth 1 \( -type d -o -type l \) 2>/dev/null | wc -l | tr -d ' ')"
-      broken="$(find "$p" -mindepth 1 -maxdepth 1 -type l ! -exec test -e {} \; -print 2>/dev/null | wc -l | tr -d ' ')"
-      if [ "$broken" -gt 0 ]; then
-        err "$d — $broken broken symlinks (ai-kit moved? run bootstrap-project.sh)"
+      entries="$(find "$p" -mindepth 1 -maxdepth 1 ! -name '.*' 2>/dev/null | wc -l | tr -d ' ')"
+      broken_links=()
+      while IFS= read -r l; do
+        [ -n "$l" ] && broken_links+=("$l")
+      done < <(find "$p" -mindepth 1 -maxdepth 1 -type l ! -exec test -e {} \; -print 2>/dev/null)
+      if [ "${#broken_links[@]}" -gt 0 ]; then
+        err "$d — ${#broken_links[@]} broken symlink(s)"
+        for l in "${broken_links[@]}"; do
+          info "    $(broken_link_detail "$l")"
+        done
       elif [ "$entries" -eq 0 ]; then
         warn "$d empty"
       else
         ok "$d — $entries entries resolve"
       fi
     done
+
+    # Weaker signal: dead links in agent directories ai-kit does not own —
+    # .junie/ belongs to Laravel Boost, for instance. They still cost the
+    # agent whatever the target held, but repairing them is the owning tool's
+    # call, so this warns and never errors.
+    dot_dirs=()
+    while IFS= read -r d; do
+      [ -n "$d" ] && dot_dirs+=("$d")
+    done < <(find "$TARGET" -mindepth 1 -maxdepth 1 -type d -name '.*' ! -name '.git' 2>/dev/null)
+    unowned_links=()
+    if [ "${#dot_dirs[@]}" -gt 0 ]; then
+      while IFS= read -r l; do
+        [ -z "$l" ] && continue
+        case "${l#$TARGET/}" in
+          .claude/skills/*|.agents/skills/*|.cursor/skills/*|.claude/rules/*|.cursor/rules/*) continue ;;
+        esac
+        unowned_links+=("$l")
+      done < <(find "${dot_dirs[@]}" \( -name node_modules -o -name vendor \) -prune -o \
+        -type l ! -exec test -e {} \; -print 2>/dev/null)
+    fi
+    if [ "${#unowned_links[@]}" -gt 0 ]; then
+      warn "${#unowned_links[@]} broken symlink(s) in agent directories ai-kit does not own"
+      for l in "${unowned_links[@]}"; do
+        info "    $(broken_link_detail "$l")"
+      done
+    fi
 
     if [ -f "$TARGET/.ai-kit-setup" ]; then
       mver="$(python3 -c "import json; print(json.load(open('$TARGET/.ai-kit-setup')).get('ai_kit_version','?'))")"

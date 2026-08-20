@@ -63,14 +63,15 @@ assert "doctor: project section present" 'echo "$OUT_DOC_PROJ" | grep -q "Projec
 assert "doctor: skills resolve" 'echo "$OUT_DOC_PROJ" | grep -q ".claude/skills.*entries resolve"'
 assert "doctor: marker absent flagged" 'echo "$OUT_DOC_PROJ" | grep -q ".ai-kit-setup absent"'
 
-# Broken symlink — simulate ai-kit moved.
+# Broken symlink — target gone. Detail assertions live in
+# cases/doctor-broken-symlinks.sh.
 rm -f "$TMP_DOC/.claude/skills/setup"
 ln -s /nonexistent-target "$TMP_DOC/.claude/skills/setup"
 set +e
 OUT_DOC_BROKEN="$("$AIKIT/bin/ai-kit-doctor.sh" "$TMP_DOC" 2>&1)"
 DOC_BROKEN_EXIT=$?
 set -e
-assert "doctor: broken link surfaced" 'echo "$OUT_DOC_BROKEN" | grep -q "broken symlinks"'
+assert "doctor: broken link surfaced" 'echo "$OUT_DOC_BROKEN" | grep -q "broken symlink"'
 assert "doctor: exit 2 on error" '[ "$DOC_BROKEN_EXIT" -eq 2 ]'
 
 rm -rf "$TMP_DOC"
