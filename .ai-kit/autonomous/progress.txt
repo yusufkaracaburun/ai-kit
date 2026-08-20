@@ -30,3 +30,13 @@
 2026-08-20T11:10:53Z	122	tdd-green	cycles=2
 2026-08-20T11:14:54Z	122	review-pass	mode=comprehensive; 1 blocker found+fixed (husky w/o hook misreported)
 2026-08-20T11:14:54Z	122	ship-ok	pr=#126
+2026-08-20T11:56:51Z	-	preflight-cwd-ok	/Users/yusufkaracaburun/Sites/localhost/ws/ai-kit
+2026-08-20T11:56:51Z	-	preflight-triage-labels-ok	ready-for-agent
+2026-08-20T11:56:51Z	-	preflight-merge-policy-detected	direct
+2026-08-20T11:56:51Z	-	preflight-ai-kit-root-pinned	/Users/yusufkaracaburun/Sites/localhost/ws/ai-kit
+2026-08-20T12:13:13Z	123	cycle-attempt	C1 attempt=1 result=pass
+2026-08-20T12:13:13Z	123	cycle-attempt	C2 attempt=1 result=red (hygiene.sh skip-all run broke)
+2026-08-20T12:13:13Z	123	cycle-attempt	C2 attempt=2 result=pass
+2026-08-20T12:13:13Z	123	tdd-green	cycles=2
+2026-08-20T12:13:13Z	123	review-pass	mode=comprehensive; 1 blocker in adjacent v1.54.0 template (CI red forever)
+2026-08-20T12:13:13Z	123	ship-ok	pr=#130

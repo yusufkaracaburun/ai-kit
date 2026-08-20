@@ -89,6 +89,15 @@ assert "CI workflow emitted for husky project" '[ -f "$HUSKY/.github/workflows/g
 assert "CI workflow emitted where no hook mechanism exists" '[ -f "$NONE/.github/workflows/gitleaks.yml" ]'
 assert "CI workflow runs gitleaks" 'grep -qi gitleaks "$NONE/.github/workflows/gitleaks.yml"'
 
+# The job blocks secrets being *added*, and must not fail on history. A
+# full-history scan goes red on every push forever in any repo carrying a
+# pre-existing finding — four of the six projects measured for #120 are
+# dominated by exactly that kind of false positive, and a job that is always
+# red is one nobody reads. History is the entry scan's question, answered
+# once by a human, not a gate re-litigated per push.
+assert "CI scan is scoped to the commits the event adds" 'grep -q "log-opts" "$NONE/.github/workflows/gitleaks.yml"'
+assert "CI never runs an unscoped full-history scan" '! grep -qE "^[[:space:]]+run: gitleaks detect .*--exit-code 1[[:space:]]*$" "$NONE/.github/workflows/gitleaks.yml"'
+
 # --- never overwrite without --force
 mkdir -p "$PLAIN/.github/workflows"
 printf 'name: mine\n' > "$PLAIN/.github/workflows/gitleaks.yml"
