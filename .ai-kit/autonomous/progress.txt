@@ -28,3 +28,5 @@
 2026-08-20T11:10:53Z	122	cycle-attempt	C2 attempt=1 result=red (husky w/o hook called mechanism-less)
 2026-08-20T11:10:53Z	122	cycle-attempt	C2 attempt=2 result=pass
 2026-08-20T11:10:53Z	122	tdd-green	cycles=2
+2026-08-20T11:14:54Z	122	review-pass	mode=comprehensive; 1 blocker found+fixed (husky w/o hook misreported)
+2026-08-20T11:14:54Z	122	ship-ok	pr=#126
