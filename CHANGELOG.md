@@ -1,5 +1,35 @@
 # Changelog
 
+## 1.54.0 — 2026-08-20
+
+### Added
+
+- **`/ai:secrets-scan` reports what is already in a repo's history.** The kit had no way to answer that question, and the thing it did carry pointed the wrong way: `hooks-patterns.json` recommended `gitleaks-scan` as a `PreToolUse` `Edit|Write` hook, which inspects only what an agent is about to write. A sweep across six real projects returned 104 findings and every one of them predated the sweep — the recipe would have caught nothing. It only ever produced a wrong hook because nobody approved it: `recommend-tools` generates the hook script from the recipe at approval time, so a wrong `event` yields a wrong hook faithfully. The recipe is dropped rather than corrected, since a write-guard for secrets duplicates `block-env-edits` for the common case and cannot see a commit. `block-env-edits` stays: it guards an action rather than a history, and its shape was right all along.
+
+  Three properties carry the scanner. The report enters agent context, so it holds paths, line numbers, rule ids and entropy and never a value. Findings are ranked and never filtered — the rule that misfires on serialized blob data is exactly what surfaced database dumps committed to a real repository, so the tail collapses to a count line instead of being dropped. Findings group by file and sort by entropy, because those 104 findings were 25 files and the raw count was itself the noise. A named rule inside a test or example path is demoted: the test fixture proves the point, since its private key scores the highest entropy of anything present and still belongs below a Stripe key in `src/`.
+
+  No baseline, ever. On a first run a baseline records the findings the scan exists to surface as already accepted, which is the one thing a discovery scan must not do.
+
+  Exit codes separate three states a scanner must never conflate — `0` clean, `1` findings, `2` did not run. The third came out of review: gitleaks failing on a bad config was reporting "no findings" with exit `0`, handing back false assurance about secrets and ending the investigation. An absent binary still skips at `0` by design, per the tool-gate protocol; a binary that *errors* is a different state.
+
+- **`apply-secrets-gate.sh` wires prevention, deliberately asymmetric.** CI is emitted unconditionally: one file, one shape, no detection, and the half `--no-verify` cannot walk past. `secrets-hygiene.mini.md` already prescribed that ordering and had nothing behind it.
+
+  Pre-commit is appended only to a mechanism the project already runs, and a mechanism is never introduced. The six surveyed projects use four different ones — husky, a tracked hooks directory, plain `.git/hooks`, and nothing — and not one uses the `pre-commit` framework, so emitting its config would add a fifth mechanism plus a Python dependency to repositories that already have a working hook. That is the accumulation `/ai:dedupe` exists to catch, and shipping it from ai-kit itself would have been worse than shipping no guard.
+
+  Review caught the boundary in the wrong place: a project with husky configured but no `pre-commit` file written yet was told it had no mechanism, and nothing was written. The mechanism plainly existed — the maintainer opted into it — and only the hook file was missing. Using an existing mechanism is not the same as introducing one, so a configured hooks path or a `.husky/` directory now counts and the hook file is created inside it. Only a project with neither still gets the print-the-command path.
+
+  The emitted workflow installs a pinned gitleaks release rather than using the marketplace action, which requires a licence key for organisation accounts. A repository moving under an org would otherwise watch its security gate quietly become a no-op — the worst failure mode a guard like this has, because nothing announces it. CI runs with `--redact`: job logs are routinely readable by more people than the repository is.
+
+### Fixed
+
+- **The `gitleaks-scan` removal reformatted its whole catalog.** Editing the JSON through `json.dump(indent=2)` rewrote every compact inline array in `hooks-patterns.json`, moving twenty-five untouched recipes, pointing `git blame` on all of them at the commit that removed a different one, and burying the single meaningful change in a 158-line diff. The sibling catalogs all still use the compact form. Restored from the previous tag with only the removed block cut out; the diff against `v1.53.1` is now nine deletions and nothing else.
+
+### Notes
+
+Both features were built by `/ai:autonomous` from Agent Briefs, and the review step caught a blocker in each — a failed scan reporting "no findings", and a husky project told it had no mechanism. Two for two is worth recording: the agent-writes/human-reviews split is doing real work here, not ceremony.
+
+Tests: 1002 → 1038 passing.
+
 ## 1.53.1 — 2026-08-20
 
 ### Fixed
