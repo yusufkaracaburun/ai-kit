@@ -7,10 +7,13 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-08-20 against 18 open issues (#120 added — the catalogued `gitleaks-scan`
+_Last reconciled: 2026-08-20 against 22 open issues (#120 added — the catalogued `gitleaks-scan`
 recipe guards the wrong moment; surfaced by `/ai:should-i-use` on kakashi (Ignore), which prompted
-a gitleaks sweep over six real projects. Remediation for the one repo with real findings is
-`emeq-system#209`.) Prior:
+a gitleaks sweep over six real projects. Design settled the same day via `/ai:grill-me`, then split
+into #121–#124 via `/ai:to-issues`; #120 keeps its row as the parent and no longer carries
+`ready-for-agent`. Remediation for the one repo with real findings is `emeq-system#209`. Note:
+#120 was auto-closed and reopened the same day — the commit subject carried the literal string
+`fix #120`, which GitHub reads as a closing keyword.) Prior:
 2026-07-26 against 17 open issues (#119 opened + closed same session — spike:
 measure `pre-write-discipline` effectiveness, surfaced by `/ai:should-i-use` on ponytail (Ignore);
 declined — measuring a behavioural rule needs A/B agent runs that reverse ADR-0002, whose Revisited
@@ -38,17 +41,32 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
   where the shape is right. Compounding: all 27 recipes are advisory metadata with no
   `command` field — though that is deliberate, not a gap: `recommend-tools` generates
   the script at approval time, so the defect is a wrong spec rather than a missing one.
-  **Design settled** via `/ai:grill-me` across five branches, `ready-for-agent`: a
-  one-time discovery scan at `/ai:setup` plus a re-runnable `bin/ai-kit-secrets-scan.sh`,
-  never per-hygiene-run (44s over 2578 commits); hygiene grades only whether a gate is
-  wired, at `warn`/`-5` — never `-20`, which would drop all six repos under the 94 floor
-  at once; findings acknowledgement-gate setup rather than blocking it, since ai-kit
-  cannot rotate the key it found; rank and collapse, never filter, and **no baseline
-  ever** (baselining would have accepted the Ibanity key as known on first run); CI
-  workflow always, pre-commit only appended to a mechanism that already exists — the six
-  projects run four different ones and none uses the `pre-commit` framework. Scope is the
-  one row: drop it, keep `block-env-edits`, no verification pass over the other 26.
-  Remediation for the affected repo is tracked outside ai-kit as `emeq-system#209`.
+  **Design settled** via `/ai:grill-me` across five branches: a one-time discovery scan
+  at `/ai:setup` plus a re-runnable `bin/ai-kit-secrets-scan.sh`, never per-hygiene-run
+  (44s over 2578 commits); hygiene grades only whether a gate is wired, at `warn`/`-5` —
+  never `-20`, which would drop all six repos under the 94 floor at once; findings
+  acknowledgement-gate setup rather than blocking it, since ai-kit cannot rotate the key
+  it found; rank and collapse, never filter, and **no baseline ever** (baselining would
+  have accepted the Ibanity key as known on first run); CI workflow always, pre-commit
+  only appended to a mechanism that already exists — the six projects run four different
+  ones and none uses the `pre-commit` framework. Scope is the one row: drop it, keep
+  `block-env-edits`, no verification pass over the other 26. Remediation for the affected
+  repo is tracked outside ai-kit as `emeq-system#209`. Now a parent only — split into
+  four tracer-bullet slices, `ready-for-agent` dropped here so the picker cannot choose
+  the parent over its own children:
+  - **#121** `AFK`, queued — `bin/ai-kit-secrets-scan.sh`: tool-gated, redacted to paths
+    and rule ids, ranked by file with a collapsed low-signal tail; drops the
+    `gitleaks-scan` row in the same slice so the wrong recipe never outlives its
+    replacement. Verifies against `emeq-system` (must surface the `private-key` hit) and
+    `emeq-hub` (must stay silent — its three hits are all false positives).
+  - **#122** `AFK`, queued — emit the CI workflow unconditionally; append
+    `gitleaks protect --staged` only to a pre-commit mechanism that already exists, and
+    never emit `.pre-commit-config.yaml`.
+  - **#123** `AFK`, blocked by #122, unlabelled until it lands — hygiene section grading
+    gate wiring at `warn`/`-5`, which never invokes the scanner.
+  - **#124** `HITL`, blocked by #121 — `/ai:setup` wiring, `branches.secrets_scan`, and
+    the acknowledgement gate. Human-driven: it adds the first stop-point to a skill that
+    has none.
 - **#114** `bug` — `bootstrap-project.sh` symlinks skills to the **version-numbered
   plugin-cache path** (`~/.claude/plugins/cache/…/ai/<VERSION>/skills/`), so every
   `/plugin update` orphans every project symlink. Bricked `emeq` (114 dead links,
