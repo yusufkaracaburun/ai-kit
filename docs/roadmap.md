@@ -7,7 +7,8 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-08-20 against 21 open issues (#131 filed and closed the same day — the
+_Last reconciled: 2026-08-20 against 22 open issues (#134 added — a second flake, in doctor
+rather than the harness; the SIGPIPE class is fixed and this one is not. Prior the same day: 21 open issues (#131 filed and closed the same day — the
 `test` workflow had been red on every master commit checked, across four release tags, and nobody
 looked. Two deterministic causes, plus seven shellcheck warnings failing lint separately. Master is
 green again for the first time since at least v1.52.0. Note for whoever reads a green run next: the
@@ -116,6 +117,15 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
   (three repos moving independently) with no drift signal at all. Cheapest fix
   needs nothing upstream: record a composite `{repo: HEAD}` stamp in
   `graphify-out/.ai-kit-graph-verified`.
+- **#134** `bug` — `doctor` exits non-zero intermittently on `ubuntu-latest`, failing
+  `lifecycle`'s `doctor: opt-out alone exits 0` on one run and passing a re-run of the
+  same commit. Second flake found in a day, unrelated to the SIGPIPE one. Does not
+  reproduce locally across 15 runs. The larger point is the second half of the title:
+  the assertion compares a captured exit code, and `assert()` prints only its name, so
+  a failure says the number was wrong and nothing about why — while `$OUT_OO_NOPROJ`
+  held the answer and was discarded. Every exit-code assertion in the suite shares that
+  blind spot, and an intermittent one cannot be caught any other way, because by the
+  time anyone looks the run is gone.
 - **#116** `bug · primitive:plugin` — a plugin skill silently shadows a same-named
   project skill: `bootstrap-project.sh` merges ai-kit skills with `ln -sfn`, which
   overwrites on name collision while the echo claims "custom entries preserved".
