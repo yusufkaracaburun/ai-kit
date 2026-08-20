@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.53.0 — 2026-08-20
+
+### Added
+
+- **`git-hygiene` gains a Staging section.** Stage by path, never `git commit -a` or `-am`, and read `git diff --staged` before committing. This came out of two commits on one day that each carried a second, unmentioned change: `-a` sweeps every modified tracked file, and in a repo where more than one agent session is open that is the normal state rather than an edge case. The commit message then describes one change while the commit carries two, and nobody notices until someone reads the history back. Two checklist items enforce it. The rule is already universal and always-on, so this applies everywhere without new wiring, and the rule count stays at 34.
+
+- **Review before release, written down.** `CLAUDE.md` and `AGENTS.md` now say to run `/ai:review` before a release rather than after. The doctor warns about a single committer in this repo and asks for a documented reviewer cadence; a weekly human sweep is not going to happen in a solo project, and a rule nobody keeps teaches the next session that rules here are optional. A reviewer starting from the diff is a real second pass.
+
+### Fixed
+
+- **`AGENTS.md` was never tracked.** Three scripts expect it and `context-lean` already reads it, so its absence from git was an accident rather than a decision. It mirrors `CLAUDE.md` exactly.
+- **`.codex/` joins `.agents/` and `.claude/skills/` in `.gitignore`** — per-machine agent configuration, not project content.
+
 ## 1.52.0 — 2026-08-20
 
 ### Changed
