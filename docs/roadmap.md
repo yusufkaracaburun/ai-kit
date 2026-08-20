@@ -36,10 +36,18 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
   `/ai:hygiene` (redacted to paths + rule ids, since findings enter agent context),
   emitted pre-commit + CI for prevention, and keep `block-env-edits` as PreToolUse
   where the shape is right. Compounding: all 27 recipes are advisory metadata with no
-  `command` field, so none has ever run. Open questions before code — binary sourcing
-  (gitleaks is Go, no npx path), whether findings move the `Score: N/100` (if yes,
-  every brownfield repo onboards under the 94 floor), `.gitleaksignore` convention for
-  the FP majority, and scan cost (44s over 2578 commits). Grill before building.
+  `command` field — though that is deliberate, not a gap: `recommend-tools` generates
+  the script at approval time, so the defect is a wrong spec rather than a missing one.
+  **Design settled** via `/ai:grill-me` across five branches, `ready-for-agent`: a
+  one-time discovery scan at `/ai:setup` plus a re-runnable `bin/ai-kit-secrets-scan.sh`,
+  never per-hygiene-run (44s over 2578 commits); hygiene grades only whether a gate is
+  wired, at `warn`/`-5` — never `-20`, which would drop all six repos under the 94 floor
+  at once; findings acknowledgement-gate setup rather than blocking it, since ai-kit
+  cannot rotate the key it found; rank and collapse, never filter, and **no baseline
+  ever** (baselining would have accepted the Ibanity key as known on first run); CI
+  workflow always, pre-commit only appended to a mechanism that already exists — the six
+  projects run four different ones and none uses the `pre-commit` framework. Scope is the
+  one row: drop it, keep `block-env-edits`, no verification pass over the other 26.
   Remediation for the affected repo is tracked outside ai-kit as `emeq-system#209`.
 - **#114** `bug` — `bootstrap-project.sh` symlinks skills to the **version-numbered
   plugin-cache path** (`~/.claude/plugins/cache/…/ai/<VERSION>/skills/`), so every
