@@ -43,9 +43,75 @@ assert() {
     PASS=$((PASS + 1))
   else
     echo "  FAIL: $1"
+    _assert_context "$2"
     FAIL=$((FAIL + 1))
     FAIL_DETAILS+=("$1")
   fi
+}
+
+# Print what the failed expression was looking at.
+#
+# Without this a failure gives the assertion's name and nothing else, which is
+# fine when you can reproduce it and useless when you cannot. `doctor: opt-out
+# alone exits 0` failed one CI run and passed a re-run of the same commit; all
+# the log said was that the number was wrong, while the captured doctor output
+# — the answer — sat in a variable and was discarded. By the time anyone
+# looked, the runner was gone. Intermittent failures are exactly the ones that
+# have to be diagnosable from the log alone.
+#
+# Two sources, both free. Every variable the expression names, and for an exit
+# code the output that came with it: this suite pairs `FOO_EXIT` with
+# `OUT_FOO` or `FOO_OUT` about half the time, and an exit code on its own
+# rarely says why.
+_assert_context() {
+  local __expr="$1" __n __val __sib
+  local __seen=" "
+
+  for __n in $(printf '%s' "$__expr" | grep -oE '\$\{?[A-Za-z_][A-Za-z0-9_]*' | tr -d '${' | sort -u); do
+    case "$__seen" in *" $__n "*) continue ;; esac
+    __seen="$__seen$__n "
+    [ -n "${!__n+x}" ] || continue
+    _assert_show "$__n" "${!__n}"
+
+    # An exit code alone rarely says why. Pull in its output sibling.
+    case "$__n" in
+      *_EXIT | *_RC)
+        local __stem="${__n%_EXIT}"
+        __stem="${__stem%_RC}"
+        for __sib in "OUT_$__stem" "${__stem}_OUT"; do
+          case "$__seen" in *" $__sib "*) continue ;; esac
+          [ -n "${!__sib+x}" ] || continue
+          __seen="$__seen$__sib "
+          _assert_show "$__sib" "${!__sib}"
+        done
+        ;;
+    esac
+  done
+  return 0
+}
+
+# Bounded: a captured command's output can run to thousands of lines, and a
+# log nobody scrolls through is the problem this exists to solve.
+_assert_show() {
+  local __name="$1" __val="$2" __lines
+  if [ -z "$__val" ]; then
+    echo "        $__name = (empty)"
+    return
+  fi
+  __lines="$(printf '%s\n' "$__val" | wc -l | tr -d ' ')"
+  if [ "$__lines" -le 1 ] && [ "${#__val}" -le 120 ]; then
+    echo "        $__name = $__val"
+  else
+    echo "        $__name ($__lines lines):"
+    printf '%s\n' "$__val" | head -15 | sed 's/^/          | /'
+    if [ "$__lines" -gt 15 ]; then
+      echo "          | … $(( __lines - 15 )) more"
+    fi
+  fi
+  # Never let diagnostics decide the run: a bare `[ … ] && echo` as the last
+  # command returns 1 when false, and under `set -e` in the case that turns a
+  # reported failure into an aborted file.
+  return 0
 }
 
 print_summary_and_exit() {
