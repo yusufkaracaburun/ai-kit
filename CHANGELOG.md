@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.53.1 — 2026-08-20
+
+### Fixed
+
+- **doctor did not check the directories ai-kit emits into.** Its project block walked `.claude/skills`, `.agents/skills` and `.cursor/skills` and stopped there, while `emit-rules.sh` writes `.claude/rules/` and `.cursor/rules/` — so the one thing ai-kit puts in a project unprompted was the one thing the diagnostic never looked at. Laravel Boost moved its layout from `.ai/` to `.agents/` in a project here and took the old directory with it; 19 symlinks across `.claude/`, `.cursor/` and `.junie/` were left pointing at the hole and `/ai:hygiene` reported 9. Among the ten it missed were the rules links `global.md`, `engineering.md` and `claude-mem-context.md`, which stopped loading into agent context without saying anything. Both rules directories are now in the same loop. Absence is not a finding there: a `--no-rules` project has no rules directory to check.
+
+- **The broken-symlink message sent the diagnosis the wrong way.** It read *"N broken symlinks (ai-kit moved? run bootstrap-project.sh)"* and was wrong on both halves. ai-kit had not moved — another tool changed its own layout — and `bootstrap-project.sh` links `*/skills`, `*/agents` and `*/commands` and never touches `*/rules`, so anyone following the advice would have been left with ten dead links and the impression they were repaired. Each dead link now prints on its own line with the target it lost and a remedy that fits the case: `ln -sfn` at a same-named file that survived elsewhere in the project, `rm -f` when nothing did. `ln -sfn` rather than `rm` + `ln` because `rm` is aliased interactive on many macs, where a pasted recipe stalls on a prompt nobody sees.
+
+  Dead links in agent directories ai-kit does not own — `.junie/` is Boost's — are reported too, as a warning rather than an error. They still cost the agent whatever the target held, but repairing them is the owning tool's call.
+
+- **`verify-setup.sh` failed a project on the language of a heading.** The skills/lifecycle check grepped for `Agent skills` or `Agile lifecycle`, so a Dutch `CLAUDE.md` that documented the lifecycle phases and the skills in full, under "Werkwijze en skills", stuck on 18/19 in `--strict`. The only way to green was to rewrite the documentation to suit the grep, in a repo whose language rule says the docs are Dutch. The pattern now also accepts a skills directory path — an identifier survives translation, a heading does not. Both original headings stay in it, so docs that describe the skills without naming a path keep passing. A bare `/ai:` command mention is deliberately not a match: it would pass any document that names a command in passing, turning a check about whether the setup is documented into a check for one string. It deliberately does not read `branches.lifecycle` from `.ai-kit-setup` either: that field records the phase the project is in, not whether its docs say anything, and a check about a document should read the document.
+
+Tests: 981 → 1002 passing. A new case, `doctor-broken-symlinks`, builds a project with a dead link in a skills directory, in both rules directories and in `.junie/`, and asserts the scope, the per-link detail, both remedies and the warn-not-error split; `lifecycle` gains a `verify-setup-language` section covering the Dutch doc, a doc that documents neither, a doc that only mentions an `/ai:` command in passing, and the English template.
+
 ## 1.53.0 — 2026-08-20
 
 ### Added
