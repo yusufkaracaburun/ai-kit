@@ -215,4 +215,44 @@ fi
 rm -rf "$TMP_V"
 
 
+echo "=== verify-setup-language ==="
+# section: verify-setup-language
+# The skills/lifecycle check reads identifiers, not an English heading. A
+# Dutch CLAUDE.md documented the lifecycle phases and the skills in full and
+# still failed, and the only way to green was to bend the docs to the grep in
+# a repo whose language rule says Dutch.
+TMP_L=$(mktemp -d)
+cat > "$TMP_L/AGENTS.md" <<'MD'
+# Agent-instructies
+
+## Werkwijze en skills
+
+| Fase | Doel | Skills |
+| ---- | ---- | ------ |
+| Ideatie | Scope en requirements | `grill-me`, `to-prd` |
+| Bouwen | Backlog incrementeel bouwen | `to-issues`, `tdd` |
+
+Skills staan in `.claude/skills/`.
+MD
+OUT_LANG="$("$AIKIT/bin/verify-setup.sh" "$TMP_L" 2>&1 || true)"
+assert "verify: Dutch docs pass the skills/lifecycle check" \
+  '! echo "$OUT_LANG" | grep -q "FAIL: agent skills / lifecycle section"'
+
+printf '# Agent-instructies\n\nNiets over werkwijze of skills.\n' > "$TMP_L/AGENTS.md"
+OUT_LANG_BARE="$("$AIKIT/bin/verify-setup.sh" "$TMP_L" 2>&1 || true)"
+assert "verify: doc documenting neither still fails the check" \
+  'echo "$OUT_LANG_BARE" | grep -q "FAIL: agent skills / lifecycle section"'
+
+printf '# Willekeurig\n\nSoms draai ik /ai:doctor.\n' > "$TMP_L/AGENTS.md"
+OUT_LANG_MENTION="$("$AIKIT/bin/verify-setup.sh" "$TMP_L" 2>&1 || true)"
+assert "verify: a passing /ai: mention does not pass the check" \
+  'echo "$OUT_LANG_MENTION" | grep -q "FAIL: agent skills / lifecycle section"'
+
+cp "$AIKIT/context/templates/AGENTS.md.template" "$TMP_L/AGENTS.md"
+OUT_LANG_TPL="$("$AIKIT/bin/verify-setup.sh" "$TMP_L" 2>&1 || true)"
+assert "verify: English template still passes the check" \
+  '! echo "$OUT_LANG_TPL" | grep -q "FAIL: agent skills / lifecycle section"'
+rm -rf "$TMP_L"
+
+
 print_summary_and_exit

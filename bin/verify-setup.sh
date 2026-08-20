@@ -169,8 +169,19 @@ if [ "$MINIMAL_TIER" = false ]; then
       "$(bool [ -f "$TARGET/docs/agents/architecture.md" ])"
   fi
 
-  if { [ -f "$TARGET/AGENTS.md" ] && grep -qE 'Agent skills|Agile lifecycle' "$TARGET/AGENTS.md" 2>/dev/null; } \
-    || { [ -f "$TARGET/CLAUDE.md" ] && grep -qE 'Agent skills|Agile lifecycle' "$TARGET/CLAUDE.md" 2>/dev/null; }; then
+  # Identifiers, not an English heading: a skills path survives translation,
+  # "Agile lifecycle" does not. A Dutch CLAUDE.md that documented the phases
+  # and the skills in full failed here on one word, and the only way to green
+  # was to bend the docs to the grep. The two original headings stay in the
+  # pattern for docs that describe the skills without naming a path.
+  #
+  # A bare `/ai:` mention is deliberately NOT a match. It would pass any doc
+  # that names a command in passing ("soms draai ik /ai:doctor"), turning a
+  # check about documenting the setup into a check for one string. The skills
+  # path is the language-independent identifier; it is enough on its own.
+  SKILLS_SECTION_RE='Agent skills|Agile lifecycle|\.(claude|agents|cursor)/skills'
+  if { [ -f "$TARGET/AGENTS.md" ] && grep -qE "$SKILLS_SECTION_RE" "$TARGET/AGENTS.md" 2>/dev/null; } \
+    || { [ -f "$TARGET/CLAUDE.md" ] && grep -qE "$SKILLS_SECTION_RE" "$TARGET/CLAUDE.md" 2>/dev/null; }; then
     check "agent skills / lifecycle section" true
   else
     check "agent skills / lifecycle section" false
