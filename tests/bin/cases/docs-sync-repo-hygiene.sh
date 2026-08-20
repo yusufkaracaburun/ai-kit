@@ -25,6 +25,27 @@ FIX_RH="$AIKIT/tests/fixtures/docs-sync-repo-hygiene"
 # round-trip cannot leave the fixture half-built.
 mkdir -p "$FIX_RH/empty_dir"
 
+# The skills half of the fixture is unreachable by git for a different
+# reason: `.gitignore` carries a bare `.agents/`, which matches at any depth
+# and therefore swallows this fixture's copy too. `incomplete/` is empty on
+# top of that. So neither directory survives a clone, and on a fresh checkout
+# the five assertions below had nothing to assert against — which is why CI
+# was red on every master commit while the suite stayed green locally, where
+# leftover directories from an earlier run made it look fine.
+#
+# Rebuilt here rather than un-ignoring `.agents/`: that pattern is doing real
+# work for actual agent state, and narrowing it for one fixture would trade a
+# test-only problem for a repo-wide one.
+mkdir -p "$FIX_RH/.agents/skills/incomplete" "$FIX_RH/.agents/skills/proper"
+# `incomplete/` must hold something that is not SKILL.md. It models a skill
+# dir that is in progress, so it has to be orphan *without* being empty —
+# leave it empty and the empty-dirs scan claims it too, which turns three
+# findings into four and pushes empty_dir off the line the assertions read.
+printf 'work in progress\n' > "$FIX_RH/.agents/skills/incomplete/NOTES.md"
+# Only its existence is read — the orphan check is `[ ! -f "$d/SKILL.md" ]`.
+printf -- '---\nname: proper\ndescription: complete skill dir — must never be flagged as orphan\n---\n' \
+  > "$FIX_RH/.agents/skills/proper/SKILL.md"
+
 echo "=== artefacts-exist ==="
 assert "repo-hygiene script exists + executable" '[ -x "$HYGIENE" ]'
 assert "repo-hygiene fixture dir exists" '[ -d "$FIX_RH" ]'
