@@ -15,7 +15,30 @@ FAIL=0
 FAIL_DETAILS=()
 
 assert() {
-  if eval "$2"; then
+  # An assertion asks what the output contains, not whether the process that
+  # produced it survived writing. `echo "$BIG" | grep -q x` makes grep exit on
+  # the first match, which SIGPIPEs the writer mid-stream; under `pipefail`
+  # that 141 becomes the pipeline's status and the assertion fails for a
+  # reason it was never testing. Whether the race fires depends on payload
+  # size against the pipe buffer, so it surfaces as flakiness rather than a
+  # clean failure — `recommend` and `structure` failed one CI run and passed
+  # a re-run of the identical commit.
+  #
+  # Fixed here rather than at the call sites: the suite has 262 such
+  # pipelines across 20 case files, and an earlier per-site fix
+  # ("avoid SIGPIPE race in detect-tooling JSON asserts") left every other one
+  # in place. Disabling pipefail for the evaluation makes the reader's verdict
+  # the answer, which is what every one of these asserts means.
+  local __pipefail=off
+  [ -o pipefail ] && __pipefail=on
+  set +o pipefail
+
+  local __ok=0
+  eval "$2" || __ok=1
+
+  [ "$__pipefail" = on ] && set -o pipefail
+
+  if [ "$__ok" -eq 0 ]; then
     echo "  OK: $1"
     PASS=$((PASS + 1))
   else
