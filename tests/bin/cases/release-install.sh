@@ -46,13 +46,26 @@ assert "install: lists --no-global" 'echo "$OUT_INSTALL_HELP" | grep -q -- "--no
 # Clone from local repo with --no-global (end-to-end without touching ~/.claude).
 TMP_HOME_INSTALL="$(mktemp -d)"
 TMP_DIR_INSTALL="$TMP_HOME_INSTALL/.local/share/ai-kit"
-HOME="$TMP_HOME_INSTALL" "$AIKIT/install.sh" --repo="$AIKIT" --dir="$TMP_DIR_INSTALL" --no-global --quiet
+
+# install.sh clones with `--branch master`, so the source it is pointed at
+# must carry that branch. On a pull request `actions/checkout` leaves the
+# repository on a detached HEAD, `master` does not resolve, and the clone
+# aborted with `fatal: Remote branch master not found in upstream origin` —
+# rc=128, zero assertions run. Which meant this case, the one that verifies
+# the installer end to end, had never verified anything on a pull request.
+#
+# Install from a throwaway clone that does carry the name instead of skipping
+# on pull requests, so the coverage holds wherever it runs.
+TMP_SRC_INSTALL="$(mktemp -d)/src"
+git clone --quiet "$AIKIT" "$TMP_SRC_INSTALL"
+git -C "$TMP_SRC_INSTALL" checkout --quiet -B master
+HOME="$TMP_HOME_INSTALL" "$AIKIT/install.sh" --repo="$TMP_SRC_INSTALL" --dir="$TMP_DIR_INSTALL" --no-global --quiet
 assert "install: clones into target dir" '[ -f "$TMP_DIR_INSTALL/VERSION" ]'
 assert "install: writes ~/.config/ai-kit/root" '[ -f "$TMP_HOME_INSTALL/.config/ai-kit/root" ]'
 assert "install: --no-global skips ~/.claude/skills" '[ ! -d "$TMP_HOME_INSTALL/.claude/skills" ]'
 
 # Idempotent rerun — should detect existing install, not re-clone.
-OUT_RERUN="$(HOME="$TMP_HOME_INSTALL" "$AIKIT/install.sh" --repo="$AIKIT" --dir="$TMP_DIR_INSTALL" --no-global 2>&1)"
+OUT_RERUN="$(HOME="$TMP_HOME_INSTALL" "$AIKIT/install.sh" --repo="$TMP_SRC_INSTALL" --dir="$TMP_DIR_INSTALL" --no-global 2>&1)"
 assert "install: rerun detects existing" 'echo "$OUT_RERUN" | grep -q "already installed"'
 
 # Refuse to clobber a non-aikit directory.
