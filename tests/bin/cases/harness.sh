@@ -44,6 +44,24 @@ source "$AIKIT/tests/bin/lib/harness.sh"
 assert "absent string" 'printf "MATCH\n" | grep -q ABSENT'
 assert "false expression" '[ 1 -eq 2 ]'
 assert "failing command" 'false'
+
+# Diagnostics: the shapes a failure has to be readable in.
+SHORT="hello"
+assert "short scalar" '[ "\$SHORT" = "goodbye" ]'
+EMPTYVAR=""
+assert "empty variable" '[ -n "\$EMPTYVAR" ]'
+# The #134 shape — an exit code whose reason lives in its output sibling.
+OUT_THING="  ok    first
+  warn  something went sideways
+  ok    third"
+THING_EXIT=1
+assert "exit code with sibling output" '[ "\$THING_EXIT" -eq 0 ]'
+# Long output must be capped rather than dumped whole. Named to the
+# convention the lookup relies on — OUT_<stem> beside <stem>_EXIT.
+OUT_BIGTHING="\$(seq 1 60)"
+BIGTHING_EXIT=1
+assert "long sibling output" '[ "\$BIGTHING_EXIT" -eq 0 ]'
+assert "passing" 'true'
 print_summary_and_exit
 SUBCASE
 SUB_OUT="$(bash "$SUB/case.sh" 2>&1 || true)"
@@ -51,6 +69,13 @@ bash "$SUB/case.sh" >/dev/null 2>&1 && SUB_RC=0 || SUB_RC=$?
 rm -rf "$SUB"
 
 assert "a genuinely absent string still fails" 'echo "$SUB_OUT" | grep -q "FAIL: absent string"'
+assert "a failure prints the value it compared" 'echo "$SUB_OUT" | grep -q "SHORT = hello"'
+assert "a failure prints the output paired with an exit code" \
+  'echo "$SUB_OUT" | grep -q "warn  something went sideways"'
+assert "long captured output is truncated, not dumped whole" \
+  'echo "$SUB_OUT" | grep -qE "\| … [0-9]+ more"'
+assert "an empty variable is reported as empty, not skipped" 'echo "$SUB_OUT" | grep -q "EMPTYVAR = (empty)"'
+assert "a passing assert prints no context" '[ "$(echo "$SUB_OUT" | grep -c "        ")" -gt 0 ] && ! echo "$SUB_OUT" | grep -A1 "OK: passing" | grep -q "        "'
 assert "a false expression still fails" 'echo "$SUB_OUT" | grep -q "FAIL: false expression"'
 assert "a failing command still fails" 'echo "$SUB_OUT" | grep -q "FAIL: failing command"'
 assert "a case with failures exits non-zero" '[ "$SUB_RC" -ne 0 ]'
