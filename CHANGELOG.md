@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.51.0 — 2026-08-20
+
+### Added
+
+- **`docs-diataxis` rule** (on-demand) — pick the document mode before writing. Two questions place a document in one of four modes: tutorial teaches by building, how-to solves a problem for someone competent, reference describes and nothing else, explanation gives the why and is the only mode where opinion belongs. The rule then forbids mixing them: no reference table inside a tutorial, no hand-holding inside reference, no argument inside a how-to. Split and link instead. It covers structure only and points at `writing-style.mini.md` for sentence-level style and `/ai:copywriter` for the full editor. Adapted from [Diátaxis](https://diataxis.fr) by Daniele Procida. Rules 33 → 34.
+
+  This is the one layer that survived a review of two writing skills offered for adoption. Both are now recorded in `plugins-excluded.json` as Ignore, with the derivation written down so the next session does not rediscover it. `technical-writing` stacks four layers, three of which restate `writing-style` and the 39 copywriter patterns down to the same examples; it also delegates its slop catalogue to a skill ai-kit does not have. `unslop` is Ignored for a stronger reason: it was already inside ai-kit twice. Its patterns 1 to 25 share the Wikipedia lineage of copywriter §1-33, and its 14, 26, 27, 28, 30 and 31 are the source of `writing-style` rules 1 to 6 and of copywriter §34-39, down to the same jargon list and the same plain-word list.
+
+### Fixed
+
+- **Patterns 34 to 39 shipped undocumented in v1.50.0.** A parallel session added six ai-kit-original plain-speech patterns to `/ai:copywriter` (colon connectors, abstract metaphor nouns, feeling words in place of a mechanism, dense sentences, adverbs propping up weak verbs, fancy synonyms) with the provenance table split correctly between the CC BY-SA §1-33 set and the MIT additions. They were in the working tree when the release commit staged the whole file. The v1.50.0 changelog entry now covers them.
+
+- **`writing-style` credits its source.** Its jargon list (substrate, wedge, north star, flywheel) and plain-word list (utilize, facilitate, numerous) come from the `unslop` skill, and the lineage runs back to Wikipedia's Signs of AI writing. The rule landed without any of that. It also lost a correct count to a wrong correction: "39-pattern editor" was changed to 33 on the assumption it confused patterns with skills, when the skill did have 39 by then. Both restored.
+
+- **The Dutch landing eval fixture carried a transcription error.** It presented `01 — Waarom Emeq Hub` as copy from a real page and asserted the audit catches em dashes in the section eyebrows. The page uses a middot, and every em dash in those components sits in a code comment. The fixture now uses the middot and asserts that a middot must not be flagged as an em dash. Em-dash coverage moved to the synthetic `dutch-tells.md` prompt, which can carry one honestly.
+
 ## 1.50.0 — 2026-08-19
 
 ### Added
