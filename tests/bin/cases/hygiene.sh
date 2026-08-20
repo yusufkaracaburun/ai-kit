@@ -12,7 +12,7 @@ echo "=== ai-kit-hygiene: score line always emitted ==="
 # Skip every section → no penalties → score must be 100. Confirms the
 # score line is unconditional (printed even on fully clean / fully skipped
 # runs) — the user asked for "altijd de score vermelden".
-OUT_CLEAN="$("$HYG" "$AIKIT" --skip-doctor --skip-dedupe --skip-symmetry --skip-memory --skip-repo-skills --skip-context-lean 2>&1)"
+OUT_CLEAN="$("$HYG" "$AIKIT" --skip-doctor --skip-dedupe --skip-symmetry --skip-memory --skip-repo-skills --skip-context-lean --skip-secrets-gate 2>&1)"
 assert "hygiene prints Score: 100/100 on a fully-skipped run" 'echo "$OUT_CLEAN" | grep -q "^Score: 100/100$"'
 assert "hygiene omits To reach 100 block when score == 100" '! echo "$OUT_CLEAN" | grep -q "^To reach 100:"'
 

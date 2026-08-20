@@ -6,6 +6,7 @@
 #   4. ai-kit-memory-audit.sh    — orphan / stale entries across all .agents/memory/*/ subdirs
 #   5. ai-kit-repo-skill-hint.sh — surface project-scoped hygiene skills (docs-sync, etc.)
 #   6. ai-kit-context-lean.sh    — always-loaded CLAUDE.md/AGENTS.md over 200 lines
+#   7. ai-kit-secrets-gate.sh    — secret-prevention wiring (never scans history)
 #
 # Exit code = max of the sections (0 clean, 1 warn, 2 block).
 set -uo pipefail
@@ -31,6 +32,7 @@ SKIP_SYMMETRY=0
 SKIP_MEMORY=0
 SKIP_REPO_SKILLS=0
 SKIP_CONTEXT_LEAN=0
+SKIP_SECRETS_GATE=0
 
 for arg in "$@"; do
   case "$arg" in
@@ -41,6 +43,7 @@ for arg in "$@"; do
     --skip-memory)     SKIP_MEMORY=1 ;;
     --skip-repo-skills) SKIP_REPO_SKILLS=1 ;;
     --skip-context-lean) SKIP_CONTEXT_LEAN=1 ;;
+    --skip-secrets-gate) SKIP_SECRETS_GATE=1 ;;
     -*) echo "unknown flag: $arg" >&2; usage >&2; exit 2 ;;
     *)  PROJECT_PATH="$arg" ;;
   esac
@@ -100,6 +103,12 @@ if [ "$SKIP_CONTEXT_LEAN" -eq 0 ]; then
   section "context-lean (always-loaded CLAUDE.md/AGENTS.md size)"
   bash "$AIKIT/bin/ai-kit-context-lean.sh" "$PROJECT_PATH"
   record "$?" "context-lean"
+fi
+
+if [ "$SKIP_SECRETS_GATE" -eq 0 ]; then
+  section "secrets-gate (prevention wiring, not history)"
+  bash "$AIKIT/bin/ai-kit-secrets-gate.sh" "$PROJECT_PATH"
+  record "$?" "secrets-gate"
 fi
 
 section "summary"
