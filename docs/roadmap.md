@@ -7,28 +7,31 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-08-20 against 22 open issues (#134 added — a second flake, in doctor
-rather than the harness; the SIGPIPE class is fixed and this one is not. Prior the same day: 21 open issues (#131 filed and closed the same day — the
-`test` workflow had been red on every master commit checked, across four release tags, and nobody
-looked. Two deterministic causes, plus seven shellcheck warnings failing lint separately. Master is
-green again for the first time since at least v1.52.0. Note for whoever reads a green run next: the
-ubuntu suite still carries a SIGPIPE flake in `recommend` and `structure`, proven by a re-run of an
-unchanged commit, so one green run is not yet proof. #123 shipped in PR #130. Prior the same day:
-22 open issues, #127, #128 and #129 filed from friction hit
-during the same session — the to-issues ↔ autonomous contract disagreement, drain re-picking a
-shipped issue, and a printed recipe that no-ops under an interactive `mv -i` shell. That last one
-explains how v1.53.1 reached a pushed tag while the marketplace catalog still pointed at v1.53.0;
-both are now published at v1.54.0. Prior the same day: 19 open issues, #121 and #122 shipped via
-`/ai:autonomous`, PRs #125 and #126, unreleased — the next bump carries them. Both runs' reviews
-caught a blocker each: a failed scan reporting "no findings", and a husky-configured project being
-told it had no pre-commit mechanism. #123 is unblocked and queued; #124 stays human-driven. Prior
-the same day: #120 added — the catalogued `gitleaks-scan`
-recipe guards the wrong moment; surfaced by `/ai:should-i-use` on kakashi (Ignore), which prompted
-a gitleaks sweep over six real projects. Design settled the same day via `/ai:grill-me`, then split
-into #121–#124 via `/ai:to-issues`; #120 keeps its row as the parent and no longer carries
-`ready-for-agent`. Remediation for the one repo with real findings is `emeq-system#209`. Note:
-#120 was auto-closed and reopened the same day — the commit subject carried the literal string
-`fix #120`, which GitHub reads as a closing keyword.) Prior:
+_Last reconciled: 2026-08-20 against 22 open issues, after a long session. In order:
+
+`/ai:should-i-use` on kakashi returned Ignore and prompted a `gitleaks` sweep over six real
+projects, which surfaced #120 — the catalogued `gitleaks-scan` recipe guards the wrong moment.
+Design settled via `/ai:grill-me`, split into #121-#124 via `/ai:to-issues`. #121 and #122 shipped
+in v1.54.0 via `/ai:autonomous`; each run's review caught a blocker, which is the writer/reviewer
+split doing real work rather than ceremony. #123 shipped in PR #130 and also corrected #122's
+template. #124 remains, human-driven. Remediation for the one repo with real findings is
+`emeq-system#209`, and its key has been rotated.
+
+Four bugs in the kit itself came out of the friction: #127 (`to-issues` labels but emits no brief,
+so `autonomous` rejects everything it produces), #128 (drain re-picks a shipped issue), #129 (a
+printed recipe that no-ops under an interactive `mv -i` shell — which is how v1.53.1 reached a
+pushed tag while the catalog still resolved v1.53.0), and #134 (doctor exits non-zero
+intermittently on ubuntu, and a failed exit-code assert shows nothing to diagnose it with).
+
+#131 was filed and closed the same day: the `test` workflow had been red on every master commit
+checked, across four release tags, and nobody looked — two deterministic causes plus seven
+shellcheck warnings failing lint separately. A SIGPIPE flake in the harness was fixed after that,
+centrally rather than at 262 call sites. #134 is the one flake still open, so a single green run is
+still not proof.
+
+Two process notes worth keeping: #120 was auto-closed and reopened because a commit subject carried
+the literal string `fix #120`, which GitHub reads as a closing keyword. And two releases were tagged
+and pushed that day without anyone checking CI, which #131's last criterion addresses. Prior:
 2026-07-26 against 17 open issues (#119 opened + closed same session — spike:
 measure `pre-write-discipline` effectiveness, surfaced by `/ai:should-i-use` on ponytail (Ignore);
 declined — measuring a behavioural rule needs A/B agent runs that reverse ADR-0002, whose Revisited
