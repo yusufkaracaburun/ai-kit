@@ -1,5 +1,28 @@
 # Changelog
 
+## 1.57.0 — 2026-08-23
+
+### Added
+
+- `content` signal type in the recommend-tools scorer: matches a literal
+  substring against project markdown (bounded walk — dependency dirs skipped,
+  200-file / 256KB caps). Complements the existing frameworks / architectures /
+  files / git_remote_host / deploy_shape / dependencies / env signals.
+- Catalog: `diagram-design` plugin (cathrynlavery/diagram-design, MIT, pinned
+  `648c2a5`) in a new `diagrams` category, gated on `content:```mermaid` — only
+  repos that already draw Mermaid diagrams get the recommendation. Vetted per
+  VETTING.md (all eight criteria; skillspector static CRITICAL verdict triaged
+  as 100% false positives — adversarial import-test fixtures and SVG example
+  copy). Entry discloses that output is standalone HTML+SVG which GitHub does
+  not render inline: Mermaid stays the in-repo source of truth, diagram-design
+  is the publication-quality export path.
+
+### Changed
+
+- `plugins-excluded.json`: the same-session diagram-design Ignore entry is
+  reversed — its "no detectable signal" ground is closed by the new `content`
+  signal. Decision trail preserved in the VETTING.md audit row.
+
 ## 1.56.0 — 2026-08-20
 
 ### Fixed
