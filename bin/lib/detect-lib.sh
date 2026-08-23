@@ -9,6 +9,7 @@ docs_url_for() {
     react) echo "https://react.dev" ;;
     nextjs) echo "https://nextjs.org/docs" ;;
     vue) echo "https://vuejs.org/guide" ;;
+    astro) echo "https://docs.astro.build" ;;
     inertia) echo "https://inertiajs.com" ;;
     nx) echo "https://nx.dev" ;;
     pnpm) echo "https://pnpm.io" ;;
@@ -102,6 +103,9 @@ detect_frameworks() {
   if [ -f "$target/package.json" ]; then
     if grep -qE '"next"' "$target/package.json" 2>/dev/null; then
       FRAMEWORKS+=("nextjs")
+    fi
+    if grep -qE '"astro"' "$target/package.json" 2>/dev/null; then
+      FRAMEWORKS+=("astro")
     fi
     if grep -qE '"react"' "$target/package.json" 2>/dev/null; then
       FRAMEWORKS+=("react")

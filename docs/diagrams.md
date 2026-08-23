@@ -13,7 +13,7 @@ flowchart LR
     S["workflow/skills/*/SKILL.md<br/>39 skills"]
     A["workflow/agents/*/AGENT.md<br/>3 subagents"]
     C["workflow/commands/*.md<br/>11 slash commands"]
-    R["standards/rules/*.mini.md<br/>34 agent-agnostic rules"]
+    R["standards/rules/*.mini.md<br/>35 agent-agnostic rules"]
     H["bin/hooks/*.sh + hooks.json<br/>2 hook wirings"]
     B["bin/ai-kit-*.sh<br/>doctor · next · status · hygiene …"]
     T["context/templates/<br/>AGENTS.md · CONTEXT.md"]

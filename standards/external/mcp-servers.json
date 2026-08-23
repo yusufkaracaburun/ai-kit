@@ -22,7 +22,7 @@
         "conflict_note": "Adding user-scope when plugin is already installed triggers 'MCP server skipped — same command/URL' in /doctor. Prefer the plugin path; fall back to user-scope only when the plugin marketplace is unavailable."
       },
       "signals": {
-        "frameworks": ["react", "vue", "angular", "nextjs", "nuxt", "svelte", "express", "fastify", "fastapi", "django", "rails", "laravel", "spring"],
+        "frameworks": ["react", "vue", "angular", "nextjs", "nuxt", "svelte", "astro", "express", "fastify", "fastapi", "django", "rails", "laravel", "spring"],
         "dependencies": ["@anthropic-ai/sdk", "openai", "langchain", "@aws-sdk/", "prisma", "drizzle-orm"]
       }
     },
@@ -230,6 +230,21 @@
       },
       "signals": {
         "frameworks": ["shadcn"]
+      }
+    },
+    {
+      "name": "astro-docs",
+      "category": "documentation",
+      "best_for": "Astro projects (an `astro` dependency in package.json) — agent answers islands/content-collections/integration questions from the first-party docs index instead of stale training data",
+      "value": "Official Astro Docs MCP server (withastro/docs-mcp, https://mcp.docs.astro.build/mcp) — same search backend as the docs site, remote streamable HTTP, no API key, nothing runs locally. Fires on the astro framework signal. Complements context7 (which stays the universal fallback for every other dependency): first-party, version-current answers for Astro-specific APIs.",
+      "install_paths": {
+        "preferred": "claude mcp add --transport http astro-docs https://mcp.docs.astro.build/mcp",
+        "fallback_user_scope": "claude mcp add --scope user --transport http astro-docs https://mcp.docs.astro.build/mcp",
+        "detection": "claude mcp list 2>/dev/null | grep -qi astro-docs",
+        "conflict_note": "Skip if an astro-docs MCP entry already exists. For Astro API questions prefer this over context7 (first-party index); context7 remains the channel for all other libraries — do not treat the two as interchangeable for Astro-core questions."
+      },
+      "signals": {
+        "frameworks": ["astro"]
       }
     }
   ]

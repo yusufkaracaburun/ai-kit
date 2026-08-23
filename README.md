@@ -14,7 +14,7 @@ runtime daemon, no network calls, no telemetry.
 | Subagents | 3 | Claude Code |
 | Slash commands | 11 | Claude Code · Cursor |
 | Hooks | 2 | Claude Code |
-| Rules | 34 canonical mini-rules | Cursor · Claude Code (via emitter) |
+| Rules | 35 canonical mini-rules | Cursor · Claude Code (via emitter) |
 | Curated companions | 21 MCP servers · 25 hook recipes · 12 plugins | Recommend-only — never auto-installed |
 | Repo templates | 5 baseline files (`.editorconfig`, `.gitattributes`, `CODEOWNERS`, `renovate.json`, `.envrc`) | Drop-in via `/ai:setup` |
 

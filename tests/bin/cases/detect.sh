@@ -38,6 +38,17 @@ detect_architecture "$AIKIT/tests/fixtures/architecture-fsd"
 assert "fsd feature-folders" '[ "$ARCH_FE" = "feature-folders" ]'
 
 
+echo "=== detect-frameworks ==="
+# section: detect-frameworks
+TMP_FW=$(mktemp -d)
+echo '{"dependencies":{"astro":"^5.0.0","astro-icon":"^1.0.0"}}' > "$TMP_FW/package.json"
+detect_frameworks "$TMP_FW"
+assert "astro detected" '[[ " ${FRAMEWORKS[*]} " == *" astro "* ]]'
+assert "astro exactly once (astro-icon no match)" '[ "$(printf "%s\n" "${FRAMEWORKS[@]}" | grep -cx astro)" = "1" ]'
+assert "astro docs url" '[ "$(docs_url_for astro)" = "https://docs.astro.build" ]'
+rm -rf "$TMP_FW"
+
+
 echo "=== detect-agent-stack ==="
 # section: detect-agent-stack
 detect_agent_stack "$AIKIT/tests/fixtures/brownfield-custom-skills" "$AIKIT"
