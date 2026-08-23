@@ -22,7 +22,16 @@
       "best_for": "Projects with a real test suite where you want hook-enforced red-green-refactor discipline",
       "value": "Real-time TDD enforcement via hooks — pairs with ai-kit's /ai:tdd skill for the workflow + guard for the gate.",
       "signals": {
-        "files": ["jest.config.js", "jest.config.ts", "vitest.config.ts", "vitest.config.js", "phpunit.xml", "phpunit.xml.dist", "pytest.ini", "pyproject.toml"]
+        "files": [
+          "jest.config.js",
+          "jest.config.ts",
+          "vitest.config.ts",
+          "vitest.config.js",
+          "phpunit.xml",
+          "phpunit.xml.dist",
+          "pytest.ini",
+          "pyproject.toml"
+        ]
       }
     },
     {
@@ -60,8 +69,12 @@
       "best_for": "Projects hosted on GitHub — issue/PR/workflow integration",
       "value": "Native gh-aware skills for issue triage, PR review, workflow inspection. Complements ai-kit's /ai:to-issues and /ai:ship.",
       "signals": {
-        "git_remote_host": ["github.com"],
-        "files": [".github/workflows"]
+        "git_remote_host": [
+          "github.com"
+        ],
+        "files": [
+          ".github/workflows"
+        ]
       }
     },
     {
@@ -72,8 +85,13 @@
       "best_for": "Laravel projects",
       "value": "Eloquent / Artisan / Filament / queue idioms baked into the agent. Pairs with ai-kit's stack-agnostic skills.",
       "signals": {
-        "frameworks": ["laravel"],
-        "files": ["artisan", "composer.json"]
+        "frameworks": [
+          "laravel"
+        ],
+        "files": [
+          "artisan",
+          "composer.json"
+        ]
       }
     },
     {
@@ -84,8 +102,19 @@
       "best_for": "Frontend projects needing layout / typography / component design help",
       "value": "Design-aware suggestions, component sketches, layout critique. Complements ai-kit's /ai:prototype and /ai:qa.",
       "signals": {
-        "frameworks": ["react", "vue", "angular", "nextjs", "nuxt", "svelte", "remix", "astro"],
-        "architectures": ["frontend"]
+        "frameworks": [
+          "react",
+          "vue",
+          "angular",
+          "nextjs",
+          "nuxt",
+          "svelte",
+          "remix",
+          "astro"
+        ],
+        "architectures": [
+          "frontend"
+        ]
       }
     },
     {
@@ -96,8 +125,19 @@
       "best_for": "Frontend projects where design research and screenshot reference compounds value",
       "value": "Screenshot database + design research workflows — pairs with frontend-design for the search + critique loop.",
       "signals": {
-        "frameworks": ["react", "vue", "angular", "nextjs", "nuxt", "svelte", "remix", "astro"],
-        "architectures": ["frontend"]
+        "frameworks": [
+          "react",
+          "vue",
+          "angular",
+          "nextjs",
+          "nuxt",
+          "svelte",
+          "remix",
+          "astro"
+        ],
+        "architectures": [
+          "frontend"
+        ]
       }
     },
     {
@@ -108,8 +148,19 @@
       "best_for": "Frontend projects wanting a reasoned design system — priority-ranked, domain-queryable rules for styles, palettes, type pairings, UX guidelines, and charts",
       "value": "Searchable design-rule database with priority-based, --domain-queryable recommendations + shadcn MCP. Goes beyond frontend-design's critique into structured token/pattern output. Single-source — surfaced, never default. Note: upstream count claims drift across its own manifests (styles 50+ vs 67, stacks 10 vs 15); capability verified on disk, specific counts treated as advisory.",
       "signals": {
-        "frameworks": ["react", "vue", "angular", "nextjs", "nuxt", "svelte", "remix", "astro"],
-        "architectures": ["frontend"]
+        "frameworks": [
+          "react",
+          "vue",
+          "angular",
+          "nextjs",
+          "nuxt",
+          "svelte",
+          "remix",
+          "astro"
+        ],
+        "architectures": [
+          "frontend"
+        ]
       }
     },
     {
@@ -120,8 +171,19 @@
       "best_for": "Web apps needing in-browser debugging (console, network, DOM inspection)",
       "value": "Direct Chrome devtools access from Claude — complements ai-kit's /ai:qa for live debugging.",
       "signals": {
-        "frameworks": ["react", "vue", "angular", "nextjs", "nuxt", "svelte", "remix", "astro"],
-        "architectures": ["frontend"]
+        "frameworks": [
+          "react",
+          "vue",
+          "angular",
+          "nextjs",
+          "nuxt",
+          "svelte",
+          "remix",
+          "astro"
+        ],
+        "architectures": [
+          "frontend"
+        ]
       }
     },
     {
@@ -132,7 +194,10 @@
       "best_for": "TypeScript projects — adds language-server-aware code intelligence",
       "value": "Type-aware navigation, refactoring, and diagnostics from the LSP instead of grep-and-guess.",
       "signals": {
-        "files": ["tsconfig.json", "tsconfig.base.json"]
+        "files": [
+          "tsconfig.json",
+          "tsconfig.base.json"
+        ]
       }
     },
     {
@@ -143,8 +208,13 @@
       "best_for": "PHP / Laravel projects — adds language-server-aware code intelligence",
       "value": "Type-aware navigation and refactoring through the PHP LSP — useful in any non-trivial PHP codebase.",
       "signals": {
-        "files": ["composer.json"],
-        "frameworks": ["laravel", "symfony"]
+        "files": [
+          "composer.json"
+        ],
+        "frameworks": [
+          "laravel",
+          "symfony"
+        ]
       }
     },
     {
@@ -171,9 +241,13 @@
       "install": "/plugin install resend@claude-plugins-official",
       "category": "email",
       "best_for": "Projects sending transactional or marketing email through Resend",
-      "value": "Skills for the Resend API, CLI, React Email templates and deliverability \u2014 carries the gotchas (idempotency keys, webhook signature verification, template variable syntax) that otherwise fail silently in production.",
+      "value": "Skills for the Resend API, CLI, React Email templates and deliverability — carries the gotchas (idempotency keys, webhook signature verification, template variable syntax) that otherwise fail silently in production.",
       "signals": {
-        "dependencies": ["resend", "resend/resend-php", "resend-laravel"]
+        "dependencies": [
+          "resend",
+          "resend/resend-php",
+          "resend-laravel"
+        ]
       }
     },
     {
@@ -184,6 +258,19 @@
       "best_for": "Long sessions where token-economy matters — ultra-compressed communication + subagent-output compression",
       "value": "~60-75% token savings on chatty surfaces. Complementary to ai-kit's verbose skills.",
       "universal": true
+    },
+    {
+      "name": "diagram-design",
+      "marketplace": "diagram-design",
+      "install": "/plugin install diagram-design@diagram-design",
+      "category": "diagrams",
+      "best_for": "Projects that already draw diagrams in markdown (Mermaid blocks present) and want publication-quality exports — blog posts, decks, client docs",
+      "value": "39 editorial diagram types as self-contained HTML+SVG, brand-matched from your site; redraws existing Mermaid/draw.io sources at a chosen format, size, and detail level. Note: output is standalone HTML — GitHub does not render it inline, so keep Mermaid as the in-repo source of truth and use this as the renderer for exported visuals. Marketplace add first: /plugin marketplace add cathrynlavery/diagram-design.",
+      "signals": {
+        "content": [
+          "```mermaid"
+        ]
+      }
     }
   ]
 }

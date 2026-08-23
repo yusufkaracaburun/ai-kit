@@ -151,6 +151,23 @@ assert "deps: exact name does not match on substring" \
   'echo "$JSON_DEP_NEG" | python3 -c "import json,sys; d=json.load(sys.stdin); assert not any(\"dep:redis\" in r[\"reason\"] for r in d[\"recommendations\"])"'
 rm -rf "$DEP_NEG"
 
+# content signal: a literal substring in project markdown scores its entry.
+# Ships with diagram-design gated on ```mermaid — a repo that already draws
+# diagrams is the only honest signal for recommending a diagram renderer.
+CONTENT_TMP=$(mktemp -d)
+printf '# docs\n\n```mermaid\nflowchart TD\n  A --> B\n```\n' > "$CONTENT_TMP/README.md"
+JSON_CONTENT="$("$AIKIT/bin/recommend-tools.sh" "$CONTENT_TMP" --json --kind plugin)"
+assert "content: mermaid block surfaces diagram-design plugin" \
+  'echo "$JSON_CONTENT" | python3 -c "import json,sys; d=json.load(sys.stdin); r=[x for x in d[\"recommendations\"] if x[\"name\"]==\"diagram-design\"][0]; assert \"content:\" in r[\"reason\"], r[\"reason\"]"'
+rm -rf "$CONTENT_TMP"
+
+NO_CONTENT_TMP=$(mktemp -d)
+printf '# plain readme, no diagrams\n' > "$NO_CONTENT_TMP/README.md"
+JSON_NO_CONTENT="$("$AIKIT/bin/recommend-tools.sh" "$NO_CONTENT_TMP" --json --kind plugin)"
+assert "content: without mermaid block diagram-design stays absent" \
+  'echo "$JSON_NO_CONTENT" | python3 -c "import json,sys; d=json.load(sys.stdin); assert not any(r[\"name\"]==\"diagram-design\" for r in d[\"recommendations\"])"'
+rm -rf "$NO_CONTENT_TMP"
+
 EMPTY_TMP=$(mktemp -d)
 JSON_EMPTY="$("$AIKIT/bin/recommend-tools.sh" "$EMPTY_TMP" --json)"
 assert "recommend-tools empty stack: universal hooks still surfaced" 'echo "$JSON_EMPTY" | grep -q "\"name\": \"block-lockfile-edits\""'

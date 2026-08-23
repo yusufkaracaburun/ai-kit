@@ -307,6 +307,53 @@ standards/rules/external/laravel-php-83.mini.md · category=rule · added 2026-0
   VERDICT:          ADD (already landed, retroactively approved)
 ```
 
+### `diagram-design` — added 2026-08-23 (plugins.json)
+
+`/should-i-use https://github.com/cathrynlavery/diagram-design` 2026-08-23.
+First verdict was Ignore (person-scope, no repo signal); reversed same session
+on owner decision after the signal gap closed — the scorer gained a `content`
+signal type, and "repo markdown already contains ` ```mermaid ` blocks" is an
+honest, deterministic project-scope signal for a diagram renderer. Entry
+discloses the GitHub caveat: output is standalone HTML+SVG that GitHub does
+not render inline — Mermaid stays the in-repo source of truth; this is the
+publication-quality export path (it redraws Mermaid/draw.io sources).
+
+```
+diagram-design · category=diagrams · added 2026-08-23
+  MARKETING-PARITY: pass (README claims 39 types; 39 distinct static types on
+                    disk in skills/diagram-design/assets/ — 149 example HTML
+                    files incl. dark/full variants + animated/terminal/import
+                    extras; per-type reference docs match 1:1)
+  BENCHMARK:        n/a (no numeric performance claims; "60 seconds" is
+                    marketing phrasing, not a benchmark)
+  MARKETING-AUDIT:  pass (v2.x changelog claims match shipped assets; install
+                    paths for all four hosts verified present in repo)
+  LICENSE:          MIT + bundled third-party icons properly carved out in
+                    THIRD_PARTY_LICENSES.md (Tabler MIT, Simple Icons CC0,
+                    log-z/logos MIT, Devicon MIT) — safe
+  MATURITY:         pass (25.8k★, active — pushed 2026-08-21; marketplace
+                    plugin for Claude Code/Codex/Factory Droid/Pi; no build
+                    step, no runtime deps; skill scripts are stdlib-only)
+  DATA-LOCALITY:    local — pure Markdown skill + static HTML output; only
+                    external touch is Google Fonts in generated pages and the
+                    user-initiated brand-onboarding fetch of a URL the user
+                    names (gated behind an explicit question)
+  PROVENANCE:       648c2a597839301e06df1e7434a08bde9f42eed3
+  SECURITY-SCAN:    pass — skillspector static-only reported risk 100/CRITICAL,
+                    160 findings; ALL sampled HIGHs are false positives:
+                    "IGNORE ALL PREVIOUS INSTRUCTIONS" hits are the repo's OWN
+                    adversarial import-sanitization test fixtures
+                    (scripts/fixtures/sample-adversarial.mmd + verify drivers);
+                    "access token" = OAuth sequence example labels; "NO
+                    WARNING" = user-journey sentiment copy; env/subprocess
+                    hits = repo CI verify scripts, not the skill (the skill's
+                    three Python scripts are stdlib-only, no subprocess, no
+                    network). Second data point after copywriter (2026-08-19)
+                    that static skillspector is noise on prose/SVG-heavy
+                    skills — reinforces the #111 re-scope.
+  VERDICT:          ADD (signal-gated: content:```mermaid)
+```
+
 ## Relationship to `/should-i-use`
 
 `/should-i-use` is the *runtime gate* — it evaluates one candidate against

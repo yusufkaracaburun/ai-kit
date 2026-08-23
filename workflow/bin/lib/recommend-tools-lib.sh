@@ -74,6 +74,30 @@ def file_exists(rel):
     return p.exists()
 
 
+# Corpus for the "content" signal: literal substring over project markdown.
+# Bounded walk (skip dependency dirs, first 200 files, 256KB per file) so a
+# huge repo cannot stall the scorer; built once, only when an entry asks.
+_SKIP_DIRS = {"node_modules", "vendor", ".git", "dist", "build", ".next"}
+_md_corpus = None
+
+
+def content_match(pattern):
+    global _md_corpus
+    if _md_corpus is None:
+        texts = []
+        for p in sorted(target.rglob("*.md")):
+            if any(part in _SKIP_DIRS for part in p.parts):
+                continue
+            try:
+                texts.append(p.read_text(errors="ignore")[:262144])
+            except OSError:
+                continue
+            if len(texts) >= 200:
+                break
+        _md_corpus = "\n".join(texts)
+    return pattern in _md_corpus
+
+
 def score_entry(entry, kind):
     name = entry.get("name", "")
     category = entry.get("category", "")
@@ -143,6 +167,12 @@ def score_entry(entry, kind):
         if os.environ.get(env_var):
             score += 2
             reasons.append(f"env:{env_var}")
+            break
+
+    for pat in signals.get("content", []) or []:
+        if content_match(pat):
+            score += 2
+            reasons.append(f"content:{pat}")
             break
 
     return name, score, category, kind, "; ".join(reasons) if reasons else "no signals"
