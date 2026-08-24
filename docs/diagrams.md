@@ -10,58 +10,40 @@ second shows what happens *during* a turn. For the prose version see
 ```mermaid
 flowchart LR
   subgraph SRC["Source layer — ai-kit repo (single source of truth)"]
-    S["workflow/skills/*/SKILL.md<br/>39 skills"]
-    A["workflow/agents/*/AGENT.md<br/>3 subagents"]
-    C["workflow/commands/*.md<br/>11 slash commands"]
-    R["standards/rules/*.mini.md<br/>35 agent-agnostic rules"]
+    SA["workflow/skills · agents<br/>39 skills + 3 subagents"]
+    CB["workflow/commands + bin/ai-kit-*.sh<br/>11 slash commands + CLI"]
     H["bin/hooks/*.sh + hooks.json<br/>2 hook wirings"]
-    B["bin/ai-kit-*.sh<br/>doctor · next · status · hygiene …"]
-    T["context/templates/<br/>AGENTS.md · CONTEXT.md"]
+    R["standards/rules/*.mini.md<br/>35 agent-agnostic rules"]
   end
 
   subgraph DIST["Distribution layer"]
-    IG["install-global.sh<br/>symlink, machine-wide"]
-    BP["bootstrap-project.sh<br/>symlink, per-project"]
-    PL["workflow/.claude-plugin/plugin.json<br/>+ marketplace repo"]
+    IG["install-global.sh<br/>machine-wide symlink"]
+    PL["workflow/.claude-plugin/plugin.json<br/>+ marketplace repo — primary route"]
+    BP["bootstrap-project.sh<br/>per-project symlink + templates"]
     ER["bin/emit-rules.sh<br/>EMITTER: rules to host format"]
-    EA["bin/emit-agents.sh<br/>EMITTER: SKILL.md sections into AGENT.md"]
   end
 
-  subgraph CC["Host: Claude Code"]
-    CCS["~/.claude/skills/ · proj/.claude/skills/"]
-    CCA["~/.claude/agents/"]
-    CCC["~/.claude/commands/ → /ai:doctor …"]
-    CCH["proj/.claude/settings.json<br/>PreToolUse + PostToolUse"]
-    CCR["rules as skill-text"]
+  subgraph HOSTS["Host surfaces"]
+    CC["Claude Code<br/>skills · agents · commands · settings"]
+    CU["Cursor<br/>skills · rules (*.mdc)"]
+    HA["Host-agnostic<br/>AGENTS.md · CONTEXT.md · marker"]
   end
 
-  subgraph CU["Host: Cursor"]
-    CUS["~/.cursor/skills/ · proj/.cursor/skills/"]
-    CUR["proj/.cursor/rules/*.mdc"]
-    CUN["no subagents<br/>skill falls back to inline checklist"]
-  end
-
-  subgraph HA["Host-agnostic"]
-    AG["~/.agents/skills/"]
-    PRJ["proj/AGENTS.md · proj/CONTEXT.md<br/>proj/.ai-kit-setup marker"]
-  end
-
-  S --> IG & BP & PL
-  A --> IG & PL
-  A -. "shared content, CI checks drift" .- EA
-  S -. EA
-  C --> IG & PL
-  R --> ER
+  SA --> IG & BP & PL
+  CB --> IG & PL
   H --> PL & BP
-  T --> BP
+  R --> ER
 
-  IG --> CCS & CCA & CCC & CUS & AG
-  BP --> CCS & CCH & CUS & PRJ
-  PL --> CCS & CCA & CCC & CCH
-  ER --> CUR & CCR
-  A -.-> CUN
-  B --- C
+  IG --> CC & CU
+  BP --> CC & CU & HA
+  PL --> CC
+  ER --> CU
 ```
+
+This is the compressed view — three routes, three host groups. The full
+per-surface wiring (which primitive lands in which directory, and the
+`emit-agents.sh` skill→agent emitter) is the primitives table in
+[architecture.md](architecture.md).
 
 Two rules carry the whole tree: **symlinks, not copies** — a `git pull` in the
 source layer updates every host at once — and **emitters** for anything that
