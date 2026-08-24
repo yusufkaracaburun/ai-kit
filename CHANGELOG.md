@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.59.1 — 2026-08-24
+
+### Changed
+
+- `tailwind.mini.md` gains an "Enforce it — a rule nobody counts drifts"
+  section: grep the violations, commit today's count as a baseline, fail when
+  the number rises. Legacy stays, new drift is blocked, so enforcement can
+  start without a migration. Wire it into the project's `validate` chain **and**
+  pre-commit **and** CI — two of three makes it advisory. Names the linter blind
+  spot: `text-[#fff]` gets flagged, `text-emerald-600` does not, and the
+  valid-but-untokenised class is the drift that accumulates.
+
+- `standards/external/plugins-excluded.json`: `ui-ux-audit-command` recorded as
+  **Ignore**. A pasted four-phase UI/UX-audit command (no upstream repo, no
+  licence); three of its four phases duplicate `tailwind.mini.md`,
+  `a11y.mini.md`, `/ai:qa`, `/ai:audit-architecture` and `prototype/UI.md`, and
+  its Fase 2 wants a folder for gitignored licensed material. Measured against
+  the intended target (emeq-app, 448 `.tsx`, 84 routes, Tailwind v4 `@theme` +
+  142 custom properties): 2 hardcoded palette classes in 1 file, 0 arbitrary
+  values — and its Fase 1 already exists there and stronger (`colors:check`,
+  `token:freeze`, `ds:check` G0–G8, `parity:seed-design`, chained in
+  `pnpm validate` behind husky and CI). The ratchet mechanic was adopted as a
+  pattern instead, which is the `tailwind.mini.md` change above.
+
 ## 1.59.0 — 2026-08-24
 
 ### Added
