@@ -1,5 +1,38 @@
 # Changelog
 
+## 1.59.0 — 2026-08-24
+
+### Added
+
+- Behavioural eval layer via first-party `claude plugin eval` (spike #137,
+  ADR-0002 revisited):
+  - New `workflow/evals/` suite shipping inside the plugin — 3 cases
+    (`grill-me-auth-rewrite`, `phase-flip-to-production` with scaffold,
+    `copywriter-dutch-tells`), 14 graders. Fixture prompts reused from
+    `tests/eval/prompts/`; each fixture-`expects` line became one grader
+    (free regex/`tool_used` where checkable, haiku llm-judge for nuance).
+  - Measured across 5 invocations: ≈ $2.5 token value per full suite run
+    ($0 cash on a Max subscription), case-score spread 0.11–0.40 across
+    identical invocations, ablation delta +0.29…+0.52 on every case,
+    skill-fired indicator 24/24.
+  - ADR-0002 "Revisited 2026-08-24": trigger half met — cheap yes,
+    deterministic-enough-for-a-hard-gate no. `claude plugin eval` becomes
+    the **advisory behavioural pass at release time**; structural checks
+    remain the only hard CI gate. Re-evaluate hard-gating at GA.
+  - The layer paid for itself on first contact: three real skill findings
+    filed — copywriter §-citation drift (#138), a rule-of-three phrase
+    surviving a rewrite (#138), and phase falling back to hand-editing the
+    marker when `CLAUDE_PLUGIN_ROOT` doesn't resolve (#139).
+  - `workflow/evals/results/` gitignored (mirrors `tests/eval/results/`).
+
+### Ledger
+
+- `autoresearch-universal` (balukosuri repo, Karpathy-pattern prompt-mutation
+  loop) recorded as Ignore in `standards/external/plugins-excluded.json`:
+  licence-void, person/one-off scope, Goodhart risk on binary criteria,
+  autonomous mutation of shipped skills vs. review culture. Its measurement
+  want routed into the eval layer above instead.
+
 ## 1.58.0 — 2026-08-24
 
 ### Added
