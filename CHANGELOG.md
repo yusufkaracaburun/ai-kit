@@ -25,6 +25,14 @@
     marker when `CLAUDE_PLUGIN_ROOT` doesn't resolve (#139).
   - `workflow/evals/results/` gitignored (mirrors `tests/eval/results/`).
 
+### Changed
+
+- `docs/diagrams.md`: wiring diagram compressed to the editorial 11-node view
+  (three routes, three host groups, plugin route marked primary) — the cuts
+  proven by the diagram-design smoke test, back-ported to the Mermaid source.
+  Count-guard patterns intact; full per-surface wiring stays in
+  `architecture.md`.
+
 ### Ledger
 
 - `autoresearch-universal` (balukosuri repo, Karpathy-pattern prompt-mutation
