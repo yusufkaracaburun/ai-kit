@@ -28,6 +28,28 @@ custom CSS is the escape hatch you barely touch.
   not raw scale positions (`bg-blue-500`) — unless the brand really is
   "Tailwind blue 500".
 
+## Enforce it — a rule nobody counts drifts
+
+The rules above are greppable. Measure them instead of trusting review: add a
+**ratchet** — a script that counts violations, compares against a committed
+baseline, and fails when the number *rises*. The ceiling only ever falls.
+
+```bash
+# raw palette classes that should be semantic tokens (extend the colour list)
+grep -rhoE '\b(text|bg|border|ring)-(slate|gray|zinc|red|amber|emerald|blue|rose)-[0-9]{2,3}\b' src \
+  --include='*.tsx' | wc -l
+```
+
+- Commit today's count as the baseline. Legacy stays, new drift is blocked —
+  no big-bang migration needed to start enforcing.
+- Wire it into the project's `validate` chain **and** the pre-commit hook
+  **and** CI. Two out of three makes it advisory.
+- Same shape for the siblings worth counting: arbitrary values, `style={{}}`
+  occurrences, tokens defined in `@theme` with zero uses in markup.
+- Don't lean on the Tailwind linter for this. It flags `text-[#fff]` and misses
+  `text-emerald-600` — and the valid-but-untokenised class is the drift that
+  actually accumulates.
+
 ## Component patterns
 
 - Repeated utility strings ⇒ extract a component, not an
