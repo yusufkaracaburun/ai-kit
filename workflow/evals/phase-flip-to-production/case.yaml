@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: phase-flip-to-production
+tags: [tool-driven]
+max_turns: 8
+allowed_tools: [Bash, Read, Skill]
+context:
+  scaffold_script: scaffold.sh

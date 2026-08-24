@@ -54,3 +54,13 @@ The harness:
 So the effect is measurable only by reversing this ADR, and the evidence for the rule's *direction* already exists externally (ponytail's controlled study of the identical ladder). Reproducing it on ai-kit's phrasing spends real money to re-derive a known result and still yields no CI regression gate (a one-time number can't run in CI). Declined — `pre-write-discipline`'s value rests on that external evidence plus review, not a native benchmark.
 
 Revisit under the same trigger as LLM-judge: when agent-run A/B benchmarking becomes cheap and deterministic enough to gate CI. If a manual spot-check is ever wanted before then, it fits the existing manual-rubric layer (a fixture + `max_lines` golden) on the honour system, like every other `eval-skill.sh` rating — no new harness.
+
+**2026-08-24 (#137) — `claude plugin eval` measured against the trigger. Half met: adopted as advisory layer, not a gate.**
+
+First-party `claude plugin eval` (CLI 2.1.241, early access) was run against a 3-case suite in `workflow/evals/` (grill-me, phase, copywriter — fixtures reused from `tests/eval/prompts/`, one grader per fixture-`expects` line). Measured, five suite invocations (plus a zero-cost validation smoke run):
+
+- **Cheap: yes.** ≈ $2.5 token value per full suite invocation (3 cases × 3 runs × with/without ablation, sonnet agent + haiku judge); $0 cash on a Max subscription. The cost objection this ADR was built on no longer holds at release-time frequency.
+- **Deterministic enough for a hard gate: no.** Free graders (regex/`tool_used`) are fully deterministic given the output, and judge votes are near-unanimous — but agent-output variance puts case-score spread at 0.11–0.40 across identical invocations. Default `--threshold 1.0` never passes; a hard CI gate would flake. Early-access gating also blocks headless CI today.
+- **Discriminates: yes.** Ablation delta +0.29…+0.52 on every case (skill-fired 24/24), and the first runs surfaced three real findings the deterministic layer cannot see (copywriter §-citation drift, a rule-of-three miss, phase's `CLAUDE_PLUGIN_ROOT` env-dependence).
+
+Decision: the two-layer model stays — structural checks remain the only hard CI gate. `claude plugin eval` replaces the honour-system half of the manual layer as an **advisory behavioural pass at release time**: run the suite, read the report + ablation delta, treat regressions as review input. Hard-gating (per-case calibrated thresholds) is re-evaluated when the feature reaches GA. Full numbers: #137.

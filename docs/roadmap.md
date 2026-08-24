@@ -150,6 +150,21 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P3 — backlog
 
+- **#139** `bug` — `phase` hand-edits the marker when `CLAUDE_PLUGIN_ROOT` doesn't
+  resolve, losing the `lifecycle: old → new` transition line (0/12 eval runs
+  surfaced it). Found by the #137 eval suite. Fix: fallback contract in SKILL.md.
+- **#138** `bug` — `copywriter` flags Dutch tells but cites the §-numbers its own
+  SKILL.md defines in only 1-2/9 runs; one run kept a rule-of-three phrase in the
+  rewrite. Found by the #137 eval suite. Fix: explicit §-citation output contract.
+- **#137** `enhancement` — spike: `claude plugin eval` as ai-kit's behavioural
+  eval layer — the ADR-0002 revisit-trigger check. Born from the autoresearch
+  should-i-use (Ignore, logged in `plugins-excluded.json`): the mutation loop was
+  rejected, but the *measurement* want is real and ADR-0002's trigger ("agent-run
+  A/B cheap and deterministic enough to gate CI") now has a first-party candidate.
+  Slice: suite on 2-3 fixtures, record cost + determinism + CI viability, then
+  revise ADR-0002 or log "trigger not met" with numbers. Human-driven improvement,
+  eval as regression gate — no autonomous skill mutation, no text vendoring
+  (licence-void source).
 - **#128** `bug` — `autonomous` in `drain` mode re-picks an issue it just shipped.
   Step 7 opens a PR and never merges, but nothing the picker can see changes: the
   issue keeps `ready-for-agent` until the PR merges, so the next iteration picks it

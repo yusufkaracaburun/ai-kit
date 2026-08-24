@@ -4,6 +4,7 @@
 # Eval results are runtime output, not committed
 tests/eval/results/*
 !tests/eval/results/.gitkeep
+workflow/evals/results/
 
 # Local environment files
 .env
