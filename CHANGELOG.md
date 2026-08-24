@@ -1,5 +1,39 @@
 # Changelog
 
+## 1.58.0 — 2026-08-24
+
+### Added
+
+- Astro stack support, end to end (an Astro site is planned — emeq-web):
+  - `detect-lib.sh` gains the `astro` framework signal (`"astro"` in
+    `package.json`, same quoted-key pattern as `next`/`react`, so
+    `astro-icon` does not false-positive) plus `docs.astro.build` in
+    `docs_url_for`.
+  - Catalog: `astro-docs` MCP entry (official `withastro/docs-mcp`,
+    remote streamable HTTP, no API key, nothing runs locally) gated on
+    the astro signal; `astro` also joins context7's framework signals as
+    the universal fallback docs channel.
+  - New rule `astro-conventions.mini.md` (canonical rules 34 → 35):
+    static-first islands discipline (zero-JS budget, cheapest `client:*`
+    directive that works), typed content collections, and an SEO baseline
+    — `site` set, canonical per page, `@astrojs/sitemap`, `astro:assets`
+    images, prerender-by-default. Fires via recommend-rules on astro
+    repos.
+  - Tests: new `detect-frameworks` section (astro detected, `astro-icon`
+    no match, docs URL) and rule-count guards bumped.
+  - Deliberately deferred: a `code-audit-astro` extension waits for the
+    first real Astro repo to calibrate heuristics against.
+
+### Changed
+
+- `plugins-excluded.json`: `skills-cli` (vercel-labs/skills, the
+  `npx skills` installer) ledgered as Ignore — duplicates the plugin
+  marketplace distribution channel (this repo's own leftover caveman
+  npx-skills install shadowed the caveman plugin), has no per-session
+  compounding value, and publishing ai-kit itself through it would ship
+  broken halves. Keeps its documented role as direct-install fallback
+  for non-marketplace SKILL.md packs.
+
 ## 1.57.0 — 2026-08-23
 
 ### Added
