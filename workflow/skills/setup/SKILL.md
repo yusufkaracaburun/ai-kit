@@ -248,6 +248,20 @@ the already-handled list:
    > [1] Yes, install + activate (default) → `bin/apply-caveman.sh`
    > [2] No thanks → record skipped, never re-prompt
 
+   For ponytail:
+
+   > Optional: install + activate `ponytail` (machine-wide)?
+   > A YAGNI ladder before the agent writes code — reuse what exists, stdlib and
+   > native platform features before dependencies, one line before fifty.
+   > Security, validation, error handling and accessibility are never cut.
+   > It injects at `SessionStart` **and `SubagentStart`**, so subagents that write
+   > code inherit it too — including reviewer and planner surfaces, where the
+   > "shortest diff" bias is not always what you want.
+   > **This changes how the agent writes code in every project on this machine,
+   > not just this one.**
+   > [1] Yes, install + activate (default) → `bin/apply-ponytail.sh`
+   > [2] No thanks → record skipped, never re-prompt
+
 5. **On Yes:** run the entry's `install.applier`
    (`$AI_KIT_ROOT/bin/apply-caveman.sh`). It adds the marketplace, installs the
    plugin via the official `claude plugin` CLI, writes caveman's own

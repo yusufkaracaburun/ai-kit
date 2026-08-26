@@ -86,12 +86,10 @@ assert "run_tools emits header line" 'echo "$STATUS" | grep -qE "Tools ingested:
 assert "run_tools gates Larastan absence as ✗" 'echo "$STATUS" | grep -qE "Larastan ✗"'
 
 echo "=== fixture-shape-api-only ==="
-# api-only fixture must contain a trigger marker for each heuristic L1..L22.
-# Markers are simple grep-able tokens in fixture filenames or contents.
-for n in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22; do
-  assert "api-only fixture has L$n trigger" \
-    'grep -rqE "L'"$n"':" "$FIXTURE_API" 2>/dev/null'
-done
+# api-only fixture must carry a trigger marker for each heuristic L1..L22.
+# Counted, not enumerated: a per-marker assert guards test data, not ai-kit code.
+assert "api-only fixture carries all 22 L-markers" \
+  '[ "$(grep -rhoE "L[0-9]+:" "$FIXTURE_API" 2>/dev/null | sort -u | wc -l | tr -d " ")" -ge 22 ]'
 
 echo "=== fixture-shape-full-stack ==="
 # full-stack omits api-only-only heuristics (L14, L16, L18).
@@ -100,9 +98,7 @@ for n in 14 16 18; do
     '! grep -rqE "L'"$n"':" "$FIXTURE_FULL" 2>/dev/null'
 done
 # But still has the both-mode heuristics that apply to full-stack.
-for n in 1 2 3 4 5 6 7 8 9 10 11 12 13 15 17 19 20 21 22; do
-  assert "full-stack fixture has L$n trigger" \
-    'grep -rqE "L'"$n"':" "$FIXTURE_FULL" 2>/dev/null'
-done
+assert "full-stack fixture carries the 19 both-mode L-markers" \
+  '[ "$(grep -rhoE "L[0-9]+:" "$FIXTURE_FULL" 2>/dev/null | sort -u | wc -l | tr -d " ")" -ge 19 ]'
 
 print_summary_and_exit

@@ -260,6 +260,15 @@
       "universal": true
     },
     {
+      "name": "ponytail",
+      "marketplace": "ponytail",
+      "install": "/plugin install ponytail@ponytail",
+      "category": "efficiency",
+      "best_for": "Any project where the agent over-builds — YAGNI ladder enforced before code is written",
+      "value": "~54% less code on over-build-prone tasks (upstream benchmark). Orthogonal to caveman: caveman compresses prose, ponytail constrains code. Safety, validation and error handling are never cut.",
+      "universal": true
+    },
+    {
       "name": "diagram-design",
       "marketplace": "diagram-design",
       "install": "/plugin install diagram-design@diagram-design",

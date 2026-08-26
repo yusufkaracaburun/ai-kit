@@ -46,7 +46,7 @@ The harness:
 
 **2026-07-26 (#119) — measuring the always-on `pre-write-discipline` rule. Reaffirmed: no.**
 
-`ponytail` (DietrichGebert, Ignored — see `standards/external/plugins-excluded.json`) published an agentic benchmark showing the *same* discipline (an identical YAGNI ladder, safety guards preserved) cuts ~54% LOC on a real repo. That raised the question: should ai-kit measure its own `pre-write-discipline.mini.md` the same way? Two findings say no.
+`ponytail` (DietrichGebert — Ignored at the time; **verdict reversed 2026-08-26**, now a wired companion, see `standards/external/plugins-excluded.json` → `reversed[]` and `VETTING.md`. The reversal does not disturb this ADR's conclusion: the reason to decline the benchmark was cost and non-determinism, not the tool's merit) published an agentic benchmark showing the *same* discipline (an identical YAGNI ladder, safety guards preserved) cuts ~54% LOC on a real repo. That raised the question: should ai-kit measure its own `pre-write-discipline.mini.md` the same way? Two findings say no.
 
 - **The deterministic harness cannot measure a behavioural rule's effect.** `eval-golden.sh` scores a response a human pastes in; it never runs the model. A rule-scoped golden with a `max_lines` rubric can document *one exemplar* of minimal output, but it cannot A/B rule-on vs rule-off, so it proves nothing about the rule's causal effect. Measuring that effect requires running the agent both ways — an LLM in the loop.
 - **Running the agent A/B is exactly what this ADR declined**, one step worse than LLM-judge: real API cost *and* non-determinism *and* no CI gate. None of the three "Revisit when" triggers is met.

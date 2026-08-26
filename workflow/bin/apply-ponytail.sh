@@ -57,6 +57,13 @@ command -v python3 >/dev/null 2>&1 || {
   exit 1
 }
 
+# Validate before the marketplace add and install run, not after: an invalid
+# --mode used to install the plugin and only then exit 2.
+case "$MODE" in
+  off | lite | full | ultra) ;;
+  *) echo "error: invalid mode '$MODE' (expected: off, lite, full, ultra)" >&2; exit 2 ;;
+esac
+
 # --- state -------------------------------------------------------------------
 read_state() {
   python3 - "$SETTINGS" "$PLUGIN" <<'PY'
@@ -90,13 +97,16 @@ HAS_MARKETPLACE="$(sed -n 's/^marketplace=//p' <<<"$STATE")"
 IS_INSTALLED="$(sed -n 's/^installed=//p' <<<"$STATE")"
 
 CURRENT_MODE="(unset — falls back to ponytail's built-in 'full')"
-[ -f "$CONFIG" ] && CURRENT_MODE="$(python3 -c "
-import json,sys
+# Path goes through argv, never interpolated into the source: a quote in $HOME
+# or $XDG_CONFIG_HOME would otherwise break out of the string literal.
+[ -f "$CONFIG" ] && CURRENT_MODE="$(python3 - "$CONFIG" <<'PY'
+import json, sys
 try:
-    print(json.load(open('$CONFIG')).get('defaultMode') or '(unset)')
+    print(json.load(open(sys.argv[1])).get("defaultMode") or "(unset)")
 except Exception:
-    print('(unreadable)')
-")"
+    print("(unreadable)")
+PY
+)"
 
 # --- activate ----------------------------------------------------------------
 write_mode() {
@@ -116,9 +126,17 @@ try:
     with open(path) as f:
         data = json.load(f)
     if not isinstance(data, dict):
-        data = {}
-except (FileNotFoundError, json.JSONDecodeError):
+        raise ValueError("top-level JSON is not an object")
+except FileNotFoundError:
     data = {}
+except (json.JSONDecodeError, ValueError) as exc:
+    # Refuse rather than silently reset: this file is ponytail's, and it may
+    # carry keys we do not own (hideStatus, quietStartup). Same posture as the
+    # hard refuse on a malformed ~/.claude/settings.json.
+    print(f"error: {path} is not valid JSON ({exc}) — refusing to overwrite it",
+          file=sys.stderr)
+    print("       Fix or delete the file, then re-run.", file=sys.stderr)
+    sys.exit(1)
 if data.get("defaultMode") == mode:
     print(f"  defaultMode already {mode!r}; config unchanged")
     sys.exit(0)

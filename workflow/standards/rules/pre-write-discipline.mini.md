@@ -6,7 +6,7 @@ applies_to:
   languages: []
   architectures: []
 universal: true
-default_mode: on-demand
+default_mode: always-on
 weight: high
 repo_age_min_years: 0
 ---
@@ -61,10 +61,14 @@ This biases toward caution over speed. That is deliberate: an unrequested abstra
 - `context-discipline.mini.md` — the same discipline applied to *reading* rather than writing.
 - `pragmatic.nano.md` — reversible choices, thin slices, one authoritative source.
 - **`ponytail`** (companion, `standards/external/companions.json`) — the enforced version of
-  this rule. It injects a YAGNI ladder at `SessionStart` and `SubagentStart`, which a rule file
-  cannot do: Claude Code has no rules primitive, so this file is emitted to `.claude/rules/`
-  and read on demand. That is why this rule is `on-demand` rather than `always-on` — ponytail
-  owns the always-on slot, and this file stays the readable statement of *why*. Projects
-  without ponytail installed still get the discipline by reading this rule.
+  this rule **on Claude Code**, where `always-on` buys nothing: Claude Code has no rules
+  primitive, so `bin/lib/emitters/claude-code.sh` writes this file to `.claude/rules/` to be
+  read on demand. ponytail injects a YAGNI ladder at `SessionStart` and `SubagentStart`, which
+  a rule file there cannot do.
+
+  This rule stays `always-on` regardless, because on **Cursor** the mode is load-bearing:
+  `bin/lib/emitters/cursor.sh` maps `always-on` to `alwaysApply: true` in the emitted `.mdc`,
+  and ai-kit's ponytail wiring is Claude-Code-only. Dropping the mode would strip the
+  discipline from Cursor projects with nothing replacing it.
 
 Adapted from the four rules in [andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills), derived from Andrej Karpathy's observations on LLM coding pitfalls.

@@ -424,3 +424,60 @@ Two follow-ups this audit produced:
   positives on a prose-heavy Markdown skill, matching example text and licence
   boilerplate. Wiring it as a CI gate over ai-kit's own Markdown skills would
   produce noise, not signal. Re-scope #111 before building on it.
+
+### `ponytail` — added 2026-08-26 (companions.json + plugins.json)
+
+`/ai:should-i-use https://github.com/DietrichGebert/ponytail` 2026-08-26.
+Second verdict. The first (2026-07-25) was **Ignore**, on the ground that it
+duplicated ai-kit's own always-on `pre-write-discipline.mini.md`. Re-checking
+that ground against the code overturned it: `workflow/.claude-plugin/plugin.json`
+declares no `hooks` key, and `bin/lib/emitters/claude-code.sh` writes rules to
+`.claude/rules/<name>.md` — "read by agent on demand" in its own header — so on
+Claude Code the `always-on` label has no delivery mechanism. There was no double
+injection to protect. Full reversal record with the counter-evidence:
+`plugins-excluded.json` → `reversed[]`.
+
+Scope correction found in review: the label **is** load-bearing on Cursor —
+`bin/lib/emitters/cursor.sh` maps `always-on` to `alwaysApply: true`. The rule
+therefore stays `always-on`; ponytail covers the Claude Code side only, and the
+two are complementary rather than a hand-off.
+
+```
+ponytail · category=code-discipline · added 2026-08-26
+  MARKETING-PARITY: pass (README's ladder matches skills/ponytail/SKILL.md; the
+                    three declared hooks all call getPonytailInstructions(), so
+                    the injection claim holds. UserPromptSubmit injects the full
+                    body only in the Qoder branch and on explicit /ponytail
+                    commands — not every prompt on Claude Code)
+  BENCHMARK:        pass (benchmarks/promptfooconfig.yaml + benchmarks/agentic/
+                    checked in, baselines named, reproducible via promptfoo.
+                    Headline -54% LOC / 100% safe. Author revised the earlier
+                    80-94% single-shot figure DOWN after upstream issue #126
+                    called it a conversational-baseline artifact — corrected
+                    against interest, which raises rather than lowers trust)
+  MARKETING-AUDIT:  pass (spot-checked: config path, defaultMode key and
+                    RUNTIME_MODES=off|lite|full|ultra all match
+                    hooks/ponytail-config.js; no standalone hook installer, so
+                    the caveman double-fire hazard does not apply here)
+  LICENSE:          MIT — safe, no carve-outs (contrast caveman: MIT +
+                    BSL-1.1 on Engine dirs, now tagged non_oss in its entry)
+  MATURITY:         pass (hook floor: single-purpose, local, no network,
+                    <100ms typical; 112k stars, 63 contributors, 15 releases,
+                    active 2026-08-07)
+  DATA-LOCALITY:    local (config in ${XDG_CONFIG_HOME:-~/.config}/ponytail/;
+                    no telemetry, no network calls in hooks/*.js)
+  PROVENANCE:       2ed6c52c9d7e5e56942508591085fd45dea277d3
+                    CAVEAT: the SHA is recorded, not enforced — `claude plugin
+                    install` takes marketplace HEAD (4.9.0 locally). Same
+                    exposure as every other plugin row; not specific to this one
+  SECURITY-SCAN:    pass (skillspector static, --no-llm, whole repo: risk 100 /
+                    DO_NOT_INSTALL / 27 HIGH — triaged and rejected. ZERO
+                    findings in the shipped runtime (hooks/, skills/, bin/);
+                    every HIGH sits in benchmarks/, tests/, README.md or docs/.
+                    Sampled: "Agent Snooping" on the README table documenting
+                    which files ponytail writes; "Anti-Refusal" on the phrase
+                    "without judgment" in a path-traversal benchmark result.
+                    Hand-read of hooks/*.js: no network, no child_process, no
+                    credential env reads — only own config + host-detection vars)
+  VERDICT:          ADD (companions.json universal + plugins.json recommendation)
+```

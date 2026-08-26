@@ -33,7 +33,7 @@ Two process notes worth keeping: #120 was auto-closed and reopened because a com
 the literal string `fix #120`, which GitHub reads as a closing keyword. And two releases were tagged
 and pushed that day without anyone checking CI, which #131's last criterion addresses. Prior:
 2026-07-26 against 17 open issues (#119 opened + closed same session — spike:
-measure `pre-write-discipline` effectiveness, surfaced by `/ai:should-i-use` on ponytail (Ignore);
+measure `pre-write-discipline` effectiveness, surfaced by `/ai:should-i-use` on ponytail (Ignore — reversed 2026-08-26, #144);
 declined — measuring a behavioural rule needs A/B agent runs that reverse ADR-0002, whose Revisited
 note now records the decision). Prior:
 2026-07-11 against 17 open issues (#118 added — `graph-fresh` cannot check umbrella
@@ -94,15 +94,19 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P2 — next up
 
-- **#144** `enhancement · primitive:rule` — `always-on` is a label with no mechanism
-  in Claude Code. 22 rules carry `default_mode: always-on`, 13 of them also
-  `universal: true`, and none are injected: `workflow/.claude-plugin/plugin.json`
-  declares no `hooks` key, and `bin/lib/emitters/claude-code.sh` writes each rule to
-  `.claude/rules/<name>.md` — its own header calls that *"read by agent on demand"*.
+- **#144** `enhancement · primitive:rule` — `always-on` means two different things
+  per host. 30 rules carry `default_mode: always-on` (22 in `standards/rules/`, 8 in
+  `standards/rules/feedback/`), 21 of them `universal: true`. On **Cursor** the mode is
+  real: `bin/lib/emitters/cursor.sh` maps it to `alwaysApply: true`. On **Claude Code**
+  it is inert: `workflow/.claude-plugin/plugin.json` declares no `hooks` key, and
+  `bin/lib/emitters/claude-code.sh` writes each rule to `.claude/rules/<name>.md` — its
+  own header calls that *"read by agent on demand"*. One frontmatter key, enforcement on
+  one host and decoration on the other, with nothing saying so.
   Surfaced by `/ai:should-i-use` on ponytail, whose Ignore verdict rested on
-  redundancy with an always-on rule that never fires; the verdict was reversed to
-  Wire and ponytail now owns the minimal-code slot through real `SessionStart` +
-  `SubagentStart` injection. That covers 1 of 22 — `secrets-hygiene`,
+  redundancy with an always-on rule that never fires on Claude Code; the verdict was
+  reversed to Wire. ponytail covers the minimal-code slot there through real
+  `SessionStart` + `SubagentStart` injection — but only there, which is why
+  `pre-write-discipline` keeps its `always-on` mode for Cursor. `secrets-hygiene`,
   `error-handling`, `git-hygiene`, `writing-style` and the rest still have the dead
   label. Three ways out, none chosen: an ai-kit SessionStart hook (~8k tokens for the
   13 universal ones, needs a weight cut-off), emitting into `CLAUDE.md` (collides

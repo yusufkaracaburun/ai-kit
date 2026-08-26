@@ -17,6 +17,10 @@ that works.
 - It injects at `SessionStart` and at `SubagentStart`, so subagents that write code
   (builder, designer, debugger) inherit the same discipline instead of drifting
   back to over-building.
+- **The trade-off:** `SubagentStart` fires for *every* subagent, including reviewer,
+  planner and writer surfaces where "shortest diff" is not the objective. If a review
+  or a plan comes back terser than you wanted, that is this. `/ponytail off` for the
+  session, or `lite` to keep the nudge without the enforcement.
 
 ### With caveman
 
@@ -26,7 +30,13 @@ byte-for-byte exact, ponytail stays out of the prose.
 
 ### With `pre-write-discipline`
 
-Same discipline, different delivery. ai-kit's `pre-write-discipline.mini.md` is the
-readable, on-demand version of the rule; ponytail is the enforced always-on one.
-The rule dropped to `default_mode: on-demand` when ponytail landed, so there is one
-always-on source rather than two competing ones.
+Same discipline, different delivery — and they split by host, so both stay on.
+
+On **Claude Code** `always-on` buys the rule nothing: there is no rules primitive, so
+`pre-write-discipline.mini.md` lands in `.claude/rules/` to be read on demand. ponytail
+is what actually enforces it there.
+
+On **Cursor** the rule is the enforcement: ai-kit emits it as `alwaysApply: true`, and
+ponytail's ai-kit wiring is Claude-Code-only. Dropping the rule's mode would strip the
+discipline from Cursor projects with nothing to replace it — so the rule keeps
+`always-on` and the two are complementary, not a hand-off.

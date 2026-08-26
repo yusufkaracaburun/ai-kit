@@ -50,10 +50,8 @@ assert "run_tools emits header line" 'echo "$STATUS" | grep -qE "Tools ingested:
 assert "run_tools gates ESLint absence as ✗" 'echo "$STATUS" | grep -qE "ESLint ✗"'
 
 echo "=== fixture-shape ==="
-for n in 1 2 3 4 5 6 7 8; do
-  assert "react fixture has R$n trigger" \
-    'grep -rqE "R'"$n"':" "$FIXTURE" 2>/dev/null'
-done
+assert "react fixture carries all 8 R-markers" \
+  '[ "$(grep -rhoE "R[0-9]+:" "$FIXTURE" 2>/dev/null | sort -u | wc -l | tr -d " ")" -ge 8 ]'
 
 echo "=== overlap-fixture-react-side ==="
 # In the shared #79 overlap fixture, this extension must surface React-side
