@@ -14,6 +14,7 @@ upstream; ai-kit owns only the integration glue in this directory. Same pattern 
 | `graphify.md` | graphify | project `AGENTS.md` (agent-agnostic rules block) |
 | `graphifyignore` | graphify | project `.graphifyignore` (root) — copied verbatim, skip-if-present |
 | `caveman.md` | caveman | project `AGENTS.md` (mode note + how to toggle) |
+| `ponytail.md` | ponytail | project `AGENTS.md` (ladder note + how to toggle) |
 | `llm-wiki/` | llm-wiki | project `wiki/` + `raw/` skeleton + `AGENTS.md` pointer |
 
 There is no `graphify-hook.json`. The "grep → query the graph instead" nudge is

@@ -227,7 +227,7 @@ merge; the applier **replaces** that entry rather than stacking a second one.
 Some companions are worth having on every project regardless of stack — they
 are marked `universal: true` in
 [`standards/external/companions.json`](../../../standards/external/companions.json).
-Today that means `caveman`; future-proof for more.
+Today that means `caveman` and `ponytail`; future-proof for more.
 
 Same six steps as Branch 2c, with `branches.universal_companions_prompted` as
 the already-handled list:

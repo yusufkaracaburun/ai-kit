@@ -5,7 +5,7 @@
     "source_url": "https://github.com/yusufkaracaburun/ai-kit/blob/master/standards/external/companions.json",
     "source_license": "MIT",
     "vendored_at": "2026-05-25",
-    "notes": "Catalogues the companions branch of /ai:recommend-tools (graphify, caveman, llm-wiki, context7). Each entry documents its tier(s), detection signal, glue file(s), conflict checks, and wiring path. Consumed by `audit-setup-symmetry.sh` so new companions cannot land without a documented wiring path. Companions are orthogonal to MCP/hooks/plugins/subagents — the latter score via `recommend-tools-lib.sh` from stack-signals; companions are surfaced per project judgement and never scored numerically."
+    "notes": "Catalogues the companions branch of /ai:recommend-tools (graphify, caveman, ponytail, llm-wiki, context7). Each entry documents its tier(s), detection signal, glue file(s), conflict checks, and wiring path. Consumed by `audit-setup-symmetry.sh` so new companions cannot land without a documented wiring path. Companions are orthogonal to MCP/hooks/plugins/subagents — the latter score via `recommend-tools-lib.sh` from stack-signals; companions are surfaced per project judgement and never scored numerically."
   },
   "recommendations": [
     {
@@ -63,7 +63,9 @@
           "name": "base",
           "description": "Universal — auto-prompted by /ai:setup Tier-A Branch 2e. Installs the plugin via the official CLI and writes AGENTS.md glue. Never silently installed: the branch always asks, default yes.",
           "wired_via": "workflow/skills/setup/SKILL.md Branch 2e + bin/apply-caveman.sh + workflow/skills/recommend-tools/SKILL.md Phase 3 caveman branch",
-          "glue_files": ["context/templates/companions/caveman.md"],
+          "glue_files": [
+            "context/templates/companions/caveman.md"
+          ],
           "auto_prompted": true
         },
         {
@@ -96,7 +98,9 @@
         "auto_install": false,
         "default_state": "auto-prompted",
         "applier": "bin/apply-caveman.sh"
-      }
+      },
+      "license": "MIT for the plugin/skills, **BSL-1.1 for Engine-linked directories** (engine/, proxy/, cacheengine/, rewriter/, browse/, mcp/, shrink/, cavemem Go core, shared/platform/ — see upstream LICENSING.md). GitHub reports NOASSERTION. ai-kit wires the plugin only and vendors nothing, so the BSL half is never redistributed — but it is non-OSS and tagged here per VETTING.md #4.",
+      "non_oss": true
     },
     {
       "name": "llm-wiki",
@@ -109,7 +113,9 @@
           "name": "base",
           "description": "Scaffold wiki/ + raw/ + SCHEMA.md; AGENTS.md pointer.",
           "wired_via": "workflow/skills/recommend-tools/SKILL.md Phase 3 llm-wiki branch",
-          "glue_files": ["context/templates/companions/llm-wiki/"]
+          "glue_files": [
+            "context/templates/companions/llm-wiki/"
+          ]
         }
       ],
       "detection": {
@@ -166,6 +172,54 @@
         "plugin_alternative": "/plugin install context7@claude-plugins-official",
         "auto_install": false,
         "preferred_path": "plugin (no manual MCP config needed); user-scope only as fallback when plugin install is unavailable"
+      }
+    },
+    {
+      "name": "ponytail",
+      "category": "code-discipline",
+      "best_for": "Every project — the agent writes the smallest thing that solves the task, enforced at SessionStart and on every subagent, instead of resting on a rule file nothing loads",
+      "value": "YAGNI ladder injected into context: does it need to exist -> already in the codebase -> stdlib -> native platform feature -> dependency -> one line -> minimum. Security, validation, error handling and accessibility are explicitly out of scope for the cut.",
+      "risk": "Medium — opinionated code-generation bias, and activation is machine-wide (every project on the machine, not just the target).",
+      "license": "MIT, no carve-outs.",
+      "universal": true,
+      "tiers": [
+        {
+          "name": "base",
+          "description": "Universal — auto-prompted by /ai:setup Tier-A Branch 2e. Installs the plugin via the official CLI and writes AGENTS.md glue. Never silently installed: the branch always asks, default yes.",
+          "wired_via": "workflow/skills/setup/SKILL.md Branch 2e + bin/apply-ponytail.sh + workflow/skills/recommend-tools/SKILL.md Phase 3 ponytail branch",
+          "glue_files": [
+            "context/templates/companions/ponytail.md"
+          ],
+          "auto_prompted": true
+        },
+        {
+          "name": "activated",
+          "description": "Sets ponytail's own defaultMode so the mode is explicit and durable rather than resting on ponytail's built-in 'full' fallback. Writes {\"defaultMode\": \"full\"} into ${XDG_CONFIG_HOME:-~/.config}/ponytail/config.json (merged, never clobbered).",
+          "wired_via": "bin/apply-ponytail.sh (--mode)",
+          "machine_wide": true
+        }
+      ],
+      "detection": {
+        "plugin": "claude plugin list 2>/dev/null | grep -qi ponytail",
+        "settings": "grep -q '\"ponytail@ponytail\"[[:space:]]*:[[:space:]]*true' ~/.claude/settings.json",
+        "status": "bin/apply-ponytail.sh --status"
+      },
+      "complements": {
+        "caveman": "Orthogonal, not competing: caveman compresses what the agent SAYS (prose), ponytail constrains what it BUILDS (code). ponytail leaves prose alone; caveman leaves code byte-for-byte exact. Upstream FAQ endorses running both.",
+        "pre-write-discipline.mini.md": "Same discipline, different delivery. The rule is documentation the agent reads on demand; ponytail injects at SessionStart + SubagentStart. The rule was moved to default_mode: on-demand when ponytail landed, so there is one always-on source, not two."
+      },
+      "install": {
+        "upstream": "https://github.com/DietrichGebert/ponytail",
+        "marketplace": "DietrichGebert/ponytail",
+        "commands": [
+          "claude plugin marketplace add DietrichGebert/ponytail --scope user",
+          "claude plugin install ponytail@ponytail --scope user"
+        ],
+        "auto_install": false,
+        "default_state": "auto-prompted",
+        "applier": "bin/apply-ponytail.sh",
+        "pinned_sha": "2ed6c52c9d7e5e56942508591085fd45dea277d3",
+        "vetted_at": "2026-08-26"
       }
     }
   ]

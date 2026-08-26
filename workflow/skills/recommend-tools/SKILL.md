@@ -1,6 +1,6 @@
 ---
 name: recommend-tools
-description: Recommend optional companion tools (graphify, caveman, llm-wiki) and stack-specific runtime helpers — MCP servers + Claude Code hooks — for the current project. ai-kit writes integration glue, never auto-installs. Use when the user asks "should I add graphify / caveman / a self-maintaining wiki", "which MCP servers fit this stack", "any hooks I should turn on", "set up companion tools", "fewer tokens", or after /ai:setup to layer extra capability.
+description: Recommend optional companion tools (graphify, caveman, ponytail, llm-wiki) and stack-specific runtime helpers — MCP servers + Claude Code hooks — for the current project. ai-kit writes integration glue, never auto-installs. Use when the user asks "should I add graphify / caveman / ponytail / a self-maintaining wiki", "which MCP servers fit this stack", "any hooks I should turn on", "set up companion tools", "fewer tokens", or after /ai:setup to layer extra capability.
 ---
 
 Recommend and wire **companion tools** for this project — external AI-productivity tools that sit alongside ai-kit's lifecycle skills. ai-kit configures them; it never vendors or auto-installs them. Same trust model as `recommend-rules`: surface, let the user choose, wire only what they pick.
@@ -13,6 +13,7 @@ A third-party tool *or pattern* that improves the AI coding setup but is **not**
 | --------- | --------- | ------ | ---- |
 | **graphify** | Input — what the AI reads about the code | Knowledge graph; scoped subgraph per query instead of raw grep. Large token cut on multi-file repos. | Low — invisible infra, just better retrieval. |
 | **caveman** | Output — how verbosely the AI replies | Compresses responses (drops articles/filler/hedging), technical content intact. ~65% fewer output tokens. | Medium — it is a *communication mode*, opinionated. |
+| **ponytail** | Code — how much the AI builds | YAGNI ladder before writing: exists? → in codebase → stdlib → native platform → dependency → one line → minimum. Safety, validation and error handling are never cut. | Medium — it is a *code-generation bias*, opinionated. |
 | **llm-wiki** | Memory — knowledge from non-code documents | Self-maintaining wiki; ingests specs/transcripts/research into interlinked pages. The wiki, not the raw files, is the artifact that compounds. | Low — additive scaffold; the agent owns `wiki/`, never touches `raw/`. |
 | **context7** | Documentation — live library docs vs. training-data snapshots | MCP server (project-scope) + optional user-scope `~/.claude/rules/context7.md` rule. Cuts API hallucinations on third-party libraries. Universal: any project with deps benefits. | Low — read-only doc lookups, no auto-install of packages. |
 
@@ -21,7 +22,7 @@ They are orthogonal to each other and to ai-kit. Recommend per project, never bl
 ## When to invoke
 
 - After `/ai:setup`, when the user wants to push the setup further than rules + skills.
-- When the user asks "should I add graphify / caveman here", "make this cheaper", "fewer tokens".
+- When the user asks "should I add graphify / caveman / ponytail here", "make this cheaper", "fewer tokens".
 - On a brownfield repo with many files — graphify earns its keep fastest there.
 
 ## Process
@@ -56,6 +57,7 @@ command -v graphify >/dev/null 2>&1 && echo "graphify: CLI present" || echo "gra
 [ -d graphify-out ] && echo "graphify: already initialised in this repo" || echo "graphify: not initialised here"
 [ -d graphify-out/wiki ] && echo "graphify: --wiki tier present" || echo "graphify: --wiki tier not generated"
 { [ -d "$HOME/.claude/skills/caveman" ] || [ -d .claude/skills/caveman ]; } && echo "caveman: skills present" || echo "caveman: not installed"
+claude plugin list 2>/dev/null | grep -qi ponytail && echo "ponytail: installed" || echo "ponytail: not installed"
 { [ -d wiki ] && [ -d raw ]; } && echo "llm-wiki: scaffolded in this repo" || echo "llm-wiki: not scaffolded here"
 [ -d docs ] && echo "llm-wiki: conflict-check — existing docs/ found (see Phase 3 llm-wiki branch)" || true
 # context7: check BOTH user-scope MCP AND plugin-provided. `claude mcp list` alone misses plugin-provided MCPs that aren't currently connected — adding a user-scope ctx7 in that state causes a "same command/URL" conflict on next /doctor.
@@ -70,6 +72,7 @@ Judge fit against the actual repo, do not blanket-recommend:
 
 - **graphify** — strong fit when the repo has many files / is brownfield / the user greps a lot. Weak fit for a tiny single-file repo. If the CLI is missing, point the user at the upstream install (one line); a focused web search for the current install command is fine — do not guess it.
 - **caveman** — universal (`universal: true`), so `/ai:setup` Branch 2e already auto-prompts it; by the time this skill runs the answer is usually recorded in `branches.universal_companions_prompted`. **Check the marker first and do not re-ask.** Only surface it here when the project has no marker, or the user is explicitly revisiting the decision. It stays **auto-prompted, never silently installed** — the machine-wide blast radius (it changes the agent's output style in *every* repo on the machine) must be stated whenever it is offered. Applier: `bin/apply-caveman.sh`.
+- **ponytail** — universal (`universal: true`), same Branch 2e treatment as caveman: check `branches.universal_companions_prompted` first and do not re-ask. Same machine-wide blast radius (it changes how the agent writes code in *every* repo on the machine), so state it whenever it is offered. Applier: `bin/apply-ponytail.sh`. It is **orthogonal to caveman, not an alternative** — caveman compresses prose, ponytail constrains code; upstream endorses running both.
 - **llm-wiki** — strong fit when the project accumulates **non-code documents** (PRDs, meeting transcripts, competitor research, PDFs) the user re-reads to find things. Weak fit for a pure code repo — **graphify** already indexes code. Do not recommend graphify and llm-wiki for the *same* need; they cover code vs. documents respectively.
 
 State, for each: present-or-not, fit for *this* repo, and the one-line why.
@@ -108,6 +111,11 @@ Glue templates live in `$AI_KIT_ROOT/context/templates/companions/`. Wire only t
 1. **Check the marker first.** If `branches.universal_companions_prompted` already contains `caveman`, `/ai:setup` Branch 2e handled it — do not re-ask, do not re-run the applier. Report the current state (`bin/apply-caveman.sh --status`) and move on.
 2. Otherwise, offer it with the machine-wide caveat stated (see Branch 2e for the prompt wording). On yes: `$AI_KIT_ROOT/bin/apply-caveman.sh`. It adds the marketplace, installs the plugin via the official `claude plugin` CLI, writes caveman's `defaultMode`, and strips the duplicate hooks caveman's own standalone installer leaves behind.
 3. Append `companions/caveman.md` to the project `AGENTS.md` — a short note that the mode exists and how to toggle it. ai-kit vendors no caveman source; the plugin comes from its own marketplace.
+
+**ponytail:**
+1. **Check the marker first.** If `branches.universal_companions_prompted` already contains `ponytail`, `/ai:setup` Branch 2e handled it — do not re-ask, do not re-run the applier. Report the current state (`bin/apply-ponytail.sh --status`) and move on.
+2. Otherwise, offer it with the machine-wide caveat stated (see Branch 2e for the prompt wording). On yes: `$AI_KIT_ROOT/bin/apply-ponytail.sh`. It adds the marketplace, installs the plugin via the official `claude plugin` CLI, and writes ponytail's `defaultMode`. No de-duplication step is needed — ponytail ships no standalone hook installer.
+3. Append `companions/ponytail.md` to the project `AGENTS.md` — a short note that the ladder exists, that safety is never cut, and how to toggle it. ai-kit vendors no ponytail source; the plugin comes from its own marketplace.
 
 **llm-wiki:**
 1. **Conflict-check first.** If `docs/` exists, surface the conflict warning from `standards/external/companions.json` → `llm-wiki.conflicts[0]` verbatim: *llm-wiki is orthogonal to docs/ — use it for raw-input ingestion (PDFs, transcripts), NOT to migrate existing curated docs. Existing docs/ stays as-is; raw/ is for new untreated source material.* Confirm the user understands the split before scaffolding. The agent must never relocate, rewrite, or "consolidate" files under the existing `docs/` tree into `wiki/`.

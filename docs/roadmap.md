@@ -94,6 +94,21 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P2 — next up
 
+- **#144** `enhancement · primitive:rule` — `always-on` is a label with no mechanism
+  in Claude Code. 22 rules carry `default_mode: always-on`, 13 of them also
+  `universal: true`, and none are injected: `workflow/.claude-plugin/plugin.json`
+  declares no `hooks` key, and `bin/lib/emitters/claude-code.sh` writes each rule to
+  `.claude/rules/<name>.md` — its own header calls that *"read by agent on demand"*.
+  Surfaced by `/ai:should-i-use` on ponytail, whose Ignore verdict rested on
+  redundancy with an always-on rule that never fires; the verdict was reversed to
+  Wire and ponytail now owns the minimal-code slot through real `SessionStart` +
+  `SubagentStart` injection. That covers 1 of 22 — `secrets-hygiene`,
+  `error-handling`, `git-hygiene`, `writing-style` and the rest still have the dead
+  label. Three ways out, none chosen: an ai-kit SessionStart hook (~8k tokens for the
+  13 universal ones, needs a weight cut-off), emitting into `CLAUDE.md` (collides
+  with the 200-line `context-lean` ceiling), or renaming the label to `recommended`
+  and dropping the implied enforcement.
+
 - **#127** `bug` — `to-issues` and `autonomous` state contradictory contracts, so
   every issue the first produces is rejected by the second. `to-issues` applies
   `ready-for-agent` and declares the body the contract surface; `autonomous` requires
@@ -149,6 +164,26 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
   decompose via `/ai:to-issues` before scheduling.
 
 ## P3 — backlog
+
+- **#143** `enhancement` `primitive:rule` — `copywriter` writes page-scale copy
+  (page title, hero, meta, headings) from the intake alone; nothing checks what the
+  reader types or which term the authoritative source uses. Surfaced by
+  `/ai:should-i-use` on three SEO tools (2026-08-25), all **Ignore**: two GSC MCP
+  servers (`AminForou/mcp-gsc`, `suganthan-gsc-mcp`) fail the signal-detectability
+  bar — "owns a verified GSC property" is not readable from a repo, and scope is
+  person, not project; `ncosentino/google-keyword-planner-mcp` fails on fitness, not
+  quality — `get_historical_metrics` maps `json:"metrics"` where the API returns
+  `results` and silently yields empty (their #25, unfixed on `main`), no geo
+  parameter exists in any tool schema, and volume is bucketed to the same resolution
+  as the free UI. The surviving idea needs no API: the valuable half of the research
+  is terminology archaeology, which `emeq-web/PLAN.md` §A5 already did by hand
+  (the Belastingdienst says *manurenadministratie*, never *mandagenregister* —
+  0× in AL 529). Slice: `search-terms.mini.md` (on-demand rule) + a `## Zoektermen`
+  section in the `copy-context.md` contract + a page-scale gate in `copywriter`.
+  Terms filter after positioning, never seed before it — §4/§7 and C-SEO Bench both
+  say a term list up front produces what the humanizer removes. Revisit the MCP only
+  when their PR #28 merges **and** a geo parameter exists; the table is the
+  interface, so that stays a swap.
 
 - **#139** `bug` — `phase` hand-edits the marker when `CLAUDE_PLUGIN_ROOT` doesn't
   resolve, losing the `lifecycle: old → new` transition line (0/12 eval runs
