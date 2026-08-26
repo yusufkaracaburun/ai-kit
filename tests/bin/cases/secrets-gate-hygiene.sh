@@ -17,14 +17,8 @@ HYG="$AIKIT/bin/ai-kit-hygiene.sh"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-new_repo() {
-  local p="$TMP/$1"
-  mkdir -p "$p"
-  git -C "$p" init -q
-  git -C "$p" config user.email test@example.invalid
-  git -C "$p" config user.name test
-  echo "$p"
-}
+# shellcheck source=./secrets-gate.sh
+source "$AIKIT/tests/bin/cases/secrets-gate.sh"
 
 wire_ci() {
   mkdir -p "$1/.github/workflows"

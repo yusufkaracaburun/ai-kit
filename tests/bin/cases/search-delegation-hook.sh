@@ -41,8 +41,10 @@ assert "Grep with path is silent (already scoped)" '[ -z "$OUT" ]'
 OUT=$(fire "$TMP_H" '{"tool_name":"Glob","tool_input":{"pattern":"**/*.ts"}}')
 assert "Glob without path fires" '[ -n "$OUT" ]'
 
+set +e
 bash "$HOOK" </dev/null >/dev/null 2>&1
 EMPTY_RC=$?
+set -e
 assert "empty payload exits clean" '[ "$EMPTY_RC" -eq 0 ]'
 
 echo "=== search-delegation-check: message switches on graphify ==="
