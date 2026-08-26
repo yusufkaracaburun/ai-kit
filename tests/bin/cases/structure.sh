@@ -111,8 +111,10 @@ SYNC_DRIFT_EXIT=$?
 set -e
 assert "sync-plugin-version --check detects drift" '[ "$SYNC_DRIFT_EXIT" -eq 1 ]'
 AI_KIT_ROOT="$TMP_PLUGIN_ROOT" bash "$AIKIT/bin/sync-plugin-version.sh" >/dev/null
+set +e
 AI_KIT_ROOT="$TMP_PLUGIN_ROOT" bash "$AIKIT/bin/sync-plugin-version.sh" --check >/dev/null 2>&1
 SYNC_STAMP_EXIT=$?
+set -e
 assert "sync-plugin-version stamps drift away" '[ "$SYNC_STAMP_EXIT" -eq 0 ]'
 
 # The repo's own manifest must be untouched throughout — that is the property

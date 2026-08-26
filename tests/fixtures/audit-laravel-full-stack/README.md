@@ -1,6 +1,6 @@
 # audit-laravel-full-stack fixture
 
-Fixture for `tests/bin/cases/audit-laravel-extension.sh`. Composer shape resolves to `full-stack` via `bin/audit-laravel-helpers.sh::detect_mode` (Inertia present in `composer.json` + a Blade view exists under `resources/views/`).
+Fixture for `tests/bin/cases/audit-extensions.sh`. Composer shape resolves to `full-stack` via `bin/audit-laravel-helpers.sh::detect_mode` (Inertia present in `composer.json` + a Blade view exists under `resources/views/`).
 
 Every Laravel heuristic that fires in `full-stack` mode has a triggering snippet — that's L1-L13, L15, L17, L19-L22 (19 heuristics).
 

@@ -4,6 +4,21 @@ AIKIT="$(cd "$(dirname "$0")/../../.." && pwd)"
 # shellcheck source=../lib/harness.sh
 source "$AIKIT/tests/bin/lib/harness.sh"
 
+new_repo() {
+  local p="$TMP/$1"
+  mkdir -p "$p"
+  git -C "$p" init -q
+  git -C "$p" config user.email test@example.invalid
+  git -C "$p" config user.name test
+  echo "$p"
+}
+
+# secrets-gate-hygiene.sh sources this file for new_repo() alone; stop before
+# running this file's own assertions or printing its banner in that case.
+if [ "${BASH_SOURCE[0]}" != "${0}" ]; then
+  return 0
+fi
+
 echo "=== secrets-gate ==="
 # CI is emitted unconditionally: it is the one uniform surface and the one
 # nothing bypasses. Pre-commit is appended only to a mechanism the project
@@ -17,15 +32,6 @@ GUARD='gitleaks protect --staged'
 
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
-
-new_repo() {
-  local p="$TMP/$1"
-  mkdir -p "$p"
-  git -C "$p" init -q
-  git -C "$p" config user.email test@example.invalid
-  git -C "$p" config user.name test
-  echo "$p"
-}
 
 # --- husky: hooks path points inside the husky directory
 HUSKY="$(new_repo husky)"

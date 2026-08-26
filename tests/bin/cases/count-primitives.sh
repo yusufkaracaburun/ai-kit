@@ -34,8 +34,10 @@ assert "human says 'commands'" 'echo "$HUMAN" | grep -q "commands"'
 assert "human says 'rules'" 'echo "$HUMAN" | grep -q "rules"'
 
 # --check passes against current tree (drift-free baseline).
+set +e
 CHECK_OUT="$("$AIKIT/bin/count-primitives.sh" --check 2>&1)"
 CHECK_RC=$?
+set -e
 assert "--check exits 0 on drift-free tree" '[ "$CHECK_RC" -eq 0 ]'
 assert "--check says OK on drift-free tree" 'echo "$CHECK_OUT" | grep -q "OK"'
 
