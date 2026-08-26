@@ -1,5 +1,83 @@
 # Changelog
 
+## 1.60.0 — 2026-08-26
+
+### Added
+
+- **`ponytail` joins the companion catalog** (`DietrichGebert/ponytail` @ `2ed6c52`,
+  MIT). A YAGNI ladder — does it need to exist → already in the codebase → stdlib →
+  native platform → dependency → one line → minimum — injected at `SessionStart` and
+  `SubagentStart`. Security, validation, error handling and accessibility are
+  explicitly out of scope for the cut. It is **orthogonal to `caveman`, not an
+  alternative**: caveman compresses what the agent says, ponytail constrains what it
+  builds; upstream endorses running both.
+
+  `bin/apply-ponytail.sh` adds the marketplace, installs via the official
+  `claude plugin` CLI and writes ponytail's own `defaultMode` — idempotent, and
+  machine-wide, so `/ai:setup` Branch 2e asks first (it already iterates
+  `universal: true`, so no new branch was needed). No de-duplication guard, unlike
+  `apply-caveman.sh`: ponytail ships no standalone hook installer, so there is
+  nothing to double-fire.
+
+### Changed
+
+- **`plugins-excluded.json` gains a `reversed[]` array.** An Ignore verdict that
+  silently disappears is worse than no ledger — the next person re-litigates it from
+  scratch. Reversals now carry the evidence that overturned them.
+
+- **`pre-write-discipline.mini.md` keeps `always-on`, and now says why per host.**
+  It was briefly flipped to `on-demand` on the theory that ponytail had taken over the
+  slot. Pre-release review caught that `bin/lib/emitters/cursor.sh` maps `always-on` to
+  `alwaysApply: true`, so the flip would have emitted `alwaysApply: false` into every
+  Cursor project while ai-kit's ponytail wiring is Claude-Code-only. Reverted. ponytail
+  enforces on Claude Code, the mode enforces on Cursor — complementary, not a hand-off.
+
+- **`caveman`'s catalog entry records its licence carve-out.** It is MIT for the
+  plugin and skills but **BSL-1.1 for the Engine-linked directories** (`engine/`,
+  `proxy/`, `cacheengine/`, `rewriter/`, `browse/`, `mcp/`, `shrink/`, cavemem Go
+  core, `shared/platform/`); GitHub reports `NOASSERTION`. VETTING.md #4 requires a
+  non-OSS tag on source-available dependencies and it had been missing since
+  adoption. ai-kit wires the plugin and vendors nothing, so the BSL half is never
+  redistributed — but the tag belongs in the entry.
+
+### Fixed
+
+- **ponytail's Ignore verdict (2026-07-25) reversed to Wire.** The verdict rested on
+  one unverified claim: redundant with ai-kit's own always-on
+  `pre-write-discipline`, so wiring ponytail would double-inject one discipline.
+  Re-checked against the code: `workflow/.claude-plugin/plugin.json` declares no
+  `hooks` key, `bin/lib/emitters/claude-code.sh` writes rules to
+  `.claude/rules/<name>.md` — described in its own header as *"read by agent on
+  demand"* — and `.claude/rules/` does not exist in this repo. `always-on` is a
+  frontmatter label with no delivery mechanism behind it for Claude Code: 22 rules
+  carry it, none inject. There was never any double injection to avoid.
+
+  Measured against VETTING.md beside the already-adopted caveman: MIT with no
+  carve-outs; benchmark suite checked in with named baselines and numbers the author
+  revised **down** after upstream criticism; 112k stars / 63 contributors / 6160
+  forks vs caveman's 101k / 33. Security (#8): a static skillspector scan returns
+  `DO_NOT_INSTALL` with 27 HIGH — all triaged as noise, since **zero** findings land
+  in the shipped runtime (`hooks/`, `skills/`, `bin/`) and every HIGH sits in
+  `benchmarks/`, `tests/`, `README.md` or `docs/`. Hand-read of `hooks/*.js`: no
+  network, no `child_process`, no credential env reads.
+
+  Scope correction from that same review: the claim holds for Claude Code only. **30**
+  rules carry `always-on` (22 in `standards/rules/`, 8 in `standards/rules/feedback/`),
+  21 of them `universal` — and on Cursor the key is real enforcement. One frontmatter
+  key meaning "enforced" on one host and "decorative" on the other is the actual defect,
+  and it is not ponytail's job: **#144**.
+
+### Testing
+
+- `tests/bin/cases/apply-ponytail.sh` — 25 assertions covering status parsing,
+  malformed-input refusal, mode validation, uninstall idempotency, and the two
+  deliberate divergences from `apply-caveman.sh` (narrower mode set, no dedupe path).
+- The fixture-marker enumerations in the three `audit-*-extension` cases collapse from
+  58 assertions to 4 counted ones. They asserted properties of *test data*, not of
+  ai-kit code — a `git mv` broke them, a real bug did not. The negative
+  api-only/full-stack markers stay: those encode a design invariant.
+- Suite: **1059 passed, 0 failed**.
+
 ## 1.59.1 — 2026-08-24
 
 ### Changed
