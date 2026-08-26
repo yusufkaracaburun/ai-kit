@@ -29,6 +29,30 @@ not a host; it always runs to maintain the canonical rule index.
 | Claude Code | `claude-code.sh` | `.claude/rules/<name>.md` | Skill discovery / explicit read |
 | Generic (index) | `generic.sh` | `docs/agents/active-rules.md` index | Always emitted — canonical rule list |
 
+## `default_mode` semantics (per host)
+
+`default_mode: always-on | on-demand` is one frontmatter key, but the two
+emitters do different things with it — a rule author reading only the
+frontmatter cannot tell which host they're actually configuring:
+
+| `default_mode` | Cursor (`cursor.sh`) | Claude Code (`claude-code.sh`) |
+| --- | --- | --- |
+| `always-on` | `alwaysApply: true` — the rule is injected into **every** prompt. Real enforcement. | Written into the file header (`<!-- Mode: always-on -->`) as a note. Nothing reads it back. **Inert.** |
+| `on-demand` | `alwaysApply: false` — Cursor loads it only when its `description`/globs match. | Same header note (`<!-- Mode: on-demand -->`). Also inert — identical to `always-on` in actual effect. |
+
+Claude Code has no rule-injection primitive today: `.claude/rules/<name>.md`
+is read by the agent only if it happens to open the file. ai-kit ships no
+`SessionStart`/`UserPromptSubmit` hook of its own (`workflow/.claude-plugin/`
+declares one opt-in `PostToolUse` logging hook and nothing else), so
+`default_mode` changes Cursor's behavior and changes nothing on Claude Code
+except a comment.
+
+**Consequence for rule authors:** setting `always-on` is a real decision on
+Cursor and a no-op on Claude Code. Do not read "always-on" as "enforced
+everywhere" — see issue #144 and
+[ADR-0011](../../../docs/adr/0011-split-default-mode-per-host.md) for the
+proposed fix (not yet implemented).
+
 ## Adding a new emitter
 
 1. Create `<agent>.sh` exposing `emit_<agent>()`.
