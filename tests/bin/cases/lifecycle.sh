@@ -3,6 +3,8 @@ set -euo pipefail
 AIKIT="$(cd "$(dirname "$0")/../../.." && pwd)"
 # shellcheck source=../lib/harness.sh
 source "$AIKIT/tests/bin/lib/harness.sh"
+# shellcheck source=../lib/fixtures.sh
+source "$AIKIT/tests/bin/lib/fixtures.sh"
 
 
 echo "=== ai-kit-upgrade ==="
@@ -55,7 +57,7 @@ assert "doctor: checks python3" 'echo "$OUT_DOC_NO_PROJ" | grep -q "python3"'
 assert "doctor: shows global install section" 'echo "$OUT_DOC_NO_PROJ" | grep -q "Global install"'
 
 # Bootstrapped project — symlinks should resolve.
-"$AIKIT/bin/bootstrap-project.sh" --minimal "$TMP_DOC" >/dev/null
+bootstrap_fixture "$TMP_DOC" --minimal
 set +e
 OUT_DOC_PROJ="$("$AIKIT/bin/ai-kit-doctor.sh" "$TMP_DOC" 2>&1)"
 set -e
@@ -78,7 +80,7 @@ rm -rf "$TMP_DOC"
 
 # Mode-aware: project-only marker should skip global checks.
 TMP_DOC_PO=$(mktemp -d)
-"$AIKIT/bin/bootstrap-project.sh" --minimal "$TMP_DOC_PO" >/dev/null
+bootstrap_fixture "$TMP_DOC_PO" --minimal
 "$AIKIT/bin/write-setup-marker.sh" "$TMP_DOC_PO" --setup-mode=project-only --tier=minimal >/dev/null
 set +e
 OUT_PO="$("$AIKIT/bin/ai-kit-doctor.sh" "$TMP_DOC_PO" 2>&1)"
@@ -111,7 +113,7 @@ assert "doctor: opt-out alone exits 0" '[ "$OO_NOPROJ_EXIT" -eq 0 ]'
 
 # Project with non-project-only setup-mode must override the machine opt-out.
 TMP_OO_PROJ=$(mktemp -d)
-"$AIKIT/bin/bootstrap-project.sh" --minimal "$TMP_OO_PROJ" >/dev/null
+bootstrap_fixture "$TMP_OO_PROJ" --minimal
 "$AIKIT/bin/write-setup-marker.sh" "$TMP_OO_PROJ" --setup-mode=solo-both --tier=minimal >/dev/null
 set +e
 OUT_OO_PROJ="$(HOME="$TMP_HOME_OO" "$AIKIT/bin/ai-kit-doctor.sh" "$TMP_OO_PROJ" 2>&1)"
@@ -137,7 +139,7 @@ OUT_NO_MARKER="$("$AIKIT/bin/ai-kit-status.sh" "$TMP_ST" 2>&1)"
 assert "status: marker absent" 'echo "$OUT_NO_MARKER" | grep -q "Marker:.*absent"'
 assert "status: shows ai-kit version line" 'echo "$OUT_NO_MARKER" | grep -q "ai-kit @"'
 
-"$AIKIT/bin/bootstrap-project.sh" --minimal "$TMP_ST" >/dev/null
+bootstrap_fixture "$TMP_ST" --minimal
 "$AIKIT/bin/write-setup-marker.sh" "$TMP_ST" --setup-mode=solo-both --tier=full --sandcastle=false --automation-recommender=deferred >/dev/null
 OUT_OK="$("$AIKIT/bin/ai-kit-status.sh" "$TMP_ST" 2>&1)"
 assert "status: marker present line" 'echo "$OUT_OK" | grep -q "Marker:.*$(tr -d "[:space:]" < "$AIKIT/VERSION")"'
@@ -156,7 +158,7 @@ rm -rf "$TMP_ST"
 echo "=== verify-setup-minimal ==="
 # section: verify-setup-minimal
 TMP_MIN=$(mktemp -d)
-"$AIKIT/bin/bootstrap-project.sh" --minimal "$TMP_MIN"
+bootstrap_fixture "$TMP_MIN" --minimal
 mkdir -p "$TMP_MIN/docs/agents"
 cp "$AIKIT/context/templates/docs/agents/dev-environment.md" "$TMP_MIN/docs/agents/"
 sed -i '' '/Filled by \/ai:setup/d' "$TMP_MIN/docs/agents/dev-environment.md" 2>/dev/null \
@@ -175,7 +177,7 @@ rm -rf "$TMP_MIN"
 echo "=== verify-setup ==="
 # section: verify-setup
 TMP_V=$(mktemp -d)
-"$AIKIT/bin/bootstrap-project.sh" --minimal "$TMP_V"
+bootstrap_fixture "$TMP_V" --minimal
 mkdir -p "$TMP_V/docs/agents"
 cp "$AIKIT/context/templates/docs/agents/dev-environment.md" "$TMP_V/docs/agents/"
 sed -i '' '/Filled by \/ai:setup/d' "$TMP_V/docs/agents/dev-environment.md" 2>/dev/null \
