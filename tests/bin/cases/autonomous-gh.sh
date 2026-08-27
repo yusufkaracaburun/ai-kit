@@ -98,6 +98,12 @@ assert "nl: spike template written" '[ -f "$TMP_GH_NL/.github/ISSUE_TEMPLATE/spi
 assert "nl: config.yml written" '[ -f "$TMP_GH_NL/.github/ISSUE_TEMPLATE/config.yml" ]'
 assert "nl: dor-dod workflow written" '[ -f "$TMP_GH_NL/.github/workflows/dor-dod-enforcement.yml" ]'
 assert "nl: auto-promote workflow written" '[ -f "$TMP_GH_NL/.github/workflows/auto-promote-ready.yml" ]'
+assert "nl: gitleaks workflow written" '[ -f "$TMP_GH_NL/.github/workflows/gitleaks.yml" ]'
+# End-to-end: the gate ai-kit-secrets-gate.sh enforces must be satisfied by
+# what setup-gh-workflow.sh produces. Before this, the gate warned about a
+# file no script wrote.
+assert "secrets-gate passes on a freshly scaffolded repo" \
+  '"$AIKIT/bin/ai-kit-secrets-gate.sh" "$TMP_GH_NL" >/dev/null 2>&1'
 assert "nl: feature has Dutch DoR header" 'grep -q "Definition of Ready (vóór \"In Progress\")" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/feature.md"'
 assert "nl: feature has Triage section" 'grep -q "## Triage" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/feature.md"'
 assert "nl: feature has Depends on field" 'grep -q "Depends on:" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/feature.md"'

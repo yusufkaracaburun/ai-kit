@@ -30,6 +30,7 @@ Also fires automatically as part of `/ai:setup` when the project has a GitHub re
 | `.github/ISSUE_TEMPLATE/config.yml` | Disables blank issues; links to project board |
 | `.github/workflows/dor-dod-enforcement.yml` | On close → check DoD, reopen if unchecked. On `labeled status:in-progress` → check DoR, strip label if unchecked. |
 | `.github/workflows/auto-promote-ready.yml` | Todo → Ready on board when DoR all checked + `P[0-3]-*` + `epic/*` + `area/*` labels set. Forward-only. |
+| `.github/workflows/gitleaks.yml` | Blocks secrets *added* by the pushed range — not full history, which goes red forever on any pre-existing finding. `ai-kit-secrets-gate.sh` checks for this file. |
 | `.github/PULL_REQUEST_TEMPLATE.md` | DoR/DoD PR checklist — scaffolded only when absent from all three GitHub-honored paths |
 | Branch protection on the default branch | `gh api PUT` — ≥1 approving review, no force-push, no deletion. 403 → prints manual checklist, exits 0 |
 | Labels (via `gh label create --force`) | Priority `P0-critical`…`P3-low` · epics `epic/core`, `epic/ux` · areas `area/backend`, `area/frontend`, `area/infra`, `area/docs` · flow `status:in-progress` · triage `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix` |
@@ -110,7 +111,7 @@ Issues already on the project board with all DoR checkboxes + the three required
 ## Outputs
 
 - `.github/ISSUE_TEMPLATE/{feature,spike,config}.{md,yml}` in the project
-- `.github/workflows/{dor-dod-enforcement,auto-promote-ready}.yml` in the project
+- `.github/workflows/{dor-dod-enforcement,auto-promote-ready,gitleaks}.yml` in the project
 - Labels in the GitHub repo (idempotent)
 - Substituted Project IDs in `auto-promote-ready.yml` + project board URL in `config.yml` if a project board exists
 - `.github/PULL_REQUEST_TEMPLATE.md` when no PR template existed

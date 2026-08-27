@@ -6,8 +6,10 @@
 #   2. Copy workflows (dor-dod-enforcement.yml + auto-promote-ready.yml) into
 #      TARGET/.github/workflows/. Both verbatim from naschool — battle-tested
 #      DoR/DoD enforcement + auto-promote-to-Ready on project boards.
+#      Plus gitleaks.yml — the secrets gate ai-kit-secrets-gate.sh checks for.
 #   3. Bulk-create labels (P0-P3 priorities, epic/* placeholders, area/*
-#      categories, status:in-progress) via `gh label create` — idempotent.
+#      categories, status:in-progress, triage roles) via `gh label create`
+#      — idempotent.
 #   4. Detect existing GitHub Project for the repo owner; if found, resolve
 #      PROJECT_NUMBER / STATUS_FIELD_ID / option IDs via `gh api graphql`
 #      and substitute the AI_KIT_PROJECT_* placeholders in
@@ -161,6 +163,10 @@ copy_template "$TEMPLATE_DIR/ISSUE_TEMPLATE/config.yml" "$TARGET/.github/ISSUE_T
 # ----------------------------------------------------------------------------
 copy_template "$TEMPLATE_DIR/workflows/dor-dod-enforcement.yml" "$TARGET/.github/workflows/dor-dod-enforcement.yml"
 copy_template "$TEMPLATE_DIR/workflows/auto-promote-ready.yml"  "$TARGET/.github/workflows/auto-promote-ready.yml"
+# gitleaks.yml blocks secrets being *added* (range-scoped, not full history).
+# ai-kit-secrets-gate.sh warns when it is absent; before this copy nothing
+# produced the file the gate asks for.
+copy_template "$TEMPLATE_DIR/workflows/gitleaks.yml"            "$TARGET/.github/workflows/gitleaks.yml"
 
 # ----------------------------------------------------------------------------
 # 4. Bulk-create labels via `gh label create`.
