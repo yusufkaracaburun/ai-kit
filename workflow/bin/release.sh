@@ -72,7 +72,9 @@ fi
 
 cd "$AIKIT"
 
-if [ ! -d ".git" ]; then
+# `.git` is a FILE in a linked worktree, not a directory — a -d test there
+# reports "not a git repo" and blocks every git-aware path. (#145)
+if ! git rev-parse --git-dir >/dev/null 2>&1; then
   echo "Not a git repo: $AIKIT" >&2
   exit 2
 fi

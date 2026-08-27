@@ -13,7 +13,7 @@
 set -euo pipefail
 
 AIKIT="$(cd "$(dirname "$0")/../.." && pwd)"
-CASES="$AIKIT/tests/bin/cases"
+CASES="${CASES:-$AIKIT/tests/bin/cases}"
 JOBS="${JOBS:-4}"
 
 if [ "${1:-}" = "--serial" ]; then
@@ -79,6 +79,15 @@ for log in "$TMPDIR_RUN"/*.log; do
   fail=$(echo "$pass_line" | grep -oE 'FAIL: [0-9]+' | awk '{print $2}' || true)
   pass="${pass:-0}"
   fail="${fail:-0}"
+  # A case that dies before printing its PASS:/FAIL: line (set -e on an
+  # unexpected non-zero) reports no counts at all. Without this it lands in
+  # FAILED_CASES but contributes 0/0, so the summary reads "N passed, 0 failed"
+  # while a whole case silently produced nothing. Count it as one failure so
+  # the total agrees with the ✗ lines above it. (#145)
+  if [ "$rc" != "0" ] && [ "$fail" -eq 0 ]; then
+    fail=1
+    printf '! %s produced no PASS:/FAIL: line (crashed before summary)\n' "$name" >&2
+  fi
   TOTAL_PASS=$((TOTAL_PASS + pass))
   TOTAL_FAIL=$((TOTAL_FAIL + fail))
   if [ "$rc" != "0" ]; then

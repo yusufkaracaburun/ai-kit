@@ -75,6 +75,13 @@ CURRENT_BRANCH="$(git -C "$PROJECT_PATH" branch --show-current 2>/dev/null || ec
 # Local merged branches. Strip leading `*` and whitespace.
 MERGED_BRANCHES=()
 while IFS= read -r b; do
+  # git prefixes a branch checked out in a LINKED WORKTREE with `+`. Such a
+  # branch is live work, not a cleanup candidate — and the old strip left the
+  # marker in the name, so it was reported as `+ <branch>` and the suggested
+  # `git branch -d` would have failed on it anyway. (#145)
+  case "$b" in
+    "+ "*) continue ;;
+  esac
   b="$(printf '%s' "$b" | sed -e 's/^[* ]\{1,\}//' -e 's/[[:space:]]\{1,\}$//')"
   [ -z "$b" ] && continue
   case "$b" in
