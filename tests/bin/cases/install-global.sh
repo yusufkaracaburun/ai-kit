@@ -52,9 +52,16 @@ echo "=== idempotent re-run ==="
 H=$(mktemp -d)
 install_global "$H" >/dev/null
 OUT2=$(install_global "$H")
-assert "re-run relinks the same aikit symlink without a 'Skipped' warning" \
+# Positive assertion first: the previous version only checked that "Skipped"
+# was absent (true of empty output) and that a symlink the FIRST run created
+# still existed. Both passed with the installer replaced by `true`, so the
+# re-link branch was not actually covered.
+assert "re-run reports it linked the skill again" \
+  'grep -q "Linked audit-architecture" <<<"$OUT2"'
+assert "re-run does not warn about a foreign symlink" \
   '! grep -q "Skipped audit-architecture" <<<"$OUT2"'
-assert "symlink still resolves correctly after the second run" '[ -L "$H/.claude/skills/audit-architecture" ]'
+assert "symlink still resolves to the repo after the second run" \
+  '[ -L "$H/.claude/skills/audit-architecture" ] && [ -e "$H/.claude/skills/audit-architecture" ]'
 rm -rf "$H"
 
 echo "=== prefer-plugin marker: skips ~/.claude, keeps ~/.cursor ==="
