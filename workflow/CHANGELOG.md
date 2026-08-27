@@ -1,5 +1,43 @@
 # Changelog
 
+## 1.65.0 — 2026-08-27
+
+### Added
+
+- **`public-surface`, a rule for any app that serves crawlable HTML.** Harvested
+  from a shipped app rather than authored from theory. `emeq-hub` had
+  independently built a public-surface layer — a server-side meta and schema
+  builder, a sitemap derived from real routes, an environment-aware
+  `robots.txt`, and a 264-line CI-gated regression suite — and no ai-kit rule
+  covered any of it. `astro-conventions` carried an SEO baseline, but scoped to
+  Astro, so it never crossed the stack boundary into a Laravel + Inertia app.
+  The same problem was solved twice, from scratch, in two repos.
+
+  The rule's core is the hydration trap. In Inertia, Next, Nuxt, Remix and
+  SSR-mode Astro, a test that inspects props or the page object passes whether
+  or not the server rendered HTML, and most frameworks fall back to client-side
+  rendering silently by design — right for users, wrong for crawlers. The two
+  defaults compose into a failure with no symptom: the suite stays green, the
+  health endpoint returns 200, the deploy prints its checkmark, and crawlers
+  receive an empty shell. Hence the rule's two demands that the surrounding
+  rules did not make: assert the raw response body rather than framework state,
+  and let deploy verification reach the rendered page rather than `/up`.
+
+  Scoped `universal: false`, so API-only services and auth-gated internal tools
+  do not carry it in context. It reaches a project through
+  `/ai:recommend-rules` or an explicit `--rules public-surface`.
+
+### Changed
+
+- **`claude-seo` recorded as Ignore in `standards/external/plugins-excluded.json`.**
+  Evaluated against `emeq-hub`, which does have a real organic surface —
+  public routes, a dynamic sitemap, `robots.txt` and `llms.txt`. Ignored on
+  category and cost: right tool for an SEO agency, wrong one for a
+  dev-lifecycle kit, and the repo already covers the technical and GEO baseline
+  with CI assertions rather than periodic audits. The evaluation surfaced one
+  real gap, and it was a deploy-verification gap rather than an SEO-knowledge
+  gap. `public-surface` above is that finding, generalised.
+
 ## 1.64.1 — 2026-08-27
 
 ### Fixed
