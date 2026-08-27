@@ -132,6 +132,14 @@ A candidate without a pinnable upstream cannot be vendored — fall back to
 HTTP/MCP-client recommendation only, or skip. Mark as `PROVENANCE:
 <sha>|<unpinnable>`.
 
+- **Probe:** if the candidate is a **verbatim copy** of upstream files (not a
+  catalog entry describing them), is it registered in
+  `standards/external/vendored.json`? That manifest is what
+  `bin/ai-kit-upstream-drift.sh` reads; a copy missing from it is a copy
+  nothing ever checks for staleness. Record `repo`, `ref`, `pinned_sha`,
+  `paths`, and — the field that makes a later re-vendor safe — `local_deltas`,
+  the edits ai-kit made on purpose.
+
 ### 8. Security / malicious-pattern scan
 
 The first seven criteria check whether a candidate is *honest* and *compatible*.

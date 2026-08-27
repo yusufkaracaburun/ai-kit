@@ -148,6 +148,12 @@ assert "sync-plugin-standards --check clean" 'bash "$AIKIT/bin/sync-plugin-stand
 assert "sync-plugin-context --check clean" 'bash "$AIKIT/bin/sync-plugin-context.sh" --check >/dev/null 2>&1'
 assert "sync-plugin-orchestration --check clean" 'bash "$AIKIT/bin/sync-plugin-orchestration.sh" --check >/dev/null 2>&1'
 
+# apply-sandcastle.sh overwrites the copied main.mts with main.ts.template, so
+# the template is what users actually run. Re-vendoring one and not the other
+# ships two different scaffolds; the manifest says so in prose, this enforces it.
+assert "sandcastle main.ts.template byte-identical to main.mts" \
+  'cmp -s "$AIKIT/orchestration/sandcastle/main.ts.template" "$AIKIT/orchestration/sandcastle/sequential-reviewer/main.mts"' 
+
 # The --check family only catches drift in a mirror that EXISTS. workflow/
 # had no orchestration/ at all for five releases, so nothing drifted and
 # nothing complained — apply-sandcastle.sh just left an empty .sandcastle/

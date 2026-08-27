@@ -22,22 +22,29 @@
 #   2 — error (manifest missing or malformed)
 #
 # Usage:
-#   ai-kit-upstream-drift.sh            # report, always exit 0
-#   ai-kit-upstream-drift.sh --strict   # exit 1 when any upstream has moved
+#   ai-kit-upstream-drift.sh [ai-kit-root]   # report, always exit 0
+#   ai-kit-upstream-drift.sh --strict        # exit 1 when any upstream has moved
 set -uo pipefail
 
 SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"
 AIKIT="$(cd "$SCRIPT_BIN/.." && pwd)"
-MANIFEST="$AIKIT/standards/external/vendored.json"
 
 STRICT=0
+ROOT=""
 for arg in "$@"; do
   case "$arg" in
     --strict) STRICT=1 ;;
-    -h|--help) sed -n '1,27p' "$0"; exit 0 ;;
-    *) echo "unknown flag: $arg" >&2; exit 2 ;;
+    -h|--help) sed -n '1,26p' "$0"; exit 0 ;;
+    -*) echo "unknown flag: $arg" >&2; exit 2 ;;
+    *) ROOT="$arg" ;;
   esac
 done
+
+# The manifest describes the ai-kit checkout being audited, which is not always
+# the checkout this script lives in: /ai:hygiene runs the installed copy against
+# a project path. Reading $AIKIT there would report the wrong repo's pins.
+ROOT="${ROOT:-$AIKIT}"
+MANIFEST="$ROOT/standards/external/vendored.json"
 
 if [ ! -f "$MANIFEST" ]; then
   echo "upstream-drift: no standards/external/vendored.json — nothing pinned." >&2
@@ -45,16 +52,29 @@ if [ ! -f "$MANIFEST" ]; then
 fi
 
 # name<TAB>repo<TAB>ref<TAB>pinned_sha<TAB>vendored_at, one line per source.
-ENTRIES="$(python3 -c "
+# A tab or newline inside a field would split or merge rows here, silently
+# dropping a source from the check — the precise failure this exists to
+# prevent — so the emitter rejects them rather than passing them through.
+ENTRIES="$(python3 -c '
 import json, sys
+path = sys.argv[1]
 try:
-    d = json.load(open('$MANIFEST'))
+    d = json.load(open(path))
 except Exception as e:
-    print('PARSE_ERROR ' + str(e), file=sys.stderr); sys.exit(2)
-for s in d.get('sources', []):
-    print('\t'.join([s.get('name',''), s.get('repo',''), s.get('ref','HEAD'),
-                     s.get('pinned_sha',''), s.get('vendored_at','')]))
-")" || exit 2
+    print("upstream-drift: cannot parse manifest: %s" % e, file=sys.stderr)
+    sys.exit(2)
+rows = []
+for s in d.get("sources", []):
+    f = [s.get("name", ""), s.get("repo", ""), s.get("ref", "HEAD"),
+         s.get("pinned_sha", ""), s.get("vendored_at", "")]
+    for v in f:
+        if "\t" in v or "\n" in v:
+            print("upstream-drift: control character in field for %r" % f[0],
+                  file=sys.stderr)
+            sys.exit(2)
+    rows.append("\t".join(f))
+print("\n".join(rows))
+' "$MANIFEST")" || exit 2
 
 [ -z "$ENTRIES" ] && { echo "upstream-drift: manifest lists no sources."; exit 0; }
 
@@ -72,7 +92,12 @@ while IFS=$'\t' read -r name repo ref pinned vendored; do
     continue
   fi
 
-  remote="$(git ls-remote "$repo" "$ref" 2>/dev/null | awk 'NR==1{print $1}')"
+  # `--` so a repo value starting with `-` cannot be read as a git option:
+  # `--upload-pack=<cmd>` turns a data-file edit into command execution.
+  # GIT_TERMINAL_PROMPT=0 + an empty credential helper so a repo that went
+  # private (401) cannot block this report-only script on an auth dialog.
+  remote="$(GIT_TERMINAL_PROMPT=0 git -c credential.helper= \
+              ls-remote -- "$repo" "$ref" 2>/dev/null | awk 'NR==1{print $1}')"
   if [ -z "$remote" ]; then
     echo "?? $name — could not reach $repo (offline, or ref '$ref' is gone)."
     UNREACHABLE=$((UNREACHABLE + 1))

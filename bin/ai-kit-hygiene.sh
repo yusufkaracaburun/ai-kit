@@ -120,7 +120,7 @@ fi
 # than printing an empty report on every /ai:hygiene run.
 if [ "$SKIP_UPSTREAM_DRIFT" -eq 0 ] && [ -f "$PROJECT_PATH/standards/external/vendored.json" ]; then
   section "upstream-drift (vendored copies vs upstream pin)"
-  bash "$AIKIT/bin/ai-kit-upstream-drift.sh"
+  bash "$AIKIT/bin/ai-kit-upstream-drift.sh" "$PROJECT_PATH"
   record "$?" "upstream-drift"
 fi
 

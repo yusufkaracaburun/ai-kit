@@ -42,6 +42,20 @@ for s in json.load(open(root + "/standards/external/vendored.json"))["sources"]:
             assert m.group(1) == s["pinned_sha"], (rel, m.group(1), s["pinned_sha"])
 PY'
 
+assert "every pinned .md under standards/rules/external is registered in the manifest" '
+python3 - <<PY
+import glob, json, os, re
+root = "'"$AIKIT"'"
+claimed = set()
+for s in json.load(open(root + "/standards/external/vendored.json"))["sources"]:
+    claimed.update(os.path.normpath(p) for p in s["paths"])
+for f in glob.glob(root + "/standards/rules/external/*.md"):
+    if not re.search(r"^pinned_sha:", open(f, encoding="utf-8").read(2000), re.M):
+        continue
+    rel = os.path.relpath(f, root)
+    assert rel in claimed, rel
+PY'
+
 assert "vendored paths actually exist on disk" '
 python3 - <<PY
 import json, os
@@ -69,14 +83,14 @@ JSON
 }
 
 write_manifest "$UP" "$SHA1"
-OUT="$("$T/bin/ai-kit-upstream-drift.sh" 2>&1)"; RC=$?
+set +e; OUT="$("$T/bin/ai-kit-upstream-drift.sh" 2>&1)"; RC=$?; set -e
 assert "pin matches remote -> OK"        '[ "$RC" = "0" ]'
 assert "pin matches remote -> reports current" 'grep -q "^OK local" <<< "$OUT"'
 assert "clean run counts 1 current"      'grep -q "1 current, 0 moved" <<< "$OUT"'
 
 git -C "$UP" -c user.email=t@t -c user.name=t commit --quiet --allow-empty -m two
 SHA2="$(git -C "$UP" rev-parse HEAD)"
-OUT="$("$T/bin/ai-kit-upstream-drift.sh" 2>&1)"; RC=$?
+set +e; OUT="$("$T/bin/ai-kit-upstream-drift.sh" 2>&1)"; RC=$?; set -e
 assert "upstream moved -> still exit 0 (report-only)" '[ "$RC" = "0" ]'
 assert "upstream moved -> flags the source"  'grep -q "^-> local" <<< "$OUT"'
 assert "upstream moved -> prints compare URL" 'grep -q "compare/'"$SHA1"'...'"$SHA2"'" <<< "$OUT"'
@@ -85,8 +99,27 @@ assert "upstream moved -> points at local_deltas" 'grep -q "local_deltas" <<< "$
 set +e; "$T/bin/ai-kit-upstream-drift.sh" --strict >/dev/null 2>&1; RC_STRICT=$?; set -e
 assert "--strict exits 1 on drift" '[ "$RC_STRICT" = "1" ]'
 
+# Argument injection: without `--`, git reads a repo starting with `-` as an
+# option, and `--upload-pack=<cmd>` turns a manifest edit into command
+# execution. Verified vulnerable before the fix.
+PWN="$T/PWNED"
+write_manifest "--upload-pack=touch $PWN; git-upload-pack" "$SHA1"
+set +e; "$T/bin/ai-kit-upstream-drift.sh" >/dev/null 2>&1; RC=$?; set -e
+assert "leading-dash repo cannot execute a command" '[ ! -e "$PWN" ]'
+assert "leading-dash repo is reported, not fatal" '[ "$RC" = "0" ]'
+
+# A tab in a field would split the row and silently drop a source from the
+# check — the emitter must refuse rather than pass it through.
+cat > "$T/standards/external/vendored.json" <<JSON
+{"_meta":{"title":"t"},"sources":[{"name":"bad\tname","repo":"$UP","ref":"HEAD",
+ "pinned_sha":"$SHA1","vendored_at":"2026-01-01","paths":["x"],"local_deltas":"n"}]}
+JSON
+set +e; OUT="$("$T/bin/ai-kit-upstream-drift.sh" 2>&1)"; RC=$?; set -e
+assert "control character in a manifest field is refused" '[ "$RC" = "2" ]'
+assert "control-character refusal says which field" 'grep -q "control character" <<< "$OUT"'
+
 write_manifest "$T/does-not-exist" "$SHA1"
-OUT="$("$T/bin/ai-kit-upstream-drift.sh" 2>&1)"; RC=$?
+set +e; OUT="$("$T/bin/ai-kit-upstream-drift.sh" 2>&1)"; RC=$?; set -e
 assert "unreachable upstream -> exit 0, never a build break" '[ "$RC" = "0" ]'
 assert "unreachable upstream -> counted as unchecked" 'grep -q "0 current, 0 moved, 1 unchecked" <<< "$OUT"'
 

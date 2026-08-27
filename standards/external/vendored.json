@@ -42,7 +42,7 @@
       "pinned_sha": "b044f956f021b6e8877f16781bcfc466a6a120e9",
       "vendored_at": "2026-08-27",
       "paths": ["standards/rules/external/laravel-php-83.mini.md"],
-      "local_deltas": "None in the body — ai-kit replaces upstream's own frontmatter (description/globs/alwaysApply) with its rule frontmatter and adds the do-not-edit-in-place banner. Re-pinned 2026-08-27 from 4467ad4: the repo HEAD had moved but zero commits touched this file, and the body compared identical, so only the pin advanced. The rule file carries the same pinned_sha in its own frontmatter — the two must be bumped together."
+      "local_deltas": "No substantive body change — four lines had trailing whitespace stripped, so a blind re-vendor reintroduces it and produces a spurious diff. ai-kit replaces upstream's own frontmatter (description/globs/alwaysApply) with its rule frontmatter and adds the do-not-edit-in-place banner. Re-pinned 2026-08-27 from 4467ad4: the repo HEAD had moved but zero commits touched this file, and the body compared identical, so only the pin advanced. The rule file carries the same pinned_sha in its own frontmatter — the two must be bumped together."
     }
   ]
 }
