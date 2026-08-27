@@ -332,7 +332,11 @@ if [ -n "$TARGET" ]; then
           .claude/skills/*|.agents/skills/*|.cursor/skills/*|.claude/rules/*|.cursor/rules/*) continue ;;
         esac
         unowned_links+=("$l")
-      done < <(find "${dot_dirs[@]}" \( -name node_modules -o -name vendor \) -prune -o \
+      # `worktrees` is pruned alongside node_modules/vendor: git worktrees under
+      # .claude/worktrees/ are transient scratch space for agent runs (and are
+      # gitignored). They carry test fixtures with deliberately broken symlinks,
+      # so scanning them reports a live agent's fixtures as project rot. (#145)
+      done < <(find "${dot_dirs[@]}" \( -name node_modules -o -name vendor -o -name worktrees \) -prune -o \
         -type l ! -exec test -e {} \; -print 2>/dev/null)
     fi
     if [ "${#unowned_links[@]}" -gt 0 ]; then
