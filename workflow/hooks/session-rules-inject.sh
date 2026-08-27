@@ -58,16 +58,26 @@ OPT_OUT_FILE="${HOME}/.config/ai-kit/no-rule-injection"
 # Read + discard stdin (Claude Code passes a session payload; we don't need
 # any field from it — the project root comes from $CLAUDE_PROJECT_DIR like
 # every other ai-kit hook).
-# Only drain when stdin is a pipe. A bare `cat` blocks forever on a tty
-# waiting for an EOF that never arrives — and this is a SessionStart hook, so
-# a hang here stalls the user's session start, not just this script. Reached
-# by anyone running the hook by hand to diagnose it.
-if [ ! -t 0 ]; then
-  cat >/dev/null 2>&1 || true
+# Usage:
+#   session-rules-inject.sh                  hook mode (Claude Code pipes a payload)
+#   session-rules-inject.sh --report [PATH]  print the selection, inject nothing
+#
+# PATH lets you inspect another project without cd-ing into it. Without it the
+# root comes from $CLAUDE_PROJECT_DIR, then $PWD — so a bare --report from
+# inside ai-kit measures ai-kit, which has no .claude/rules and reports zero.
+REPORT=false
+if [ "${1:-}" = "--report" ]; then
+  REPORT=true
+  [ -n "${2:-}" ] && CLAUDE_PROJECT_DIR="$2"
 fi
 
-REPORT=false
-[ "${1:-}" = "--report" ] && REPORT=true
+# Drain stdin only in hook mode, and only when it is a pipe. A bare `cat`
+# blocks forever on a tty waiting for an EOF that never arrives; doing it
+# before the flag parse made --report hang too, which is exactly when someone
+# is running this by hand to find out what it does.
+if [ "$REPORT" = false ] && [ ! -t 0 ]; then
+  cat >/dev/null 2>&1 || true
+fi
 
 report() {
   $REPORT && echo "rules=$1 words=$2${3:+ ($3)}"
