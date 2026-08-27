@@ -37,17 +37,16 @@ frontmatter cannot tell which host they're actually configuring:
 
 | `default_mode` | Cursor (`cursor.sh`) | Claude Code (`claude-code.sh`) |
 | --- | --- | --- |
-| `always-on` | `alwaysApply: true` — the rule is injected into **every** prompt. Real enforcement. | Written into the file header (`<!-- Mode: always-on -->`). Read back once per session by `bin/hooks/session-rules-inject.sh` (`SessionStart`) — but **only if** the rule's source `weight` is `high` and it fits that session's word budget. `weight: medium`/`low` stays **inert**, same as before. |
+| `always-on` | `alwaysApply: true` — the rule is injected into **every** prompt. Real enforcement. | Written into the file header (`<!-- Mode: always-on -->`). **Currently inert** — nothing reads it back. `bin/hooks/session-rules-inject.sh` would, but it is not registered in `workflow/hooks/hooks.json` yet (see below). |
 | `on-demand` | `alwaysApply: false` — Cursor loads it only when its `description`/globs match. | Same header note (`<!-- Mode: on-demand -->`). Inert — the injection hook only ever looks at rules whose emitted header says `always-on`. |
 
-Claude Code's rule-injection primitive is `bin/hooks/session-rules-inject.sh`
-(a `SessionStart` hook, wired via `workflow/hooks/hooks.json`, issue #144) —
-it reads a project's already-emitted `.claude/rules/*.md`, not
-`standards/rules/` directly, so a project that never ran
-`bin/emit-rules.sh` still gets nothing injected. See
-[ADR-0011](../../../docs/adr/0011-split-default-mode-per-host.md) for the
-selection rule, the measured token cost, and the opt-out
-(`bin/ai-kit-no-rule-injection.sh`).
+Claude Code has no rule-injection primitive in effect today.
+`bin/hooks/session-rules-inject.sh` ships and is tested, but its `SessionStart`
+registration is deliberately withheld: the hook fills its word budget
+smallest-first, so the heaviest rules are dropped for being long rather than
+for being unimportant (issue #148, ADR-0011). Until that lands, `always-on`
+changes Cursor's behaviour and changes nothing on Claude Code except a header
+comment.
 
 **Consequence for rule authors:** `always-on` is real enforcement on Cursor
 regardless of weight. On Claude Code it is real enforcement **only** for

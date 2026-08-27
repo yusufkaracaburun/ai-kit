@@ -2,8 +2,25 @@
 
 ## Status
 
-Accepted (Unreleased). Implemented in the same change that revised this
-ADR (issue #144).
+Accepted, **not yet wired** (issue #144). The hook, its opt-out and its tests
+ship in v1.61.0; the `SessionStart` registration in `workflow/hooks/hooks.json`
+is deliberately withheld.
+
+Why: measured against emeq-hub, the selection picks `error-handling`,
+`context7`, `project-lifecycle`, `secrets-hygiene` and `grill-first`, while
+`context-discipline` (512 words) and `domain-model-first` (726) are dropped —
+not on merit, but because the budget is filled smallest-first and they are
+long. Length became an inverse proxy for importance. Turning that on would
+add ~1,679 words (≈2.2–2.8k tokens) per session on top of the ~6,000–7,500 a
+project already carries, and buy the wrong five rules.
+
+Also surfaced by that measurement: `pre-write-discipline` — the rule this
+whole thread started from — is not emitted in emeq-hub at all, so the hook
+would never inject it there. Whether a `universal: true`, `weight: high` rule
+should be missing from an ordinary project's `.claude/rules/` is its own
+question.
+
+Both are tracked in **#148**. Re-add the `SessionStart` entry when that lands.
 
 This ADR was originally proposed as "split `default_mode` per host"
 (kept below as option 3, and as the original recommendation). On

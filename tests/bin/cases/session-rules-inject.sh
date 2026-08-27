@@ -151,12 +151,15 @@ echo "=== session-rules-inject: hooks.json wiring ==="
 # section: session-rules-inject-hooks-json
 HOOKS_JSON="$AIKIT/workflow/hooks/hooks.json"
 assert "hooks.json is valid JSON" 'python3 -c "import json; json.load(open(\"$HOOKS_JSON\"))"'
-assert "hooks.json registers SessionStart" \
+# Deliberately NOT wired: the selection fills its budget smallest-first, so
+# the heaviest rules lose on length rather than on merit (#148). The hook,
+# its tests and its opt-out all ship; only the registration waits. Flip this
+# back to asserting presence when #148 lands.
+assert "hooks.json does NOT register SessionStart yet (#148)" \
   'python3 -c "
 import json
 d = json.load(open(\"$HOOKS_JSON\"))
-cmds = [h[\"command\"] for b in d[\"hooks\"][\"SessionStart\"] for h in b[\"hooks\"]]
-assert any(\"session-rules-inject.sh\" in c for c in cmds), cmds
+assert \"SessionStart\" not in d[\"hooks\"], d[\"hooks\"].keys()
 "'
 assert "hooks.json PostToolUse entry untouched" \
   'python3 -c "

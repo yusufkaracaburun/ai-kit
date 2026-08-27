@@ -1,5 +1,5 @@
 {
-  "_comment": "Claude Code plugin hooks. PostToolUse: skill invocations are logged ONLY when AI_KIT_USAGE=1 is set in the env. SessionStart: injects a project's already-emitted always-on, high-weight rules (issue #144); no-ops without .claude/rules/, and machine-wide opt-out via bin/ai-kit-no-rule-injection.sh. Both hook scripts are silent + crash-proof by design.",
+  "_comment": "Claude Code plugin hooks. PostToolUse: skill invocations are logged ONLY when AI_KIT_USAGE=1 is set in the env. The SessionStart rule-injection hook (hooks/session-rules-inject.sh, issue #144) ships but is deliberately NOT registered here: its selection fills the word budget smallest-first, so the heaviest rules lose on length rather than on merit (issue #148). Re-add the SessionStart entry when #148 lands. Hook scripts are silent + crash-proof by design.",
   "hooks": {
     "PostToolUse": [
       {
@@ -8,16 +8,6 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/post-skill-log.sh"
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session-rules-inject.sh"
           }
         ]
       }
