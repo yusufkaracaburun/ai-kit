@@ -489,3 +489,59 @@ ponytail · category=code-discipline · added 2026-08-26
                     credential env reads — only own config + host-detection vars)
   VERDICT:          ADD (companions.json universal + plugins.json recommendation)
 ```
+
+### `web-quality-skills` — added 2026-08-27 (plugins.json)
+
+`/ai:should-i-use addyosmani/web-quality-skills` 2026-08-27. Surfaced while
+mining `wilwaldon/Claude-Code-Frontend-Design-Toolkit` for leads; that link
+list itself was excluded (`plugins-excluded.json`), along with `ui-skills`.
+Figma MCP was declined by the owner (does not use Figma).
+
+Gap it closes, measured in this repo: a recursive grep for `core web vitals`,
+`lighthouse`, `LCP`, `CLS` and `INP` across `standards/`, `workflow/`,
+`context/`, `orchestration/` and `docs/` returns **zero** hits.
+`standards/rules/a11y.mini.md` prescribes axe-core in E2E but performs
+nothing, and `/ai:qa` smoke-tests function, not quality. This is the only
+frontend dimension the kit had no coverage for.
+
+```
+web-quality-skills · category=quality · added 2026-08-27
+  MARKETING-PARITY: pass (README lists 6 skills; 6 skill dirs on disk —
+                    web-quality-audit, performance, core-web-vitals,
+                    accessibility, seo, best-practices, each with SKILL.md +
+                    references/. "Measurement-first" holds: the skills separate
+                    CrUX field data, first-party RUM, lab trace and static
+                    inspection as distinct evidence types rather than
+                    collapsing them)
+  BENCHMARK:        n/a (no numeric performance claims of its own; the CWV
+                    thresholds it cites are Google's published values)
+  MARKETING-AUDIT:  pass (install paths verified: .claude-plugin/marketplace.json
+                    declares marketplace `addy-web-quality-skills` → plugin
+                    `web-quality-skills`; Codex and Gemini manifests present as
+                    the README claims. Self-labelled "unofficial" — no false
+                    Google/Chrome endorsement)
+  LICENSE:          MIT, LICENSE file present (Copyright (c) 2026 Addy Osmani);
+                    plugin.json restates MIT — parity, no carve-outs
+  MATURITY:         pass (2713★, MIT, pushed 2026-08-24 — 3 days before audit;
+                    v2.0.0; pure Markdown skills + one shell script, no build
+                    step, no runtime deps)
+  DATA-LOCALITY:    local for the skills themselves. DISCLOSE: the measurement
+                    path drives chrome-devtools-mcp against a URL the user
+                    names, and the field-data guidance queries Google's CrUX
+                    API — both user-initiated, neither bundled or automatic
+  PROVENANCE:       afa8da942115 (2026-08-24)
+  SECURITY-SCAN:    pass — hand-read, not skillspector (third data point that
+                    static scanning is noise on prose-heavy Markdown skills;
+                    see copywriter 2026-08-19 and diagram-design 2026-08-23).
+                    Sole executable is skills/web-quality-audit/scripts/
+                    analyze.sh: `set -euo pipefail`, header declares "Read-only
+                    HTML quality analyzer. No filesystem mutations", and the
+                    body bears it out — grep/find/jq only, no eval, no network,
+                    no writes, output bounded by MAX_FINDINGS=100 and a
+                    per-category-per-file cap
+  VERDICT:          ADD (signals mirror frontend-design: frontend architectures
+                    + the 8 JS frameworks. Known limitation: server-rendered
+                    stacks without a JS framework — Laravel Blade, Rails ERB —
+                    will not trip the signal even though the skills apply to
+                    them. Revisit if a downstream project hits it)
+```

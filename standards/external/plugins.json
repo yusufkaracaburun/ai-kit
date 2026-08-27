@@ -280,6 +280,29 @@
           "```mermaid"
         ]
       }
+    },
+    {
+      "name": "web-quality-skills",
+      "marketplace": "addy-web-quality-skills",
+      "install": "/plugin install web-quality-skills@addy-web-quality-skills",
+      "category": "quality",
+      "best_for": "User-facing web apps that ship to real users — measured performance, Core Web Vitals, WCAG 2.2, SEO and best-practices audits against a running page",
+      "value": "Six measurement-first skills (web-quality-audit, performance, core-web-vitals, accessibility, seo, best-practices) that run live Lighthouse / Chrome DevTools audits and separate field (CrUX/RUM) from lab evidence, instead of emitting static advice. Fills the one frontend gap in the kit: a11y.mini.md prescribes axe-core in E2E, but nothing in ai-kit covers LCP/INP/CLS or field-vs-lab measurement. Uses the already-catalogued chrome-devtools-mcp as its measurement backend and complements /ai:qa, which smoke-tests function rather than quality. Marketplace add first: /plugin marketplace add addyosmani/web-quality-skills.",
+      "signals": {
+        "frameworks": [
+          "react",
+          "vue",
+          "angular",
+          "nextjs",
+          "nuxt",
+          "svelte",
+          "remix",
+          "astro"
+        ],
+        "architectures": [
+          "frontend"
+        ]
+      }
     }
   ]
 }
