@@ -94,6 +94,15 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P2 — next up
 
+- **#150** `bug` — `doctor` never counts dead symlinks in the global skill dirs.
+  `ai-kit-doctor.sh:118` greps for one link matching `$AIKIT`, reports `ok`, and
+  stops; that is why 74 broken links (44 `~/.agents/skills`, 23 `~/.cursor/skills`,
+  7 `~/.cursor/commands`, all → a `~/.local/share/ai-kit` long gone) went unreported
+  for months. `broken_link_detail` at `:274` already does this for the project path.
+  Downstream half of **#114** — v1.63.1's installer sweep reclaims these orphans once
+  rerun, but nothing tells you to rerun. #114's stable-indirection fix stops them
+  being created; this one stops them being invisible.
+
 - **#149** `bug · primitive:rule` — bestaande projecten krijgen nooit nieuwe
   `universal: true` regels, en doctor meldt dat als groen. emeq-hub mist
   `pre-write-discipline` en `writing-style`; `recommend-rules` adviseert ze
