@@ -1,6 +1,6 @@
 ---
 name: show-me
-description: Answer the current question with a picture instead of a paragraph. Picks the smallest view that makes the point, a call tree, a component tree, a shallow file tree, pseudocode, a shaped diff, a Mermaid diagram, or one focused HTML page. Use when an explanation is turning into a wall of prose, when the user asks "show me", "draw this", "visualise this", "what does this look like", "hoe ziet dit eruit", or when describing control flow, module layout, or a refactor across files.
+description: Answer a question with a drawing instead of a paragraph: a call tree, a component tree, a shallow file tree, pseudocode, a shaped diff, a Mermaid diagram, or one focused HTML page, whichever is smallest. Use when the user asks to see the shape of something, says "show me", "draw this", "visualise this", "hoe ziet dit eruit", or when control flow, call order or module layout is hard to follow in prose. Not for pasting code, logs or tool output verbatim.
 ---
 
 # Show me
@@ -108,25 +108,32 @@ sequenceDiagram
     participant Browser
     participant Controller
     participant Queue
+    participant Customer
     Browser->>Controller: POST /bookings
     Controller->>Queue: SendConfirmationMail
     Controller-->>Browser: 302 /bookings/{id}
-    Queue-->>Browser: email
+    Queue-->>Customer: confirmation email
 ```
 
 ### One HTML page
 
 Only when the point is visual and Mermaid cannot carry it: a layout, a
-before/after of a UI, a dense comparison, a short deck. Write one
-self-contained file, use the project's own colours, type and spacing, use real
-labels and real data, and make it work on a phone. Then open it:
+before/after of a UI, a dense comparison, a short deck. Use the project's own
+colours, type and spacing, use real labels and real data, and make it work on a
+phone.
 
-```bash
-# macOS `open`, Linux `xdg-open`. Use whichever the project already uses.
-open "$file" 2>/dev/null || xdg-open "$file"
-```
+Write it to the OS temp directory so nothing lands in the repo. Resolve the temp
+dir from `$TMPDIR`, falling back to `/tmp` (or `%TEMP%` on Windows), and write to
+`<tmpdir>/show-me-<description>-<timestamp>.html` so each run gets a fresh file.
+Open it for the user, `xdg-open <path>` on Linux, `open <path>` on macOS, `start
+<path>` on Windows, and tell them the absolute path.
+
+That location is not a detail. The page carries the project's real data, and a
+file written to the repo root is one `git add -A` from being committed.
 
 Do not build a page when a tree would do. The HTML branch is the expensive one.
+If the user needs to click through it rather than read it, that is `prototype`,
+not this skill.
 
 ## Rules
 
@@ -149,7 +156,7 @@ source of truth either way.
 
 The set of views and the "smallest view that makes the point" rule are distilled
 from [humanlayer/skills](https://github.com/humanlayer/skills), plugin
-`show-me`, MIT, Copyright (c) humanlayer, read at commit
+`show-me`, MIT, Copyright (c) 2026 HumanLayer, read at commit
 `3c2629142c5d437428269b1b722b08c0b87f574d`.
 
 This is a reimplementation, not a copy. The text, the decision table, the rules
