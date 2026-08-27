@@ -37,21 +37,23 @@ frontmatter cannot tell which host they're actually configuring:
 
 | `default_mode` | Cursor (`cursor.sh`) | Claude Code (`claude-code.sh`) |
 | --- | --- | --- |
-| `always-on` | `alwaysApply: true` — the rule is injected into **every** prompt. Real enforcement. | Written into the file header (`<!-- Mode: always-on -->`) as a note. Nothing reads it back. **Inert.** |
-| `on-demand` | `alwaysApply: false` — Cursor loads it only when its `description`/globs match. | Same header note (`<!-- Mode: on-demand -->`). Also inert — identical to `always-on` in actual effect. |
+| `always-on` | `alwaysApply: true` — the rule is injected into **every** prompt. Real enforcement. | Written into the file header (`<!-- Mode: always-on -->`). Read back once per session by `bin/hooks/session-rules-inject.sh` (`SessionStart`) — but **only if** the rule's source `weight` is `high` and it fits that session's word budget. `weight: medium`/`low` stays **inert**, same as before. |
+| `on-demand` | `alwaysApply: false` — Cursor loads it only when its `description`/globs match. | Same header note (`<!-- Mode: on-demand -->`). Inert — the injection hook only ever looks at rules whose emitted header says `always-on`. |
 
-Claude Code has no rule-injection primitive today: `.claude/rules/<name>.md`
-is read by the agent only if it happens to open the file. ai-kit ships no
-`SessionStart`/`UserPromptSubmit` hook of its own (`workflow/.claude-plugin/`
-declares one opt-in `PostToolUse` logging hook and nothing else), so
-`default_mode` changes Cursor's behavior and changes nothing on Claude Code
-except a comment.
-
-**Consequence for rule authors:** setting `always-on` is a real decision on
-Cursor and a no-op on Claude Code. Do not read "always-on" as "enforced
-everywhere" — see issue #144 and
+Claude Code's rule-injection primitive is `bin/hooks/session-rules-inject.sh`
+(a `SessionStart` hook, wired via `workflow/hooks/hooks.json`, issue #144) —
+it reads a project's already-emitted `.claude/rules/*.md`, not
+`standards/rules/` directly, so a project that never ran
+`bin/emit-rules.sh` still gets nothing injected. See
 [ADR-0011](../../../docs/adr/0011-split-default-mode-per-host.md) for the
-proposed fix (not yet implemented).
+selection rule, the measured token cost, and the opt-out
+(`bin/ai-kit-no-rule-injection.sh`).
+
+**Consequence for rule authors:** `always-on` is real enforcement on Cursor
+regardless of weight. On Claude Code it is real enforcement **only** for
+`weight: high` rules that fit the session budget — `weight: medium`/`low`
+is still a no-op there. Do not read "always-on" alone as "enforced
+everywhere"; check `weight` too.
 
 ## Adding a new emitter
 

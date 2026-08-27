@@ -29,6 +29,7 @@ AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
 PAIRS=(
   "bin/hooks/post-skill-log.sh|workflow/hooks/post-skill-log.sh"
   "bin/log-skill.sh|workflow/hooks/log-skill.sh"
+  "bin/hooks/session-rules-inject.sh|workflow/hooks/session-rules-inject.sh"
 )
 
 MODE="stamp"

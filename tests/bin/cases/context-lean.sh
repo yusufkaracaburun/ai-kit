@@ -70,4 +70,27 @@ OUT_SKIP="$("$HYG" "$TMP/bloated" --skip-doctor --skip-dedupe --skip-symmetry --
 assert "hygiene honours --skip-context-lean" '! echo "$OUT_SKIP" | grep -q "=== context-lean"'
 assert "hygiene scores 100 when context-lean skipped" 'echo "$OUT_SKIP" | grep -q "^Score: 100/100$"'
 
+
+echo ""
+echo "=== ai-kit-context-lean: SessionStart rule injection budget (#144) ==="
+# section: ai-kit-context-lean-session-rules
+# The hook (bin/hooks/session-rules-inject.sh) is its own always-loaded
+# token tax, same as CLAUDE.md/AGENTS.md — this reconciles the two instead
+# of leaving the injection invisible to /ai:hygiene.
+mkdir -p "$TMP/inject-ok"
+"$AIKIT/bin/emit-rules.sh" "$TMP/inject-ok" --rules secrets-hygiene --agents claude-code >/dev/null
+OUT_INJECT_OK="$("$LEAN" "$TMP/inject-ok" 2>&1)"; RC_INJECT_OK=$?
+assert "context-lean exits 0 on an in-budget injection" '[ "$RC_INJECT_OK" -eq 0 ]'
+assert "context-lean reports the injected rule count/words" \
+  'echo "$OUT_INJECT_OK" | grep -q "^ok: SessionStart rule injection — 1 rule(s)"'
+
+mkdir -p "$TMP/inject-over"
+"$AIKIT/bin/emit-rules.sh" "$TMP/inject-over" --agents claude-code >/dev/null
+OUT_INJECT_OVER="$(AI_KIT_SESSION_RULES_MAX_WORDS=5000 "$LEAN" "$TMP/inject-over" 2>&1)" && RC_INJECT_OVER=0 || RC_INJECT_OVER=$?
+assert "context-lean exits 1 when injection exceeds its budget" '[ "$RC_INJECT_OVER" -eq 1 ]'
+assert "context-lean warns with the injected word count" \
+  'echo "$OUT_INJECT_OVER" | grep -q "^WARN: SessionStart rule injection is"'
+assert "context-lean fix-hint mentions the opt-out" \
+  'echo "$OUT_INJECT_OVER" | grep -q "ai-kit-no-rule-injection.sh on"'
+
 print_summary_and_exit
