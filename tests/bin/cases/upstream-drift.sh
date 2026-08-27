@@ -24,6 +24,24 @@ for s in srcs:
     assert s.get("paths"), s.get("name")
     assert s.get("local_deltas"), s.get("name")
 PY'
+# A vendored file that carries its own provenance frontmatter (the external
+# rules do) records the pin twice. Two records of the same fact drift — which
+# is the exact failure this whole feature exists to catch.
+assert "frontmatter pinned_sha matches the manifest pin" '
+python3 - <<PY
+import json, os, re
+root = "'"$AIKIT"'"
+for s in json.load(open(root + "/standards/external/vendored.json"))["sources"]:
+    for rel in s["paths"]:
+        f = os.path.join(root, rel)
+        if not os.path.isfile(f) or not f.endswith(".md"):
+            continue
+        head = open(f, encoding="utf-8").read(2000)
+        m = re.search(r"^pinned_sha:\s*([0-9a-f]{40})\s*$", head, re.M)
+        if m:
+            assert m.group(1) == s["pinned_sha"], (rel, m.group(1), s["pinned_sha"])
+PY'
+
 assert "vendored paths actually exist on disk" '
 python3 - <<PY
 import json, os

@@ -9,7 +9,7 @@ Break a plan into independently-grabbable issues using vertical slices (tracer b
 
 **Not this skill** — use [`to-prd`](../to-prd/SKILL.md) in defer mode when the user wants to *park* a single surfaced lead (one issue + one roadmap paragraph). `to-issues` is for shattering an already-planned chunk of work into N tickets ready to execute. Defer mode pushes work OUT of now; `to-issues` decomposes work INTO actionable slices.
 
-The issue tracker and triage label vocabulary should have been provided to you — run `/setup-matt-pocock-skills` if not.
+The triage label vocabulary lives in `docs/agents/triage-labels.md`, written by `/ai:setup`; run `/ai:setup` if it is missing.
 
 Issue titles, branch names, and commit messages follow the [git-hygiene rule](../../../standards/rules/git-hygiene.mini.md). Default branch prefix per type: AFK + feature → `feat/`, AFK + bug → `fix/`, HITL → ask first.
 

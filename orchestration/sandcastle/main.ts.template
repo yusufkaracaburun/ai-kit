@@ -11,8 +11,10 @@
 // implementer and reviewer work on the same explicit branch.
 //
 // The outer loop repeats up to MAX_ITERATIONS times, processing one issue per
-// iteration. This is a middle-complexity option between the simple-loop (no review
-// gate) and the parallel-planner (concurrent execution with a planning phase).
+// iteration and stopping early once the backlog is exhausted (an implement
+// phase that produces no commits). This is a middle-complexity option between
+// the simple-loop (no review gate) and the parallel-planner (concurrent
+// execution with a planning phase).
 //
 // Usage:
 //   npx tsx .sandcastle/main.mts
@@ -68,16 +70,22 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
     //
     // The agent signals completion via <promise>COMPLETE</promise> when done.
     // -----------------------------------------------------------------------
+    // One iteration so each outer pass implements a single issue on its own
+    // branch, then hands it to the reviewer. A higher value lets the agent
+    // drain the whole backlog onto this one branch in a single pass, which
+    // defeats the per-issue review.
     const implement = await sandbox.run({
       name: "implementer",
-      maxIterations: 100,
+      maxIterations: 1,
       agent: sandcastle.claudeCode("claude-sonnet-4-6"),
       promptFile: "./.sandcastle/implement-prompt.md",
     });
 
     if (!implement.commits.length) {
-      console.log("Implementation agent made no commits. Skipping review.");
-      continue;
+      // No commits means the backlog is empty or every remaining issue is
+      // blocked — there is nothing left to implement or review, so stop.
+      console.log("Implementation agent made no commits. Stopping.");
+      break;
     }
 
     console.log(`\nImplementation complete on branch: ${branch}`);

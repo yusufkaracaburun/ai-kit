@@ -6,10 +6,10 @@ applies_to:
 universal: false
 default_mode: on-demand
 weight: medium
-source_url: https://github.com/PatrickJS/awesome-cursorrules/blob/4467ad4534d406a714b926606d66fab36a98df8f/rules/laravel-php-83-cursorrules-prompt-file.mdc
+source_url: https://github.com/PatrickJS/awesome-cursorrules/blob/b044f956f021b6e8877f16781bcfc466a6a120e9/rules/laravel-php-83-cursorrules-prompt-file.mdc
 source_license: CC0-1.0
-pinned_sha: 4467ad4534d406a714b926606d66fab36a98df8f
-vendored_at: 2026-05-22
+pinned_sha: b044f956f021b6e8877f16781bcfc466a6a120e9
+vendored_at: 2026-08-27
 ---
 
 <!-- Vendored external rule. Source content is pinned to the SHA above; do not -->

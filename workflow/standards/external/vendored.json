@@ -10,16 +10,15 @@
       "repo": "https://github.com/mattpocock/sandcastle",
       "ref": "HEAD",
       "upstream_path": "src/templates/sequential-reviewer",
-      "source_url": "https://github.com/mattpocock/sandcastle/tree/65063f6c8ea2fccde22d7d415be4d03212668678/src/templates/sequential-reviewer",
+      "source_url": "https://github.com/mattpocock/sandcastle/tree/e99f832f26dc9d245c019a9ddd19fa5dee792427/src/templates/sequential-reviewer",
       "source_license": "MIT",
-      "pinned_sha": "65063f6c8ea2fccde22d7d415be4d03212668678",
-      "vendored_at": "2026-05-20",
+      "pinned_sha": "e99f832f26dc9d245c019a9ddd19fa5dee792427",
+      "vendored_at": "2026-08-27",
       "paths": [
         "orchestration/sandcastle/sequential-reviewer/",
-        "orchestration/sandcastle/main.ts.template",
-        "orchestration/sandcastle/prompt.md.template"
+        "orchestration/sandcastle/main.ts.template"
       ],
-      "local_deltas": "Stack-agnostic patches. main.mts: hardcoded `npm install` and `node_modules` replaced with {{INSTALL_CMD}} / {{COPY_TO_WORKTREE}} placeholders, filled by bin/apply-sandcastle.sh from lockfile detection. implement-prompt.md: `npm run typecheck && npm run test` replaced with project-detected test/lint commands. CODING_STANDARDS.md, review-prompt.md, template.json are byte-identical to the pin."
+      "local_deltas": "Two stack-agnostic patches, and nothing else — verified against the pin. main.mts: hardcoded `npm install` and `[\"node_modules\"]` replaced with {{INSTALL_CMD}} / {{COPY_TO_WORKTREE}} placeholders, filled by bin/apply-sandcastle.sh from lockfile detection. implement-prompt.md: `npm run typecheck && npm run test` replaced with project-detected test/lint commands. CODING_STANDARDS.md, review-prompt.md and template.json are byte-identical to the pin. orchestration/sandcastle/main.ts.template is a byte-identical duplicate of main.mts (apply-sandcastle.sh copies the directory, then overwrites main.mts with the template) — re-vendor must update both. orchestration/sandcastle/prompt.md.template is NOT from upstream: it is ai-kit original, referencing CONTEXT.md / AGENTS.md and a {{TASK_DESCRIPTION}} upstream never had, so it is deliberately absent from `paths`."
     },
     {
       "name": "copywriter",
@@ -38,12 +37,12 @@
       "repo": "https://github.com/PatrickJS/awesome-cursorrules",
       "ref": "HEAD",
       "upstream_path": "rules/laravel-php-83-cursorrules-prompt-file.mdc",
-      "source_url": "https://github.com/PatrickJS/awesome-cursorrules/blob/4467ad4534d406a714b926606d66fab36a98df8f/rules/laravel-php-83-cursorrules-prompt-file.mdc",
+      "source_url": "https://github.com/PatrickJS/awesome-cursorrules/blob/b044f956f021b6e8877f16781bcfc466a6a120e9/rules/laravel-php-83-cursorrules-prompt-file.mdc",
       "source_license": "CC0-1.0",
-      "pinned_sha": "4467ad4534d406a714b926606d66fab36a98df8f",
-      "vendored_at": "2026-05-22",
+      "pinned_sha": "b044f956f021b6e8877f16781bcfc466a6a120e9",
+      "vendored_at": "2026-08-27",
       "paths": ["standards/rules/external/laravel-php-83.mini.md"],
-      "local_deltas": "None in the body — ai-kit adds only the provenance frontmatter and the do-not-edit-in-place banner."
+      "local_deltas": "None in the body — ai-kit replaces upstream's own frontmatter (description/globs/alwaysApply) with its rule frontmatter and adds the do-not-edit-in-place banner. Re-pinned 2026-08-27 from 4467ad4: the repo HEAD had moved but zero commits touched this file, and the body compared identical, so only the pin advanced. The rule file carries the same pinned_sha in its own frontmatter — the two must be bumped together."
     }
   ]
 }

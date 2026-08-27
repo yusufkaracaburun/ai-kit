@@ -4,6 +4,8 @@
 
 !`{{LIST_TASKS_COMMAND}}`
 
+The list above has already been filtered to issues ready for work and is the sole source of truth for what work exists. Do not run your own unfiltered query to find more issues — if the list is empty, there is nothing to do.
+
 ## Recent RALPH commits (last 10)
 
 !`git log --oneline --grep="RALPH" -10`
@@ -46,6 +48,6 @@ Pick the highest-priority open issue that is not blocked by another open issue.
 
 # Done
 
-When all actionable issues are complete (or you are blocked on all remaining ones), output the completion signal:
+When all actionable issues are complete (or you are blocked on all remaining ones), or the open-issues block at the top of this prompt is empty, output the completion signal:
 
 <promise>COMPLETE</promise>
