@@ -9,5 +9,10 @@
   { "name": "area/frontend",      "color": "1D76DB", "description": "Area: frontend / UI" },
   { "name": "area/infra",         "color": "1D76DB", "description": "Area: infrastructure / deploy" },
   { "name": "area/docs",          "color": "1D76DB", "description": "Area: documentation" },
+  { "name": "needs-triage",       "color": "EDEDED", "description": "Maintainer needs to evaluate this issue" },
+  { "name": "needs-info",         "color": "D4C5F9", "description": "Waiting on reporter for more information" },
+  { "name": "ready-for-agent",    "color": "0E8A16", "description": "Fully specified, ready for an AFK agent to pick up" },
+  { "name": "ready-for-human",    "color": "0E8A16", "description": "Needs human implementation (judgment / design / external access)" },
+  { "name": "wontfix",            "color": "FFFFFF", "description": "Will not be actioned" },
   { "name": "status:in-progress", "color": "0052CC", "description": "Issue is being worked on — DoR enforced before this label sticks" }
 ]

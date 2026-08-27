@@ -1,11 +1,11 @@
 ---
 name: setup-gh-workflow
-description: Install ai-kit's GitHub workflow hygiene — issue templates with DoR/DoD checklists, two workflows (close→DoD check, label→DoR check, auto-promote Todo→Ready), and P0-P3 + epic/* + area/* + status:in-progress labels. Tier-A — fires from `/ai:setup` when a GitHub remote is detected. Dutch default; `--lang en` for English. Use when user wants to set up GH issues + Projects with enforced DoR/DoD, or invokes `/ai:setup-gh-workflow`.
+description: Install ai-kit's GitHub workflow hygiene — issue templates with DoR/DoD checklists, two workflows (close→DoD check, label→DoR check, auto-promote Todo→Ready), P0-P3 + epic/* + area/* + status:in-progress + triage labels, a PR template, and branch protection. Tier-A — fires from `/ai:setup` when a GitHub remote is detected. Dutch default; `--lang en` for English. Use when user wants to set up GH issues + Projects with enforced DoR/DoD, or invokes `/ai:setup-gh-workflow`.
 ---
 
 # Setup GitHub workflow
 
-Install `.github/ISSUE_TEMPLATE/` (feature + spike templates with embedded DoR/DoD), two `.github/workflows/` files (DoR/DoD enforcement + auto-promote-to-Ready), and a bulk label set into the current project. Adopt-as-pattern from naschool (`/should-i-use` verdict 2026-05-23) — battle-tested, parsing logic verbatim.
+Install `.github/ISSUE_TEMPLATE/` (feature + spike templates with embedded DoR/DoD), two `.github/workflows/` files (DoR/DoD enforcement + auto-promote-to-Ready), a PR template, branch protection, and a bulk label set into the current project. Adopt-as-pattern from naschool (`/should-i-use` verdict 2026-05-23) — battle-tested, parsing logic verbatim.
 
 ## When to invoke
 
@@ -30,7 +30,9 @@ Also fires automatically as part of `/ai:setup` when the project has a GitHub re
 | `.github/ISSUE_TEMPLATE/config.yml` | Disables blank issues; links to project board |
 | `.github/workflows/dor-dod-enforcement.yml` | On close → check DoD, reopen if unchecked. On `labeled status:in-progress` → check DoR, strip label if unchecked. |
 | `.github/workflows/auto-promote-ready.yml` | Todo → Ready on board when DoR all checked + `P[0-3]-*` + `epic/*` + `area/*` labels set. Forward-only. |
-| Labels (via `gh label create --force`) | `P0-critical`, `P1-high`, `P2-medium`, `P3-low`, `epic/core`, `epic/ux`, `area/backend`, `area/frontend`, `area/infra`, `area/docs`, `status:in-progress` |
+| `.github/PULL_REQUEST_TEMPLATE.md` | DoR/DoD PR checklist — scaffolded only when absent from all three GitHub-honored paths |
+| Branch protection on the default branch | `gh api PUT` — ≥1 approving review, no force-push, no deletion. 403 → prints manual checklist, exits 0 |
+| Labels (via `gh label create --force`) | Priority `P0-critical`…`P3-low` · epics `epic/core`, `epic/ux` · areas `area/backend`, `area/frontend`, `area/infra`, `area/docs` · flow `status:in-progress` · triage `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix` |
 
 ## Process
 
@@ -48,6 +50,8 @@ The script:
 2. **Copies** templates + workflows from `context/templates/github/`. **Never overwrites** existing files — pass `--force` to opt in.
 3. **Bulk-creates labels** via `gh label create --force` (idempotent — updates color/description on re-run).
 4. **Detects** existing GitHub Project for the repo owner; if found, resolves the Status field ID + Todo/Ready option IDs via `gh api graphql` and substitutes them into `auto-promote-ready.yml`. If no project board, prints the manual setup steps.
+5. **Scaffolds** `.github/PULL_REQUEST_TEMPLATE.md` — skipped when a template already sits at any of the three paths GitHub honors.
+6. **Applies** branch protection on the default branch (≥1 approving review). A 403 means no admin scope: the script prints the exact `gh api PUT` command for an admin and exits 0. Drift warns, never breaks.
 
 ### 2. Manual follow-ups the script prints
 
@@ -99,6 +103,8 @@ Issues already on the project board with all DoR checkboxes + the three required
 | `--dry-run` | Print actions, change nothing |
 | `--no-labels` | Skip label creation (manual creation later) |
 | `--no-project` | Skip project-board detection + placeholder substitution |
+| `--no-pr-template` | Skip PR-template scaffold |
+| `--no-protection` | Skip branch protection (leave the default branch unprotected) |
 | `--quiet` | Only print errors |
 
 ## Outputs
@@ -107,4 +113,6 @@ Issues already on the project board with all DoR checkboxes + the three required
 - `.github/workflows/{dor-dod-enforcement,auto-promote-ready}.yml` in the project
 - Labels in the GitHub repo (idempotent)
 - Substituted Project IDs in `auto-promote-ready.yml` + project board URL in `config.yml` if a project board exists
+- `.github/PULL_REQUEST_TEMPLATE.md` when no PR template existed
+- Branch protection on the default branch, or an admin fallback command when the PUT is refused
 - Console reminders for PAT secret + manual project-board creation if needed

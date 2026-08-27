@@ -319,6 +319,40 @@ Default: brownfield with domain-shaped folders (`app/Domain/`,
 no domain signal → `skipped`. Record the choice in the marker
 (`--domain-docs=scaffolded|filled|skipped`).
 
+### Branch 9 — Agile workflow (optional)
+
+`bootstrap-project.sh` already wrote `docs/agents/workflow.md` with an unfilled
+Framework section. This branch fills it — the file is what every later skill
+(`triage`, `to-issues`, `next`, `retro`, `ship`) reads to know the cadence.
+
+**Explore.** Read `docs/agents/workflow.md`. Count contributors:
+`git shortlog -sne --since="6 months ago" | wc -l`.
+
+**Question.**
+
+> Which workflow does this project run?
+> [1] kanban   — continuous flow, no sprints (default for ≤2 contributors)
+> [2] scrum    — fixed-length sprints with planning + retro
+> [3] informal — no ceremonies, skills ad hoc
+
+**Apply.** Replace the `<!-- scrum | kanban | informal -->` comment with the
+choice, then fill only that framework's subsection and delete the other two:
+
+- **kanban** — ask for a WIP limit (recommend 2 when one person writes
+  the code, 3-5 for a larger team) and write it into the WIP-limit line. An unset WIP limit is the most
+  common reason a kanban board silently becomes a wishlist; `/ai:next` scores
+  `status:in-progress` at +50 to nudge finish-before-start, but only the WIP
+  limit is an actual ceiling.
+- **scrum** — ask sprint length and write it into the Sprint-length line.
+- **informal** — nothing to fill.
+
+Team-shape section: if `git shortlog` shows a single contributor, say so
+explicitly and confirm the 2-dev reviewer default (ai-kit #52) still applies —
+an agent counts as the second dev, but the user may want it stated. Record the
+answer in the Team-shape section rather than silently keeping the default.
+
+Record via `--workflow=kanban|scrum|informal`.
+
 ### Branch 10 — Automation recommender (propose-but-defer)
 
 Surface, don't run. ai-kit installs noch invokeert de recommender. Stel één keer voor en leg de keuze vast in de marker:

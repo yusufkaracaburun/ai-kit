@@ -176,4 +176,36 @@ assert "bootstrap --no-gh-workflow: no .github/ scaffolded" '[ ! -d "$TMP_BS_NO/
 rm -rf "$TMP_BS_NO"
 
 
+echo "=== label-catalog contract ==="
+# section: label-catalog-contract
+# Every label the ai-kit tooling queries must exist in the catalog the setup
+# script creates. Before this contract, autonomous-queue.sh filtered on
+# `ready-for-agent` and ai-kit-next.sh scored the triage labels, while
+# labels.json only shipped P0-P3 / epic / area / status:in-progress — so the
+# AFK queue was permanently empty on a fresh install.
+LABELS_JSON="$AIKIT/context/templates/github/labels.json"
+assert "labels.json parses as JSON" 'python3 -c "import json;json.load(open(\"$LABELS_JSON\"))"'
+
+CATALOG_NAMES="$(python3 -c "
+import json
+print(' '.join(l['name'] for l in json.load(open('$LABELS_JSON'))))
+")"
+for lbl in needs-triage needs-info ready-for-agent ready-for-human wontfix \
+           P0-critical P1-high P2-medium P3-low status:in-progress; do
+  assert "catalog ships label '$lbl'" 'echo " $CATALOG_NAMES " | grep -q " '"$lbl"' "'
+done
+
+assert "autonomous-queue filters on a catalogued label" \
+  'grep -q "label ready-for-agent" "$AIKIT/bin/autonomous-queue.sh" && echo " $CATALOG_NAMES " | grep -q " ready-for-agent "'
+
+# Every P-label in the catalog must satisfy the auto-promote regex /^P[0-3]-/,
+# otherwise a correctly-labelled issue never promotes Todo -> Ready.
+assert "catalog P-labels match the auto-promote regex" \
+  'python3 -c "
+import json, re, sys
+ls=[l[\"name\"] for l in json.load(open(\"$LABELS_JSON\")) if l[\"name\"].startswith(\"P\")]
+sys.exit(0 if ls and all(re.match(r\"^P[0-3]-\", n) for n in ls) else 1)
+"'
+
+
 print_summary_and_exit

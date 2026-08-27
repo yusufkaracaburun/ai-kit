@@ -101,6 +101,11 @@ fi
 mkdir -p "$TARGET/docs/agents" "$TARGET/docs/adr" "$TARGET/docs/wiki"
 cp -n "$TPL/docs/adr/ADR-template.md" "$TARGET/docs/adr/" 2>/dev/null || true
 cp -n "$TPL/docs/wiki/README.md" "$TARGET/docs/wiki/" 2>/dev/null || true
+# Agile workflow + triage-label mapping. verify-setup.sh checks both; without
+# this copy they were verified but never produced. /ai:setup branch 9 fills in
+# the framework section, branch 5 edits the label mapping.
+cp -n "$TPL/docs/agents/workflow.md" "$TARGET/docs/agents/" 2>/dev/null || true
+cp -n "$TPL/docs/agents/triage-labels.md" "$TARGET/docs/agents/" 2>/dev/null || true
 
 link_skills_all() {
   local dest_parent="$1"
