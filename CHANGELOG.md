@@ -1,5 +1,49 @@
 # Changelog
 
+## 1.63.1 — 2026-08-27
+
+### Fixed
+
+- **The installer could not repair the links it had made.** `install_dir_to`
+  and `install_files_to` refuse to clobber whatever already sits at a
+  destination, and a dead symlink read as "already there": `cd` into a broken
+  link fails, `resolved` comes back empty, and empty matches no `$src_real`
+  prefix, so the entry fell through to `Skipped … (existing non-aikit entry)`
+  and stayed dead. Move the ai-kit root and every link it ever made is
+  stranded — rerunning the installer changed nothing and said so once per
+  link. On the machine this was found on: 44 in `~/.agents/skills`, 23 in
+  `~/.cursor/skills`, 7 in `~/.cursor/commands`, all pointing at a
+  `~/.local/share/ai-kit` that had not existed for months. Both functions now
+  sweep their target directory before the entry loop and delete dead links
+  they can prove are ai-kit's. Running first is what makes the sweep reach
+  rename orphans — `aikit-tdd`, `followup`, `handoff` — whose names left the
+  source tree, so the entry loop, which only ever walks names that still
+  exist, would never visit them again.
+
+  Proving ownership takes two patterns, because one covers only half the
+  installs. `*/ai-kit/*` catches a clone. It cannot catch a plugin install,
+  whose root pins the version into the path
+  (`~/.claude/plugins/cache/<owner>/ai/1.63.0`) and therefore carries no
+  `/ai-kit/` segment at all — and that is exactly the root whose links go
+  dead on every upgrade, in the three directories the `prefer-plugin` marker
+  does not skip. The second pattern is the previous value of
+  `~/.config/ai-kit/root`, read before `write_ai_kit_root_config` overwrites
+  it. It falls back to a sentinel when that file is absent: an empty value
+  would expand the case arm to `/*`, which matches every absolute path,
+  including links belonging to other tools. Dead links ai-kit cannot claim
+  are left exactly where they are.
+
+- **A diagnostic in the test harness could kill the case it was explaining.**
+  `_assert_show` truncates a long value at twelve lines, then greps the tail
+  for `warn`/`err`/`fail`, because the line that explains a failure is rarely
+  in the first twelve. That grep exits 1 when the tail holds no such line,
+  and every case file runs under `set -e`, so the assignment took the whole
+  case down mid-run: no further asserts, no summary, no exit code, and the
+  failure it was halfway through printing lost with it. A review of
+  `install-global.sh` hit this and stopped at assert 23 of 26 with nothing to
+  say it had stopped early. The comment eight lines below already stated the
+  rule that was being broken: never let diagnostics decide the run.
+
 ## 1.63.0 — 2026-08-27
 
 ### Added
