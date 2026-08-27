@@ -1,5 +1,106 @@
 # Changelog
 
+## 1.61.0 — 2026-08-27
+
+### Added
+
+- **Test coverage for 8 previously untested `bin/` scripts** — 102 assertions.
+  The two that mattered most are the destructive ones: `ai-kit-migrate-gsd.sh`
+  (236 lines, removes SessionStart hooks and gsd metadata from `~/.claude`) and
+  `install-global.sh` (symlinks into `~/.claude`, `~/.agents`, `~/.cursor`). Also
+  `audit-nextjs-helpers.sh`, `audit-shadcn-helpers.sh` (their react/typescript/
+  laravel siblings already had cases), `ai-kit-memory-audit.sh`, `ai-kit-phase.sh`,
+  `ai-kit-prefer-plugin.sh`, `autonomous-heartbeat.sh`. Every test that touches
+  `$HOME` sandboxes it. Untested `bin/` lines dropped from 14.5% to ~4%.
+
+- **`bin/hooks/session-rules-inject.sh`** — a `SessionStart` hook that injects a
+  project's emitted `always-on`, `weight: high` rules into Claude Code, closing
+  the gap where that mode meant real enforcement on Cursor and nothing here.
+  Ships with `bin/ai-kit-no-rule-injection.sh` (machine-wide opt-out), a
+  `context-lean` reconciliation, and 30 tests.
+
+  **Not registered in `workflow/hooks/hooks.json`.** Measured against a real
+  project before wiring it, and the measurement said no: the selection fills its
+  word budget smallest-first, so within `weight: high` the shortest rules always
+  win. `context-discipline` (512 words) and `domain-model-first` (726) were
+  dropped for being long, not for being less important — length had become an
+  inverse proxy for merit. Turning it on would add ~1,679 words (≈2.2–2.8k
+  tokens) per session on top of the ~6,000–7,500 a project already carries.
+  Tracked in **#148**; the wiring test pins the absence so it cannot be
+  re-enabled by accident.
+
+- **`bin/lib/emitters/README.md`** now documents `default_mode` per host, and
+  `tests/bin/cases/default-mode-semantics.sh` fails if the two emitters ever
+  diverge again on the same mode value.
+
+### Fixed
+
+- **The test runner counted a crashed case as zero instead of as a failure.**
+  A case that dies under `set -e` before printing its `PASS:`/`FAIL:` line
+  contributed nothing to either counter, so the summary read
+  `N passed, 0 failed` directly beneath a `✗` line. The exit code was already
+  1 — CI did go red — but the summary contradicted the detail above it. Now
+  counted as one failure and named on stderr. (#145)
+
+- **`docs-sync` offered live worktree branches for deletion.** git prefixes a
+  branch checked out in a linked worktree with `+`; the strip only handled `*`
+  and spaces, so such a branch was reported as a cleanup candidate under the
+  name `+ <branch>` — an invalid name that `git branch -d` would have rejected
+  anyway. (#145)
+
+- **`release.sh` called a linked worktree "not a git repo"** — `.git` is a file
+  there, not a directory. Uses `git rev-parse --git-dir`. (#145)
+
+- **`ai-kit-doctor.sh` reported a running agent's test fixtures as project rot.**
+  The broken-symlink scan walked `.claude/worktrees/`, which is transient,
+  gitignored scratch space. Pruned alongside `node_modules` and `vendor`.
+
+- **Review blockers in the new coverage cases.** The worst was process leakage:
+  `autonomous-heartbeat.sh` started an unbounded `while true; sleep` loop in the
+  background with no EXIT trap, orphaning a process that ticked every second
+  forever on any early abort. Two of its cases ran that same loop in the
+  *foreground*, and `run-all.sh` has no per-case timeout — a validation
+  regression would have wedged the whole suite. Also: four tautological
+  `RC=$?`-after-assignment assertions that could only ever pass, a
+  `grep -qE "42.*heartbeat"` that also matched the timestamp (roughly one run in
+  sixty passed with the wrong issue number), and an idempotency section that
+  passed with the installer replaced by `true` — verified by doing exactly that.
+
+### Changed
+
+- **`tests/bin/run-all.sh` honours a `CASES` override**, same idiom as `JOBS`,
+  so a test can point the runner at a throwaway cases directory instead of
+  recursing into the real suite.
+
+- **`.claude/worktrees/` is gitignored.** Agent worktrees are transient and were
+  briefly tracked as embedded git repositories.
+
+### Performance
+
+- **`lifecycle.sh` went from the slowest case in the suite to 26s.** It called
+  `bootstrap-project.sh` six times with identical arguments at ~7.7s each;
+  `tests/bin/lib/fixtures.sh` now builds once per argument signature and copies
+  the rest. The cost is fork overhead, not computation — 84% of that 7.7s is
+  system time, since `emit-rules.sh` rebuilds the whole `active-rules.md` index
+  per rule.
+
+  Corrects an earlier count: `doctor-broken-symlinks.sh` calls bootstrap zero
+  times, not three — the grep matched a string inside an assertion pattern. 19
+  real invocations across 5 files, and only `lifecycle.sh`'s six were true
+  duplicates; the rest vary flags or preconditions and cannot be cached without
+  dropping what they test.
+
+### Testing
+
+- Suite: **1210 passed, 0 failed** (from 1080).
+- 58 fixture-marker assertions in the three `audit-*-extension` cases collapsed
+  to 4 counted ones. They asserted properties of *test data*, not of ai-kit code
+  — a `git mv` broke them, a real bug did not. The negative api-only/full-stack
+  markers stay: those encode a design invariant.
+- Three near-clone extension cases merged into one table-driven
+  `audit-extensions.sh`; five prose-lint cases merged into `two-dev-framing.sh`.
+- Three tautological assertions elsewhere in the suite fixed rather than deleted.
+
 ## 1.60.0 — 2026-08-26
 
 ### Added
