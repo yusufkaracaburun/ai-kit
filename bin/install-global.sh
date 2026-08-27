@@ -7,6 +7,19 @@ source "$SCRIPT_BIN/lib/ai-kit-root.sh"
 AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
 PRIMITIVES="$(resolve_primitives_root "$AIKIT")"
 
+# The root the last install ran from. Links made then point into it, and a
+# plugin root carries its version in the path
+# (~/.claude/plugins/cache/.../ai/1.63.0), so after an upgrade those links
+# are dead and have no /ai-kit/ segment for the sweep below to recognise.
+# Read it before write_ai_kit_root_config overwrites the file.
+PREV_ROOT=""
+if [ -f "${HOME}/.config/ai-kit/root" ]; then
+  PREV_ROOT="$(tr -d '[:space:]' < "${HOME}/.config/ai-kit/root")"
+fi
+# An empty PREV_ROOT would make the "$PREV_ROOT"/* case arm read as /*, which
+# matches every absolute path — including links belonging to other tools.
+[ -n "$PREV_ROOT" ] || PREV_ROOT="//no-previous-root"
+
 write_ai_kit_root_config "$AIKIT"
 
 # Symlink every subdirectory of $src_root into $target, refusing to clobber
@@ -21,6 +34,20 @@ install_dir_to() {
   fi
   src_real="$(cd "$src_root" && pwd -P)"
   mkdir -p "$target"
+  # Reap ai-kit links whose target moved. Includes orphans this run will not
+  # relink (renamed or removed entries), which would otherwise stay dead
+  # forever — the loop below only ever visits names that still exist in the
+  # source tree, and a dead link there reads as "existing entry, skip".
+  for dead in "$target"/*; do
+    [ -L "$dead" ] && [ ! -e "$dead" ] || continue
+    was="$(readlink "$dead")"
+    case "$was" in
+      */ai-kit/*|"$PREV_ROOT"/*)
+        rm -f "$dead"
+        echo "Removed dead link $(basename "$dead") (was -> $was)"
+        ;;
+    esac
+  done
   for entry in "$src_root"/*/; do
     [ -d "$entry" ] || continue
     name="$(basename "$entry")"
@@ -56,6 +83,20 @@ install_files_to() {
   fi
   src_real="$(cd "$src_root" && pwd -P)"
   mkdir -p "$target"
+  # Reap ai-kit links whose target moved. Includes orphans this run will not
+  # relink (renamed or removed entries), which would otherwise stay dead
+  # forever — the loop below only ever visits names that still exist in the
+  # source tree, and a dead link there reads as "existing entry, skip".
+  for dead in "$target"/*.md; do
+    [ -L "$dead" ] && [ ! -e "$dead" ] || continue
+    was="$(readlink "$dead")"
+    case "$was" in
+      */ai-kit/*|"$PREV_ROOT"/*)
+        rm -f "$dead"
+        echo "Removed dead link $(basename "$dead") (was -> $was)"
+        ;;
+    esac
+  done
   for entry in "$src_root"/*.md; do
     [ -f "$entry" ] || continue
     name="$(basename "$entry")"

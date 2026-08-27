@@ -77,4 +77,69 @@ assert "cursor has no plugin namespace, so its skills still link" '[ -L "$H/.cur
 assert "cursor commands still link" '[ -L "$H/.cursor/commands/doctor.md" ]'
 rm -rf "$H"
 
+echo "=== dead ai-kit symlinks are reclaimed, foreign dead links are not ==="
+H=$(mktemp -d)
+GONE="$H/moved-away/ai-kit/workflow"
+mkdir -p "$H/.agents/skills" "$H/.cursor/commands"
+# A link to a skill that still exists in the source tree, and one to a name
+# that no longer does (a rename orphan the entry loop never visits).
+ln -s "$GONE/skills/audit-architecture/" "$H/.agents/skills/audit-architecture"
+ln -s "$GONE/skills/aikit-tdd/" "$H/.agents/skills/aikit-tdd"
+ln -s "$GONE/commands/doctor.md" "$H/.cursor/commands/doctor.md"
+# Someone else's dead links — not ours to delete. `qa` collides with a name
+# in the source tree, so it also exercises the entry loop's non-clobber arm;
+# `mine` does not, so only the sweep ever sees it.
+ln -s "/nonexistent/other-tool/skills/qa/" "$H/.agents/skills/qa"
+ln -s "/nonexistent/other-tool/skills/mine/" "$H/.agents/skills/mine"
+OUT=$(install_global "$H")
+assert "relinks a dead ai-kit skill link into the repo" \
+  '[ -e "$H/.agents/skills/audit-architecture" ] && readlink "$H/.agents/skills/audit-architecture" | grep -q "workflow/skills/audit-architecture"'
+assert "removes a dead ai-kit link whose skill no longer exists" \
+  '[ ! -L "$H/.agents/skills/aikit-tdd" ]'
+assert "reports the orphan removal" 'grep -q "Removed dead link aikit-tdd" <<<"$OUT"'
+assert "relinks a dead ai-kit command link" \
+  '[ -e "$H/.cursor/commands/doctor.md" ]'
+assert "names the old target when it removes a link" \
+  'grep -q "Removed dead link aikit-tdd (was -> $GONE/skills/aikit-tdd/)" <<<"$OUT"'
+assert "leaves a foreign dead link alone" \
+  '[ -L "$H/.agents/skills/mine" ] && [ ! -e "$H/.agents/skills/mine" ]'
+assert "does not report the foreign link as removed" \
+  '! grep -q "Removed dead link mine" <<<"$OUT"'
+assert "a foreign dead link on a colliding name stays dead" \
+  '[ -L "$H/.agents/skills/qa" ] && [ ! -e "$H/.agents/skills/qa" ]'
+assert "and is reported as an existing non-aikit entry" \
+  'grep -q "Skipped qa (existing non-aikit entry" <<<"$OUT"'
+rm -rf "$H"
+
+echo "=== links from a previous root with no /ai-kit/ segment are reclaimed ==="
+# A plugin install pins its version into the path
+# (~/.claude/plugins/cache/<owner>/ai/<version>), so after an upgrade its
+# links are dead and match no /ai-kit/ pattern. ~/.config/ai-kit/root still
+# holds the root they were made from.
+H=$(mktemp -d)
+OLD_PLUGIN="$H/.claude/plugins/cache/owner/ai/1.62.0"
+mkdir -p "$H/.config/ai-kit" "$H/.agents/skills" "$H/.cursor/commands"
+printf '%s\n' "$OLD_PLUGIN" > "$H/.config/ai-kit/root"
+ln -s "$OLD_PLUGIN/skills/audit-architecture/" "$H/.agents/skills/audit-architecture"
+ln -s "$OLD_PLUGIN/skills/aikit-tdd/" "$H/.agents/skills/aikit-tdd"
+ln -s "$OLD_PLUGIN/commands/doctor.md" "$H/.cursor/commands/doctor.md"
+ln -s "/nonexistent/other-tool/skills/mine/" "$H/.agents/skills/mine"
+OUT=$(install_global "$H")
+assert "relinks a live skill name from the previous root" \
+  '[ -e "$H/.agents/skills/audit-architecture" ]'
+assert "removes an orphan from the previous root" '[ ! -L "$H/.agents/skills/aikit-tdd" ]'
+assert "removes an orphan command from the previous root" \
+  '[ -e "$H/.cursor/commands/doctor.md" ]'
+assert "still leaves a foreign dead link alone" '[ -L "$H/.agents/skills/mine" ]'
+rm -rf "$H"
+
+echo "=== no previous root: the empty value must not match every path ==="
+H=$(mktemp -d)
+mkdir -p "$H/.agents/skills"
+ln -s "/nonexistent/other-tool/skills/mine/" "$H/.agents/skills/mine"
+OUT=$(install_global "$H")
+assert "foreign dead link survives when ~/.config/ai-kit/root is absent" \
+  '[ -L "$H/.agents/skills/mine" ]'
+rm -rf "$H"
+
 print_summary_and_exit
