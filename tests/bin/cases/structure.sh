@@ -146,6 +146,21 @@ assert "sync-plugin-hooks --check clean" 'bash "$AIKIT/bin/sync-plugin-hooks.sh"
 assert "sync-plugin-bin --check clean" 'bash "$AIKIT/bin/sync-plugin-bin.sh" --check >/dev/null 2>&1'
 assert "sync-plugin-standards --check clean" 'bash "$AIKIT/bin/sync-plugin-standards.sh" --check >/dev/null 2>&1'
 assert "sync-plugin-context --check clean" 'bash "$AIKIT/bin/sync-plugin-context.sh" --check >/dev/null 2>&1'
+assert "sync-plugin-orchestration --check clean" 'bash "$AIKIT/bin/sync-plugin-orchestration.sh" --check >/dev/null 2>&1'
+
+# The --check family only catches drift in a mirror that EXISTS. workflow/
+# had no orchestration/ at all for five releases, so nothing drifted and
+# nothing complained — apply-sandcastle.sh just left an empty .sandcastle/
+# and /ai:setup branch 8 reported success. The durable guard is behavioural:
+# run the plugin-side script and require it to actually produce the scaffold.
+TMP_SC=$(mktemp -d)
+printf '{"name":"t"}' > "$TMP_SC/package.json"
+bash "$AIKIT/workflow/bin/apply-sandcastle.sh" "$TMP_SC" >/dev/null 2>&1 || true
+SC_FILES=$(find "$TMP_SC/.sandcastle" -type f 2>/dev/null | wc -l | tr -d ' ')
+assert "plugin-side apply-sandcastle produces a non-empty scaffold" '[ "$SC_FILES" -ge 5 ]'
+assert "plugin-side scaffold leaves no unresolved placeholders" \
+  '! grep -rq "{{INSTALL_CMD}}\|{{COPY_TO_WORKTREE}}" "$TMP_SC/.sandcastle" 2>/dev/null'
+rm -rf "$TMP_SC"
 assert "workflow/context/templates/github exists in plugin" '[ -d "$AIKIT/workflow/context/templates/github" ]'
 assert "workflow/bin/ai-kit-doctor.sh exists" '[ -x "$AIKIT/workflow/bin/ai-kit-doctor.sh" ]'
 assert "plugin commands use CLAUDE_PLUGIN_ROOT" '! grep -lE "AI_KIT_ROOT.*\\\$HOME/\\.config/ai-kit/root.*}/bin/" "$AIKIT/workflow/commands/"*.md'

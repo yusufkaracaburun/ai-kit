@@ -155,10 +155,13 @@ bash "$SCRIPT_BIN/sync-plugin-bin.sh"
 bash "$SCRIPT_BIN/sync-plugin-standards.sh"
 # Keep plugin-bundled context (templates + prompts) in sync — ai-kit issues #67/#68.
 bash "$SCRIPT_BIN/sync-plugin-context.sh"
+# Keep plugin-bundled orchestration (Sandcastle scaffold templates) in sync.
+# Missing this mirror is why plugin-side apply-sandcastle.sh scaffolded nothing.
+bash "$SCRIPT_BIN/sync-plugin-orchestration.sh"
 
 git add VERSION CHANGELOG.md workflow/.claude-plugin/plugin.json \
   workflow/hooks/post-skill-log.sh workflow/hooks/log-skill.sh \
-  workflow/bin workflow/standards workflow/context
+  workflow/bin workflow/standards workflow/context workflow/orchestration
 git commit -m "chore(release): v$NEW_VERSION"
 
 if [ "$DO_TAG" = true ]; then
