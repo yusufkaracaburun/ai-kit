@@ -1,5 +1,62 @@
 # Changelog
 
+## 1.64.0 — 2026-08-27
+
+### Added
+
+- **`show-me`, a skill that answers with a drawing instead of a paragraph.**
+  A paragraph describing a call chain is slower to read than the call chain.
+  The skill carries seven views, a call tree, a component tree, a shallow file
+  tree, pseudocode, a shaped diff, a Mermaid diagram, or one focused HTML page,
+  and a decision table that picks the smallest one that answers the question.
+  It sits next to `zoom-out` without duplicating it: `zoom-out` is manual-only
+  and answers with a prose map, `show-me` is model-invocable and draws the
+  shape.
+
+  The idea comes from [humanlayer/skills](https://github.com/humanlayer/skills)
+  plugin `show-me` (MIT, commit `3c2629142c5d437428269b1b722b08c0b87f574d`),
+  adopted as a pattern rather than wired. It is 100 lines of markdown with no
+  code, so a second marketplace for every developer to add, upstream drift to
+  track, and a macOS-only `open` all cost more than owning the idea. The view
+  set and the smallest-view-that-answers rule are credited in the skill's
+  provenance block; the text, decision table, rules and examples are ai-kit's.
+  Deliberately absent from `vendored.json`, which tracks verbatim copies for
+  upstream-drift to chase, and recorded in `plugins-excluded.json` so a later
+  `/ai:should-i-use humanlayer/skills` cannot recommend installing what the kit
+  already ships.
+
+  The HTML branch writes to the OS temp directory, never the repo. Pre-release
+  review caught the omission: a page filled with the project's real data and no
+  stated write path defaults to the consumer's repo root, one `git add -A` from
+  being committed. It now mirrors `improve-codebase-architecture`, which had
+  already solved the same problem.
+
+- **`web-quality-skills` in the plugin catalog**, and `ui-skills` plus
+  `frontend-design-toolkit` recorded as deliberate exclusions. A recursive grep
+  for core web vitals, Lighthouse, LCP, CLS and INP across `standards`,
+  `workflow`, `context`, `orchestration` and `docs` found nothing, so the
+  performance-budget gap was real. The toolkit that surfaced it is itself
+  excluded: its own stacks were already covered, and it fails VETTING #3 on its
+  own content, attributing Chrome DevTools MCP to Anthropic with an install
+  command that 404s on npm and contradicting its own star count inside one file.
+
+- **Two `should-i-use` verdicts recorded**, both Ignore, both against tools that
+  looked in-category. `skill-doctor` (warpdotdev/common-skills) duplicates a
+  first-party feature, ships a vendor CTA its SKILL.md tells the agent to append
+  to every response, and carries a 1.1 MB minified bundle with no licence header
+  anywhere in the repo. `show-me` as a plugin, per above.
+
+  The `skill-doctor` entry landed under commit `0a217e4`, whose message covers
+  only the catalog work: two sessions were writing the same ledger and one
+  staged the other's uncommitted change without reading the staged diff.
+
+### Changed
+
+- Skill count moves from 39 to 40 across the README, ONBOARDING, the docs, both
+  plugin manifests, and the two count assertions. `bin/count-primitives.sh`
+  guards a `| Skills | N |` table row in the README that a prose grep for
+  "39 skills" does not catch.
+
 ## 1.63.1 — 2026-08-27
 
 ### Fixed
