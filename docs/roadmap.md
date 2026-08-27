@@ -47,39 +47,12 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P1 — broken in the wild
 
-- **#120** `enhancement · primitive:hook` — `hooks-patterns.json` recommends
-  `gitleaks-scan` as a PreToolUse `Edit|Write` guard, which only inspects what the
-  agent writes next. A `gitleaks detect` sweep over six real projects returned 104
-  hits, **every one already in history** — the recipe would have caught nothing.
-  Only `emeq-system` holds real findings (a live Ibanity PSD2 private key, a Mailgun
-  signing key, WordPress DB dumps); the other five are dominated by false positives,
-  and both public repos are clean. Fix = repo-**entry** scan in `/ai:setup` +
-  `/ai:hygiene` (redacted to paths + rule ids, since findings enter agent context),
-  emitted pre-commit + CI for prevention, and keep `block-env-edits` as PreToolUse
-  where the shape is right. Compounding: every recipe is advisory metadata with no
-  `command` field — though that is deliberate, not a gap: `recommend-tools` generates
-  the script at approval time, so the defect is a wrong spec rather than a missing one.
-  **Design settled** via `/ai:grill-me` across five branches: a one-time discovery scan
-  at `/ai:setup` plus a re-runnable `bin/ai-kit-secrets-scan.sh`, never per-hygiene-run
-  (44s over 2578 commits); hygiene grades only whether a gate is wired, at `warn`/`-5` —
-  never `-20`, which would drop all six repos under the 94 floor at once; findings
-  acknowledgement-gate setup rather than blocking it, since ai-kit cannot rotate the key
-  it found; rank and collapse, never filter, and **no baseline ever** (baselining would
-  have accepted the Ibanity key as known on first run); CI workflow always, pre-commit
-  only appended to a mechanism that already exists — the six projects run four different
-  ones and none uses the `pre-commit` framework. Scope is the one row: drop it, keep
-  `block-env-edits`, no verification pass over the other 26. Remediation for the affected
-  repo is tracked outside ai-kit as `emeq-system#209`. Now a parent only — split into
-  four tracer-bullet slices, `ready-for-agent` dropped here so the picker cannot choose
-  the parent over its own children. #121 (scanner + recipe drop) and #122 (CI emit +
-  pre-commit append) shipped in v1.54.0; #123 (hygiene section) shipped unreleased in
-  PR #130, which also corrected #122's template — dogfooding the gate on ai-kit itself
-  exposed that scanning full history in CI goes red forever on any repo carrying a
-  pre-existing finding, which was four of the six measured. CI now scans only the range
-  an event adds. Remaining:
-  - **#124** `HITL` — `/ai:setup` wiring, `branches.secrets_scan`, and the
-    acknowledgement gate. Human-driven: it adds the first stop-point to a skill that has
-    none, and the wording of a pause in an onboarding flow wants human judgement.
+- **#124** `enhancement · HITL` — wire the secrets scan into `/ai:setup`:
+  `branches.secrets_scan` plus an acknowledgement gate. Left over from #120, which
+  closed with the CI half done (scanning full history goes red forever on any repo
+  carrying a pre-existing finding — four of six measured — so CI now scans only the
+  range an event adds). Human-driven: it adds the first stop-point to a skill that
+  has none, and the wording of a pause in an onboarding flow wants human judgement.
 - **#114** `bug` — `bootstrap-project.sh` symlinks skills to the **version-numbered
   plugin-cache path** (`~/.claude/plugins/cache/…/ai/<VERSION>/skills/`), so every
   `/plugin update` orphans every project symlink. Bricked `emeq` (114 dead links,
@@ -94,6 +67,19 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P2 — next up
 
+- **#141** `bug · primitive:plugin` — `audit-ecosystem` counts per-project plugin
+  enablement as a duplicate install: 15 of 16 divergent rows for emeq are false
+  `REBIND`s, one per project that enables the same plugin. The converge recipe it
+  prints is actively harmful — following it unbinds working installs. Fix: key
+  dedupe on marketplace+scope+version, not on plugin name across project paths.
+- **#140** `bug · primitive:plugin` — `/ai:upgrade` promises a release slice from
+  `CHANGELOG.md` and never prints one, because the plugin cache ships no
+  `CHANGELOG.md`. Either add it to the plugin payload or drop the promise from the
+  skill; a documented behaviour that silently no-ops is worse than neither.
+- **#148** `bug` — rule injection gates on `weight: high` and then fills
+  smallest-first, so length decides what survives. Rediagnosed 2026-08-27: the
+  cause is in the rule metadata, not the sort order — `weight` is too coarse a
+  key to select on.
 - **#150** `bug` — `doctor` never counts dead symlinks in the global skill dirs.
   `ai-kit-doctor.sh:118` greps for one link matching `$AIKIT`, reports `ok`, and
   stops; that is why 74 broken links (44 `~/.agents/skills`, 23 `~/.cursor/skills`,
@@ -157,15 +143,6 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
   (three repos moving independently) with no drift signal at all. Cheapest fix
   needs nothing upstream: record a composite `{repo: HEAD}` stamp in
   `graphify-out/.ai-kit-graph-verified`.
-- **#134** `bug` — `doctor` exits non-zero intermittently on `ubuntu-latest`, failing
-  `lifecycle`'s `doctor: opt-out alone exits 0` on one run and passing a re-run of the
-  same commit. Second flake found in a day, unrelated to the SIGPIPE one. Does not
-  reproduce locally across 15 runs. The larger point is the second half of the title:
-  the assertion compares a captured exit code, and `assert()` prints only its name, so
-  a failure says the number was wrong and nothing about why — while `$OUT_OO_NOPROJ`
-  held the answer and was discarded. Every exit-code assertion in the suite shares that
-  blind spot, and an intermittent one cannot be caught any other way, because by the
-  time anyone looks the run is gone.
 - **#116** `bug · primitive:plugin` — a plugin skill silently shadows a same-named
   project skill: `bootstrap-project.sh` merges ai-kit skills with `ln -sfn`, which
   overwrites on name collision while the echo claims "custom entries preserved".
@@ -187,6 +164,14 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P3 — backlog
 
+- **#147** `bug` — `memory-audit` marks a file STALE only when it is past the
+  cutoff **and** has zero references. The index line in `MEMORY.md` counts as a
+  reference, so indexing a memory makes it permanently immune to the staleness
+  check — the check can only ever fire on memories nobody indexed.
+- **#142** `catalog-candidate` — add `clangd-lsp` to
+  `standards/external/plugins.json`. `/ai:dedupe` surface 5 flags it as the one
+  genuine ADOPT; `php-lsp` and `typescript-lsp` are already in the catalog, so it
+  is the only one of the family missing. Same publisher, same shape.
 - **#146** `enhancement` — three `bin/` scripts still have no test:
   `doc-to-skill.sh` (179 lines, needs a PDF/EPUB fixture or a mocked conversion
   step), `eval-skill.sh` (102, sits in the eval layer so the contract needs
