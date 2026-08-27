@@ -1,5 +1,33 @@
 # Changelog
 
+## 1.64.1 — 2026-08-27
+
+### Fixed
+
+- **`/ai:upgrade` never showed its release notes to anyone installing via the
+  plugin.** The feature was written, documented and dead. `commands/upgrade.md`
+  promises that the script "slices the relevant section out of `CHANGELOG.md`
+  and prints it so the user sees what changed", and `ai-kit-upgrade.sh`
+  implements exactly that.
+
+  It reads `$AIKIT/CHANGELOG.md`. For a clone `$AIKIT` is the repo root and the
+  file is there. For a plugin install `$AIKIT` is the plugin root, which is
+  `workflow/`, and the changelog lives one level up, so it was never in the
+  payload. The lookup hit `if not p.is_file(): sys.exit(0)` and the command
+  printed a bare `Upgraded marker X -> Y` with no sign that anything had been
+  withheld. Reproduced with one marker and two installs side by side: the clone
+  printed the v1.64.0 notes, the plugin printed nothing.
+
+  Same bug class as the orchestration mirror, whose own comment in `release.sh`
+  already records it: a source-of-truth file that never reached the plugin
+  payload, so the plugin-side script silently did nothing. Fixed the same way.
+  `release.sh` now copies `CHANGELOG.md` into `workflow/` and stages it; the
+  script is unchanged, since the existing lookup resolves once the file is
+  there. Guarded in `tests/bin/cases/structure.sh`, which requires the payload
+  to carry a changelog byte-identical to the root one.
+
+  This release is the first upgrade that prints its own notes.
+
 ## 1.64.0 — 2026-08-27
 
 ### Added
