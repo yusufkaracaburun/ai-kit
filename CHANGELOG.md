@@ -1,5 +1,62 @@
 # Changelog
 
+## 1.62.0 — 2026-08-27
+
+### Fixed
+
+- **The AFK queue was permanently empty on a fresh install.**
+  `bin/autonomous-queue.sh` filters issues on `ready-for-agent` and
+  `bin/ai-kit-next.sh` scores the triage labels, but
+  `context/templates/github/labels.json` only ever shipped `P0-P3` / `epic/*` /
+  `area/*` / `status:in-progress`. Nothing created the label the tooling
+  queried, so `/ai:autonomous` drained nothing and `/ai:next` scored a label
+  no issue could carry. The catalog now ships all five triage roles
+  (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`,
+  `wontfix`).
+
+  A new `label-catalog contract` test asserts the invariant that was missing:
+  every label the tooling queries must exist in the catalog, and every
+  `P`-label must satisfy the `/^P[0-3]-/` regex `auto-promote-ready.yml`
+  matches on — otherwise a correctly-labelled issue never promotes
+  Todo → Ready.
+
+- **Two agent docs were verified but never produced.**
+  `bin/verify-setup.sh` checks `docs/agents/workflow.md` and
+  `docs/agents/triage-labels.md`; no script wrote either. A verifier without a
+  producer is a drift generator — it fails on every project and teaches people
+  to ignore it. `bin/bootstrap-project.sh` now copies both, so the agile
+  framework and the label mapping exist before any skill reads them.
+
+- **`.github/workflows/gitleaks.yml` — same class of bug.**
+  `bin/ai-kit-secrets-gate.sh` warns when the file is absent and the template
+  had shipped all along, but nothing copied it. Now scaffolded alongside the
+  other two workflows, GitHub remotes only, never overwriting. A new
+  end-to-end assert requires the gate to exit 0 on a repo
+  `setup-gh-workflow.sh` just scaffolded.
+
+- **`triage` pointed at a command that does not exist.** The skill told the
+  agent to run `/setup-matt-pocock-skills` to obtain the label mapping. It now
+  points at `docs/agents/triage-labels.md`, which bootstrap writes.
+
+### Added
+
+- **`/ai:setup` branch 9 (Agile workflow) has a procedure.** It was a row in
+  the Tier-B table with no body anywhere in the repo — the agent improvised at
+  exactly the point where consistency matters. The branch now asks which
+  framework the project runs, fills `docs/agents/workflow.md`, and prompts for
+  the control each framework actually needs: a WIP limit for kanban, a sprint
+  length for scrum. An unset WIP limit is the most common reason a kanban board
+  quietly becomes a wishlist; `/ai:next` scores `status:in-progress` at +50 to
+  nudge finish-before-start, but only the limit is a ceiling.
+
+### Changed
+
+- **`setup-gh-workflow` skill documents what its script already did.** The
+  "What it installs" table gained the PR template, branch protection, and
+  `gitleaks.yml`; the process list gained steps 5 and 6; the flags table gained
+  `--no-pr-template` and `--no-protection`. The script's header comment was
+  corrected in 1.59.0 but the skill body — the part the model reads — was not.
+
 ## 1.61.0 — 2026-08-27
 
 ### Added
