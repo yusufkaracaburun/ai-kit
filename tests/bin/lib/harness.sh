@@ -112,7 +112,10 @@ _assert_show() {
       # the answer and the log had to be re-fetched by hand. Pull anything
       # that looks like a verdict out of the tail.
       local __rest
-      __rest="$(printf '%s\n' "$__val" | tail -n +13 | grep -iE '^[[:space:]]*(warn|err|error|fail)' | head -5)"
+      # `|| true`: a grep that matches nothing exits 1, and under the `set -e`
+      # every case file runs with, that aborts the whole case mid-run — no
+      # summary, no exit code, the failure it was printing lost with it.
+      __rest="$(printf '%s\n' "$__val" | tail -n +13 | grep -iE '^[[:space:]]*(warn|err|error|fail)' | head -5)" || true
       if [ -n "$__rest" ]; then
         echo "          | ── from the truncated part:"
         printf '%s\n' "$__rest" | sed 's/^/          | /'
