@@ -1,0 +1,49 @@
+{
+  "_meta": {
+    "title": "Verbatim-vendored upstream sources",
+    "notes": "Copies ai-kit took from an upstream repo and still ships largely as-is. Only VERBATIM copies belong here — distilled work (the lifecycle skills whose ideas came from mattpocock/skills, gstack, superpowers) is deliberately divergent and must NOT be resynced; see plugins-excluded.json for why. Each entry pins the upstream commit the copy was taken from, so bin/ai-kit-upstream-drift.sh can report when upstream has moved. `local_deltas` records edits ai-kit made on purpose — a re-vendor must reapply them, never clobber them. Field names match the external-rule frontmatter convention documented in VETTING.md.",
+    "vendored_at": "2026-08-27"
+  },
+  "sources": [
+    {
+      "name": "sandcastle-sequential-reviewer",
+      "repo": "https://github.com/mattpocock/sandcastle",
+      "ref": "HEAD",
+      "upstream_path": "src/templates/sequential-reviewer",
+      "source_url": "https://github.com/mattpocock/sandcastle/tree/65063f6c8ea2fccde22d7d415be4d03212668678/src/templates/sequential-reviewer",
+      "source_license": "MIT",
+      "pinned_sha": "65063f6c8ea2fccde22d7d415be4d03212668678",
+      "vendored_at": "2026-05-20",
+      "paths": [
+        "orchestration/sandcastle/sequential-reviewer/",
+        "orchestration/sandcastle/main.ts.template",
+        "orchestration/sandcastle/prompt.md.template"
+      ],
+      "local_deltas": "Stack-agnostic patches. main.mts: hardcoded `npm install` and `node_modules` replaced with {{INSTALL_CMD}} / {{COPY_TO_WORKTREE}} placeholders, filled by bin/apply-sandcastle.sh from lockfile detection. implement-prompt.md: `npm run typecheck && npm run test` replaced with project-detected test/lint commands. CODING_STANDARDS.md, review-prompt.md, template.json are byte-identical to the pin."
+    },
+    {
+      "name": "copywriter",
+      "repo": "https://github.com/mikiarlo3/ai-copywriter",
+      "ref": "refs/heads/claude/humanizer-copywriting-skill-u5x4vd",
+      "upstream_path": ".",
+      "source_url": "https://github.com/mikiarlo3/ai-copywriter/tree/08b53b1ad39887cd94cbaab61cac3b6aae2d8518",
+      "source_license": "MIT + CC BY-SA 4.0 (mixed — see the skill's provenance block)",
+      "pinned_sha": "08b53b1ad39887cd94cbaab61cac3b6aae2d8518",
+      "vendored_at": "2026-08-19",
+      "paths": ["workflow/skills/copywriter/SKILL.md"],
+      "local_deltas": "PLAIN SPEECH patterns (§34-39) are ai-kit original, added 2026-08-19. The Invocation Modes section is ai-kit's. Humanizer patterns §1-33 derive from Wikipedia:Signs of AI writing (CC BY-SA 4.0) via blader/humanizer v2.9.1 — that licence travels with the file and overrides ai-kit's repo-wide MIT."
+    },
+    {
+      "name": "laravel-php-83-rule",
+      "repo": "https://github.com/PatrickJS/awesome-cursorrules",
+      "ref": "HEAD",
+      "upstream_path": "rules/laravel-php-83-cursorrules-prompt-file.mdc",
+      "source_url": "https://github.com/PatrickJS/awesome-cursorrules/blob/4467ad4534d406a714b926606d66fab36a98df8f/rules/laravel-php-83-cursorrules-prompt-file.mdc",
+      "source_license": "CC0-1.0",
+      "pinned_sha": "4467ad4534d406a714b926606d66fab36a98df8f",
+      "vendored_at": "2026-05-22",
+      "paths": ["standards/rules/external/laravel-php-83.mini.md"],
+      "local_deltas": "None in the body — ai-kit adds only the provenance frontmatter and the do-not-edit-in-place banner."
+    }
+  ]
+}

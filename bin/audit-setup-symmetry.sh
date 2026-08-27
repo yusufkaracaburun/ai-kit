@@ -28,7 +28,12 @@ RECOMMEND_TOOLS_SKILL="$PRIMITIVES/skills/recommend-tools/SKILL.md"
 
 # Catalogs that are explicitly NOT consumed by recommend-tools.sh and have
 # no setup branch by design (e.g. exclusion lists, internal-only data).
-EXCLUDED=("plugins-excluded.json" "VETTING.md")
+# Each still has a consumer, just not a setup-branch one:
+#   plugins-excluded.json → bin/ai-kit-audit-ecosystem.sh (KEEP-EXTERNAL verdicts)
+#   vendored.json         → bin/ai-kit-upstream-drift.sh (pins for ai-kit's own
+#                           vendored copies — describes ai-kit, not the project
+#                           being set up, so a setup branch would be meaningless)
+EXCLUDED=("plugins-excluded.json" "VETTING.md" "vendored.json")
 
 is_excluded() {
   local name="$1" e
