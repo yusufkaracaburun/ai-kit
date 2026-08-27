@@ -158,8 +158,12 @@ bash "$SCRIPT_BIN/sync-plugin-context.sh"
 # Keep plugin-bundled orchestration (Sandcastle scaffold templates) in sync.
 # Missing this mirror is why plugin-side apply-sandcastle.sh scaffolded nothing.
 bash "$SCRIPT_BIN/sync-plugin-orchestration.sh"
+# Keep the changelog inside the plugin payload. ai-kit-upgrade.sh reads
+# "$AIKIT/CHANGELOG.md", and $AIKIT is the plugin root for a plugin install —
+# without this copy the release notes it promises print only from a clone.
+cp CHANGELOG.md workflow/CHANGELOG.md
 
-git add VERSION CHANGELOG.md workflow/.claude-plugin/plugin.json \
+git add VERSION CHANGELOG.md workflow/CHANGELOG.md workflow/.claude-plugin/plugin.json \
   workflow/hooks/post-skill-log.sh workflow/hooks/log-skill.sh \
   workflow/bin workflow/standards workflow/context workflow/orchestration
 git commit -m "chore(release): v$NEW_VERSION"
