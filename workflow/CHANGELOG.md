@@ -1,5 +1,40 @@
 # Changelog
 
+## 1.66.0 — 2026-08-27
+
+### Added
+
+- **`harvest`, the app → kit backflow.** Every other path in this kit runs
+  kit → app. `contribute-eval` was the only way back and it captures the
+  kit's own skill failures, never an app's wins — so an app could solve
+  something better than the kit knew how, and the next app still started
+  from zero. `public-surface` in v1.65.0 came out of exactly that gap: two
+  repos had solved the same problem separately while a stack-scoped rule
+  already carried half the answer without ever crossing the stack boundary.
+
+  The skill encodes the judgment rather than the mechanics, because the
+  mechanics were never the hard part. Three bar criteria — shipped, guarded
+  by something that fails when it breaks, and would have applied in a second
+  repo the user actually owns — and four judgment calls: what generalises
+  once the stack is stripped, which `universal` flag (`emit-rules.sh`
+  selects on that alone, so always-on is a claim about every future
+  project), which existing rule already half-covers it, and what the sharp
+  core is. That last one carries the most weight: a harvested rule that
+  reads as a checklist wasted the harvest, because the value is the failure
+  that passes silently, not the list of things to remember.
+
+  It deliberately does not use `promotion-quorum.md`'s two-source bar. That
+  governs external material, where independent sources substitute for trust.
+  Here the evidence is your own running code, which is stronger — but only
+  when it actually ships and something actually guards it.
+
+  Routes away from the three adjacent skills rather than overlapping them:
+  `contribute-eval` for the kit's failures, `should-i-use` and
+  `recommend-rules` for external material, and nothing at all for fixes that
+  only make sense in one repo. The eval fixture covers the rejection path,
+  since failing criterion 3 is the common case and the skill working as
+  intended.
+
 ## 1.65.0 — 2026-08-27
 
 ### Added
