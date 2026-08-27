@@ -94,6 +94,15 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P2 — next up
 
+- **#149** `bug · primitive:rule` — bestaande projecten krijgen nooit nieuwe
+  `universal: true` regels, en doctor meldt dat als groen. emeq-hub mist
+  `pre-write-discipline` en `writing-style`; `recommend-rules` adviseert ze
+  allebei. `/ai:upgrade` herstempelt alleen de marker (per ontwerp), en doctor
+  controleert of de aanwezige 30 regels *oplossen* — nooit of er iets ontbreekt.
+  De catalogus groeit, projecten blijven staan, niets meldt het verschil. Gaat
+  vóór #148: de injectiehook leest `.claude/rules/`, dus een ontbrekende regel
+  wordt ook niet geïnjecteerd.
+
 - **#144** `enhancement · primitive:rule` — `always-on` means two different things
   per host. 30 rules carry `default_mode: always-on` (22 in `standards/rules/`, 8 in
   `standards/rules/feedback/`), 21 of them `universal: true`. On **Cursor** the mode is
