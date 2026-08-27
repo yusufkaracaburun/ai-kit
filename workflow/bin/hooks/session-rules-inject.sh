@@ -58,7 +58,13 @@ OPT_OUT_FILE="${HOME}/.config/ai-kit/no-rule-injection"
 # Read + discard stdin (Claude Code passes a session payload; we don't need
 # any field from it — the project root comes from $CLAUDE_PROJECT_DIR like
 # every other ai-kit hook).
-cat >/dev/null 2>&1 || true
+# Only drain when stdin is a pipe. A bare `cat` blocks forever on a tty
+# waiting for an EOF that never arrives — and this is a SessionStart hook, so
+# a hang here stalls the user's session start, not just this script. Reached
+# by anyone running the hook by hand to diagnose it.
+if [ ! -t 0 ]; then
+  cat >/dev/null 2>&1 || true
+fi
 
 REPORT=false
 [ "${1:-}" = "--report" ] && REPORT=true
