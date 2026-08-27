@@ -1,5 +1,109 @@
 # Changelog
 
+## 1.63.0 — 2026-08-27
+
+### Added
+
+- **Vendored upstreams are pinned, and something finally reads the pin.**
+  ai-kit carries verbatim copies of a few upstream files — the Sandcastle
+  sequential-reviewer templates, the copywriter skill, one external Cursor
+  rule. `standards/external/VETTING.md` has asked for `source_url` /
+  `source_license` / `pinned_sha` / `vendored_at` since 1.15, but nothing
+  ever read those fields: `grep -rn pinned_sha bin/` returned zero hits. A
+  pin nobody checks is decoration. New `standards/external/vendored.json`
+  records one entry per verbatim copy, and `bin/ai-kit-upstream-drift.sh`
+  compares each pin against `git ls-remote`, printing a GitHub compare URL
+  when they differ. Report-only, exit 0 by default (matching dedupe and
+  audit-ecosystem); `--strict` exits 1 for CI. An unreachable upstream is
+  reported as unchecked, never as a failure — an offline laptop must not
+  break a hygiene run.
+
+  Each entry carries `local_deltas`: the edits ai-kit made on purpose. The
+  Sandcastle copy is not a clean fork — `main.mts` has `{{INSTALL_CMD}}` /
+  `{{COPY_TO_WORKTREE}}` placeholders that `apply-sandcastle.sh` fills from
+  lockfile detection. A blind re-vendor would silently re-hardcode npm for
+  every PHP project. Distilled work stays out of the manifest by design:
+  the lifecycle skills whose ideas came from `mattpocock/skills`, gstack and
+  superpowers are deliberately divergent, and resyncing them would undo the
+  distillation `plugins-excluded.json` records as intentional.
+
+- **`/ai:hygiene` gained an eighth section**, `upstream-drift`, guarded on
+  the manifest existing so it stays silent in consumer projects — they
+  vendor nothing. Upstream moving costs no score: it is information for a
+  human, not an install defect.
+
+### Fixed
+
+- **The Sandcastle reviewer was reviewing an empty diff.** `review-prompt.md`
+  asked for `git diff {{SOURCE_BRANCH}}...{{BRANCH}}`. Sandcastle injects
+  both `SOURCE_BRANCH` and `TARGET_BRANCH`, and `SOURCE_BRANCH` equals
+  `BRANCH` at run time — so the diff was always empty and the review agent
+  reviewed nothing, every iteration, while reporting success. Upstream's own
+  test now asserts the template does not contain `{{SOURCE_BRANCH}}` for
+  exactly this reason. Re-vendored from 65063f6 to e99f832, which also
+  brings `maxIterations: 100 → 1` on the implementer (100 let one agent
+  drain the whole backlog onto a single branch, defeating the per-issue
+  review the template exists for), `continue → break` when an implement
+  phase produces no commits (it used to spin the outer loop
+  MAX_ITERATIONS times over an empty backlog), and a prompt statement that
+  the issue list is pre-filtered and is the sole source of truth.
+
+  Both local deltas were reapplied and verified: our tree differs from
+  upstream at the new pin by those two deltas and nothing else.
+
+- **`/ai:setup` branch 8 scaffolded an empty directory for plugin installs.**
+  `bin/apply-sandcastle.sh` resolves `$AIKIT` from its own location, so from
+  `workflow/bin/` it looked for `workflow/orchestration/sandcastle/` — a
+  directory that never existed. The `cp` failures are swallowed by
+  `2>/dev/null || true`, and the script still printed "Sandcastle scaffold
+  installed". Four sibling mirrors existed (bin, hooks, standards, context);
+  orchestration was never added to the set. New
+  `bin/sync-plugin-orchestration.sh`, wired into `bin/release.sh` — both the
+  sync call and `workflow/orchestration` in the release commit's `git add`,
+  since a mirror that is re-stamped but never staged drifts straight back.
+
+  The regression guard is behavioural rather than another `--check`: a
+  `--check` only catches drift in a mirror that exists, and this one was
+  absent for five releases without anything complaining. `structure.sh` now
+  runs the plugin-side script and requires a non-empty scaffold with no
+  unresolved placeholders.
+
+- **Argument injection in the new drift check.** Found by `/ai:review`
+  before release, not after. `git ls-remote "$repo" "$ref"` had no `--`
+  separator, so a `repo` value starting with `-` was read as a git option —
+  `--upload-pack=<cmd>` turns an edit to a JSON data file into command
+  execution on every `/ai:hygiene` run. Reproduced against a scratch repo,
+  fixed with `ls-remote --`, and locked with a regression test that goes red
+  when the `--` is removed. Exploiting it needs commit access to ai-kit's own
+  manifest, so it is defense-in-depth rather than a live privilege boundary.
+
+  The same call now runs `GIT_TERMINAL_PROMPT=0 git -c credential.helper=`:
+  when an upstream goes private GitHub answers 401, git invokes the
+  credential helper, and a section documented as report-only would block on
+  an interactive auth dialog. The manifest pins a branch on a personal repo —
+  exactly the ref that disappears.
+
+- **`to-issues` pointed at `/setup-matt-pocock-skills`**, a command that does
+  not exist. 1.62.0 fixed the same dangling reference in `triage` and missed
+  this one. Now points at `docs/agents/triage-labels.md`, which
+  `bootstrap-project.sh` writes.
+
+### Changed
+
+- **`laravel-php-83` external rule re-pinned** `4467ad4` → `b044f95` with no
+  content change: the repo HEAD had moved but zero commits touched that file
+  and its body compared identical, so only the pin advanced. That file
+  records the pin a second time in its own frontmatter, and two records of
+  one fact drift — a new assert requires every vendored `.md`'s frontmatter
+  `pinned_sha` to equal the manifest's.
+
+- **`vendored.json` joins `plugins-excluded.json`** on the symmetry audit's
+  excluded list. Both have a consumer, just not a setup-branch one; it
+  describes ai-kit itself rather than the project being set up, so a setup
+  branch would have nothing to ask.
+
+Tests: 1254 pass (was 1229).
+
 ## 1.62.0 — 2026-08-27
 
 ### Fixed
