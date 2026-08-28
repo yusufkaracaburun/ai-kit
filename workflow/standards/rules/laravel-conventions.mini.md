@@ -57,6 +57,16 @@ becomes brittle the moment you touch Eloquent, queues, or middleware.
   trait. Never re-implement `where('tenant_id', ...)` in every query.
 - Tenant resolution belongs in middleware that runs before any controller.
 - Tests use a per-test tenant; never share tenant state across tests.
+- **Uniqueness on a tenant-supplied value is compound with the tenant key**,
+  never global. A globally unique column on a tenant-owned table lets the
+  first tenant to use a value lock every other tenant out, and it surfaces as
+  a constraint violation on a value the second tenant has never seen.
+- **Isolation needs two tenants in the fixture.** A test with one tenant
+  passes whether or not scoping works — there is nothing to leak. The
+  assertion that proves it is "tenant A's query does not return tenant B's
+  row", and that requires B to exist. Same for the uniqueness rule above:
+  assert both that two tenants may hold the same value and that one tenant
+  may not hold it twice.
 
 ## Stack-specific don'ts
 
