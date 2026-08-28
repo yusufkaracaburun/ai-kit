@@ -57,7 +57,7 @@ This is the part a script cannot do. Answer each in the proposal:
 
 ### 5. Write the rule
 
-Create `standards/rules/<name>.mini.md`, matching the frontmatter of an existing sibling exactly:
+If step 3 landed on a merge, this is a few bullets added to the host rule's existing section — same discipline, no frontmatter — and you skip to step 6. Otherwise create `standards/rules/<name>.mini.md`, matching the frontmatter of an existing sibling exactly:
 
 ```yaml
 ---
@@ -78,7 +78,9 @@ Body: a short opening that names the failure mode, `##` sections of terse bullet
 
 ### 6. Land it
 
-**Inside the ai-kit clone:**
+Which path depends on step 3: a merge into an existing rule is the cheaper landing and the one to prefer.
+
+**A new rule, inside the ai-kit clone:**
 
 ```bash
 bash bin/emit-rules.sh --list | grep <name>          # discoverable
@@ -89,6 +91,15 @@ bash bin/sync-plugin-standards.sh                    # mirror into workflow/stan
 ```
 
 The count guard will fire — that is expected. It names each file carrying a hardcoded total; update all of them plus the `--list` assertion in `tests/bin/cases/bootstrap-emit.sh`.
+
+**A merge into an existing rule:**
+
+```bash
+bash tests/bin/run-all.sh                            # full suite
+bash bin/sync-plugin-standards.sh                    # mirror into workflow/standards/
+```
+
+The rule total did not move, so the count guard stays silent and the `--list` assertion is untouched — do not go looking for either. What still applies: the merged bullets carry the mechanism and the silent failure, not a summary of the source repo, and the host rule's scope must actually reach the repos that supplied the evidence. If it does not, the merge is wrong and it wants its own rule.
 
 **From another repo:** open a PR against `yusufkaracaburun/ai-kit` on branch `harvest/<name>` adding the rule file, with a body that states the three bar criteria and the evidence for each. Show the user the full rule and PR body before any `gh` write call.
 
