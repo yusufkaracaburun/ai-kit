@@ -136,12 +136,16 @@ esac
 # the number is the canonical install-quality signal.
 score=100
 fix_lines=()
-# Map section name → standalone script path. audit-setup-symmetry is the
-# odd one out — no ai-kit- prefix on disk.
+# Map section name → the command that reproduces what hygiene just ran.
+# Seven of the eight sections take the project path; audit-setup-symmetry is
+# the odd one out, and has no ai-kit- prefix on disk either. Printing a bare
+# script path used to send you to a command that behaves differently from the
+# one that produced the warning — doctor without a path argument exits 0, so
+# the recipe pointed at a run that could not show you what it asked you to fix.
 section_script() {
   case "$1" in
-    audit-setup-symmetry) echo "$AIKIT/bin/audit-setup-symmetry.sh" ;;
-    *) echo "$AIKIT/bin/ai-kit-$1.sh" ;;
+    audit-setup-symmetry) echo "bash $AIKIT/bin/audit-setup-symmetry.sh" ;;
+    *) echo "bash $AIKIT/bin/ai-kit-$1.sh \"$PROJECT_PATH\"" ;;
   esac
 }
 i=0
@@ -153,11 +157,11 @@ while [ "$i" -lt "${#SECTION_CODES[@]}" ]; do
     0) : ;;
     1)
       score=$(( score - 5 ))
-      fix_lines+=("  +5   resolve warning in $name (re-run $script standalone)")
+      fix_lines+=("  +5   resolve warning in $name — re-run: $script")
       ;;
     *)
       score=$(( score - 20 ))
-      fix_lines+=("  +20  fix blocker in $name (re-run $script standalone)")
+      fix_lines+=("  +20  fix blocker in $name — re-run: $script")
       ;;
   esac
   i=$(( i + 1 ))

@@ -85,6 +85,13 @@ OUT_WARN="$("$HYG" "$BARE" --skip-doctor --skip-dedupe --skip-symmetry --skip-me
 assert "hygiene runs the secrets-gate section" 'echo "$OUT_WARN" | grep -q "=== secrets-gate"'
 assert "one secrets-gate warning costs exactly 5" 'echo "$OUT_WARN" | grep -q "^Score: 95/100$"'
 assert "the recipe names secrets-gate" 'echo "$OUT_WARN" | grep -q "resolve warning in secrets-gate"'
+# The recipe has to reproduce what hygiene actually ran. Seven of the eight
+# sections are invoked with the project path, so a bare script path sent you to
+# a different run — doctor without one exits 0 and shows nothing to fix.
+assert "the recipe prints a runnable command, not a bare path" \
+  'echo "$OUT_WARN" | grep -q "re-run: bash "'
+assert "the recipe carries the project path hygiene used" \
+  'echo "$OUT_WARN" | grep -qF "$BARE"'
 
 OUT_OK="$("$HYG" "$WIRED" --skip-doctor --skip-dedupe --skip-symmetry --skip-memory --skip-repo-skills --skip-context-lean 2>&1)" || true
 assert "a wired project scores 100" 'echo "$OUT_OK" | grep -q "^Score: 100/100$"'
