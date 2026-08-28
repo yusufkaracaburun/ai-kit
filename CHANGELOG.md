@@ -1,5 +1,47 @@
 # Changelog
 
+## 1.67.0 — 2026-08-28
+
+### Added
+
+- **`design-tokens`, harvested from a build-time token check.** First
+  `/ai:harvest` run, against an Astro content site. Tokens are generated from
+  the design file on the build path, and the same step fails the build when a
+  stylesheet references a token the design file does not define. The source
+  repo's own comment names why that check has to exist: `var(--typo)` throws
+  nothing, the declaration is dropped, the element falls back to an inherited
+  value, and the page renders nearly right with no error anywhere. Type
+  checkers do not see inside `var()`, and linters flag malformed values rather
+  than missing ones.
+
+  Added as its own rule rather than merged into `tailwind.mini.md`, which
+  covers only the opposite direction (tokens defined with zero uses) and only
+  for Tailwind — while the repo the pattern came from has no Tailwind at all.
+  Merging would have locked the knowledge behind a framework the source does
+  not use, which is the failed transfer `public-surface` came out of.
+  Cross-linked both ways instead. Scoped `universal: false`, frontend.
+
+### Changed
+
+- **`laravel-conventions` gains tenant-scoped uniqueness.** Second harvest
+  run. Two silent failures of the same shape, neither previously covered: a
+  globally unique column on a tenant-owned table works until the second tenant
+  picks a value the first already used, then fails as a constraint violation
+  on a value that tenant has never seen; and a fixture with one tenant passes
+  whether or not scoping works, because there is nothing to leak — the test
+  proves nothing while looking like coverage.
+
+  Merged rather than added. The rule already owned multi-tenancy and
+  `code-audit-laravel` carries the L12 tenant-bleed heuristic, so a second rule
+  would have split one concern across two files.
+
+- **`harvest` documents the merge path.** Found by using it: the second run
+  ended in a merge, which step 3 explicitly prefers, but steps 5 and 6 only
+  described the new-rule path — walking you into a frontmatter block and a
+  count guard that cannot fire, because the rule total never moved. Step 5 now
+  branches at the top; step 6 splits into both landings and says which checks
+  stay silent.
+
 ## 1.66.0 — 2026-08-27
 
 ### Added
