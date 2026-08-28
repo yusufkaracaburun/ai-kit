@@ -1,5 +1,36 @@
 # Changelog
 
+## 1.67.1 — 2026-08-28
+
+### Fixed
+
+- **The single-committer warning pointed at a file the check never opened**
+  ([#151](https://github.com/yusufkaracaburun/ai-kit/issues/151)). It told you
+  to document reviewer cadence in `CLAUDE.md`, and `grep -n CLAUDE
+  bin/ai-kit-doctor.sh` returned three hits — two `GLOBAL_CLAUDE`, and the
+  warning string itself. The file was never read, so the advice was
+  unfollowable: on a solo repo the check cleared only when a second committer
+  email appeared in the last 30 days, which no amount of documentation
+  produces.
+
+  `/ai:hygiene` inherited it. Each warning-exit section deducts 5 and prints
+  `+5 resolve warning in <name>`, so every solo repo with 5 or more commits in
+  30 days sat permanently at 95/100 while the report presented 100 as
+  reachable. That is the part that wasted time — the recipe read as actionable.
+
+  One committer is a fact about the repo, not something documentation can
+  change, so the check now tests the mitigation instead: is there a written
+  review practice supplying the second pass? It greps `CLAUDE.md` and
+  `AGENTS.md` for the phrasing the warning itself proposes, passes when found,
+  and when absent names the markers so the remediation is concrete. This repo
+  already carried "Run `/ai:review` before a release" and now reports `ok
+  single committer in last 30d (105 commits) — reviewer cadence documented`.
+
+  Scope held to the reported check. The generic `+5 resolve warning in <name>`
+  recipe is untouched: there is no evidence yet that another section is
+  unactionable in the same way, and inventing one is how a kit grows rules
+  nobody asked for.
+
 ## 1.67.0 — 2026-08-28
 
 ### Added
