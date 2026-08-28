@@ -422,7 +422,25 @@ if [ -n "$TARGET" ]; then
         if [ "${_commit_count:-0}" -ge 5 ]; then
           _author_count="$(git -C "$TARGET" log --since=30.days --format=%ae 2>/dev/null | sort -u | wc -l | tr -d ' ')"
           if [ "${_author_count:-0}" -le 1 ]; then
-            warn "single-committer in last 30d ($_commit_count commits, 1 author) — document reviewer cadence in CLAUDE.md (e.g. AI-as-reviewer + weekly human sweep)"
+            # One committer is a fact about the repo, not something documentation
+            # can change — so the check tests the mitigation instead: is there a
+            # written review practice that supplies the second pass? Grepping the
+            # files the warning names keeps its own advice true; before this the
+            # warning pointed at CLAUDE.md and never opened it, so following it
+            # changed nothing and the hygiene score stayed capped.
+            _cadence=false
+            for _f in "$TARGET/CLAUDE.md" "$TARGET/AGENTS.md"; do
+              [ -f "$_f" ] || continue
+              if grep -qiE 'reviewer cadence|/ai:review|second pass|ai-as-reviewer|human sweep' "$_f" 2>/dev/null; then
+                _cadence=true
+                break
+              fi
+            done
+            if [ "$_cadence" = true ]; then
+              ok "single committer in last 30d ($_commit_count commits) — reviewer cadence documented"
+            else
+              warn "single-committer in last 30d ($_commit_count commits, 1 author) and no reviewer cadence documented — add one to CLAUDE.md or AGENTS.md (e.g. \"run /ai:review before a release\" or \"weekly human sweep\")"
+            fi
           else
             ok "$_author_count distinct committers in last 30d"
           fi

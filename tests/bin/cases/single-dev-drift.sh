@@ -91,6 +91,23 @@ OUT_D="$(PATH="$TMP/stub-bin:$PATH" bash "$DOCTOR" "$TMP/projD" 2>&1 || true)"
 assert "fresh repo (<5 commits): single-committer drift does NOT fire" \
   '! echo "$OUT_D" | grep -qiE "single.committer"'
 
+# --- 4b. Single committer BUT a documented reviewer cadence: check passes ---
+#         The warning names CLAUDE.md, so the check has to read it; otherwise its
+#         own advice is unfollowable and the hygiene score stays capped at 95.
+mkdir -p "$TMP/projE"
+( cd "$TMP/projE" && git init -q -b master && \
+  git remote add origin git@github.com:fake/projE.git && \
+  printf '# Project\n\nRun `/ai:review` before a release, not after it.\n' > CLAUDE.md && \
+  git add CLAUDE.md && \
+  for i in 1 2 3 4 5 6 7; do
+    git -c user.email=a@x -c user.name=A commit -q --allow-empty -m "c$i"
+  done )
+OUT_E="$(PATH="$TMP/stub-bin:$PATH" bash "$DOCTOR" "$TMP/projE" 2>&1 || true)"
+assert "single committer + documented cadence: drift does NOT fire" \
+  '! echo "$OUT_E" | grep -qiE "no reviewer cadence documented"'
+assert "single committer + documented cadence: reports the cadence as found" \
+  'echo "$OUT_E" | grep -qiE "reviewer cadence documented"'
+
 # --- 5. None of the drift checks should make doctor exit 2 (error) ---
 set +e
 PATH="$TMP/stub-bin:$PATH" bash "$DOCTOR" "$TMP/projB" >/dev/null 2>&1
