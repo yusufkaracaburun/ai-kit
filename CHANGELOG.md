@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.67.2 — 2026-08-28
+
+### Fixed
+
+- **The hygiene score recipe printed a command that could not show you the
+  problem.** Adjacent to [#151](https://github.com/yusufkaracaburun/ai-kit/issues/151),
+  found while verifying that fix. The recipe read `re-run <script> standalone`,
+  but seven of the eight sections are invoked with the project path and only
+  `audit-setup-symmetry` is not. So the printed command was not the one that
+  produced the warning — `ai-kit-doctor.sh` without a path argument exits 0 and
+  reports nothing, which is exactly the position someone is in when they are
+  trying to see what cost them five points.
+
+  Same defect class as #151, one layer up: advice that cannot be followed. The
+  recipe now prints the full command including the quoted path, so copying the
+  line reproduces hygiene's own result. Verified by pasting it — exit 1 with
+  five warnings visible, matching what hygiene reported, where the bare form
+  exited 0. Guarded in the hygiene integration test, which already exercised
+  the recipe for a warning section.
+
+- **Two issue-template labels did not exist in the repo.** `feedback.yml`
+  declares `feedback:user` and `skill-suggestion.yml` declares `skill`; neither
+  was present, so `gh issue create` failed on the label and the issue landed
+  unlabelled, out of reach of `/ai:triage`. Both created, `feedback:user`
+  following the existing `primitive:*` colon convention.
+
 ## 1.67.1 — 2026-08-28
 
 ### Fixed
