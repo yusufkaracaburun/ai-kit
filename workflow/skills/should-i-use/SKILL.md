@@ -39,7 +39,14 @@ Every candidate gets **Track B**. Only candidates whose value is "helps
 AI-assisted coding" — a skill, plugin, MCP server, hook recipe, rule pack, or
 companion tool — also get **Track A**. A business-logic dependency (an ORM, a
 date library, a payment SDK) never gets Track A; ai-kit does not catalog those
-— go straight to Track B for those.
+— go straight to Track B for those. Converse case: an "AI agent framework" or
+similar SDK the *project* would consume as an application dependency (its own
+users talk to it) is still business-logic-only here — Track A is about tools
+that help the coding agent build the project, not tools the project embeds for
+its own end users.
+
+If the current project *is* ai-kit itself, Track A and Track B are the same
+check — do not produce two verdicts pointing at one repo.
 
 **Track A — does ai-kit's own catalog have a gap?** ai-kit is not "wherever
 this skill happens to be running" — it is a fixed, separate project, reachable
@@ -169,11 +176,16 @@ finish, write it where this project keeps decisions, and say where you put it.
 When the project has no such place, say so and propose one rather than
 inventing a file nobody will read.
 
-**Track A verdicts are recorded in ai-kit's repo, not the current one.** If
-you were invoked from a different project (via `$AI_KIT_ROOT`), a Track A
-finding means editing files in a separate git repo with its own commit/push
-lifecycle — confirm with the user before writing or committing there; do not
-assume the same trust or push rights the current project's session has.
+**Track A verdicts are recorded in ai-kit's repo, not the current one.** If you
+were invoked from a different project, default to queuing it — the same
+`/ai:followup --label catalog-candidate` path `recommend-tools` already uses
+for an ADOPT-shaped finding — rather than editing `VETTING.md` /
+`plugins-excluded.json` directly. Only edit `$AI_KIT_ROOT` in place when the
+user explicitly asks for it done now, `$AI_KIT_ROOT` resolved to a real git
+working copy (`git -C "$AI_KIT_ROOT" rev-parse --git-dir` succeeds — a plain
+plugin-cache install has no `.git` at all and cannot be committed to), and you
+confirm the user has push rights there — do not assume the current project's
+session carries them over.
 
 ## Output discipline
 

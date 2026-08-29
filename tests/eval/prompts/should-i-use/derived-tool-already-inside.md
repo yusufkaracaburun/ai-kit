@@ -10,6 +10,7 @@ expects:
   - follows the licence past the LICENSE file when the content is derived from a copyleft source
   - lands on Ignore because the material is already in the project under another name
   - says where the verdict gets recorded, and that an Ignore needs its reason recorded next to the name
+  - recognises this candidate is tooling-shaped so Track A applies too, but since the assessment already runs inside ai-kit's own repo, Track A and Track B collapse into one check rather than two separate verdicts
 ---
 
 # Prompt
