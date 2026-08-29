@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.68.0 — 2026-08-29
+
+### Added
+
+- **`ui-ux-pro-max` as a new `design` companion category** in `/ai:recommend-tools`.
+  Surfaced while assessing [Refero Styles](https://styles.refero.design/) via
+  `/ai:should-i-use` — that candidate was Ignored (paid MCP, no free tier), but
+  the assessment found companions.json had zero design-tooling entries, so a
+  fresh project never got pointed at design references at setup time even
+  though `ui-ux-pro-max` was already a single-source `plugins.json`
+  recommendation for the same signal. Promoted it to a full companion (project
+  AGENTS.md pointer + Phase 3 wiring), gated on a project-signal check
+  (Tailwind config, a components directory, or a frontend framework dependency
+  in `package.json`) so it is never offered to backend/CLI repos. Install is
+  user-scope via the official `claude plugin` CLI, same trust posture as
+  caveman/ponytail — never auto-installed.
+- **`standards/external/VETTING.md` audit row for `ui-ux-pro-max`** — full
+  eight-criteria pass, including a manual triage of a `skillspector --no-llm`
+  scan (177 raw findings, confirmed noise against the ponytail/web-quality-skills
+  precedent, two low-risk real findings recorded for a future re-check).
+
 ## 1.67.2 — 2026-08-28
 
 ### Fixed
