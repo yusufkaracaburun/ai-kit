@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.69.0 — 2026-08-29
+
+### Added
+
+- **`/ai:should-i-use` now runs two tracks, not one.** Track B (renamed from
+  the original single check) asks whether the current project — or you,
+  personally — has the problem, unchanged. New **Track A** asks, for any
+  tooling-shaped candidate (a skill, plugin, MCP server, hook recipe, rule
+  pack, or companion tool — never a business-logic dependency), whether
+  ai-kit's *own* catalog (`standards/external/companions.json`, `plugins.json`,
+  `mcp-servers.json`, `hooks-patterns.json`, `subagents.json`, reachable via
+  `$AI_KIT_ROOT` from any project) has a gap in that category — regardless of
+  whether the repo you're evaluating from personally needs the candidate.
+
+  Surfaced by a retro on assessing Refero Styles this session: that candidate
+  was correctly Ignored (paid, no free tier), but the assessment only found a
+  real gap in ai-kit's own design-companion catalog (`ui-ux-pro-max`, shipped
+  in v1.68.0) after explicit user correction — the skill had no step forcing
+  that check up front. The two tracks can disagree (a candidate can fail on
+  its own merits and still expose a real catalog gap), and when Track A
+  applies from outside ai-kit's repo, it now defaults to queuing via the same
+  `/ai:followup --label catalog-candidate` path `recommend-tools` already
+  uses, rather than inventing a direct cross-repo edit.
+
 ## 1.68.0 — 2026-08-29
 
 ### Added
