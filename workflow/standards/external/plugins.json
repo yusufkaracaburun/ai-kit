@@ -164,6 +164,29 @@
       }
     },
     {
+      "name": "impeccable",
+      "marketplace": "impeccable",
+      "install": "/plugin install impeccable@impeccable",
+      "category": "design",
+      "best_for": "Frontend projects wanting deterministic anti-slop detection (generic gradients, cookie-cutter cards, default fonts) plus persistent per-project design steering",
+      "value": "23 commands (/impeccable audit, critique, polish, bolder, quieter, normalize, ...) backed by a real CLI anti-pattern detection engine (cli/engine/detect-antipatterns.mjs, own test tiers + benchmark suite), not just a prompt bundle. DESIGN.md/PRODUCT.md persist a project's design language across sessions so later commands don't drift. Apache-2.0, pbakaus/impeccable, verified @ b0594c72d18006b5865c70eb3a97e8b04064e600 (2026-08-29): 63.7k★, created 2025-11-16, active same-week release tags across skill/cli/extension tracks, clean NOTICE.md attribution for the one derived asset (ehmo/platform-design-skills, MIT, rewritten). Stronger verified-maturity signal than ui-ux-pro-max's single-source rule DB (which has a logged count-drift flag in that entry) — different mechanism (deterministic lint-style detection vs domain-queryable rule lookup), so kept alongside it rather than replacing it.",
+      "signals": {
+        "frameworks": [
+          "react",
+          "vue",
+          "angular",
+          "nextjs",
+          "nuxt",
+          "svelte",
+          "remix",
+          "astro"
+        ],
+        "architectures": [
+          "frontend"
+        ]
+      }
+    },
+    {
       "name": "chrome-devtools-mcp",
       "marketplace": "claude-plugins-official",
       "install": "/plugin install chrome-devtools-mcp@claude-plugins-official",

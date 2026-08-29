@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.70.0 — 2026-08-29
+
+### Added
+
+- **`impeccable` as a new `design` companion in `plugins.json`.** Surfaced via
+  `/ai:should-i-use` on a Medium roundup. Verified against `ui-ux-pro-max`
+  (already in the same category): Apache-2.0, 63.7k★, active same-week
+  release tags across skill/cli/extension tracks, a real CLI anti-pattern
+  detection engine (`cli/engine/detect-antipatterns.mjs`) backed by its own
+  test tiers and benchmark suite — not a prompt-only bundle — plus clean
+  `NOTICE.md` attribution for its one derived asset. Kept alongside
+  `ui-ux-pro-max` rather than replacing it: different mechanism (deterministic
+  lint-style detection vs. domain-queryable rule lookup). Provenance pinned
+  @ `b0594c72d18006b5865c70eb3a97e8b04064e600`.
+
+### Excluded
+
+- **`notebooklm-py`** added to `plugins-excluded.json`. Unofficial Google
+  NotebookLM/Gemini Notebook API that drives Playwright browser automation
+  against a personal Google account and undocumented internal endpoints — its
+  own README self-scopes to "prototypes, research, and personal projects."
+  Project catalog's research category is already covered by `llm-wiki`,
+  `firecrawl`, and `exa`, none of which carry that credential/session-storage
+  surface.
+
 ## 1.69.0 — 2026-08-29
 
 ### Added
