@@ -33,11 +33,40 @@ companion ("apply the X skill", "requires Y"), you were handed a system and
 shown one piece. Ask for the rest before judging: a verdict on half a system is
 a verdict on the wrong thing.
 
-## Does this project have the problem?
+## Two tracks — check both when the candidate is tooling-shaped
 
-Answer this before anything else. If the project does not have the problem, the
-candidate's licence, maturity and cohesion cost do not matter, and the work you
-do on them is wasted.
+Every candidate gets **Track B**. Only candidates whose value is "helps
+AI-assisted coding" — a skill, plugin, MCP server, hook recipe, rule pack, or
+companion tool — also get **Track A**. A business-logic dependency (an ORM, a
+date library, a payment SDK) never gets Track A; ai-kit does not catalog those
+— go straight to Track B for those.
+
+**Track A — does ai-kit's own catalog have a gap?** ai-kit is not "wherever
+this skill happens to be running" — it is a fixed, separate project, reachable
+via `$AI_KIT_ROOT` from any repo (`bin/lib/ai-kit-root.sh` resolves it: env var
+→ script location → `~/.config/ai-kit/root`). Its job is to equip *every other
+project* at setup time, so a gap in its own catalogs
+(`$AI_KIT_ROOT/standards/external/companions.json`, `plugins.json`,
+`mcp-servers.json`, `hooks-patterns.json`, `subagents.json`) is worth fixing
+even when the repo you're evaluating from doesn't personally need the
+candidate. Run this **before** writing any "wrong repo, Ignore" verdict — grep
+those files for the candidate's category, don't assume from memory. Two
+independent questions, always both:
+
+1. Is the *specific candidate* worth ai-kit adopting (licence, pricing,
+   maturity — the six-part verdict below, applied to ai-kit as the project)?
+2. Does ai-kit's catalog have a **gap** in that category that a *different*,
+   better-fitting tool could fill — regardless of (1)'s answer? A candidate can
+   fail (1) and still surface a real (2).
+
+If `$AI_KIT_ROOT` cannot be resolved (a pure plugin-cache install with no
+global clone), say so explicitly and skip Track A rather than silently
+omitting it.
+
+**Track B — does the current project (or you, personally) have the problem?**
+Answer this before anything else on this track. If the project does not have
+the problem, the candidate's licence, maturity and cohesion cost do not
+matter, and the work you do on them is wasted.
 
 Four questions, in order. Stop at the first one you cannot answer.
 
@@ -63,6 +92,11 @@ the tooling already in place (`package.json`, configs, `AGENTS.md` /
 repo can be pure noise in a 5-file greenfield one.
 
 ## The six-part verdict
+
+When only Track B applies, produce one verdict. When both tracks apply, produce
+**two** — labelled `Track A (ai-kit)` and `Track B (<this project>)` — they are
+allowed to differ, and often should: Track A can Ignore while Track B Wires, or
+the reverse.
 
 Produce exactly these, as a compact structured block — tables over prose:
 
@@ -90,8 +124,8 @@ Produce exactly these, as a compact structured block — tables over prose:
 
    Scope decides the verdict as often as category does. A great tool at the
    wrong scope is noise in every repo that did not ask for it.
-3. **Added value** — the evidence from "Does this project have the problem?",
-   carried into the verdict: the paths, the counts, the role. If you cannot
+3. **Added value** — the evidence from Track B's four questions (or Track A's
+   gap-check), carried into the verdict: the paths, the counts, the role. If you cannot
    restate the value using something found in this repo, the value is generic
    marketing copy and you should say that instead.
 4. **Decision** — pick one:
@@ -134,6 +168,12 @@ finish, write it where this project keeps decisions, and say where you put it.
 
 When the project has no such place, say so and propose one rather than
 inventing a file nobody will read.
+
+**Track A verdicts are recorded in ai-kit's repo, not the current one.** If
+you were invoked from a different project (via `$AI_KIT_ROOT`), a Track A
+finding means editing files in a separate git repo with its own commit/push
+lifecycle — confirm with the user before writing or committing there; do not
+assume the same trust or push rights the current project's session has.
 
 ## Output discipline
 
