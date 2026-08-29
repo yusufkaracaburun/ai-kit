@@ -1,13 +1,13 @@
 ---
 name: recommend-tools
-description: Recommend optional companion tools (graphify, caveman, ponytail, llm-wiki) and stack-specific runtime helpers — MCP servers + Claude Code hooks — for the current project. ai-kit writes integration glue, never auto-installs. Use when the user asks "should I add graphify / caveman / ponytail / a self-maintaining wiki", "which MCP servers fit this stack", "any hooks I should turn on", "set up companion tools", "fewer tokens", or after /ai:setup to layer extra capability.
+description: Recommend optional companion tools (graphify, caveman, ponytail, llm-wiki, ui-ux-pro-max) and stack-specific runtime helpers — MCP servers + Claude Code hooks — for the current project. ai-kit writes integration glue, never auto-installs. Use when the user asks "should I add graphify / caveman / ponytail / a wiki / design references", "which MCP servers fit this stack", "any hooks I should turn on", "set up companion tools", "fewer tokens", or after /ai:setup to layer extra capability.
 ---
 
 Recommend and wire **companion tools** for this project — external AI-productivity tools that sit alongside ai-kit's lifecycle skills. ai-kit configures them; it never vendors or auto-installs them. Same trust model as `recommend-rules`: surface, let the user choose, wire only what they pick.
 
 ## What a companion tool is
 
-A third-party tool *or pattern* that improves the AI coding setup but is **not** part of ai-kit's agile lifecycle. ai-kit owns the *integration glue* (a rules block, a hook, a scaffold), never the tool itself. The current catalog lives at `standards/external/companions.json` — that file is the source of truth for which companions exist, their tiers, detection signals, and conflict checks. The table below summarises; see the JSON for fields, glue paths, and conflict rules. Four are known today:
+A third-party tool *or pattern* that improves the AI coding setup but is **not** part of ai-kit's agile lifecycle. ai-kit owns the *integration glue* (a rules block, a hook, a scaffold), never the tool itself. The current catalog lives at `standards/external/companions.json` — that file is the source of truth for which companions exist, their tiers, detection signals, and conflict checks. The table below summarises; see the JSON for fields, glue paths, and conflict rules. Six are known today:
 
 | Companion | Optimizes | Effect | Risk |
 | --------- | --------- | ------ | ---- |
@@ -16,6 +16,7 @@ A third-party tool *or pattern* that improves the AI coding setup but is **not**
 | **ponytail** | Code — how much the AI builds | YAGNI ladder before writing: exists? → in codebase → stdlib → native platform → dependency → one line → minimum. Safety, validation and error handling are never cut. | Medium — it is a *code-generation bias*, opinionated. |
 | **llm-wiki** | Memory — knowledge from non-code documents | Self-maintaining wiki; ingests specs/transcripts/research into interlinked pages. The wiki, not the raw files, is the artifact that compounds. | Low — additive scaffold; the agent owns `wiki/`, never touches `raw/`. |
 | **context7** | Documentation — live library docs vs. training-data snapshots | MCP server (project-scope) + optional user-scope `~/.claude/rules/context7.md` rule. Cuts API hallucinations on third-party libraries. Universal: any project with deps benefits. | Low — read-only doc lookups, no auto-install of packages. |
+| **ui-ux-pro-max** | Design — what the AI knows about styling before it writes UI | Searchable style/palette/typography/UX-guideline database, priority-ranked by product type. Reference only — not real product screenshots. | Low — read-only reference skill, no code generated on its own. |
 
 They are orthogonal to each other and to ai-kit. Recommend per project, never blanket — except **context7**, which scores `universal: true` in `standards/external/mcp-servers.json` and surfaces for every stack the deterministic recommender runs against (Phase "MCP servers + Claude Code hooks + Claude Code plugins" below).
 
@@ -62,6 +63,8 @@ claude plugin list 2>/dev/null | grep -qi ponytail && echo "ponytail: installed"
 [ -d docs ] && echo "llm-wiki: conflict-check — existing docs/ found (see Phase 3 llm-wiki branch)" || true
 # context7: check BOTH user-scope MCP AND plugin-provided. `claude mcp list` alone misses plugin-provided MCPs that aren't currently connected — adding a user-scope ctx7 in that state causes a "same command/URL" conflict on next /doctor.
 { claude mcp list 2>/dev/null | grep -qi context7 || claude plugin list 2>/dev/null | grep -qi context7; } && echo "context7: already available (user-scope MCP or plugin)" || echo "context7: not available — recommend the plugin path first"
+{ [ -d "$HOME/.claude/skills/ui-ux-pro-max" ] || [ -d .claude/skills/ui-ux-pro-max ] || claude plugin list 2>/dev/null | grep -qi ui-ux-pro-max; } && echo "ui-ux-pro-max: installed" || echo "ui-ux-pro-max: not installed"
+{ [ -f tailwind.config.js ] || [ -f tailwind.config.ts ] || [ -d src/components ] || [ -d components ]; } && echo "ui-ux-pro-max: project has UI to design" || echo "ui-ux-pro-max: no frontend/UI signal in this repo"
 ```
 
 Report the lines plainly. Detection drives the recommendation — never claim a tool is wired when it is not. The two graphify lines disambiguate **base tier** (`graphify-out/`) from **wiki tier** (`graphify-out/wiki/`); the wiki tier is an opt-in nudge described in Phase 3.
@@ -74,6 +77,7 @@ Judge fit against the actual repo, do not blanket-recommend:
 - **caveman** — universal (`universal: true`), so `/ai:setup` Branch 2e already auto-prompts it; by the time this skill runs the answer is usually recorded in `branches.universal_companions_prompted`. **Check the marker first and do not re-ask.** Only surface it here when the project has no marker, or the user is explicitly revisiting the decision. It stays **auto-prompted, never silently installed** — the machine-wide blast radius (it changes the agent's output style in *every* repo on the machine) must be stated whenever it is offered. Applier: `bin/apply-caveman.sh`.
 - **ponytail** — universal (`universal: true`), same Branch 2e treatment as caveman: check `branches.universal_companions_prompted` first and do not re-ask. Same machine-wide blast radius (it changes how the agent writes code in *every* repo on the machine), so state it whenever it is offered. Applier: `bin/apply-ponytail.sh`. It is **orthogonal to caveman, not an alternative** — caveman compresses prose, ponytail constrains code; upstream endorses running both.
 - **llm-wiki** — strong fit when the project accumulates **non-code documents** (PRDs, meeting transcripts, competitor research, PDFs) the user re-reads to find things. Weak fit for a pure code repo — **graphify** already indexes code. Do not recommend graphify and llm-wiki for the *same* need; they cover code vs. documents respectively.
+- **ui-ux-pro-max** — strong fit when the repo has UI to design (frontend framework, Tailwind/CSS config, or a component directory). No fit for a pure backend/CLI/API repo — do not offer it there. It is a rules/taxonomy reference, not real product screenshots — if the user's complaint is "output doesn't look premium," say so explicitly and point at pairing it with real reference sites (Mobbin, Land-book) rather than treating this companion alone as the fix.
 
 State, for each: present-or-not, fit for *this* repo, and the one-line why.
 
@@ -123,6 +127,12 @@ Glue templates live in `$AI_KIT_ROOT/context/templates/companions/`. Wire only t
 3. Append a short pointer block to `AGENTS.md`: where the wiki lives, that `wiki/SCHEMA.md` is the operating manual, the three operations — ingest / query / lint — and (if `docs/` existed at scaffold time) the explicit boundary note that `docs/` is for curated material owned by humans, `wiki/` for material derived from `raw/` by the agent.
 4. **Wiki disambiguation.** If `graphify-out/wiki/` exists (graphify's `--wiki` tier scaffolded), prepend a "Two wikis present — disambiguation" block to the llm-wiki pointer in `AGENTS.md` naming the two surfaces explicitly: **graphify-wiki** at `graphify-out/wiki/` (AST, code-symbol navigation) vs. **llm-wiki** at `wiki/` (curated, concepts / sources / glossary / overview). When the user says "the wiki" the agent must check both. Skip this block when only one is wired — single-companion installs stay clean. Cross-ref: `standards/external/companions.json` → `graphify.conflicts[]` and `llm-wiki.conflicts[1]`.
 5. Tell the user to drop a document in `raw/` and say "ingest" to start. Obsidian is an optional viewer for the wiki — mention it, do not install it.
+
+**ui-ux-pro-max:**
+1. Only offer when Phase 1's project-signal check found UI to design (frontend framework, Tailwind/CSS config, or a component directory). Skip the offer entirely on a pure backend/CLI repo.
+2. If already installed (Phase 1 detection), skip straight to appending the AGENTS.md pointer.
+3. Otherwise offer it. On yes: `claude plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill --scope user` then `claude plugin install ui-ux-pro-max@ui-ux-pro-max-skill --scope user` — user-scope, same as caveman/ponytail, since it is equally useful in every UI project on the machine, not just this one.
+4. Append `companions/ui-ux-pro-max.md` to the project `AGENTS.md` — the pointer note, including that it is a taxonomy reference, not real product screenshots.
 
 ### Phase 4 — Output contract
 

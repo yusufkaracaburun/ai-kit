@@ -5,7 +5,7 @@
     "source_url": "https://github.com/yusufkaracaburun/ai-kit/blob/master/standards/external/companions.json",
     "source_license": "MIT",
     "vendored_at": "2026-05-25",
-    "notes": "Catalogues the companions branch of /ai:recommend-tools (graphify, caveman, ponytail, llm-wiki, context7). Each entry documents its tier(s), detection signal, glue file(s), conflict checks, and wiring path. Consumed by `audit-setup-symmetry.sh` so new companions cannot land without a documented wiring path. Companions are orthogonal to MCP/hooks/plugins/subagents — the latter score via `recommend-tools-lib.sh` from stack-signals; companions are surfaced per project judgement and never scored numerically."
+    "notes": "Catalogues the companions branch of /ai:recommend-tools (graphify, caveman, ponytail, llm-wiki, context7, ui-ux-pro-max). Each entry documents its tier(s), detection signal, glue file(s), conflict checks, and wiring path. Consumed by `audit-setup-symmetry.sh` so new companions cannot land without a documented wiring path. Companions are orthogonal to MCP/hooks/plugins/subagents — the latter score via `recommend-tools-lib.sh` from stack-signals; companions are surfaced per project judgement and never scored numerically."
   },
   "recommendations": [
     {
@@ -221,6 +221,40 @@
         "pinned_sha": "2ed6c52c9d7e5e56942508591085fd45dea277d3",
         "vetted_at": "2026-08-26"
       }
+    },
+    {
+      "name": "ui-ux-pro-max",
+      "category": "design",
+      "best_for": "Projects with UI to design (frontend framework, Tailwind/CSS config, or a component directory) — searchable design intelligence instead of one-shot styling guesses",
+      "value": "67+ styles, 161 color palettes, 57 font pairings, 99 UX guidelines, 25 chart types across 15 stacks (React, Next.js, Vue, Svelte, Astro, SwiftUI, React Native, Flutter, Tailwind, shadcn/ui, Nuxt, Jetpack Compose). Priority-ranked recommendation rules keyed by product type.",
+      "risk": "Low — read-only reference skill, does not generate or apply code on its own.",
+      "tiers": [
+        {
+          "name": "base",
+          "description": "Searchable style/color/typography/UX-guideline database with priority-based recommendations. It is a rules/taxonomy reference, not a library of real product screenshots — pair with actual reference sites for concrete visual exemplars.",
+          "wired_via": "workflow/skills/recommend-tools/SKILL.md Phase 3 design branch (AGENTS.md pointer)",
+          "glue_files": [
+            "context/templates/companions/ui-ux-pro-max.md"
+          ]
+        }
+      ],
+      "detection": {
+        "skill": "test -d ~/.claude/skills/ui-ux-pro-max -o -d .claude/skills/ui-ux-pro-max",
+        "plugin": "claude plugin list 2>/dev/null | grep -qi ui-ux-pro-max",
+        "project_signal": "test -f tailwind.config.js -o -f tailwind.config.ts -o -d src/components -o -d components"
+      },
+      "install": {
+        "upstream": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
+        "marketplace": "nextlevelbuilder/ui-ux-pro-max-skill",
+        "commands": [
+          "claude plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill --scope user",
+          "claude plugin install ui-ux-pro-max@ui-ux-pro-max-skill --scope user"
+        ],
+        "auto_install": false,
+        "pinned_sha": "b7e3af80f6e331f6fb456667b82b12cade7c9d35",
+        "vetted_at": "2026-08-29"
+      },
+      "license": "MIT"
     }
   ]
 }
