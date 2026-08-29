@@ -64,7 +64,7 @@ claude plugin list 2>/dev/null | grep -qi ponytail && echo "ponytail: installed"
 # context7: check BOTH user-scope MCP AND plugin-provided. `claude mcp list` alone misses plugin-provided MCPs that aren't currently connected — adding a user-scope ctx7 in that state causes a "same command/URL" conflict on next /doctor.
 { claude mcp list 2>/dev/null | grep -qi context7 || claude plugin list 2>/dev/null | grep -qi context7; } && echo "context7: already available (user-scope MCP or plugin)" || echo "context7: not available — recommend the plugin path first"
 { [ -d "$HOME/.claude/skills/ui-ux-pro-max" ] || [ -d .claude/skills/ui-ux-pro-max ] || claude plugin list 2>/dev/null | grep -qi ui-ux-pro-max; } && echo "ui-ux-pro-max: installed" || echo "ui-ux-pro-max: not installed"
-{ [ -f tailwind.config.js ] || [ -f tailwind.config.ts ] || [ -d src/components ] || [ -d components ]; } && echo "ui-ux-pro-max: project has UI to design" || echo "ui-ux-pro-max: no frontend/UI signal in this repo"
+{ [ -f tailwind.config.js ] || [ -f tailwind.config.ts ] || [ -d src/components ] || [ -d components ] || { [ -f package.json ] && grep -qE '"(react|vue|@angular/core|next|nuxt|svelte|astro|react-native)"' package.json; }; } && echo "ui-ux-pro-max: project has UI to design" || echo "ui-ux-pro-max: no frontend/UI signal in this repo"
 ```
 
 Report the lines plainly. Detection drives the recommendation — never claim a tool is wired when it is not. The two graphify lines disambiguate **base tier** (`graphify-out/`) from **wiki tier** (`graphify-out/wiki/`); the wiki tier is an opt-in nudge described in Phase 3.

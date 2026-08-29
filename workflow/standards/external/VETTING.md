@@ -545,3 +545,100 @@ web-quality-skills · category=quality · added 2026-08-27
                     will not trip the signal even though the skills apply to
                     them. Revisit if a downstream project hits it)
 ```
+
+### `ui-ux-pro-max` — added 2026-08-29 (companions.json; already present in plugins.json)
+
+`/ai:should-i-use https://styles.refero.design/` 2026-08-29. Refero itself
+verdicted Ignore (paid MCP, no free tier — user confirmed on the pricing page).
+The session surfaced a real gap while assessing it: `/ai:recommend-tools`
+companions.json had zero design-category entries, so a fresh project never
+got pointed at design tooling at setup time, even though `ui-ux-pro-max` was
+already a single-source `plugins.json` recommendation for the same signal.
+Promoted it to a full companion (AGENTS.md pointer + Phase 3 wiring), gated on
+a project-signal check so it is never offered to backend/CLI repos.
+
+```
+ui-ux-pro-max · category=design · added 2026-08-29
+  MARKETING-PARITY: pass, with caveat (upstream's own manifests disagree with
+                    each other at the same commit: .claude-plugin/marketplace.json
+                    says v2.2.1 / 96 palettes / 13 stacks, while
+                    .claude-plugin/skill.json in the same tree says v2.5.0 /
+                    161 palettes / 15 stacks. Not a live-drift artifact of
+                    checking at different times — both files sit at the one
+                    pinned commit. plugins.json's pre-existing entry already
+                    disclosed this ("counts treated as advisory"); companions.json
+                    now carries the same caveat instead of asserting a flat count)
+  BENCHMARK:        n/a (reference/taxonomy skill, no numeric performance or
+                    output-quality claim of its own to verify)
+  MARKETING-AUDIT:  pass (install path verified: .claude-plugin/marketplace.json
+                    plugin name `ui-ux-pro-max`, marketplace id
+                    `ui-ux-pro-max-skill` — matches the `/plugin install
+                    ui-ux-pro-max@ui-ux-pro-max-skill` command in both catalog
+                    entries. `source: "./"` — the marketplace ships the whole
+                    repo root as the plugin, not only `.claude/skills/ui-ux-pro-max`;
+                    see DATA-LOCALITY / SECURITY-SCAN below, both scanned the
+                    full tree accordingly)
+  LICENSE:          MIT — LICENSE file (Copyright (c) 2024 Next Level Builder)
+                    and skill.json both agree, no carve-outs
+  MATURITY:         pass (no VETTING.md maturity floor is defined for a
+                    "reference skill" category; judged on general-adoption
+                    signals instead — 122,726 stars, 13,149 forks, 30
+                    contributors, 30 releases, pushed 2026-08-27, two days
+                    before this audit)
+  DATA-LOCALITY:    local for the reference data (bundled CSVs, no telemetry
+                    found). DISCLOSE: `source: "./"` also ships sibling
+                    design skills (icon/logo/banner/slide generation under
+                    .claude/skills/design/) whose scripts call out to
+                    Gemini/Google's image-gen API using a user-supplied
+                    GEMINI_API_KEY / GOOGLE_API_KEY — user-initiated per
+                    invocation, not automatic or bundled with the core
+                    ui-ux-pro-max reference skill
+  PROVENANCE:       b7e3af80f6e331f6fb456667b82b12cade7c9d35 (2026-04-03,
+                    default branch `main` confirmed via `gh api`)
+  SECURITY-SCAN:    pass, after manual triage (`skillspector --no-llm` on the
+                    full local checkout: risk 100 / CRITICAL / DO_NOT_INSTALL,
+                    177 findings — 56 HIGH, 79 MEDIUM, 42 LOW, spread across
+                    cli/, src/, and the design/ui-styling/brand/slides/
+                    design-system skill dirs the `source: "./"` bundle ships
+                    alongside ui-ux-pro-max itself. Fourth data point that raw
+                    skillspector severity on a real, widely-used skill is
+                    dominated by noise (see ponytail 2026-08-26,
+                    web-quality-skills 2026-08-27). Triaged by category:
+                    Credential Access / Env Variable Harvesting (24 findings)
+                    is `.env` / `os.environ.get("GEMINI_API_KEY", ...)` loading
+                    in the icon/logo/banner generation scripts — the intended
+                    way those scripts take an API key, not exfiltration.
+                    Direct Prompt Extraction / Hidden Instructions (14) is
+                    HTML template comments (`<!-- Progress Bar -->`) and CLI
+                    `--help` text, not injected instructions — hand-read
+                    SKILL.md + CLAUDE.md for override/anti-refusal/hidden-
+                    instruction phrasing separately, zero hits. Self-Modification
+                    (3) is the `uipro init` installer CLI's own README/argv
+                    parsing, not runtime self-mod. Unvalidated Output Injection
+                    (6) is `subprocess.run(cmd, ...)` in
+                    ui-styling/scripts/shadcn_add.py with `cmd` as a list
+                    (`["npx", "shadcn@latest", "add", *components]`, no
+                    `shell=True`) — no shell-string interpolation, so no
+                    injection path despite the pattern match. One real,
+                    non-noise finding: `grep -rn "shell=True\|exec(\|child_process"`
+                    surfaced two spots using shell-string interpolation instead
+                    of an argv list — `brand/scripts/sync-brand-to-tokens.cjs:253`
+                    (`execSync` building a `node ... --config ...` command from
+                    locally-resolved paths) and `cli/src/utils/extract.ts:17-18`
+                    (`exec`/`execAsync` building an `unzip`/`Expand-Archive`
+                    command from a temp-dir path). Both take their arguments
+                    from paths the CLI itself resolves at local install time
+                    (`mkdtemp`, `process.cwd()`), not from prompt-injectable or
+                    network-supplied input during ordinary skill use — low
+                    practical risk, but a genuine defensive-coding gap (should
+                    be an argv-array `execFile` call, not a template-literal
+                    shell string). Supply-chain: `pytest==8.0.0` /
+                    `pytest==7.4.0` pinned in test fixtures with a flagged
+                    CVE-2025-71176 (tmpdir handling) — dev/test-only dependency,
+                    not shipped to the agent at skill-invocation time)
+  VERDICT:          ADD (companions.json design category; plugins.json entry
+                    pre-dates this session and is unchanged). Revisit the two
+                    shell-string spots if `/ai:should-i-use` or a re-audit
+                    ever needs to raise this past a reference-only companion —
+                    they are upstream's code to fix, ai-kit vendors none of it)
+```
