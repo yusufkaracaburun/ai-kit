@@ -26,6 +26,10 @@ context per iteration. Pattern is adapted from Geoffrey Huntley's
 | `ship` | PR open + (project-policy) merge |
 | `autonomous` | **This skill** — orchestrates the above across N issues |
 
+`to-issues` may create cold-readable issue bodies, but `autonomous` only
+consumes the queue contract produced by `triage`: a `ready-for-agent` label
+paired with a literal `## Agent Brief` comment.
+
 ## Relationship to `/loop`
 
 `/loop` is a scheduler, this skill is a worker. Use either:
