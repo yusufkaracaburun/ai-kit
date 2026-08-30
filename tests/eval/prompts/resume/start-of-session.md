@@ -3,7 +3,7 @@ id: start-of-session
 skill: resume
 expects:
   - locates the project's auto-memory folder
-  - routes to /gsd-resume-work when the project has .planning/ or STATE.md
+  - routes to /gsd-resume-work only when the project has .planning/ or STATE.md AND gsd is actually installed
   - picks the most recent checkpoint by mtime (skips stale-flagged entries)
   - produces the exact five-line summary shape (Resuming / Branch / Done / Open / Hints)
   - flags branch mismatch if current branch differs from memo's branch

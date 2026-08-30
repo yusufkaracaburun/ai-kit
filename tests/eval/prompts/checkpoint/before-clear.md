@@ -3,7 +3,7 @@ id: before-clear
 skill: checkpoint
 expects:
   - locates the project's auto-memory folder (or surfaces a clean error if missing)
-  - routes to /gsd-pause-work when the project has .planning/ or STATE.md
+  - routes to /gsd-pause-work only when the project has .planning/ or STATE.md AND gsd is actually installed
   - extracts concrete artefacts (commit SHAs, file paths) — no vague prose
   - separates "Done", "Open / next", and "Blockers / mid-state" cleanly
   - auto-flags stale entries in MEMORY.md when their branches no longer exist

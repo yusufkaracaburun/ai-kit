@@ -29,13 +29,18 @@ based on where the previous session stored its handoff:
   `~/.claude/.../memory/project/session-checkpoint-*.md`. Use after a
   `/ai:checkpoint` on the same machine.
 - **`/gsd-resume-work`** — reads `.continue-here.md` and `STATE.md` in the
-  project repo. Use in GSD projects (those with `.planning/`).
+  project repo. Belongs to the separate "gsd" (get-shit-done) tool, not
+  ai-kit. Use only where gsd is actually installed.
 - **Transfer briefing on disk** (from `/ai:checkpoint --to tmp`) — if the
   user mentions a briefing at `$TMPDIR/handoff-*.md`, point them at that
   file directly; this skill does not look there.
 
-If the project has `.planning/` or `STATE.md` and you do not have a strong
-reason to override, stop and route the user to `/gsd-resume-work`.
+If the project has `.planning/` or `STATE.md` **and** gsd is actually
+installed (`~/.claude/commands/gsd/` or `~/.claude/skills/gsd-*` exists —
+`.planning/`/`STATE.md` alone is not proof; they outlive an uninstalled gsd)
+and you do not have a strong reason to override, stop and route the user to
+`/gsd-resume-work`. If gsd is not installed, ignore `.planning/`/`STATE.md`
+entirely and proceed with this skill normally.
 
 </other_skills_in_this_space>
 

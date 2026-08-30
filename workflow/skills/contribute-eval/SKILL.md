@@ -32,7 +32,7 @@ Walk the user through these one at a time. Reject vague answers — eval cases d
 - **The actual output** — what the skill produced. Verbatim, including any tool calls the user saw. Truncate at ~200 lines max; long traces hide the signal.
 - **What should have happened** — a bullet list (3–8 bullets). Each bullet is a behaviour the corrected skill must exhibit, written so it's testable from text matching. Examples:
   - "extracts at least one concrete file:line reference"
-  - "routes to `/gsd-pause-work` when `.planning/` exists"
+  - "routes to `/gsd-pause-work` when `.planning/` exists and gsd is installed"
   - "does NOT execute `/clear` itself"
 
 If the user can't articulate the third piece, stop. An eval without an expected-behaviour list is a complaint, not a test. Route them to `/ai:feedback`.

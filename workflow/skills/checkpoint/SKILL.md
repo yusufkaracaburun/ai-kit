@@ -29,14 +29,18 @@ mode, where there is no clear at all.
   transfer briefing to `$TMPDIR` for another agent, machine, or teammate,
   with redaction always-on.
 - **`/gsd-pause-work`** — writes `.continue-here.md` *into the project repo*
-  with a WIP commit. Use this in GSD projects (those with `.planning/` or
-  `STATE.md`). Pairs with `/gsd-resume-work`. The `--to memory` path here
-  routes to it automatically.
+  with a WIP commit. Belongs to the separate "gsd" (get-shit-done) tool, not
+  ai-kit. Pairs with `/gsd-resume-work`. The `--to memory` path here routes
+  to it automatically, but only when gsd is actually installed (see below).
 
-If the project has `.planning/` or `STATE.md` and `--to memory` is selected
-and you do not have a strong reason to override, stop and route the user to
-`/gsd-pause-work` instead. `--to tmp` is not GSD-routed — a transfer
-briefing crosses the machine boundary, GSD pause-docs do not.
+If the project has `.planning/` or `STATE.md` **and** gsd is actually
+installed (`~/.claude/commands/gsd/` or `~/.claude/skills/gsd-*` exists —
+`.planning/`/`STATE.md` alone is not proof; they outlive an uninstalled gsd)
+and `--to memory` is selected and you do not have a strong reason to
+override, stop and route the user to `/gsd-pause-work` instead. If gsd is
+not installed, ignore `.planning/`/`STATE.md` entirely and proceed with this
+skill normally. `--to tmp` is not gsd-routed either way — a transfer
+briefing crosses the machine boundary, gsd pause-docs do not.
 
 </other_skills_in_this_space>
 
@@ -88,9 +92,12 @@ Edge cases:
 - **Not a git repo**: that is fine. Skip the git-derived fields in the
   memo (`Branch`, `commits ahead`) and note "(no git)" so the next session
   knows to expect no SHAs.
-- **GSD project detected** (`.planning/` or `STATE.md` exists): route to
-  `/gsd-pause-work` per the disambiguation block above. Do not write a
-  generic checkpoint alongside a GSD pause-doc unless the user insists.
+- **gsd project detected** (`.planning/` or `STATE.md` exists **and** gsd is
+  actually installed, per the disambiguation block above): route to
+  `/gsd-pause-work`. Do not write a generic checkpoint alongside a gsd
+  pause-doc unless the user insists. If `.planning/`/`STATE.md` exists but
+  gsd is not installed, this is leftover state from an uninstalled tool —
+  proceed with the normal checkpoint below.
 
 ## 3. Gather what to capture
 
