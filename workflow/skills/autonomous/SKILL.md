@@ -50,6 +50,12 @@ tangle scheduler/worker concerns and break cold-start iteration.
 Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
 `/ai:autonomous drain`.
 
+> **Operator tip (macOS):** a long `drain` run keeps burning tokens with
+> no keyboard/mouse input, which macOS treats as idle — the machine can
+> sleep mid-run and kill the session. Prefix the terminal command with
+> `caffeinate -s --` (or wrap the whole session: `caffeinate -s -- claude`)
+> to prevent it. Linux equivalent: `systemd-inhibit --what=idle`.
+
 ## Process (one iteration)
 
 0. **Cwd + branch precondition.** Before *any* git or gh operation:
