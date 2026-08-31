@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **`to-issues` no longer contradicts `/ai:autonomous`'s Agent Brief gate.**
+  It now publishes cold-readable slices into triage instead of applying
+  `ready-for-agent` directly, leaving that label to the atomic `triage`
+  `## Agent Brief` promotion.
+
 ## 1.70.0 — 2026-08-29
 
 ### Added

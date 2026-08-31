@@ -125,6 +125,14 @@ assert "triage SKILL.md names the Second-dev cold-pickup rule" \
 assert "to-issues SKILL.md names the Second-dev cold-pickup rule" \
   'grep -qiE "second[- ]dev cold[- ]?pickup|cold[- ]?pickup rule" "$TOISSUES"'
 
+# Issue #127: to-issues creates cold-readable issue bodies, but must not put
+# work straight onto the autonomous queue without triage's Agent Brief comment.
+assert "to-issues does not label issues ready-for-agent directly" \
+  'grep -q "does not apply the .ready-for-agent. label directly" "$TOISSUES"'
+
+assert "to-issues hands ready-for-agent promotion to triage" \
+  'grep -q "triage.*Agent Brief.*ready-for-agent" "$TOISSUES"'
+
 # Existing v1.14.1 cross-skill contract must remain intact (regression guard).
 assert "triage retains atomic Agent Brief contract" \
   'grep -q "atomically with the label change" "$TRIAGE"'
@@ -139,6 +147,9 @@ echo "=== two-dev-framing: autonomous writer/reviewer ==="
 AUTONOMOUS="$AIKIT/workflow/skills/autonomous/SKILL.md"
 
 assert "autonomous SKILL.md exists" '[ -f "$AUTONOMOUS" ]'
+
+assert "autonomous consumes triage's Agent Brief queue contract" \
+  'grep -q "queue contract produced by .triage." "$AUTONOMOUS" && grep -q "## Agent Brief" "$AUTONOMOUS"'
 
 assert "Trust model names the writer/reviewer rule explicitly" \
   'grep -qiE "writer.*reviewer|Agent is the writer" "$AUTONOMOUS"'

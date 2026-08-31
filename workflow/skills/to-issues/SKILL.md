@@ -20,13 +20,16 @@ dev** — teammate, AFK agent, or returning maintainer — who has never seen
 the conversation can act on it cold. Each issue gets a parent reference, a
 behavioral *what to build* description, inline machine-checkable
 acceptance criteria, and an explicit *blocked by* list. The issue body is
-the contract surface; conversation context is not.
+the contract surface for human review and later triage; conversation context
+is not.
 
 Rationale: ai-kit defaults assume ≥2 devs (one writer, one reviewer), per
 ai-kit issue #52. The to-issues template enforces this structure — never
 emit an issue that drops acceptance criteria or the parent pointer. If a
 slice cannot be specified cold from current context, keep grilling before
-publishing.
+publishing. `to-issues` does not apply the `ready-for-agent` label directly:
+`triage` owns the atomic `## Agent Brief` comment plus `ready-for-agent`
+promotion that `/ai:autonomous` consumes.
 
 ## Run mode
 
@@ -79,7 +82,11 @@ Iterate until the user approves the breakdown.
 
 ### 5. Publish the issues to the issue tracker
 
-For each approved slice, publish a new issue to the issue tracker. Use the issue body template below. These issues are considered ready for AFK agents, so publish them with the correct triage label unless instructed otherwise.
+For each approved slice, publish a new issue to the issue tracker. Use the
+issue body template below. Apply `needs-triage` when the tracker has that
+label, then hand off to `triage` for any later `ready-for-agent` promotion.
+Do not apply `ready-for-agent` here: that label must be paired atomically with
+a `## Agent Brief` comment from `triage`.
 
 Publish issues in dependency order (blockers first) so you can reference real issue identifiers in the "Blocked by" field.
 
@@ -120,4 +127,3 @@ bash "$AI_KIT_ROOT/bin/log-skill.sh" to-issues done   # at the end (or `abort` i
 ```
 
 Silent no-op when the env var is unset. See [SECURITY.md](../../../SECURITY.md) for what is logged and where.
-
