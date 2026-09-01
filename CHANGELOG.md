@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.71.0 — 2026-09-01
+
+### Added
+
+- **`design-direction` skill** — researches audience, market, evidence, and
+  current design references before styling; creates comparable visual
+  directions; audits existing designs; and applies a selected refresh only
+  after explicit approval. Includes Refero Styles, Mobbin, SiteInspire,
+  Land-book, Awwwards, and other optional inspiration sources behind an
+  evidence-first source hierarchy, plus two eval scenarios. Cross-links
+  `prototype` (throwaway UI code vs. this skill's evidence-first document),
+  checks `ui-ux-pro-max`/`lazyweb` before manual gallery browsing, and covers
+  motion (micro-interactions, scroll reveals), background pattern/texture,
+  and illustration-style choice.
+
 ## 1.70.0 — 2026-08-29
 
 ### Added

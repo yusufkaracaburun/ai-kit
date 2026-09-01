@@ -1,6 +1,6 @@
 # Mental model
 
-How the 41 skills fit together, plus the 3 subagents and 11 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
+How the 42 skills fit together, plus the 3 subagents and 11 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
 
 For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossary.md). For "I want to add X — which primitive?" see [primitives.md](primitives.md).
 
@@ -8,7 +8,7 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
 
 ```
    ┌─→ IDEATION      grill-me · grill-with-docs · zoom-out ·
-   │                 to-prd · prototype · show-me
+   │                 to-prd · prototype · design-direction · show-me
    │      │
    │      ▼
    │   DEVELOPMENT   to-issues → triage → tdd
@@ -38,6 +38,7 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
 | Answer with a picture instead of a paragraph | `show-me` |
 | Turn a vague idea into a PRD | `to-prd` |
 | Throw a quick prototype together | `prototype` |
+| Research, compare, or review a visual direction before implementation | `design-direction` |
 | Shatter a plan / PRD into N independently-grabbable tracer-bullet issues | `to-issues` |
 | Pick the next ticket to work on | `triage` |
 | Build a feature via red-green-refactor | `tdd` |
