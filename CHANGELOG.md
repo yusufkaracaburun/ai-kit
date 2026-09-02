@@ -1,5 +1,51 @@
 # Changelog
 
+## 1.72.0 — 2026-09-02
+
+### Added
+
+- **Flutter/Dart stack detection.** `detect-tooling.sh`/`detect-lib.sh`
+  previously had zero `pubspec.yaml` awareness — `package_manager`,
+  `frameworks`, and `dependencies` all came back empty on a real Flutter app.
+  Now detects `pubspec.yaml` → `flutter`/`dart` package manager
+  (`flutter pub get` vs `dart pub get`, distinguished by the `sdk: flutter`
+  dependency), `flutter` in the frameworks list, and pub dependency names
+  (state-mgmt packages like `provider`/`riverpod`/`bloc` included) — so
+  `/ai:setup`'s `dev-environment.md` write path and `/ai:recommend-rules`
+  are no longer blind on mobile repos.
+- **`flutter-conventions.mini.md`** — stack-conventions rule (same tier as
+  `laravel-conventions.mini.md`): const constructors, `ListView.builder`
+  over unbounded children, dispose discipline
+  (Animation/TextEditing/StreamSubscription), async `BuildContext`/`mounted`
+  safety, `setState` scope. Explicitly detect-and-match the repo's existing
+  state-management stack rather than prescribing one — real repos vary
+  (Provider+`get_it`, Riverpod, BLoC), and `audit-architecture-react`
+  already sets this precedent for JS frameworks.
+- **`flutter-analyze-stop-gate`** hook pattern in `hooks-patterns.json` —
+  Stop-event `flutter analyze` gate, same shape as `test-suite-stop-gate`
+  (stop_hook_active guard, clean-tree skip, no-op if the SDK isn't on PATH).
+- **`dart-flutter` plugin** in `plugins.json` — official Flutter-team
+  Claude Code plugin (BSD-3-Clause): bundles the Dart MCP server (analyzer
+  diagnostics, symbol resolution, test runner) with 10 Flutter skills.
+  Closed a real catalog gap: `mcp-servers.json`/`plugins.json` had zero
+  Dart/Flutter coverage despite `ui-ux-pro-max` already listing Flutter as a
+  supported pattern framework.
+- **`getdesign.md`** added to `design-direction`'s `RESEARCH.md` alongside
+  Refero — verified live catalog of real-site `DESIGN.md` analyses.
+
+Surfaced by a full-tier `/ai:setup` run against a real Flutter repo
+(Planny-MobileApp), which hand-rolled the Dart MCP wiring and a
+project-local rule/hook manually because ai-kit had nothing to offer —
+folded that experience back into the kit instead of leaving two sessions to
+reinvent it separately.
+
+### Recorded
+
+- **`front-end-checklist`** (thedaviddias) — Ignore. Rebranded SaaS product
+  (frontendchecklist.io), no LICENSE file, and the gap it claims is already
+  closed by `web-quality-skills` (measurement-first, MIT) plus
+  `a11y.mini.md` and the existing `claude-seo` Ignore precedent.
+
 ## 1.71.0 — 2026-09-01
 
 ### Added
