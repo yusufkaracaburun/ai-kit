@@ -212,8 +212,12 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
   as a whole (2026-09-02) — everything else in it (TTS notification hooks,
   9 specialized-agent roles, GH issue/PR hygiene, MCP-server writeups) was
   redundant with `hooks-patterns.json`, `/ai:setup-gh-workflow`, or
-  `/ai:docs-sync`; this was the one real gap. Full verdict:
-  `standards/external/plugins-excluded.json` →
+  `/ai:docs-sync`; this was the one real gap. Re-checked against Track B
+  (emeq-hub, emeq-app, emeq-hub-sdk, planny, not ai-kit itself) — the one
+  concrete trigger, emeq-hub-sdk's 244-line CLAUDE.md, is a false positive:
+  ~176 lines are Laravel Boost's generated block, and emeq-hub already fixes
+  this cheaper with an `@AGENTS.md` import instead of a review skill. Staying
+  P3. Full verdict: `standards/external/plugins-excluded.json` →
   `claude-code-everything-you-need-to-know`. Run past `VETTING.md` before
   landing.
 
