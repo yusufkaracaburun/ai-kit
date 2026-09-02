@@ -44,6 +44,10 @@ only for what they don't cover.
   examples with colors, typography, spacing, and components. Use it to name and
   specify a direction, not to outsource the choice. Availability and access may
   change; the optional MCP is not required by this skill.
+- [getdesign.md](https://getdesign.md/) — catalog of `DESIGN.md` analyses from
+  real live sites (colors, typography, spacing, components, and the reasoning
+  behind them). Free to browse; custom per-site analysis is paid. Same caution
+  as Refero: use to name and specify, not to outsource the choice.
 - [Mobbin](https://mobbin.com/) — current app, web, screen, and user-flow
   patterns. Some depth requires an account or paid plan.
 - [Page Flows](https://pageflows.com/) — interaction and user-flow references;
