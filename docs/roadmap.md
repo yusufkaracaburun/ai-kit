@@ -201,6 +201,21 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
   say a term list up front produces what the humanizer removes. Revisit the MCP only
   when their PR #28 merges **and** a geo parameter exists; the table is the
   interface, so that stays a swap.
+- **#153** `catalog-candidate` — reimplement `claude-md-review` as a new
+  `workflow/skills/` entry: a content-quality CLAUDE.md audit (vagueness, dead
+  path references, staleness, conflicts, bloat) that `/ai:hygiene`'s
+  context-lean check doesn't cover — that check only flags files over 200
+  lines, never their content. Source: `.claude/skills/claude-md-review/SKILL.md`
+  in wesammustafa/Claude-Code-Everything-You-Need-to-Know
+  (`main@d9e93740193aeae2cd661c7ddf6f0c8f8989860b`, MIT), dependency-free
+  (Read/Glob/Grep only), ~90 lines. Surfaced by `/ai:should-i-use` on the repo
+  as a whole (2026-09-02) — everything else in it (TTS notification hooks,
+  9 specialized-agent roles, GH issue/PR hygiene, MCP-server writeups) was
+  redundant with `hooks-patterns.json`, `/ai:setup-gh-workflow`, or
+  `/ai:docs-sync`; this was the one real gap. Full verdict:
+  `standards/external/plugins-excluded.json` →
+  `claude-code-everything-you-need-to-know`. Run past `VETTING.md` before
+  landing.
 
 - **#139** `bug` — `phase` hand-edits the marker when `CLAUDE_PLUGIN_ROOT` doesn't
   resolve, losing the `lifecycle: old → new` transition line (0/12 eval runs
