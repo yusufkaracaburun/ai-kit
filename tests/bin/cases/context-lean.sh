@@ -49,6 +49,22 @@ OUT_BOOST="$("$LEAN" "$TMP/boost" 2>&1)"; RC_BOOST=$?
 assert "context-lean exits 0 on Boost-managed 252-line AGENTS.md" '[ "$RC_BOOST" -eq 0 ]'
 assert "context-lean notes Boost-managed skip" 'echo "$OUT_BOOST" | grep -q "Boost-managed"'
 
+# A Boost block appended below hand-authored content (Boost's default
+# CLAUDE.md target, not a dedicated AGENTS.md) excludes only the generated
+# lines from the count — the authored part still gets curated.
+mkdir -p "$TMP/boost-appended-small"
+{ seq 1 50 | sed 's/^/line /'; echo "<laravel-boost-guidelines>"; seq 1 300 | sed 's/^/line /'; echo "</laravel-boost-guidelines>"; } > "$TMP/boost-appended-small/CLAUDE.md"
+OUT_BOOST_SMALL="$("$LEAN" "$TMP/boost-appended-small" 2>&1)"; RC_BOOST_SMALL=$?
+assert "context-lean excludes appended Boost block from the count" '[ "$RC_BOOST_SMALL" -eq 0 ]'
+assert "context-lean reports the 50-line authored count, not the 351-line total" 'echo "$OUT_BOOST_SMALL" | grep -q "ok: CLAUDE.md — 50 lines"'
+assert "context-lean notes the excluded block" 'echo "$OUT_BOOST_SMALL" | grep -q "Boost-managed block from line 51"'
+
+mkdir -p "$TMP/boost-appended-bloated"
+{ seq 1 210 | sed 's/^/line /'; echo "<laravel-boost-guidelines>"; seq 1 300 | sed 's/^/line /'; echo "</laravel-boost-guidelines>"; } > "$TMP/boost-appended-bloated/CLAUDE.md"
+OUT_BOOST_BLOAT="$("$LEAN" "$TMP/boost-appended-bloated" 2>&1)" && RC_BOOST_BLOAT=0 || RC_BOOST_BLOAT=$?
+assert "context-lean still warns when the authored part alone is over 200" '[ "$RC_BOOST_BLOAT" -eq 1 ]'
+assert "context-lean warns with the authored count, not the inflated total" 'echo "$OUT_BOOST_BLOAT" | grep -q "WARN: CLAUDE.md is 210 lines"'
+
 # Exactly 200 lines is still clean (threshold is "over", not "at").
 mkdir -p "$TMP/edge"
 seq 1 200 | sed 's/^/line /' > "$TMP/edge/CLAUDE.md"
