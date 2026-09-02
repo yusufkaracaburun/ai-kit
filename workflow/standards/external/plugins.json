@@ -326,6 +326,19 @@
           "frontend"
         ]
       }
+    },
+    {
+      "name": "dart-flutter",
+      "marketplace": "dart-flutter",
+      "install": "/plugin install dart-flutter@dart-flutter",
+      "category": "framework",
+      "best_for": "Flutter/Dart mobile, web, or desktop projects — the only mobile framework in the kit's stack coverage",
+      "value": "Official Flutter/Dart-team plugin (BSD-3-Clause): bundles the Dart MCP server (analyzer diagnostics, symbol resolution, test runner, runtime inspection) with 10 Flutter skills (widget-test, integration-test, widget-preview, layered architecture, responsive layout, layout-issue fixing, JSON serialization, go_router, l10n, http). Closes a real gap: mcp-servers.json and plugins.json had zero Dart/Flutter entries despite ui-ux-pro-max already listing Flutter as a supported pattern framework, and hooks-patterns.json's dart-format hook has no analyzer-backed MCP or skill behind it. Marketplace add first: /plugin marketplace add flutter/agent-plugins.",
+      "signals": {
+        "files": [
+          "pubspec.yaml"
+        ]
+      }
     }
   ]
 }

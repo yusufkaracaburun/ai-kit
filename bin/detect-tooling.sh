@@ -129,6 +129,8 @@ docs_urls = {
     "pnpm": "https://pnpm.io",
     "npm": "https://docs.npmjs.com",
     "composer": "https://getcomposer.org/doc",
+    "flutter": "https://docs.flutter.dev",
+    "dart": "https://dart.dev/guides",
 }
 
 text = out.read_text()
@@ -232,7 +234,8 @@ if [ "$JSON" = true ]; then
     "install": "${INSTALL_CMD:-}",
     "audit": "${AUDIT_CMD:-}",
     "has_js": ${HAS_JS:-false},
-    "has_php": ${HAS_PHP:-false}
+    "has_php": ${HAS_PHP:-false},
+    "has_dart": ${HAS_DART:-false}
   },
   "dependencies": ${DEPENDENCIES_JSON:-[]},
   "frameworks": ${fw_json},

@@ -10,6 +10,7 @@ docs_url_for() {
     nextjs) echo "https://nextjs.org/docs" ;;
     vue) echo "https://vuejs.org/guide" ;;
     astro) echo "https://docs.astro.build" ;;
+    flutter) echo "https://docs.flutter.dev" ;;
     inertia) echo "https://inertiajs.com" ;;
     nx) echo "https://nx.dev" ;;
     pnpm) echo "https://pnpm.io" ;;
@@ -26,6 +27,7 @@ detect_package_manager() {
   AUDIT_CMD=""
   HAS_JS=false
   HAS_PHP=false
+  HAS_DART=false
   COPY_NODE_MODULES=false
 
   if [ -f "$target/pnpm-lock.yaml" ]; then
@@ -64,6 +66,20 @@ detect_package_manager() {
       AUDIT_CMD="${AUDIT_CMD}; composer audit"
     fi
   fi
+
+  if [ -f "$target/pubspec.yaml" ]; then
+    HAS_DART=true
+    if [ -z "$INSTALL_CMD" ]; then
+      if grep -qE '^\s*sdk:\s*flutter\s*$' "$target/pubspec.yaml" 2>/dev/null; then
+        PM_NAME="flutter"
+        INSTALL_CMD="flutter pub get"
+      else
+        PM_NAME="dart"
+        INSTALL_CMD="dart pub get"
+      fi
+      AUDIT_CMD="dart pub outdated"
+    fi
+  fi
 }
 
 detect_dependencies() {
@@ -88,6 +104,27 @@ def collect(path, keys):
 collect('$target/package.json', ('dependencies', 'devDependencies'))
 collect('$target/composer.json', ('require', 'require-dev'))
 names.discard('php')
+
+def collect_pubspec(path):
+    try:
+        lines = open(path).read().splitlines()
+    except Exception:
+        return
+    section = None
+    for line in lines:
+        if not line.strip() or line.lstrip().startswith('#'):
+            continue
+        indent = len(line) - len(line.lstrip(' '))
+        if indent == 0:
+            key = line.split(':', 1)[0].strip()
+            section = key if key in ('dependencies', 'dev_dependencies') else None
+            continue
+        if section and indent == 2:
+            name = line.strip().split(':', 1)[0].strip()
+            if name and name != 'flutter':
+                names.add(name)
+
+collect_pubspec('$target/pubspec.yaml')
 print(json.dumps(sorted(names)))
 " 2>/dev/null || true)"
 
@@ -126,6 +163,10 @@ detect_frameworks() {
 
   if [ -f "$target/nx.json" ]; then
     FRAMEWORKS+=("nx")
+  fi
+
+  if [ -f "$target/pubspec.yaml" ] && grep -qE '^\s*sdk:\s*flutter\s*$' "$target/pubspec.yaml" 2>/dev/null; then
+    FRAMEWORKS+=("flutter")
   fi
 
   # shadcn/ui: copy-paste components, no package.json dep. Signal is the

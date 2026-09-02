@@ -216,6 +216,16 @@
       }
     },
     {
+      "name": "flutter-analyze-stop-gate",
+      "category": "quality",
+      "event": "Stop",
+      "best_for": "Block turn end while `flutter analyze` reports errors on a Flutter/Dart repo",
+      "value": "Turn-level green gate for the Dart analyzer, same shape as test-suite-stop-gate: (1) exit 0 when stop_hook_active is true — prevents infinite fix-loops; (2) no-op silently if `flutter`/`dart` isn't on PATH, rather than blocking on a missing SDK; (3) skip when the working tree is clean (pure Q&A turns); (4) feed analyzer errors back via exit 2 + stderr so the agent fixes before finishing.",
+      "signals": {
+        "files": ["pubspec.yaml"]
+      }
+    },
+    {
       "name": "commitlint",
       "category": "linter",
       "event": "PreToolUse",

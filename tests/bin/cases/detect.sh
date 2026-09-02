@@ -23,6 +23,21 @@ detect_package_manager "$TMP_COMP"
 assert "composer detected" '[ "$PM_NAME" = "composer" ]'
 rm -rf "$TMP_COMP"
 
+TMP_FLUTTER=$(mktemp -d)
+printf 'name: t\ndependencies:\n  flutter:\n    sdk: flutter\n  provider: ^6.1.2\n' > "$TMP_FLUTTER/pubspec.yaml"
+detect_package_manager "$TMP_FLUTTER"
+assert "flutter pm detected" '[ "$PM_NAME" = "flutter" ]'
+assert "flutter pub get" '[ "$INSTALL_CMD" = "flutter pub get" ]'
+assert "has_dart true for flutter app" '[ "$HAS_DART" = true ]'
+rm -rf "$TMP_FLUTTER"
+
+TMP_DART=$(mktemp -d)
+printf 'name: t\ndependencies:\n  http: ^1.2.2\n' > "$TMP_DART/pubspec.yaml"
+detect_package_manager "$TMP_DART"
+assert "pure dart pm detected" '[ "$PM_NAME" = "dart" ]'
+assert "dart pub get" '[ "$INSTALL_CMD" = "dart pub get" ]'
+rm -rf "$TMP_DART"
+
 
 echo "=== detect-architecture ==="
 # section: detect-architecture
@@ -47,6 +62,23 @@ assert "astro detected" '[[ " ${FRAMEWORKS[*]} " == *" astro "* ]]'
 assert "astro exactly once (astro-icon no match)" '[ "$(printf "%s\n" "${FRAMEWORKS[@]}" | grep -cx astro)" = "1" ]'
 assert "astro docs url" '[ "$(docs_url_for astro)" = "https://docs.astro.build" ]'
 rm -rf "$TMP_FW"
+
+TMP_FLUTTER_FW=$(mktemp -d)
+printf 'name: t\ndependencies:\n  flutter:\n    sdk: flutter\n  provider: ^6.1.2\n  get_it: ^8.0.0\n' > "$TMP_FLUTTER_FW/pubspec.yaml"
+detect_frameworks "$TMP_FLUTTER_FW"
+assert "flutter detected" '[[ " ${FRAMEWORKS[*]} " == *" flutter "* ]]'
+assert "flutter docs url" '[ "$(docs_url_for flutter)" = "https://docs.flutter.dev" ]'
+detect_dependencies "$TMP_FLUTTER_FW"
+assert "pubspec deps include provider" 'echo "$DEPENDENCIES_JSON" | python3 -c "import json,sys; assert \"provider\" in json.load(sys.stdin)"'
+assert "pubspec deps include get_it" 'echo "$DEPENDENCIES_JSON" | python3 -c "import json,sys; assert \"get_it\" in json.load(sys.stdin)"'
+assert "pubspec deps exclude flutter sdk dep" 'echo "$DEPENDENCIES_JSON" | python3 -c "import json,sys; assert \"flutter\" not in json.load(sys.stdin)"'
+rm -rf "$TMP_FLUTTER_FW"
+
+TMP_DART_FW=$(mktemp -d)
+printf 'name: t\ndependencies:\n  http: ^1.2.2\n' > "$TMP_DART_FW/pubspec.yaml"
+detect_frameworks "$TMP_DART_FW"
+assert "pure dart package not flagged flutter" '[ "${#FRAMEWORKS[@]}" -eq 0 ]'
+rm -rf "$TMP_DART_FW"
 
 
 echo "=== detect-agent-stack ==="
@@ -130,6 +162,14 @@ echo "=== detect-tooling-json ==="
 JSON_OUT="$("$AIKIT/bin/detect-tooling.sh" "$AIKIT/tests/fixtures/architecture-laravel" --json)"
 assert "json has architecture.frontend" 'grep -q "\"detected\": \"laravel-inertia\"" <<<"$JSON_OUT"'
 assert "json has architecture.backend" 'grep -q "\"detected\": \"laravel-default\"" <<<"$JSON_OUT"'
+assert "json has_dart false for laravel fixture" 'echo "$JSON_OUT" | python3 -c "import json,sys; assert json.load(sys.stdin)[\"package_manager\"][\"has_dart\"] is False"'
+
+TMP_JSON_FLUTTER=$(mktemp -d)
+printf 'name: t\ndependencies:\n  flutter:\n    sdk: flutter\n' > "$TMP_JSON_FLUTTER/pubspec.yaml"
+JSON_FLUTTER="$("$AIKIT/bin/detect-tooling.sh" "$TMP_JSON_FLUTTER" --json)"
+assert "json has_dart true for flutter repo" 'echo "$JSON_FLUTTER" | python3 -c "import json,sys; assert json.load(sys.stdin)[\"package_manager\"][\"has_dart\"] is True"'
+assert "json frameworks include flutter" 'echo "$JSON_FLUTTER" | python3 -c "import json,sys; assert \"flutter\" in json.load(sys.stdin)[\"frameworks\"]"'
+rm -rf "$TMP_JSON_FLUTTER"
 
 
 echo "=== detect-deploy-shape ==="
