@@ -164,6 +164,14 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P3 — backlog
 
+- **#155** `catalog-candidate` — add the official Dart/Flutter MCP server
+  (docs.flutter.dev/ai) to `standards/external/mcp-servers.json` and Patrol
+  (leancodepl/patrol, Flutter-native test automation, ships its own Claude
+  Code skills) to the testing-tool catalog, both signal-gated on
+  `pubspec.yaml`/flutter framework. Surfaced against a real repo
+  (Planny-MobileApp): commit 8b80cc1 already documents the Dart MCP gap
+  being hand-rolled there; Patrol was found this session via manual research,
+  not `/ai:recommend-tools`. Run both past `VETTING.md` before landing.
 - **#147** `bug` — `memory-audit` marks a file STALE only when it is past the
   cutoff **and** has zero references. The index line in `MEMORY.md` counts as a
   reference, so indexing a memory makes it permanently immune to the staleness
