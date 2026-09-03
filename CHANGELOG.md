@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.73.0 — 2026-09-03
+
+### Changed
+
+- `should-i-use`: recorded verdict for `app-store-screenshots` (ParthJadhav) — Ignore for ai-kit's own catalog (marketing-asset production, one-off scope), Ignore for naschool/emeq-hub/emeq-web (no store presence), confirmed Wire (one-off) for Planny-MobileApp.
+- `should-i-use`: confirmed a real-world hit for the already-Ignored `claude-bughunter` entry — plugin was enabled in emeq-hub and a same-day security fix matches its vuln categories (stale-.gitignore secret exposure + weak credential validation).
+
 ## 1.72.0 — 2026-09-02
 
 ### Added
