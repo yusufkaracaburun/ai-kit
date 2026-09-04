@@ -67,11 +67,6 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P2 — next up
 
-- **#141** `bug · primitive:plugin` — `audit-ecosystem` counts per-project plugin
-  enablement as a duplicate install: 15 of 16 divergent rows for emeq are false
-  `REBIND`s, one per project that enables the same plugin. The converge recipe it
-  prints is actively harmful — following it unbinds working installs. Fix: key
-  dedupe on marketplace+scope+version, not on plugin name across project paths.
 - **#140** `bug · primitive:plugin` — `/ai:upgrade` promises a release slice from
   `CHANGELOG.md` and never prints one, because the plugin cache ships no
   `CHANGELOG.md`. Either add it to the plugin payload or drop the promise from the
