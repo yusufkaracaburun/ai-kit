@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.73.1 — 2026-09-04
+
+### Fixed
+
+- `write-setup-marker.sh` hardcoded `$AIKIT/VERSION`, which doesn't exist in the plugin-cache packaging layout (version lives only in `.claude-plugin/plugin.json`) — every `/ai:setup` re-run on a plugin install errored and silently no-opped, leaving `.ai-kit-setup` pinned to the old version. Now reads via `resolve_ai_kit_version`, the same resolver doctor/status already use. (#156)
+- `docs-sync` default excludes were Node/JS-centric with no Flutter/iOS/Android awareness, causing 151 false positives on a real Flutter app (vendored/generated build dirs flagged as orphaned/broken content). Now gates `.dart_tool`, `Pods`, `.gradle`, `ephemeral`, `Runner.xcodeproj`/`.xcworkspace`, `android/.kotlin` on `pubspec.yaml` presence, the same signal `detect-lib.sh` uses for Flutter stack detection. (#157)
+
 ## 1.73.0 — 2026-09-03
 
 ### Changed

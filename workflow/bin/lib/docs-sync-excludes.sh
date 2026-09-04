@@ -45,6 +45,17 @@ DOCS_SYNC_DEFAULT_EXCLUDE_NAMES=(
   .nyc_output
 )
 
+# Flutter/iOS/Android build + vendored dirs — gated on pubspec.yaml (#157),
+# same signal detect-lib.sh uses for Flutter stack detection.
+DOCS_SYNC_FLUTTER_EXCLUDE_NAMES=(
+  .dart_tool
+  Pods
+  .gradle
+  ephemeral
+  Runner.xcodeproj
+  Runner.xcworkspace
+)
+
 # Echo one basename per line for use by callers.
 dsync_basename_excludes() {
   local project_path="${1:-$PWD}"
@@ -52,6 +63,12 @@ dsync_basename_excludes() {
   for name in "${DOCS_SYNC_DEFAULT_EXCLUDE_NAMES[@]}"; do
     printf '%s\n' "$name"
   done
+
+  if [ -f "$project_path/pubspec.yaml" ]; then
+    for name in "${DOCS_SYNC_FLUTTER_EXCLUDE_NAMES[@]}"; do
+      printf '%s\n' "$name"
+    done
+  fi
 
   if [ -f "$project_path/.docs-sync-ignore" ]; then
     while IFS= read -r line || [ -n "$line" ]; do
@@ -78,6 +95,10 @@ dsync_basename_excludes() {
 dsync_path_prefix_excludes() {
   local project_path="${1:-$PWD}"
   project_path="$(cd "$project_path" && pwd)"
+
+  if [ -f "$project_path/pubspec.yaml" ]; then
+    printf '%s\n' "$project_path/android/.kotlin"
+  fi
 
   # Active git worktrees (skip the project itself). Only when project_path is
   # the toplevel of its own git repo — otherwise we'd inherit the parent repo's
