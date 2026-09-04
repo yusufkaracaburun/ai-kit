@@ -172,14 +172,6 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
   (Planny-MobileApp): commit 8b80cc1 already documents the Dart MCP gap
   being hand-rolled there; Patrol was found this session via manual research,
   not `/ai:recommend-tools`. Run both past `VETTING.md` before landing.
-- **#157** `enhancement` — `docs-sync-excludes.sh`'s default exclude list is
-  Node/JS-centric, no Flutter/iOS/Android awareness. Caused 151 false
-  positives on planny-app-mobile (vendored/generated dirs flagged as
-  orphaned/broken content); `.docs-sync-ignore` worked as the per-project
-  escape hatch, but it hits every Flutter project. Fix shape: gate extra
-  basenames (`.dart_tool`, `Pods`, `.gradle`, `ephemeral`,
-  `Runner.xcodeproj`, `Runner.xcworkspace`) on the same `pubspec.yaml`
-  signal `detect-tooling.sh` already uses for Flutter detection.
 - **#147** `bug` — `memory-audit` marks a file STALE only when it is past the
   cutoff **and** has zero references. The index line in `MEMORY.md` counts as a
   reference, so indexing a memory makes it permanently immune to the staleness
