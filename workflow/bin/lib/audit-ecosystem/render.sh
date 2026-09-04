@@ -109,7 +109,21 @@ render_converge() {
       REBIND)
         case "$rec_surface" in
           plugins)
-            echo "  /plugin uninstall $rec_name && /plugin install $rec_name --scope user   # rebind"
+            case "$rec_reason" in
+              "ai-kit itself is project-scoped"*)
+                echo "  /plugin uninstall $rec_name && /plugin install $rec_name --scope user   # rebind"
+                ;;
+              "marketplace collision"*)
+                # Ambiguous: two unrelated plugins share a name. Not
+                # auto-fixable — surface for manual review only.
+                echo "  # REVIEW: $rec_name — $rec_reason"
+                ;;
+              *)
+                # Real duplicate (scope collision) — name the losing
+                # record instead of relocating a working install.
+                echo "  /plugin uninstall $rec_name   # $rec_reason"
+                ;;
+            esac
             ;;
         esac
         ;;

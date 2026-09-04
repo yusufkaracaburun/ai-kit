@@ -15,11 +15,16 @@ trap 'rm -rf "$WORK"' EXIT
 
 cp -R "$FIX_ROOT/home" "$WORK/home"
 cp -R "$FIX_ROOT/catalog" "$WORK/catalog"
-mkdir -p "$WORK/projects/alive"
+mkdir -p "$WORK/projects/alive" "$WORK/projects/alive-1" "$WORK/projects/alive-2" "$WORK/projects/alive-3"
 ALIVE="$WORK/projects/alive"
 
-# Replace placeholder with the real alive path. macOS sed needs -i ''.
-sed -i.bak "s|__ALIVE_PATH__|$ALIVE|g" \
+# Replace placeholders with real, existing paths unique to this run.
+# macOS sed needs -i ''.
+sed -i.bak \
+  -e "s|__ALIVE_PATH_1__|$WORK/projects/alive-1|g" \
+  -e "s|__ALIVE_PATH_2__|$WORK/projects/alive-2|g" \
+  -e "s|__ALIVE_PATH_3__|$WORK/projects/alive-3|g" \
+  -e "s|__ALIVE_PATH__|$ALIVE|g" \
   "$WORK/home/.claude/plugins/installed_plugins.json"
 rm "$WORK/home/.claude/plugins/installed_plugins.json.bak"
 
@@ -81,6 +86,41 @@ assert "MCP server not in catalog → ADOPT" 'find_verdict "uncatalogued-mcp" "A
 assert "marketplace with no installs → DROP" 'find_verdict "unused-marketplace" "DROP"'
 assert "marketplace with installs → KEEP-EXTERNAL" 'find_verdict "example" "KEEP-EXTERNAL"'
 
+echo "=== ai-kit-audit-ecosystem: REBIND — real duplicates vs. per-project usage (#141) ==="
+# section: audit-ecosystem-rebind-dup
+count_verdict() {
+  # count_verdict <name-substr> <verdict>
+  echo "$JSON" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+needle, expected = sys.argv[1], sys.argv[2]
+print(sum(1 for f in d['findings'] if needle in f['name'] and f['verdict'] == expected))
+" "$1" "$2"
+}
+reason_contains() {
+  # reason_contains <name-substr> <verdict> <substring>
+  echo "$JSON" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+needle, expected, sub = sys.argv[1], sys.argv[2], sys.argv[3]
+for f in d['findings']:
+    if needle in f['name'] and f['verdict'] == expected and sub in f['reason']:
+        sys.exit(0)
+sys.exit(1)
+" "$1" "$2" "$3"
+}
+
+assert "same plugin enabled in 3 distinct projects → zero REBIND rows" \
+  '[ "$(count_verdict "multi-project@example" "REBIND")" -eq 0 ]'
+assert "scope=local + scope=project in the SAME project → exactly one REBIND (the local record)" \
+  '[ "$(count_verdict "scope-collision@example" "REBIND")" -eq 1 ]'
+assert "scope collision REBIND names scope=local as the redundant record" \
+  'reason_contains "scope-collision@example" "REBIND" "scope=local"'
+assert "scope=user + redundant scope=project → exactly one REBIND (the project record)" \
+  '[ "$(count_verdict "user-redundant@example" "REBIND")" -eq 1 ]'
+assert "user/project redundancy REBIND names scope=project as the redundant record" \
+  'reason_contains "user-redundant@example" "REBIND" "scope=project"'
+
 echo "=== ai-kit-audit-ecosystem: --scope filter ==="
 # section: audit-ecosystem-scope
 set +e
@@ -101,6 +141,20 @@ assert "converge mentions rebind for ai@yusufkaracaburun" 'echo "$CONV" | grep -
 assert "converge mentions ADOPT candidate for uncatalogued" 'echo "$CONV" | grep -q "ADOPT candidate: plugins/uncatalogued@example"'
 assert "converge proposes rm for REPLACE user-skill" 'echo "$CONV" | grep -q "rm -rf .*\\.claude/skills/dedupe"'
 assert "converge proposes /plugin uninstall for EXCLUDED plugin" 'echo "$CONV" | grep -q "/plugin uninstall excluded-fixture@example"'
+assert "converge names the losing scope=local record for scope-collision, not a blanket recipe" \
+  'echo "$CONV" | grep -q "/plugin uninstall scope-collision@example.*scope=local"'
+assert "converge does not relocate the scope-collision duplicate to --scope user" \
+  '! echo "$CONV" | grep -q "scope-collision@example.*--scope user"'
+assert "converge names the losing scope=project record for user-redundant, not a blanket recipe" \
+  'echo "$CONV" | grep -q "/plugin uninstall user-redundant@example.*scope=project"'
+assert "converge does not relocate the user-redundant duplicate to --scope user" \
+  '! echo "$CONV" | grep -q "user-redundant@example.*--scope user"'
+assert "converge marks marketplace collision (dup-name) as manual review, not an executable uninstall" \
+  'echo "$CONV" | grep -q "# REVIEW: dup-name@market-a"'
+assert "converge does not blanket-relocate marketplace collision to --scope user" \
+  '! echo "$CONV" | grep -q "dup-name@market-a.*--scope user"'
+assert "converge still rebinds the real self-reference case (ai-kit itself project-scoped)" \
+  'echo "$CONV" | grep -q "/plugin uninstall ai@yusufkaracaburun && /plugin install ai@yusufkaracaburun --scope user"'
 assert "EXCLUDED counts as divergent (not OWNED/KEEP-EXTERNAL)" 'echo "$JSON" | python3 -c "import json,sys; d=json.load(sys.stdin); excl=[f for f in d[\"findings\"] if f[\"verdict\"]==\"EXCLUDED\"]; assert excl, \"no EXCLUDED finding\"; assert d[\"divergent\"]>=len(excl)"'
 assert "EXCLUDED finding carries excluded-reason in reason field" 'echo "$JSON" | python3 -c "import json,sys; d=json.load(sys.stdin); excl=[f for f in d[\"findings\"] if f[\"verdict\"]==\"EXCLUDED\"][0]; assert \"excluded\" in excl[\"reason\"].lower()"'
 assert "converge did NOT execute (fixture skills dir unchanged)" '[ "$BEFORE" -eq "$AFTER" ] && [ -d "$WORK/home/.claude/skills/dedupe" ]'

@@ -53,6 +53,53 @@
         "installPath": "/tmp/fake/excluded-fixture",
         "version": "0.1.0"
       }
+    ],
+    "multi-project@example": [
+      {
+        "scope": "project",
+        "projectPath": "__ALIVE_PATH_1__",
+        "installPath": "/tmp/fake/multi-project-1",
+        "version": "1.0.0"
+      },
+      {
+        "scope": "project",
+        "projectPath": "__ALIVE_PATH_2__",
+        "installPath": "/tmp/fake/multi-project-2",
+        "version": "1.0.0"
+      },
+      {
+        "scope": "project",
+        "projectPath": "__ALIVE_PATH_3__",
+        "installPath": "/tmp/fake/multi-project-3",
+        "version": "1.0.0"
+      }
+    ],
+    "scope-collision@example": [
+      {
+        "scope": "local",
+        "projectPath": "__ALIVE_PATH__",
+        "installPath": "/tmp/fake/scope-collision-local",
+        "version": "1.0.0"
+      },
+      {
+        "scope": "project",
+        "projectPath": "__ALIVE_PATH__",
+        "installPath": "/tmp/fake/scope-collision-project",
+        "version": "1.0.0"
+      }
+    ],
+    "user-redundant@example": [
+      {
+        "scope": "user",
+        "installPath": "/tmp/fake/user-redundant-user",
+        "version": "1.0.0"
+      },
+      {
+        "scope": "project",
+        "projectPath": "__ALIVE_PATH__",
+        "installPath": "/tmp/fake/user-redundant-project",
+        "version": "1.0.0"
+      }
     ]
   }
 }

@@ -6,8 +6,18 @@ walk_plugins() {
   want_scope plugins || return 0
   [ -f "$INSTALLED_PLUGINS" ] || return 0
 
-  # Emit one TSV row per (plugin, install) tuple, plus a synthetic
-  # "__DUP\t<name>\t<count>" row when one plugin name has multiple installs.
+  # Emit one row per (plugin, install) tuple: name, marketplace, scope,
+  # projectPath, version, dup_reason. dup_reason is empty unless this
+  # install is part of a GENUINE duplicate:
+  #   - the plugin name resolves to more than one marketplace, or
+  #   - the same project path is enabled at both scope=local and
+  #     scope=project (the local entry is redundant — project already
+  #     covers that repo), or
+  #   - a scope=user install already covers every project, making a
+  #     scope=project/local install of the same plugin redundant.
+  # Enabling the same (name, marketplace) in several distinct projects is
+  # NOT a duplicate — that's normal per-project usage — so it never sets
+  # dup_reason.
   local PLUGIN_ROWS
   PLUGIN_ROWS="$(python3 - "$INSTALLED_PLUGINS" <<'PY'
 import json, sys, collections
@@ -19,43 +29,64 @@ except Exception as exc:
     sys.stderr.write(f"audit: cannot parse {path}: {exc}\n")
     sys.exit(0)
 plugins = data.get("plugins", {})
-name_count = collections.Counter()
-for key, installs in plugins.items():
-    base = key.split("@", 1)[0]
-    name_count[base] += len(installs or [])
-for base, count in name_count.items():
-    if count > 1:
-        print(f"__DUP{SEP}{base}{SEP}{count}")
+
+by_name = collections.defaultdict(list)
 for key, installs in plugins.items():
     base, _, marketplace = key.partition("@")
     for inst in installs or []:
-        scope = inst.get("scope", "?")
-        proj = inst.get("projectPath", "")
-        version = inst.get("version", "?")
-        print(f"{base}{SEP}{marketplace}{SEP}{scope}{SEP}{proj}{SEP}{version}")
+        by_name[base].append({
+            "marketplace": marketplace,
+            "scope": inst.get("scope", "?"),
+            "projectPath": inst.get("projectPath", ""),
+            "version": inst.get("version", "?"),
+        })
+
+for base, records in by_name.items():
+    marketplaces = sorted(set(r["marketplace"] for r in records))
+    if len(marketplaces) > 1:
+        for r in records:
+            r["dup_reason"] = (
+                "marketplace collision — '" + base + "' installed from "
+                "multiple marketplaces: " + ", ".join(marketplaces)
+            )
+        continue
+
+    by_path = collections.defaultdict(list)
+    user_records = []
+    for r in records:
+        if r["scope"] == "user":
+            user_records.append(r)
+        else:
+            by_path[r["projectPath"]].append(r)
+
+    for proj, recs in by_path.items():
+        scopes = set(r["scope"] for r in recs)
+        if "local" in scopes and "project" in scopes:
+            for r in recs:
+                if r["scope"] == "local":
+                    r["dup_reason"] = (
+                        "scope collision — enabled at both scope=local and "
+                        "scope=project for the same project path (" + proj +
+                        "); the scope=local entry is redundant, "
+                        "scope=project already covers it"
+                    )
+
+    if user_records:
+        for r in records:
+            if r["scope"] != "user" and "dup_reason" not in r:
+                r["dup_reason"] = (
+                    "scope collision — already enabled at scope=user "
+                    "(covers all projects); this scope=" + r["scope"] +
+                    " entry for " + (r["projectPath"] or "(no path)") +
+                    " is redundant"
+                )
+
+for base, records in by_name.items():
+    for r in records:
+        reason = r.get("dup_reason", "")
+        print(f"{base}{SEP}{r['marketplace']}{SEP}{r['scope']}{SEP}{r['projectPath']}{SEP}{r['version']}{SEP}{reason}")
 PY
   )"
-
-  # First pass: collect dup names.
-  local DUP_NAMES=()
-  local line rest
-  while IFS= read -r line; do
-    [ -n "$line" ] || continue
-    case "$line" in
-      __DUP${SEP}*)
-        rest="${line#__DUP${SEP}}"
-        DUP_NAMES+=("${rest%%${SEP}*}")
-        ;;
-    esac
-  done <<< "$PLUGIN_ROWS"
-
-  is_dup() {
-    local target="$1" d
-    for d in "${DUP_NAMES[@]}"; do
-      [ "$d" = "$target" ] && return 0
-    done
-    return 1
-  }
 
   is_catalogued() {
     local name="$1"
@@ -71,11 +102,10 @@ sys.exit(1)
 PY
   }
 
-  local name marketplace scope projectPath version detail
+  local name marketplace scope projectPath version dup_reason detail
   local EXCLUDED_REASON EXCLUDED_ALT EXCLUDED_BLOB reason_line
-  while IFS="$SEP" read -r name marketplace scope projectPath version; do
+  while IFS="$SEP" read -r name marketplace scope projectPath version dup_reason; do
     [ -n "$name" ] || continue
-    [ "$name" = "__DUP" ] && continue
     detail="marketplace=$marketplace scope=$scope version=$version"
     [ -n "$projectPath" ] && detail="$detail path=$projectPath"
 
@@ -85,9 +115,8 @@ PY
       continue
     fi
 
-    if is_dup "$name"; then
-      emit plugins "$name@$marketplace" "REBIND" \
-        "duplicate install — same plugin name from multiple marketplaces or scopes" "$detail"
+    if [ -n "$dup_reason" ]; then
+      emit plugins "$name@$marketplace" "REBIND" "$dup_reason" "$detail"
       continue
     fi
 
