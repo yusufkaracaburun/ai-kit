@@ -32,6 +32,12 @@ mode, where there is no clear at all.
   with a WIP commit. Belongs to the separate "gsd" (get-shit-done) tool, not
   ai-kit. Pairs with `/gsd-resume-work`. The `--to memory` path here routes
   to it automatically, but only when gsd is actually installed (see below).
+- **`precompact-checkpoint-nudge` hook** (opt-in, `standards/external/hooks-patterns.json`)
+  — a `PreCompact` hook that warns, non-blockingly, when a compaction is
+  about to fire with uncommitted work and no recent checkpoint memo. It
+  cannot invoke this skill itself (checkpoint is a skill, not a script) or
+  block the compaction — only nudge. Offered per-project via
+  `/ai:recommend-tools`, never auto-wired.
 
 If the project has `.planning/` or `STATE.md` **and** gsd is actually
 installed (`~/.claude/commands/gsd/` or `~/.claude/skills/gsd-*` exists —
