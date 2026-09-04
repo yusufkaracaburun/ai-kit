@@ -71,16 +71,22 @@ run_tools() {
   echo "Cache: $cache"
 }
 
-# Counts SFCs by API style. `<script setup>` is Composition; a `<script>` block
-# exporting an object literal is Options. An SFC using both counts as Options —
+# Counts SFCs by API style. `<script setup>` is Composition. A `<script>` block
+# exporting an object literal is Options — including the `defineComponent({…})`
+# wrapper, which is the dominant Options form in TS codebases and is Options
+# unless it declares its own `setup()`. An SFC using both counts as Options —
 # the Options block is the one that carries the paradigm cost.
 detect_api() {
   local target="$1"
   local composition=0 options=0 sfc
 
   while IFS= read -r sfc; do
-    if grep -qE '^\s*export default \{' "$sfc" 2>/dev/null; then
-      options=$((options + 1))
+    if grep -qE '^[[:space:]]*export default (\{|defineComponent\()' "$sfc" 2>/dev/null; then
+      if grep -qE '^[[:space:]]*setup\(' "$sfc" 2>/dev/null; then
+        composition=$((composition + 1))
+      else
+        options=$((options + 1))
+      fi
     elif grep -qE '<script[^>]*\bsetup\b' "$sfc" 2>/dev/null; then
       composition=$((composition + 1))
     fi

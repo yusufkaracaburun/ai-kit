@@ -31,7 +31,7 @@ Generic duplication and dead-code stay with the **core** walk (dimensions 3 and 
 | ID | Dim | Severity | Heuristic |
 |---|---|---|---|
 | V1 | 1 | 🟡 | `watch` doing derived state where `computed` belongs |
-| V2 | 1 | 🟡 | Options-API SFC in a `<script setup>` codebase (paradigm split) |
+| V2 | 1 | 🟡 | Options-API SFC in a codebase that also uses `<script setup>` |
 | V3 | 2 | 🟠 | Vue 3 `mixins:` where a composable belongs |
 | V4 | 6 | 🟠 | Props-bloat > 8 props on an SFC |
 | V5 | 6 | 🟠 | `provide`/`inject` on a string key instead of `InjectionKey<T>` |
@@ -44,7 +44,7 @@ Generic duplication and dead-code stay with the **core** walk (dimensions 3 and 
 When invoked after the core walk:
 
 1. **Run tools.** Call `bash "$AI_KIT_ROOT/bin/audit-vue-helpers.sh" run_tools <project-path>` to ingest ESLint (`eslint-plugin-vue`) + `vue-tsc --noEmit` output. Both gated by presence in the project's `node_modules/.bin/` or on `PATH`. Cached under `$TMPDIR/ai-kit-audit-vue-<ts>/`.
-2. **Detect the API split.** Call `bash "$AI_KIT_ROOT/bin/audit-vue-helpers.sh" detect_api <project-path>` → `composition` | `options` | `mixed` | `none`. V2 fires only on `mixed`; on a uniform `options` codebase V2 is silent (that is a migration question, not an audit finding).
+2. **Detect the API split.** Call `bash "$AI_KIT_ROOT/bin/audit-vue-helpers.sh" detect_api <project-path>` → `composition` | `options` | `mixed` | `none`. V2 fires only on `mixed`; on a uniform `options` codebase V2 is silent (that is a migration question, not an audit finding). When it fires, the finding names the **Options** side and its count, even when Options is the majority — never the `<script setup>` files. `detect_api` counts `defineComponent({…})` without `setup()` as Options; that wrapper is the dominant Options form in TS codebases.
 3. **Detect the feature root.** Look for `src/features/`, `src/modules/`, or `src/views/` with ≥2 sub-directories. No feature root → V6 does not fire; flag the absence once under dimension 7 instead ("no layering rules declared"), per the core rule.
 4. **Walk the 8 heuristics.** V4/V8 are macro-shape — grep + member count. V1/V3/V5 are call-shape greps. V2 needs the step-2 ratio. V6 needs import resolution against the step-3 feature root. V7 needs callsite analysis: async `<script setup>` SFCs, then their parents' templates for `<Suspense>`.
 5. **Apply severity per the rule.** Default strictness — no floor. Per-finding severity stands.
@@ -74,6 +74,7 @@ Format tools (Prettier) and security scanners (npm audit) are out of scope.
 ## Anti-patterns
 
 - Firing V2 on a uniformly Options-API codebase — that is a migration decision, not an audit finding.
+- Reporting V2 against the `<script setup>` files because they are the minority — the finding is always the Options side, and one aggregate row, not one per file.
 - Firing V6 without a detected feature root — inventing a layering scheme the project never declared.
 - Restating `defineProps<T>()` findings as `T*` rows — V8 owns them (see ownership boundary).
 - Encoding Vue 2 idioms (`Vue.extend`, `filters:`, `.sync`) as heuristics.

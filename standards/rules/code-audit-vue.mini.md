@@ -40,8 +40,12 @@ Generic duplication (dimension 3) and dead-code (dimension 4) stay with the core
 **V1 — `watch` doing derived state where `computed` belongs (🟡)**
 A `watch(source, cb)` whose callback body only assigns to a `ref`/`reactive` field, with no async call, no I/O, no `emit`. Derived state expressed as a side-effect: the dependency graph becomes imperative, the value can go stale, and two watchers assigning the same ref race. Evidence: walk `watch(`/`watchEffect(` bodies; flag those whose statements are all `x.value = …` assignments. Fix: `computed(() => …)`.
 
-**V2 — Options-API SFC in a `<script setup>` codebase (🟡)**
-A `.vue` file whose `<script>` block is `export default { data() … }` / `methods:` in a project where the majority of SFCs use `<script setup>`. Two idioms for one job: composables cannot be shared into the Options component without a `setup()` bridge, and reviewers context-switch per file. Evidence: count `<script setup` vs `export default {` across `**/*.vue`; flag the minority when the split is > 80/20. Fix: convert the outlier, or record the split in `docs/adr/` as deliberate.
+**V2 — Options-API SFC in a codebase that also uses `<script setup>` (🟡)**
+A `.vue` file whose `<script>` block is `export default { … }` or `export default defineComponent({ … })` without its own `setup()`, in a project where other SFCs use `<script setup>`. Two idioms for one job: composables cannot be shared into the Options component without a `setup()` bridge, and reviewers context-switch per file.
+
+**The finding always names the Options side, never the `<script setup>` side — regardless of which is the minority.** A codebase that is 90% `defineComponent({…})` and 10% `<script setup>` has 90% of the work ahead of it, not 10% of outliers to revert. Report it as one aggregate finding with the count, not one row per file.
+
+Evidence: `bin/audit-vue-helpers.sh detect_api` → `mixed`, then count the Options side. Note that `defineComponent({…})` is the dominant Options form in TS codebases — counting only `export default {` undercounts it to near zero. Fix: migrate Options SFCs to `<script setup>` incrementally, or record the split in `docs/adr/` as deliberate.
 
 ### Dimension 2 · SOLID
 

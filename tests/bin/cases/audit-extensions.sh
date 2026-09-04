@@ -165,6 +165,19 @@ for KEY in react typescript laravel vue; do
       # V2 fires only on a mixed codebase — the fixture must actually be mixed.
       assert "$KEY: detect_api reports mixed (V2 precondition)" \
         '[ "$("$HELPER" detect_api "$FIXTURE" 2>/dev/null)" = "mixed" ]'
+      # Regression: `defineComponent({…})` is the dominant Options form in TS
+      # codebases. Counting only `export default {` reported `none` for a repo
+      # of 684 such SFCs, which inverted V2 onto the <script setup> minority.
+      DC_TARGET=$(mktemp -d)
+      CLEANUP_DIRS+=("$DC_TARGET")
+      printf '<script lang="ts">\nexport default defineComponent({\n  data() { return {}; },\n});\n</script>\n' \
+        > "$DC_TARGET/Legacy.vue"
+      assert "$KEY: detect_api counts defineComponent() as options" \
+        '[ "$("$HELPER" detect_api "$DC_TARGET" 2>/dev/null)" = "options" ]'
+      printf '<script lang="ts">\nexport default defineComponent({\n  setup() { return {}; },\n});\n</script>\n' \
+        > "$DC_TARGET/Modern.vue"
+      assert "$KEY: detect_api counts defineComponent with setup() as mixed" \
+        '[ "$("$HELPER" detect_api "$DC_TARGET" 2>/dev/null)" = "mixed" ]'
       ;;
   esac
 
