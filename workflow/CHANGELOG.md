@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.73.3 — 2026-09-04
+
+### Fixed
+
+- `bootstrap-project.sh` symlinked project skills/agents/commands straight into the version-pinned plugin cache path (`~/.claude/plugins/cache/.../ai/1.43.1`), so every `/plugin update` GC'd the old version and bricked every project's links at once (emeq: 114 dead links, naschool: 87). `resolve_ai_kit_root` now refreshes a stable `~/.config/ai-kit/plugin-current` symlink on every plugin-mode resolution; `bootstrap-project.sh` links through it instead, so the next ai-kit invocation after an update repoints one symlink and heals every project with no bootstrap re-run. `doctor` also stops nagging "run bootstrap-project.sh" for absent `.claude/skills`/`.agents/skills` once the plugin is installed — pure duplication once the plugin serves `/ai:*`. `.cursor/skills` is unaffected (no plugin channel for Cursor). Partial fix for #114 — Cursor-channel default and the upgrade-script/verify-setup drift findings from the issue thread remain open. (#114)
+
 ## 1.73.2 — 2026-09-04
 
 ### Fixed
