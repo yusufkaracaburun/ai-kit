@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.74.1 — 2026-09-04
+
+### Fixed
+
+- `audit-vue-helpers.sh detect_api` counted only `export default {` as Options API, missing `export default defineComponent({…})` — the dominant Options form in TypeScript Vue codebases. Validated against a real 736-SFC Vue 3 app: 684 SFCs use the `defineComponent` wrapper, so the detector saw 6 Options vs 46 `<script setup>` and reported the codebase backwards. Now counts `defineComponent(` as Options unless the component declares its own `setup()`, with a regression assertion per shape.
+- `V2` (Options-API SFC in a mixed codebase) told the auditor to flag "the minority when the split is > 80/20". On the same real app that inverts the finding onto the 46 modern `<script setup>` files instead of the 684 Options ones. The rule now always names the Options side and its count regardless of majority, as one aggregate finding rather than one row per file.
+
 ## 1.74.0 — 2026-09-04
 
 ### Added
