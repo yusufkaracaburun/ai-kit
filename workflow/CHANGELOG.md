@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.74.0 — 2026-09-04
+
+### Added
+
+- `audit-architecture-vue` — Vue 3 audit extension (8 heuristics, `V1`-`V8`): `watch`-as-`computed` (dim 1), Options/Composition paradigm split (dim 1), `mixins:` over composables (dim 2), SFC props-bloat and untyped `provide`/`inject` (dim 6), cross-feature reach-through import (dim 7, 🔴), async `<script setup>` with no `<Suspense>` ancestor (dim 8), runtime-object `defineProps`/`defineEmits` in a TS SFC (dim 9). Ships the full extension quad — `standards/rules/code-audit-vue.mini.md`, `bin/audit-vue-helpers.sh` (ESLint + `vue-tsc` gates, `detect_api` split detection), `tests/fixtures/audit-vue/`, and a `vue` row in the table-driven `audit-extensions` test. Vue 3 only; Vue 2 (EOL 2023-12-31) gets a migration finding from the core walk, not a structural audit. Closes a dangling promise: `code-audit-typescript.mini.md` already told readers it "fires alongside React/Vue/Next.js extensions" and cedes `defineProps<T>()` to a Vue extension that did not exist, while `detect-lib.sh` has detected `vue` all along.
+- `code-audit-react.mini.md` gains `R9` — cross-feature reach-through import (dim 7, 🔴). Dimension 7 carried exactly one React heuristic (the RSC boundary leak); import direction between feature roots was uncovered. Both `R9` and `V6` name `import/no-restricted-paths` as the mechanical fix — already available via `eslint-plugin-import`, no new dependency.
+
+### Changed
+
+- `standards/external/plugins-excluded.json` records the Feature-Sliced Design verdict (fsd.how + steiger + eslint-config, all MIT, provenance SHAs pinned): Ignore as a methodology — a 7-layer folder taxonomy fights the routers ai-kit's stacks use (Next App Router owns `app/`, Astro owns `src/pages/`), and Steiger presupposes adoption. The portable kernel — unidirectional layer imports, no sibling-slice imports — landed instead as `R9`/`V6` audit heuristics, credited to fsd.how.
+
 ## 1.73.4 — 2026-09-04
 
 ### Fixed
