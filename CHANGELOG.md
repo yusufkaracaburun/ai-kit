@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.73.4 — 2026-09-04
+
+### Fixed
+
+- `/ai:upgrade` re-stamped `.ai-kit-setup`'s version but never touched a single symlink, so a project bootstrapped before the plugin-current indirection (v1.73.3) stayed pinned to the old version's cache path until the next GC bricked it. `ai-kit-upgrade.sh` now repairs every skill/agent/command link kind the project actually has, via the same merge/link logic `bootstrap-project.sh` uses (extracted to `bin/lib/link-primitives.sh` so both share one implementation) — link-all mode gets its symlink repointed, merge mode gets each entry relinked, custom entries and `--no-*` projects are untouched.
+- `verify-setup.sh --strict` checked link presence only, so a project with every skill link pinned straight into a version-numbered plugin cache path (resolving fine today, dead on the next GC) reported clean. `--strict` now counts and flags any such link. (#114)
+
 ## 1.73.3 — 2026-09-04
 
 ### Fixed
