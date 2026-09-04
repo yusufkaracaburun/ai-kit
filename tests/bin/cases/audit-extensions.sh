@@ -29,7 +29,7 @@ trap 'rm -rf "${CLEANUP_DIRS[@]}"' EXIT
 echo "=== overlap-fixture-exists (shared by react + typescript, #79) ==="
 assert "react-ts overlap fixture (from #79) exists" '[ -d "$OVERLAP" ]'
 
-for KEY in react typescript laravel; do
+for KEY in react typescript laravel vue; do
   echo "=== audit-extensions: $KEY ==="
 
   case "$KEY" in
@@ -71,6 +71,19 @@ for KEY in react typescript laravel; do
       TARGET_FILE=composer.json
       TARGET_CONTENT='{ "name": "t/api", "require": { "laravel/framework": "^13.0" } }'
       TOOL_GATE_CHECKS=("Larastan ✗")
+      ;;
+    vue)
+      SKILL="$AIKIT/workflow/skills/audit-architecture-vue/SKILL.md"
+      RULE="$AIKIT/standards/rules/code-audit-vue.mini.md"
+      HELPER="$AIKIT/bin/audit-vue-helpers.sh"
+      MARKER=V
+      APPLIES_KEY=FRAMEWORKS
+      APPLIES_VALUES=(vue)
+      RULE_CONTEXT=-A2
+      RULE_VALUE=vue
+      TARGET_FILE=package.json
+      TARGET_CONTENT='{ "name": "t/app", "dependencies": { "vue": "^3.5.0" } }'
+      TOOL_GATE_CHECKS=("ESLint ✗" "vue-tsc ✗")
       ;;
   esac
   EXT_NAME="$(basename "$(dirname "$SKILL")")"
@@ -114,8 +127,8 @@ for KEY in react typescript laravel; do
     react)
       FIXTURE="$AIKIT/tests/fixtures/audit-react"
       assert "$KEY: fixture dir exists" '[ -d "$FIXTURE" ]'
-      assert "$KEY: fixture carries all 8 R-markers" \
-        '[ "$(grep -rhoE "R[0-9]+:" "$FIXTURE" 2>/dev/null | sort -u | wc -l | tr -d " ")" -ge 8 ]'
+      assert "$KEY: fixture carries all 9 R-markers" \
+        '[ "$(grep -rhoE "R[0-9]+:" "$FIXTURE" 2>/dev/null | sort -u | wc -l | tr -d " ")" -ge 9 ]'
       ;;
     typescript)
       FIXTURE="$AIKIT/tests/fixtures/audit-typescript-pure"
@@ -140,6 +153,18 @@ for KEY in react typescript laravel; do
       done
       assert "$KEY: full-stack fixture carries the 19 both-mode L-markers" \
         '[ "$(grep -rhoE "L[0-9]+:" "$FIXTURE_FULL" 2>/dev/null | sort -u | wc -l | tr -d " ")" -ge 19 ]'
+      ;;
+    vue)
+      FIXTURE="$AIKIT/tests/fixtures/audit-vue"
+      assert "$KEY: fixture dir exists" '[ -d "$FIXTURE" ]'
+      assert "$KEY: fixture carries all 8 V-markers" \
+        '[ "$(grep -rhoE "V[0-9]+:" "$FIXTURE" 2>/dev/null | sort -u | wc -l | tr -d " ")" -ge 8 ]'
+      # V6 needs two sibling feature roots to have a boundary to cross.
+      assert "$KEY: fixture has >=2 feature roots (V6 precondition)" \
+        '[ "$(find "$FIXTURE/src/features" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d " ")" -ge 2 ]'
+      # V2 fires only on a mixed codebase — the fixture must actually be mixed.
+      assert "$KEY: detect_api reports mixed (V2 precondition)" \
+        '[ "$("$HELPER" detect_api "$FIXTURE" 2>/dev/null)" = "mixed" ]'
       ;;
   esac
 

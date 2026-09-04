@@ -1,6 +1,6 @@
 ---
 name: audit-architecture-react
-description: React-specific architecture audit — 8 React 19 heuristics across the 9 audit dimensions, including the RSC server/client boundary and React-19-specific server-action typing. Default strictness (per-finding severity, no floor). Use when `/ai:audit-architecture` runs against a React, Next.js, or Remix project (auto-loaded by the extension loader).
+description: React-specific architecture audit — 9 React 19 heuristics across the 9 audit dimensions, including the RSC server/client boundary, cross-feature import direction and React-19-specific server-action typing. Default strictness (per-finding severity, no floor). Use when `/ai:audit-architecture` runs against a React, Next.js, or Remix project (auto-loaded by the extension loader).
 extends: audit-architecture
 applies_to:
   frameworks: ["react", "nextjs", "remix"]
@@ -10,7 +10,7 @@ strictness: default
 
 # Audit Architecture — React extension
 
-Per-stack tuning for [`audit-architecture`](../audit-architecture/SKILL.md). Adds 8 React 19-specific heuristics under the canonical 9 dimensions from [`code-audit.mini.md`](../../../standards/rules/code-audit.mini.md). **Never introduces a new dimension.**
+Per-stack tuning for [`audit-architecture`](../audit-architecture/SKILL.md). Adds 9 React-specific heuristics under the canonical 9 dimensions from [`code-audit.mini.md`](../../../standards/rules/code-audit.mini.md). **Never introduces a new dimension.**
 
 Auto-loaded by `bin/audit-extension-loader.sh` when the project package.json declares `react`, `next`, or `@remix-run/*`. Skip with `AI_KIT_AUDIT_NO_EXTEND=1`.
 
@@ -24,7 +24,7 @@ Non-overlap enforced by the shared fixture `tests/fixtures/audit-react-ts-overla
 
 ## Heuristics
 
-8 heuristics encoded in [`standards/rules/code-audit-react.mini.md`](../../../standards/rules/code-audit-react.mini.md). Stable ID prefix `R<N>`.
+9 heuristics encoded in [`standards/rules/code-audit-react.mini.md`](../../../standards/rules/code-audit-react.mini.md). Stable ID prefix `R<N>`.
 
 | ID | Dim | Severity | Heuristic |
 |---|---|---|---|
@@ -36,13 +36,14 @@ Non-overlap enforced by the shared fixture `tests/fixtures/audit-react-ts-overla
 | R6 | 7 | 🔴 | RSC boundary leak — `'use client'` file importing server-only module |
 | R7 | 9 | 🟠 | Missing typing on `<form action={...}>` server actions (React 19) |
 | R8 | 5 | 🟡 | Mechanism-named components (`*Container`, `*Wrapper`, `*Provider2`) where a domain name exists |
+| R9 | 7 | 🔴 | Cross-feature reach-through import (sibling feature's internals) |
 
 ## Process
 
 When invoked after the core walk:
 
 1. **Run tools.** Call `bash "$AI_KIT_ROOT/bin/audit-react-helpers.sh" run_tools <project-path>` to ingest ESLint + `tsc --noEmit` output. Both gated by `command -v` (and presence of `eslint` / `tsc` in the project's `node_modules/.bin/`). Cached under `$TMPDIR/ai-kit-audit-react-<ts>/`.
-2. **Walk the 8 heuristics.** R1/R2/R8 are file-shape / interface-shape — grep + LOC math. R3/R4/R5 require call-site analysis. R6 needs the RSC boundary: identify files with a leading `'use client'` directive and check their imports against a server-only allowlist (`server-only`, `next/headers`, `next/server`, `fs`, `node:*`). R7 walks JSX `<form action={…}>` attributes and checks the bound function's type annotation.
+2. **Walk the 9 heuristics.** R1/R2/R8 are file-shape / interface-shape — grep + LOC math. R3/R4/R5 require call-site analysis. R6 needs the RSC boundary: identify files with a leading `'use client'` directive and check their imports against a server-only allowlist (`server-only`, `next/headers`, `next/server`, `fs`, `node:*`). R7 walks JSX `<form action={…}>` attributes and checks the bound function's type annotation. R9 needs a feature root (`src/features/`, `src/modules/` with ≥2 sub-directories) — resolve each import to its feature and flag sibling-internal targets; with no feature root, R9 does not fire.
 3. **Apply severity per the rule.** Default strictness — no floor. Per-finding severity stands.
 4. **Emit dimension-keyed markdown** per the contract:
 
@@ -77,6 +78,6 @@ Format tools (Prettier) and security scanners (npm audit) are out of scope.
 
 - [`audit-architecture`](../audit-architecture/SKILL.md) — core stack-agnostic skill.
 - [`audit-architecture-typescript`](../audit-architecture-typescript/SKILL.md) — TypeScript-language smells (separate ownership).
-- [`code-audit-react.mini.md`](../../../standards/rules/code-audit-react.mini.md) — 8 heuristics with evidence patterns.
+- [`code-audit-react.mini.md`](../../../standards/rules/code-audit-react.mini.md) — 9 heuristics with evidence patterns.
 - [`bin/audit-react-helpers.sh`](../../../bin/audit-react-helpers.sh) — ESLint + tsc gates.
 - [`standards/contracts/audit-architecture-extension.contract.md`](../../../standards/contracts/audit-architecture-extension.contract.md) — extension contract.

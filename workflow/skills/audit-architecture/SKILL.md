@@ -73,7 +73,7 @@ Run `bash "$AI_KIT_ROOT/bin/detect-tooling.sh" <project-path> --json` to capture
 - Skip dimensions that don't apply (e.g. "design patterns" on a 200-LOC shell-script repo).
 - Decide whether per-stack extensions should fire.
 
-Then run `bash "$AI_KIT_ROOT/bin/audit-extension-loader.sh" <project-path>` to discover bundled per-stack extensions (`audit-architecture-laravel`, `audit-architecture-react`, `audit-architecture-nextjs`, `audit-architecture-shadcn`, `audit-architecture-typescript`, `audit-architecture-flutter`, …). The loader returns the SKILL.md paths of every matching extension in stable filename-sorted order. Honours `AI_KIT_AUDIT_NO_EXTEND=1` as an opt-out (returns empty → vanilla baseline audit). See [`standards/contracts/audit-architecture-extension.contract.md`](../../../standards/contracts/audit-architecture-extension.contract.md) for the contract every extension must satisfy.
+Then run `bash "$AI_KIT_ROOT/bin/audit-extension-loader.sh" <project-path>` to discover bundled per-stack extensions (`audit-architecture-laravel`, `audit-architecture-react`, `audit-architecture-vue`, `audit-architecture-nextjs`, `audit-architecture-shadcn`, `audit-architecture-typescript`, `audit-architecture-flutter`, …). The loader returns the SKILL.md paths of every matching extension in stable filename-sorted order. Honours `AI_KIT_AUDIT_NO_EXTEND=1` as an opt-out (returns empty → vanilla baseline audit). See [`standards/contracts/audit-architecture-extension.contract.md`](../../../standards/contracts/audit-architecture-extension.contract.md) for the contract every extension must satisfy.
 
 ### 4. Walk per dimension (+ invoke each matched extension via the Skill tool)
 

@@ -1,6 +1,6 @@
 ---
 name: code-audit-react
-description: React-specific audit heuristics — 8 React 19 checks across the 9 canonical audit dimensions, including the RSC server/client boundary and React-19 server-action typing. Loaded when the project depends on react / next / @remix-run.
+description: React-specific audit heuristics — 9 React 19 checks across the 9 canonical audit dimensions, including the RSC server/client boundary and React-19 server-action typing. Loaded when the project depends on react / next / @remix-run.
 applies_to:
   frameworks: ["react", "nextjs", "remix"]
   languages: ["typescript", "javascript"]
@@ -27,7 +27,7 @@ Default — per-finding severity, no floor. Surfaced in the report header: `**Ex
 
 This rule fires only on **React-shaped** smells. Language-level TS smells (`any` past boundaries, `as` casts past edges, generic variance) are owned by [`code-audit-typescript.mini.md`](code-audit-typescript.mini.md). The shared fixture `tests/fixtures/audit-react-ts-overlap/` is the contract-test boundary — each finding row appears exactly once across `[react]` and `[typescript]` prefixes.
 
-## The 8 heuristics
+## The 9 heuristics
 
 ### Dimension 1 · Design patterns
 
@@ -64,6 +64,11 @@ A component interface declares > 8 props (excluding `children`). Likely candidat
 **R6 — RSC boundary leak — `'use client'` file importing server-only module (🔴)**
 A file with a top-of-file `'use client'` directive `import`s from one of: `server-only`, `next/headers`, `next/server`, `fs`, `node:*`, or anything matching a configured server-only allowlist. Build will fail or — worse — silently bundle a server symbol into client output. Evidence: walk `'use client'` files and grep their imports.
 
+**R9 — Cross-feature reach-through import (🔴)**
+A module under a feature root (`src/features/A/**`, `src/modules/A/**` — whichever convention the project uses) imports a **sibling feature's internals** rather than its public entry: `../B/hooks/useThing`, `@/features/B/components/Inner`. Every such import welds two features together; the pair can no longer be moved, deleted, or owned separately, and the "features" stop being boundaries. Evidence: resolve every relative/aliased import to a feature root, flag any that crosses into a sibling and does not land on that sibling's `index.ts` / declared public surface. Fix: export the symbol from the sibling's public entry, or hoist the shared piece into `shared/`. Enforce mechanically with ESLint `import/no-restricted-paths` zones (already available via `eslint-plugin-import` — no new dependency) or `eslint-plugin-boundaries`.
+
+Skip when the project has no feature-root convention — flag the absence once, do not invent one (mirrors the core walk's dimension-7 rule).
+
 ### Dimension 8 · Error handling / failure modes
 
 *(R-rules don't currently cover dimension 8 — error-handling on the React surface is project-shape-dependent. Cross-ref the core walk's findings; do not add a placeholder.)*
@@ -85,7 +90,7 @@ This rule does not write a report. Findings flow through the `audit-architecture
 
 ## Final checklist
 
-- All 8 heuristics walked (or skipped with reason)?
+- All 9 heuristics walked (or skipped with reason)?
 - RSC boundary: every `'use client'` file's imports checked against the server-only allowlist?
 - React 19 specifics surfaced (R7 server-action typing) where applicable?
 - De-duplicated by root-cause, not by symptom?

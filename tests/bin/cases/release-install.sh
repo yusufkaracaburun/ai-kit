@@ -120,7 +120,7 @@ export AI_KIT_ROOT="$AIKIT"
 OUT_WHICH_LIST="$("$AIKIT/bin/ai-kit-which.sh" --list)"
 assert "which --list has header" 'echo "$OUT_WHICH_LIST" | head -1 | grep -q "SKILL"'
 WHICH_LIST_ROWS="$(echo "$OUT_WHICH_LIST" | tail -n +3 | wc -l | tr -d ' ')"
-assert "which --list shows all 42 skills" '[ "$WHICH_LIST_ROWS" -eq 42 ]'
+assert "which --list shows all 43 skills" '[ "$WHICH_LIST_ROWS" -eq 43 ]'
 
 # --explain dumps the SKILL.md.
 OUT_WHICH_EXP="$("$AIKIT/bin/ai-kit-which.sh" --explain ship)"
