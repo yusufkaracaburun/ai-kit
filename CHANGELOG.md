@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.73.2 — 2026-09-04
+
+### Fixed
+
+- `audit-ecosystem` no longer flags per-project plugin enablement as a `REBIND` duplicate. Enabling the same plugin in N distinct projects always produced N false-positive rows, and `--converge` turned each into a blanket `--scope user` relocation — actively harmful, since it would load stack-specific plugins into every project regardless of stack. `dup_reason` now only fires on genuine collisions (multi-marketplace, or a real scope=local/scope=project/scope=user overlap for the same project path), and the converge recipe names the specific losing record instead of relocating a working install. Verified against live host state: 20 divergent findings dropped to 5, all genuine. (#141)
+
 ## 1.73.1 — 2026-09-04
 
 ### Fixed
