@@ -189,6 +189,35 @@ if [ "$MINIMAL_TIER" = false ]; then
 fi
 
 if [ "$STRICT" = true ]; then
+  # #114 (naschool): a symlink pinned straight into a version-numbered
+  # plugin cache dir (rather than through the plugin-current indirection)
+  # resolves fine today and bricks silently on the next /plugin update GC.
+  # Presence-only checks above never catch this — flag it explicitly.
+  count_stale_plugin_links() {
+    local p="$1" n=0 entry target
+    if [ -L "$p" ]; then
+      target="$(readlink "$p")"
+      [[ "$target" == */plugins/cache/* && "$target" != *plugin-current* ]] && n=$((n + 1))
+    elif [ -d "$p" ]; then
+      for entry in "$p"/*; do
+        [ -L "$entry" ] || continue
+        target="$(readlink "$entry")"
+        [[ "$target" == */plugins/cache/* && "$target" != *plugin-current* ]] && n=$((n + 1))
+      done
+    fi
+    echo "$n"
+  }
+  if [ "$SKILLS_REQUIRED" = true ]; then
+    STALE_LINKS=0
+    for d in .claude/skills .agents/skills .cursor/skills .claude/agents .claude/commands .cursor/commands; do
+      p="$TARGET/$d"
+      [ -e "$p" ] || [ -L "$p" ] || continue
+      STALE_LINKS=$((STALE_LINKS + $(count_stale_plugin_links "$p")))
+    done
+    check "no version-pinned plugin links ($STALE_LINKS found — will break on next GC, run /ai:upgrade)" \
+      "$(bool [ "$STALE_LINKS" -eq 0 ])"
+  fi
+
   DEV_ENV="$TARGET/docs/agents/dev-environment.md"
   if [ -f "$DEV_ENV" ]; then
     check "dev-environment: no setup placeholder" \

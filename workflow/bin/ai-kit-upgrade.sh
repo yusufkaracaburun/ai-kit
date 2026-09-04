@@ -6,8 +6,16 @@ set -euo pipefail
 SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck source=lib/ai-kit-root.sh
 source "$SCRIPT_BIN/lib/ai-kit-root.sh"
+# shellcheck source=lib/link-primitives.sh
+source "$SCRIPT_BIN/lib/link-primitives.sh"
 AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
 VERSION="$(resolve_ai_kit_version "$AIKIT")"
+PRIMITIVES="$(resolve_primitives_root "$AIKIT")"
+case "$AIKIT" in
+  */plugins/cache/*)
+    PRIMITIVES="$(resolve_primitives_root "${HOME}/.config/ai-kit/plugin-current")"
+    ;;
+esac
 
 usage() {
   echo "Usage: $0 /path/to/project"
@@ -88,6 +96,42 @@ print(f"Changes since v{old_version}:")
 print("-" * 60)
 print(snippet)
 PY
+
+# Repair project skill/agent/command links against the new version. A
+# project bootstrapped before the plugin-current indirection (#114 slice A)
+# has links pinned straight into the OLD version's cache path — the marker
+# now says $VERSION while the links still say $old_version, so the marker
+# lies about install state until the old cache dir is GC'd and everything
+# bricks. Only repairs a link kind the project actually has; --no-skills /
+# --no-agents / --no-commands projects are left exactly as they are.
+repair_links() {
+  local dest_parent="$1" label="$2" kind="$3"
+  local dir="$dest_parent/$kind"
+  # -e follows a symlink and fails on a dead target — exactly the case being
+  # repaired (a legacy link-all symlink into a GC'd version) — so a bare -e
+  # guard would skip repairing it. -L catches the link regardless.
+  [ -e "$dir" ] || [ -L "$dir" ] || return 0
+  case "$kind" in
+    skills)
+      if [ -L "$dir" ]; then
+        link_skills_all "$dest_parent" "$label" "$PRIMITIVES"
+      else
+        merge_skills "$dest_parent" "$label" "$PRIMITIVES"
+      fi
+      ;;
+    agents) merge_agents "$dest_parent" "$label" "$PRIMITIVES" ;;
+    commands) merge_commands "$dest_parent" "$label" "$PRIMITIVES" ;;
+  esac
+}
+
+echo ""
+echo "Repairing project links against v${VERSION}…"
+repair_links "$TARGET/.claude" ".claude/skills" skills
+repair_links "$TARGET/.agents" ".agents/skills" skills
+repair_links "$TARGET/.cursor" ".cursor/skills" skills
+repair_links "$TARGET/.claude" ".claude/agents" agents
+repair_links "$TARGET/.claude" ".claude/commands" commands
+repair_links "$TARGET/.cursor" ".cursor/commands" commands
 
 echo ""
 echo "Run: $AIKIT/bin/verify-setup.sh $TARGET --strict"
