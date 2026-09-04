@@ -293,8 +293,19 @@ if [ -n "$TARGET" ]; then
       if [ ! -d "$p" ]; then
         # */rules exists only once emit-rules.sh has run; a --no-rules project
         # legitimately has none, so absence there is not a finding.
+        # .claude/skills and .agents/skills are pure duplication once ai-kit
+        # is installed as a Claude Code plugin — the plugin already serves
+        # /ai:* — so their absence is the healthy config, not a finding
+        # (#114). .cursor/skills is unaffected: Cursor has no plugin channel,
+        # so it still needs the project symlink.
         case "$d" in
           */rules) ;;
+          .claude/skills | .agents/skills)
+            case "$AIKIT" in
+              */plugins/cache/*) info "$d absent — served by the ai-kit plugin" ;;
+              *) warn "$d absent (run bootstrap-project.sh)" ;;
+            esac
+            ;;
           *) warn "$d absent (run bootstrap-project.sh)" ;;
         esac
         continue

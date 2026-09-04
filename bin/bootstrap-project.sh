@@ -6,6 +6,15 @@ SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_BIN/lib/ai-kit-root.sh"
 AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
 PRIMITIVES="$(resolve_primitives_root "$AIKIT")"
+# Route project skill/agent/command links through the stable plugin-current
+# indirection (see sync_plugin_current_link, refreshed above by
+# resolve_ai_kit_root) instead of the version-pinned plugin cache path, so a
+# later `/plugin update` doesn't brick every project's links (#114).
+case "$AIKIT" in
+  */plugins/cache/*)
+    PRIMITIVES="$(resolve_primitives_root "${HOME}/.config/ai-kit/plugin-current")"
+    ;;
+esac
 
 COPY_SKILLS=false
 MINIMAL=true

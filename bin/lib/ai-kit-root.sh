@@ -15,7 +15,10 @@ resolve_ai_kit_root() {
   fi
 
   if [ -n "$script_bin_dir" ] && [ -d "$script_bin_dir" ]; then
-    cd "$script_bin_dir/.." && pwd
+    local resolved
+    resolved="$(cd "$script_bin_dir/.." && pwd)"
+    sync_plugin_current_link "$resolved"
+    echo "$resolved"
     return 0
   fi
 
@@ -31,6 +34,24 @@ resolve_ai_kit_root() {
 
   echo "ai-kit root not found. Set AI_KIT_ROOT or run install-global.sh" >&2
   return 1
+}
+
+# The plugin cache path carries the ai-kit version (.../ai/1.43.1), so a
+# `/plugin update` deletes it and orphans every project symlink bootstrap
+# pointed there directly (#114). Refresh a stable indirection symlink on
+# every plugin-mode resolution instead — bootstrap-project.sh links project
+# skills/agents/commands through it, so the next ai-kit invocation after an
+# update repoints one symlink and heals every project, with no project-side
+# action required.
+sync_plugin_current_link() {
+  local resolved_root="$1"
+  case "$resolved_root" in
+    */plugins/cache/*)
+      local link="${HOME}/.config/ai-kit/plugin-current"
+      mkdir -p "$(dirname "$link")"
+      ln -sfn "$resolved_root" "$link"
+      ;;
+  esac
 }
 
 write_ai_kit_root_config() {
