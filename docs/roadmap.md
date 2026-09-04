@@ -159,6 +159,14 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P3 — backlog
 
+- **#158** `enhancement` — decide whether doctor should stop warning about
+  absent `.cursor/skills` when a project shows no other sign of Cursor usage.
+  Split off #114's "Caveat worth deciding": `.claude/skills`/`.agents/skills`
+  absence stopped warning once the plugin is installed (pure duplication),
+  but `.cursor/skills` has no plugin channel so it always warns. `emeq-hub`
+  and `naschool` both show zero ai-kit skill symlinks there and have never
+  complained — suggestive, not conclusive. Product call on what counts as
+  "Cursor unused" signal, not a bug fix.
 - **#155** `catalog-candidate` — add the official Dart/Flutter MCP server
   (docs.flutter.dev/ai) to `standards/external/mcp-servers.json` and Patrol
   (leancodepl/patrol, Flutter-native test automation, ships its own Claude
