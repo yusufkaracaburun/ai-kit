@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.75.0 — 2026-09-05
+
+### Added
+
+- `content-honesty.mini.md` — universal, always-on, weight high. Nothing in `standards/rules` governed the *truthfulness* of generated content: `impeccable` detects visual slop, `writing-style.mini.md` governs tone, neither stops an agent inventing a testimonial, a compliance badge ("SOC 2 compliant"), a statistic, or a footer column of links to pages that do not exist. Six hard rules (no invented claims / people / numbers, no ghost links, placeholders written as placeholders, empty section beats a fabricated one) plus a scope section covering seed data on staging URLs, README benchmark tables, PR descriptions claiming tests that were not run, and error copy inventing a cause the code cannot know.
+- `responsive-layout.mini.md` — frontend frameworks plus Laravel/Rails/Django, always-on, weight medium. ai-kit's entire mobile surface was five lines in `tailwind.mini.md` (mobile-first plus state-variant order), which does not apply outside Tailwind. Covers breakpoints derived from content rather than a device list, mobile sizing scales, grid collapse, horizontal overflow (the failure that is invisible in a desktop preview), and fixed chrome reserving its own height with safe-area insets. Tap targets and hover alternatives stay in `a11y.mini.md` where WCAG backs them; this rule cross-references rather than duplicating. The `100dvh` and `min-width: 0` mechanisms are ai-kit's own additions — they are the usual real causes of the symptoms the source only described.
+
+### Fixed
+
+- `a11y.mini.md` declared "WCAG 2.2 AA" in its frontmatter and heading but carried only 2.1 criteria — every criterion WCAG 2.2 actually added at A/AA was missing: 2.4.11 Focus Not Obscured, 2.5.7 Dragging Movements, 2.5.8 Target Size (24×24), 3.2.6 Consistent Help, 3.3.7 Redundant Entry, 3.3.8 Accessible Authentication. The rule runs always-on in every downstream frontend project, so the promise was broken everywhere it loaded. Adds the six, a hover-only affordance clause, and a note that a green `axe-core` run does not prove 2.2 AA — most of the additions are manual checks.
+
+### Changed
+
+- `standards/external/plugins-excluded.json` corrects the `anti-slop` entry (miqdadbadjuber/anti-slop, re-reviewed at `main@44be6877`). The original verdict claimed "no net-new gap surfaces anywhere"; that was wrong and had been restated once without verification. Two real gaps existed and are now closed by `content-honesty.mini.md` and `responsive-layout.mini.md`, both crediting the source in Provenance. The verdict on installing the pack is unchanged: Ignore — four overlaps (`impeccable`, `ui-ux-pro-max`, `writing-style.mini.md` + `/ai:copywriter`, `a11y.mini.md`) against 47KB of always-on prompt rules.
+- `standards/external/plugins-excluded.json` records the `refactoring-ui-plugin` verdict (gnurio, `main@00781eab`, 361★): Ignore on licence, before any quality assessment. Its `LICENSE` reads "All rights reserved … not licensed for reuse, redistribution, or modification" — installing it as a plugin is the redistribution it forbids — while all three plugin manifests declare `"license": "MIT"` and set `"author"` to `refactoringui.com`, a site `README.md` itself says the repo is not affiliated with or endorsed by. Redundant with `ui-ux-pro-max` and `frontend-design` regardless; created and last pushed on the same day, 2026-04-26.
+
 ## 1.74.1 — 2026-09-04
 
 ### Fixed
