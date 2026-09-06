@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.76.0 — 2026-09-06
+
+### Added
+
+- `safe-file-rewrite` rule (universal, always-on, weight high) — never
+  redirect into a file you are reading. A pipeline exits with its last
+  command's status, so an upstream failure stays invisible while the
+  redirect truncates the target; a brace group hides it even under
+  `set -e`. Also covers `--` before user-shaped patterns, after a
+  leading-dash pattern was parsed as an option by ugrep.
+
+### Changed
+
+- `standards/external/plugins-excluded.json`: recorded the
+  `antv-infographic-skills` (antvis/Infographic) verdict — Ignore for the
+  kit and for all five downstream apps, with the per-repo evidence.
+
 ## 1.75.0 — 2026-09-05
 
 ### Added
