@@ -78,6 +78,7 @@ Ask once: **Fast (Tier A, ~5 min)** or **Full (Tier B)**?
 | 2c | Universal MCPs | auto-prompt each `universal: true` MCP not yet handled |
 | 2d | Search-delegation hook | auto-apply, no question (below) |
 | 2e | Universal companions | auto-prompt each `universal: true` companion not yet handled |
+| 2f | Phase-check hook | auto-apply, no question (below) |
 
 Then:
 
@@ -88,7 +89,7 @@ $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" \
   --lifecycle=development|production \
   --universal-mcps-prompted=context7,... \
   --universal-companions-prompted=caveman,... \
-  --search-delegation-hook=wired \
+  --search-delegation-hook=wired --phase-check-hook=wired \
   --docker=skipped --tracker=skipped --workflow=skipped \
   --domain-docs=skipped --architecture=skipped --sandcastle=false --context-drift-hook=skipped
 $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict --minimal
@@ -276,6 +277,31 @@ radius is stated in the prompt itself, because a user who says yes in one repo
 is changing every other repo too. ai-kit still vendors nothing: the plugin is
 installed from its own marketplace by the official CLI, and ai-kit writes only
 the glue.
+
+### Branch 2f — Phase-check hook (auto-apply)
+
+```bash
+$AI_KIT_ROOT/bin/apply-phase-check-hook.sh "$(pwd)"
+```
+
+Wires a `UserPromptSubmit` hook that fires **only on work-start prompts** — a
+build/fix/ship verb in the prompt. Questions, explanations, an explicit
+`/slash` command and a `!bash` passthrough all stay silent.
+
+On a work-start it injects the ai-kit phase table (Ideation → Development →
+Testing → Deployment → Ops) and asks the agent to name the phase and skill
+before the first edit, check `/ai:next` for an existing issue, and skip the
+whole gate for a typo, lint fix or version bump.
+
+**Why this one does not ask.** It closes the same gap as Branch 2d, one layer
+earlier: [`grill-first`](../../../standards/rules/grill-first.mini.md) step 4
+already carries the phase table, but on Claude Code `.claude/rules/*.md` is
+read on demand — `always-on` is real on Cursor and inert here until
+`session-rules-inject.sh` is registered (issue #148). The rule is the content,
+this hook is what puts it in front of the agent. Fixed string, so it needs
+none of #148's ranking or budget machinery. Advisory
+`additionalContext` only (it can never block), blast radius stops at the
+project. Record `--phase-check-hook=wired`.
 
 ## Tier B branches (optional)
 
@@ -517,7 +543,7 @@ $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" \
   --lifecycle=development|production \
   --universal-mcps-prompted=context7,... \
   --universal-companions-prompted=caveman,... \
-  --search-delegation-hook=wired \
+  --search-delegation-hook=wired --phase-check-hook=wired \
   --docker=... --tracker=... --workflow=... \
   --domain-docs=scaffolded|filled|skipped \
   --architecture=... --sandcastle=... \
@@ -544,6 +570,7 @@ $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict
     "universal_mcps_prompted": ["context7"],
     "universal_companions_prompted": ["caveman"],
     "search_delegation_hook": "wired",
+    "phase_check_hook": "wired",
     "docker": "skipped",
     "issue_tracker": "skipped",
     "architecture": "skipped",

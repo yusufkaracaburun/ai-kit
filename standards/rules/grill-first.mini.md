@@ -1,6 +1,6 @@
 ---
 name: grill-first
-description: Never jump to plan or implementation from an issue/PRD/spec — open with grill questions first, even when the source doc looks complete
+description: Never jump to plan or implementation from an issue/PRD/spec — open with grill questions first, then name the ai-kit phase and skill that carry the work
 applies_to:
   frameworks: []
   languages: []
@@ -53,6 +53,21 @@ Trigger when **any** of these is true:
 
 3. Wait for answers before drafting plan, issues, or code.
 
+4. Then name the phase the work sits in, and the skill that carries it. Say
+   which one out loud before the first edit — an unnamed phase is how the
+   whole workflow gets skipped while the work still looks fine.
+
+   | Phase | Skill |
+   | ----- | ----- |
+   | Ideation — scope, requirements | `grill-with-docs`, `to-prd`, `prototype` |
+   | Development — backlog → build | `to-issues` → `triage` → `tdd` |
+   | Testing — test & fix | `tdd`, `review`, `qa`, `diagnose` |
+   | Deployment — release | `ship` |
+   | Ops — feedback, retrospective | `retro` |
+
+   Before opening a new issue, check whether one already exists (`/ai:next`).
+   Unsure which skill fits → `/ai:which`.
+
 ## When to skip
 
 Only skip the gate when one of:
@@ -75,3 +90,7 @@ The grill is what closes the gap.
   use sub-agents for any wide exploration the grill surfaces.
 - `grill-me`, `grill-with-docs` skills — the actual question-asking
   workflows.
+- `bin/hooks/phase-check.sh` — the enforcement half. On Claude Code this file
+  is read on demand, so step 4 only fires if something puts it in front of the
+  agent; the hook injects the phase table on work-start prompts. Wire it with
+  `bin/apply-phase-check-hook.sh`.
