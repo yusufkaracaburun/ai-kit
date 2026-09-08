@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.77.0 — 2026-09-08
+
+- feat(hooks): add phase-check hook, name the ai-kit phase before building
+
 ## 1.76.0 — 2026-09-06
 
 ### Added
