@@ -47,6 +47,16 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P1 — broken in the wild
 
+- **#162** `bug` — the `test` workflow has been red on every master commit since
+  2026-09-04: 12 runs, both matrix legs, across the v1.76.0, v1.77.0 and v1.78.0
+  tags. `tests/bin/cases/apply-ponytail.sh:72,:120` need the `claude` CLI to
+  install the plugin, `test.yml` never installs it, and the case does not guard on
+  it — so the suite is green on the committer's machine and red in the only
+  environment that verifies independently. This is #131 recurring; that issue
+  closed on the criterion that CI gets read before a tag, and three releases went
+  out without it. Fix is a skip guard in the case or an install step in the
+  workflow, not both.
+
 - **#124** `enhancement · HITL` — wire the secrets scan into `/ai:setup`:
   `branches.secrets_scan` plus an acknowledgement gate. Left over from #120, which
   closed with the CI half done (scanning full history goes red forever on any repo
