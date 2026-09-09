@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.78.3 — 2026-09-09
+
+### Fixed
+
+- **`merge_skills`/`merge_agents`/`merge_commands` no longer clobber a custom entry that shares an ai-kit entry's name.** `ln -sfn` ran unconditionally for every ai-kit skill/agent/command, so a project's own entry with the same name got silently corrupted on `/ai:upgrade` or `/ai:setup --merge-skills`: a real custom directory got a stray symlink nested *inside* it instead of being left alone, and a custom cross-link (e.g. `.claude/skills/x -> ../../.agents/skills/x`) got overwritten outright. `link_preserving_custom` now only relinks an entry that resolves *outside* the project tree — a stale pre-plugin-current link into a since-GC'd version still gets repaired (#114 behavior intact), but anything resolving inside the project is left untouched.
+
+### Added
+
+- **`skip_skill_merge` opt-out, sticky per project.** `ai-kit-upgrade.sh /path --skip-skill-merge=true` persists a flag in `.ai-kit-setup` so a project whose ai-kit skills are already served by the plugin at user scope stops having all ~43 of them re-merged into its own `.claude/skills`/`.agents/skills`/`.cursor/skills` on every upgrade — only its hand-added custom skills stay there. `=false` undoes it; `--link-all` projects are unaffected.
+
 ## 1.78.2 — 2026-09-09
 
 ### Fixed
