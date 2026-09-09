@@ -254,14 +254,6 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
   queued and closed. `one` mode hides it. Cheapest fix reads the tracker for an open
   PR referencing the issue rather than adding a label that would drift the moment
   someone merges through the web UI.
-- **#129** `bug` — the marketplace recipe `release.sh` prints for manual use ends in
-  a bare `mv`, and on a macOS shell where `mv` is aliased to `mv -i` that declines
-  the overwrite **and still exits 0**. The `&&` chain succeeds, no error is shown,
-  and the catalog is not bumped — which is how `v1.53.1` reached a pushed tag while
-  the catalog still pointed at `v1.53.0`. The script itself is unaffected: it runs
-  under `bash`, where interactive zsh aliases do not apply. Same class as the
-  `ln -sfn` remedy wording fixed in v1.53.1; the printed recipes never got the sweep.
-  `dedupe` prints bare `rm` lines with the same assumption.
 - **#113** `enhancement` — nothing cross-checks a project's `.ai-kit-setup` marker
   against the real wiring in `.claude/settings.json`: `ai-kit-upgrade.sh` re-stamps
   two keys, `audit-setup-symmetry.sh` only greps ai-kit's own source, and
