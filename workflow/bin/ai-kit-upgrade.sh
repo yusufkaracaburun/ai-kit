@@ -18,25 +18,43 @@ case "$AIKIT" in
 esac
 
 usage() {
-  echo "Usage: $0 /path/to/project"
+  echo "Usage: $0 /path/to/project [--skip-skill-merge=true|false]"
   echo ""
   echo "Re-stamps .ai-kit-setup with the current ai-kit VERSION."
   echo "All existing branch choices are preserved verbatim."
   echo "Fails if no marker exists — run /ai:setup first."
+  echo ""
+  echo "--skip-skill-merge=true persists an opt-out (for projects where the"
+  echo "ai-kit plugin already serves skills at user scope, and the project's"
+  echo "own skills dirs should hold only hand-added custom skills) so future"
+  echo "upgrades stop re-adding ai-kit's own skills there. Sticky once set;"
+  echo "pass =false to undo."
   exit 1
 }
 
-if [ $# -ne 1 ]; then usage; fi
+if [ $# -lt 1 ] || [ $# -gt 2 ]; then usage; fi
 case "$1" in -h|--help) usage ;; esac
 
 TARGET="$(cd "$1" && pwd)"
 MARKER="$TARGET/.ai-kit-setup"
+SKIP_SKILL_MERGE_ARG=""
+if [ $# -eq 2 ]; then
+  case "$2" in
+    --skip-skill-merge=*) SKIP_SKILL_MERGE_ARG="${2#*=}" ;;
+    *) usage ;;
+  esac
+fi
 
 if [ ! -f "$MARKER" ]; then
   echo "No .ai-kit-setup at $TARGET" >&2
   echo "Run $AIKIT/bin/bootstrap-project.sh + /ai:setup first." >&2
   exit 2
 fi
+
+if [ -n "$SKIP_SKILL_MERGE_ARG" ]; then
+  "$SCRIPT_BIN/write-setup-marker.sh" "$TARGET" "--skip-skill-merge=$SKIP_SKILL_MERGE_ARG"
+fi
+SKIP_SKILL_MERGE="$(python3 -c "import json; print(json.load(open('$MARKER')).get('branches',{}).get('skip_skill_merge', False))" 2>/dev/null || echo False)"
 
 COMPLETED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 CHANGELOG="$AIKIT/CHANGELOG.md"
@@ -115,6 +133,8 @@ repair_links() {
     skills)
       if [ -L "$dir" ]; then
         link_skills_all "$dest_parent" "$label" "$PRIMITIVES"
+      elif [ "$SKIP_SKILL_MERGE" = "True" ]; then
+        echo "Skipping ai-kit skill merge into $label (skip_skill_merge=true)"
       else
         merge_skills "$dest_parent" "$label" "$PRIMITIVES"
       fi

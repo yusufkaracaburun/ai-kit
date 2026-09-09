@@ -19,12 +19,45 @@ link_skills_all() {
   fi
 }
 
+# Symlink $src -> $dest, but never clobber a same-named custom entry —
+# `ln -sfn` nests a symlink INSIDE an existing real directory rather than
+# replacing it, which breaks a custom skill/agent that happens to share an
+# ai-kit entry's name. A real dir/file at $dest is always custom (skip it).
+# A symlink at $dest is custom only if it resolves INSIDE the project tree
+# ($project_root) — e.g. a project's own `.claude/skills/x -> ../../.agents/
+# skills/x` cross-link. A symlink resolving outside the project (into some
+# ai-kit install, any version) is ai-kit's own and safe to relink even when
+# stale/dangling (a pre-plugin-current link into a since-GC'd version dir
+# must still be repairable, not mistaken for custom just because it no
+# longer resolves).
+link_preserving_custom() {
+  local src="$1" dest="$2" label="$3" project_root="$4"
+  local custom=false
+  if [ -L "$dest" ]; then
+    local target resolved
+    target="$(readlink "$dest")"
+    case "$target" in
+      /*) resolved="$target" ;;
+      *) resolved="$(cd "$(dirname "$dest")/$(dirname "$target")" 2>/dev/null && pwd -P)/$(basename "$target")" ;;
+    esac
+    case "$resolved" in "$project_root"/*) custom=true ;; esac
+  elif [ -e "$dest" ]; then
+    custom=true
+  fi
+  if [ "$custom" = true ]; then
+    echo "Skipped $label/$(basename "$dest"): custom entry shares a name with an ai-kit entry, left untouched" >&2
+    return 0
+  fi
+  ln -sfn "$src" "$dest"
+}
+
 merge_skills() {
   local dest_parent="$1" label="$2" primitives="$3"
   local skills_dir="$dest_parent/skills"
-  local resolved aikit_resolved
+  local resolved aikit_resolved project_root
 
   mkdir -p "$dest_parent"
+  project_root="$(cd "$dest_parent/.." && pwd -P)"
 
   if [ -L "$skills_dir" ]; then
     resolved="$(cd "$skills_dir" 2>/dev/null && pwd -P)" || resolved=""
@@ -39,7 +72,7 @@ merge_skills() {
   mkdir -p "$skills_dir"
   for skill in "$primitives/skills"/*/; do
     [ -d "$skill" ] || continue
-    ln -sfn "$skill" "$skills_dir/$(basename "$skill")"
+    link_preserving_custom "$skill" "$skills_dir/$(basename "$skill")" "$label" "$project_root"
   done
   echo "Merged ai-kit skills into $label (custom entries preserved)"
 }
@@ -48,12 +81,14 @@ merge_agents() {
   local dest_parent="$1" label="$2" primitives="$3"
   local agents_dir="$dest_parent/agents"
   local src_root="$primitives/agents"
+  local project_root
 
   [ -d "$src_root" ] || return 0
   mkdir -p "$agents_dir"
+  project_root="$(cd "$dest_parent/.." && pwd -P)"
   for agent in "$src_root"/*/; do
     [ -d "$agent" ] || continue
-    ln -sfn "$agent" "$agents_dir/$(basename "$agent")"
+    link_preserving_custom "$agent" "$agents_dir/$(basename "$agent")" "$label" "$project_root"
   done
   echo "Merged ai-kit subagents into $label (custom entries preserved)"
 }
@@ -62,12 +97,14 @@ merge_commands() {
   local dest_parent="$1" label="$2" primitives="$3"
   local commands_dir="$dest_parent/commands"
   local src_root="$primitives/commands"
+  local project_root
 
   [ -d "$src_root" ] || return 0
   mkdir -p "$commands_dir"
+  project_root="$(cd "$dest_parent/.." && pwd -P)"
   for cmd in "$src_root"/*.md; do
     [ -f "$cmd" ] || continue
-    ln -sfn "$cmd" "$commands_dir/$(basename "$cmd")"
+    link_preserving_custom "$cmd" "$commands_dir/$(basename "$cmd")" "$label" "$project_root"
   done
   echo "Merged ai-kit slash commands into $label (custom entries preserved)"
 }
