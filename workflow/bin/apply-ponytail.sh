@@ -64,6 +64,17 @@ case "$MODE" in
   *) echo "error: invalid mode '$MODE' (expected: off, lite, full, ultra)" >&2; exit 2 ;;
 esac
 
+# Same reason, same moment: a malformed ponytail config cannot be written, so
+# the run cannot succeed. Finding that out after `claude plugin install` has
+# already run leaves the machine changed by a run that failed.
+# (A config that parses but is not an object is still refused by write_mode,
+# one step later — rare enough not to warrant a second parser here.)
+if [ -f "$CONFIG" ] && ! python3 -m json.tool "$CONFIG" >/dev/null 2>&1; then
+  echo "error: $CONFIG is not valid JSON — refusing to overwrite it" >&2
+  echo "       Fix or delete the file, then re-run." >&2
+  exit 1
+fi
+
 # --- state -------------------------------------------------------------------
 read_state() {
   python3 - "$SETTINGS" "$PLUGIN" <<'PY'
@@ -173,12 +184,17 @@ case "$ACTION" in
   install)
     echo "ponytail: install + activate (machine-wide)"
 
-    command -v claude >/dev/null 2>&1 || {
-      echo "error: the 'claude' CLI is not on PATH — cannot install the plugin" >&2
-      echo "       Install by hand: /plugin marketplace add $MARKETPLACE" >&2
-      echo "                        /plugin install $PLUGIN" >&2
-      exit 1
-    }
+    # Only the marketplace add and the install need the CLI. Demanding it for a
+    # run that has nothing left to install turned `--mode ultra` on an
+    # already-installed machine into an error about installing.
+    if [ "$HAS_MARKETPLACE" != "yes" ] || [ "$IS_INSTALLED" != "yes" ]; then
+      command -v claude >/dev/null 2>&1 || {
+        echo "error: the 'claude' CLI is not on PATH — cannot install the plugin" >&2
+        echo "       Install by hand: /plugin marketplace add $MARKETPLACE" >&2
+        echo "                        /plugin install $PLUGIN" >&2
+        exit 1
+      }
+    fi
 
     if [ "$HAS_MARKETPLACE" = "yes" ]; then
       echo "  marketplace already known: $MARKETPLACE"

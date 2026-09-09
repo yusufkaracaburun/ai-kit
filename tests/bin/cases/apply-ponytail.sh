@@ -21,6 +21,15 @@ ponytail() {
   HOME="$home" XDG_CONFIG_HOME="$home/.config" bash "$AIKIT/bin/apply-ponytail.sh" "$@"
 }
 
+ponytail_no_cli() {
+  # Same, with a PATH that carries no `claude` — which is what CI has, and what
+  # a developer who installed Claude Code through the app rather than a shell
+  # profile has too.
+  local home="$1"; shift
+  HOME="$home" XDG_CONFIG_HOME="$home/.config" PATH=/usr/bin:/bin \
+    bash "$AIKIT/bin/apply-ponytail.sh" "$@"
+}
+
 seed_settings() {
   # seed_settings <sandbox_home> <plugin_enabled:true|false> [marketplace:yes|no]
   local home="$1" enabled="$2" mkt="${3:-no}"
@@ -118,6 +127,36 @@ ponytail "$H" --mode ultra >/dev/null 2>&1 || true
 AFTER="$(md5 -q "$H/.claude/settings.json" 2>/dev/null || md5sum "$H/.claude/settings.json" | cut -d' ' -f1)"
 assert "settings.json byte-identical after a mode write" '[ "$BEFORE" = "$AFTER" ]'
 assert "mode landed in ponytail's own config" 'grep -q "\"defaultMode\": \"ultra\"" "$H/.config/ponytail/config.json"'
+rm -rf "$H"
+
+echo "=== no claude CLI on PATH ==="
+
+# The CLI installs the plugin; it does not write the mode. Requiring it for a
+# run with nothing left to install turned `--mode` into an error about
+# installing — and kept ai-kit's own test workflow red on every master commit
+# for five days, because CI has no claude on PATH (#162).
+H="$(mktemp -d)"; seed_settings "$H" true yes
+RC=0; OUT="$(ponytail_no_cli "$H" --mode ultra 2>&1)" || RC=$?
+assert "mode change succeeds with no claude on PATH" '[ "$RC" -eq 0 ]'
+assert "mode landed without the CLI" 'grep -q "\"defaultMode\": \"ultra\"" "$H/.config/ponytail/config.json"'
+rm -rf "$H"
+
+# A malformed config is refused before any install work, so a failed run never
+# leaves the machine with a plugin it did not manage to configure.
+H="$(mktemp -d)"; seed_settings "$H" false
+mkdir -p "$H/.config/ponytail"
+echo 'not json at all' > "$H/.config/ponytail/config.json"
+RC=0; ERR="$(ponytail_no_cli "$H" --mode lite 2>&1)" || RC=$?
+assert "malformed config refused before the install path" '[ "$RC" -eq 1 ]'
+assert "refusal names the config, not the missing CLI" 'echo "$ERR" | grep -q "refusing to overwrite"'
+assert "refusal does not mention the CLI" '! echo "$ERR" | grep -q "not on PATH"'
+rm -rf "$H"
+
+# Still errors honestly when there IS something to install and no CLI to do it.
+H="$(mktemp -d)"; seed_settings "$H" false
+RC=0; ERR="$(ponytail_no_cli "$H" 2>&1)" || RC=$?
+assert "uninstalled machine without the CLI still errors" '[ "$RC" -eq 1 ]'
+assert "that error names the missing CLI" 'echo "$ERR" | grep -q "not on PATH"'
 rm -rf "$H"
 
 echo "=== catalog wiring ==="
