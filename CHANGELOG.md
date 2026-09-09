@@ -1,5 +1,34 @@
 # Changelog
 
+## 1.78.0 — 2026-09-09
+
+### Added
+
+- **Epic branch model** (#160). The kit installed an `epic/*` label namespace but
+  had no epic *branch* model: `git-hygiene` knew only `feat/`/`fix/`/`chore/` and
+  "open against the project's main branch", and `to-issues` delegated there without
+  ever asking what the PR base should be. Slices that must be reviewed as a whole
+  before anything reaches main had nowhere to go. `git-hygiene.mini.md` gains an
+  Epic branches section — `epic/<name>` integration branch, slice PRs targeting it,
+  one PR to main at the end — including the rule that a slice must never be merged
+  into the epic branch locally, because GitHub then refuses to *open* the PR at all
+  (`422 There are no new commits between base branch and head branch`) and a PR
+  that was never opened has no base to edit later — the slice lands with no merge
+  record. `branch-cleanup-after-merge.mini.md` exempts `epic/*` from
+  delete-on-merge. `to-issues` now asks which model applies before publishing and
+  writes the base into every issue.
+- **`test-ci` hygiene section** (#161). The DoD template asks for evidence of a
+  test run and `dor-dod-enforcement.yml` enforces that the box is ticked; nothing
+  verified the run happened. Since the kit is aimed at AFK agents that tick their
+  own DoD, that is the wrong half to be missing. `bin/ai-kit-test-ci.sh` warns when
+  a project declares a test runner and no workflow invokes it. It grades wiring
+  only — no test-workflow template ships, because a suite needing database services
+  or a provisioned tenant is not something the kit can guess. Manifests are found
+  across tracked files so monorepo subdirs are graded, and matching is built against
+  false OKs across three review rounds: invocations rather than mentions, commands
+  segmented on `;&|` so `composer install && php artisan test` is seen, and every
+  declared runner must be covered rather than the first match vouching for all.
+
 ## 1.77.0 — 2026-09-08
 
 - feat(hooks): add phase-check hook, name the ai-kit phase before building
