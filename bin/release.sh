@@ -187,11 +187,15 @@ if [ "$BUMP_MARKETPLACE" = false ]; then
   fi
   echo ""
   echo "Next: bump the marketplace catalog so /plugin update picks this up."
+  # -f on the mv: this recipe is pasted into an interactive shell, where `mv`
+  # is commonly aliased to `mv -i`. That prompts, declines, and still exits 0,
+  # so the `&&` chain "succeeds" with the catalog never bumped — which is how
+  # v1.53.1 reached a pushed tag while the catalog still resolved v1.53.0.
   echo "  Re-run with --bump-marketplace to do this automatically, or:"
   echo "  cd /path/to/yusufkaracaburun/marketplace"
   echo "  jq '.plugins[0].version = \"$NEW_VERSION\" | .plugins[0].source.ref = \"v$NEW_VERSION\"' \\"
   echo "    .claude-plugin/marketplace.json > .claude-plugin/marketplace.tmp.json \\"
-  echo "    && mv .claude-plugin/marketplace.tmp.json .claude-plugin/marketplace.json"
+  echo "    && mv -f .claude-plugin/marketplace.tmp.json .claude-plugin/marketplace.json"
   echo "  git commit -am 'chore: bump ai-kit to v$NEW_VERSION'"
   echo "  git push origin master"
   exit 0

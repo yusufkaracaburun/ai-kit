@@ -307,10 +307,10 @@ if [ "$MODE_FIX" -eq 1 ] && [ "$TOTAL" -gt 0 ]; then
     echo "  rm -rf \"$PERSONAL_SKILLS_DIR/$s\""
   done
   for s in "${DUP_AGENTS[@]}"; do
-    echo "  rm \"$PERSONAL_AGENTS_DIR/$s.md\""
+    echo "  rm -f \"$PERSONAL_AGENTS_DIR/$s.md\""
   done
   for s in "${ORPHAN_RULES[@]}"; do
-    echo "  rm \"$s\""
+    echo "  rm -f \"$s\""
   done
   echo ""
 fi

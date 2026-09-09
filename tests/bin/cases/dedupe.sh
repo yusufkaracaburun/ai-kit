@@ -52,7 +52,10 @@ assert "dedupe valid rule NOT flagged orphan" 'echo "$JSON_ORPHAN" | python3 -c 
 set +e
 FIX_OUT="$("$DEDUPE" "$PROJ_TMP" --fix 2>&1)"
 set -e
-assert "dedupe --fix prints rm for orphan" 'echo "$FIX_OUT" | grep -q "rm \".*totally-fake-rule-xyz.mdc\""'
+# `rm -f`, not a bare `rm`: this line is printed for a human to paste, and an
+# interactive shell that aliases rm to `rm -i` would prompt, decline, and still
+# exit 0 (#129).
+assert "dedupe --fix prints rm -f for orphan" 'echo "$FIX_OUT" | grep -q "rm -f \".*totally-fake-rule-xyz.mdc\""'
 assert "dedupe --fix did NOT execute (orphan file still present)" '[ -f "$PROJ_TMP/.cursor/rules/ai-kit-totally-fake-rule-xyz.mdc" ]'
 
 # Exit-code semantics: default report-only (exit 0), --strict exits 1 on findings.
