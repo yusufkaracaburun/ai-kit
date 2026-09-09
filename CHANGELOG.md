@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.78.1 — 2026-09-09
+
+### Fixed
+
+- **`apply-ponytail.sh` no longer requires the `claude` CLI to change mode**
+  (#162). The install branch checked for the CLI before doing anything, including
+  runs with nothing left to install — so on a machine that already has ponytail,
+  `--mode ultra` failed with an error about installing the plugin, though it only
+  writes ponytail's own config. The check now runs only when the marketplace add
+  or the install actually has work to do, and a malformed ponytail config is
+  refused up front rather than after `claude plugin install` has already changed
+  the machine.
+
+  This is also why ai-kit's own `test` workflow had been red on every master
+  commit since 2026-09-04, across the v1.76.0, v1.77.0 and v1.78.0 tags: CI has
+  no `claude` on PATH, so two asserts never reached the code they were testing.
+  The case now carries a `ponytail_no_cli` helper that runs with a PATH lacking
+  the CLI, so the guarantee is asserted rather than left depending on whether the
+  machine running the suite happens to have it.
+
 ## 1.78.0 — 2026-09-09
 
 ### Added
