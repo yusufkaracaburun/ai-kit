@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.78.2 — 2026-09-09
+
+### Fixed
+
+- **Printed recipes survive an interactive `mv -i` / `rm -i` shell** (#129).
+  Scripts in `bin/` run under bash, where a user's shell aliases do not apply, so
+  the `mv`/`rm` calls inside them were never the problem. A recipe those scripts
+  *print* for a human to paste is the opposite case: it lands in an interactive
+  shell, where macOS setups commonly alias `mv`/`rm`/`cp` to the `-i` variants —
+  which prompt, decline, and still exit 0, so an `&&` chain reports success while
+  nothing happened. That is how v1.53.1 reached a pushed tag with the marketplace
+  catalog still resolving v1.53.0. `release.sh` now prints `mv -f` and `dedupe`
+  prints `rm -f`, and a new test sweeps every printed recipe in `bin/` so a future
+  script cannot reintroduce the assumption.
+
 ## 1.78.1 — 2026-09-09
 
 ### Fixed
