@@ -67,31 +67,6 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P2 — next up
 
-- **#160** `enhancement · skill · primitive:rule` — de kit installeert `epic/*`
-  labels maar kent geen epic-*branchmodel*. `git-hygiene.mini.md:19-22` kent alleen
-  `feat/`/`fix/`/`chore/` en zegt "open against the project's main branch";
-  `to-issues:14` delegeert daarheen en vraagt nergens naar de PR-base. Gevolg in
-  `emeq/system`: zodra niets naar master mocht, moest elke slice op de vorige
-  óngemergede branch stapelen en werd de integratiebranch één onreviewbaar geheel —
-  precies wat twaalf issues moesten voorkomen. Twee slices waren al lokaal in de
-  integratiebranch gemerged, dus GitHub weigerde beide PR's om te richten met
-  `422 no new commits between base and head`; twee PR's dicht zonder mergerecord.
-  Minimaal: één vraag in `to-issues` over de PR-base, een epic-sectie in
-  `git-hygiene`, en een `epic/*`-uitzondering in `branch-cleanup-after-merge`.
-  Bewust géén worktree-skill — `git worktree add` is één commando; wat wél een regel
-  verdient is dat een verse worktree geen `vendor/`/`node_modules/` heeft en een
-  gesymlinkte `vendor/` de suite niet laat booten.
-- **#161** `enhancement` — de DoD eist "bewijs (commit-link / screenshot / test-run)"
-  (`feature.md:35`), `dor-dod-enforcement.yml` handhaaft dát het vinkje staat, en
-  niets controleert of het waar is: een grep op `composer test|pest|phpunit|npm test|
-  vitest|jest|pytest` over elke `*.yml` in de kit geeft nul treffers. De kit richt
-  zich expliciet op AFK-agents, dus de agent zet zijn eigen DoD-vinkje — in
-  `emeq/system` rustte "752 groen" op één run op één machine. Een generiek
-  test-workflow-sjabloon lost dit níet op (die suite wil een MySQL-service plus een
-  geprovisioneerde testtenant), dus: één hygiene-check die meldt dat er wel een
-  testrunner is en geen workflow die hem noemt. Let op: dat verlaagt de score van
-  bestaande downstream-repo's zonder test-CI — bevestigen vóór landen.
-
 - **#140** `bug · primitive:plugin` — `/ai:upgrade` promises a release slice from
   `CHANGELOG.md` and never prints one, because the plugin cache ships no
   `CHANGELOG.md`. Either add it to the plugin payload or drop the promise from the
