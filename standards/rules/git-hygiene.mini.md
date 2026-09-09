@@ -41,11 +41,47 @@ Conventional Commits with scope. One line subject, imperative, ≤72 chars:
 
 ## Pull requests
 
-- Open against the project's main branch (default: `main` or `master` per repo convention).
+- Open against the project's main branch (default: `main` or `master` per repo convention) — **unless the work is part of an epic**, in which case the base is the `epic/<name>` integration branch. See [Epic branches](#epic-branches) below before opening the PR.
 - Use the project's PR template if present. If not, include: **Summary** (what + why), **Test plan** (how reviewer can verify), **Out of scope** (what this PR explicitly does not do).
 - Keep diff ≤ 400 lines where possible. Split big PRs into vertical slices (see `/ai:to-issues`).
 - Link issues with `Fixes #N` / `Closes #N` so they auto-close on merge.
 - Title follows the same Conventional Commits format as the squash-merge commit would.
+
+## Epic branches
+
+Most work goes straight to main as a `feat/`/`fix/`/`chore/` branch. An epic is
+the exception: several slices that only make sense reviewed together, or that
+must not reach main one at a time.
+
+- `epic/<name>` for the integration branch, cut from main once at the start.
+- Slice branches keep their normal prefix and **target the epic branch**, not
+  main: `gh pr create --base epic/<name>`.
+- The epic reaches main as a single PR at the end, once every slice has merged
+  into it.
+- `/ai:to-issues` asks which of the two models applies before it publishes, and
+  writes the base into each issue. The question is not optional: there is no
+  base that is safe to assume, and the answer is only cheap to change while the
+  slices are still on paper.
+
+**Never merge a slice into the epic branch locally.** Once the slice's commits
+are already in the base, GitHub refuses to *open* the PR at all — `422 There are
+no new commits between base branch and head branch`. An existing PR's base can
+be edited afterwards; a PR that was never opened cannot, so the slice lands with
+no PR and no merge record. Push the slice, open the PR against `epic/<name>`,
+merge it there.
+
+Review an epic locally with a worktree rather than a second clone:
+
+```bash
+git worktree add .agents/worktrees/<name> epic/<name>
+```
+
+A worktree shares only tracked files — no `vendor/`, no `node_modules/`.
+Symlinking them back is not enough: Composer's generated autoload paths resolve
+against the checkout they were built in, so the suite often boots and tests the
+*origin* tree rather than failing outright — a green run that proves nothing
+about the branch you are reviewing. A worktree you intend to run tests in needs
+a real `composer install` / `npm install`.
 
 ## Merge strategy
 

@@ -74,6 +74,17 @@ Ask the user:
 - Are the dependency relationships correct?
 - Should any slices be merged or split further?
 - Are the correct slices marked as HITL and AFK?
+- Do these slices merge into main one at a time, or is this an **epic** whose
+  slices merge into an `epic/<name>` integration branch first?
+
+The last question is not optional and has no safe default. It sets the PR base
+of every slice, and the answer only stays cheap while the slices are still on
+paper: once a slice's commits are already in a branch, GitHub refuses to open the
+PR at all (`422 There are no new commits between base branch and head branch`),
+and a PR that was never opened has no base to edit later. It also decides whether
+the dependency chain below means "merged to main" or "merged to the epic branch"
+— the blockers read differently under each model. See the epic section of the
+[git-hygiene rule](../../../standards/rules/git-hygiene.mini.md).
 
 Iterate until the user approves the breakdown.
 
@@ -99,6 +110,12 @@ Avoid specific file paths or code snippets — they go stale fast. Exception: if
 - [ ] Criterion 1
 - [ ] Criterion 2
 - [ ] Criterion 3
+
+## Branch and PR base
+
+Branch `<prefix>/<area>-<short-desc>`; open the PR against `<base>` (`main`, or
+the epic's `epic/<name>` branch). State the base explicitly even when it is
+main — a second dev picking this up cold cannot infer it from the issue.
 
 ## Blocked by
 

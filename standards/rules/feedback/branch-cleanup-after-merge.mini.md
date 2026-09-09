@@ -45,6 +45,9 @@ locally afterwards.
 
 - Long-lived branches by design (`release/*`, `hotfix-staging`, etc.) —
   these aren't feature branches and follow their own lifecycle.
+- `epic/*` integration branches outlive their slices. A slice merging into
+  the epic branch deletes the *slice* branch, never the epic branch — that
+  one goes once its own PR to main has merged.
 - Branch is shared with another active worktree (rare; verify before
   deletion).
 
