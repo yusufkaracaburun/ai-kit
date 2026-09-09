@@ -28,7 +28,9 @@ usage() {
   echo "ai-kit plugin already serves skills at user scope, and the project's"
   echo "own skills dirs should hold only hand-added custom skills) so future"
   echo "upgrades stop re-adding ai-kit's own skills there. Sticky once set;"
-  echo "pass =false to undo."
+  echo "pass =false to undo. Not retroactive: an upgrade run before this flag"
+  echo "was set still merged ai-kit's skills in that once — remove them by"
+  echo "hand (or re-run merge_skills manually) if you don't want them there."
   exit 1
 }
 
