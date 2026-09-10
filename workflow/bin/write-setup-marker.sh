@@ -32,6 +32,7 @@ usage() {
   echo "  --phase-check-hook=wired|skipped"
   echo "  --skip-skill-merge=true|false  (plugin already serves ai-kit skills; don't merge them into this project's skills dirs)"
   echo "  --secrets-scan=clean|findings-acknowledged|findings-issue-filed|skipped-no-binary|skipped-not-git|error"
+  echo "  --project-skills-merged=true|false  (ADR-0012: does this project also want ai-kit skills merged into its own skills dirs)"
   exit 1
 }
 
@@ -60,6 +61,7 @@ SEARCH_DELEGATION_HOOK=""
 PHASE_CHECK_HOOK=""
 SKIP_SKILL_MERGE=""
 SECRETS_SCAN=""
+PROJECT_SKILLS_MERGED=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -84,6 +86,7 @@ while [ $# -gt 0 ]; do
     --phase-check-hook=*) PHASE_CHECK_HOOK="${1#*=}"; shift ;;
     --skip-skill-merge=*) SKIP_SKILL_MERGE="${1#*=}"; shift ;;
     --secrets-scan=*) SECRETS_SCAN="${1#*=}"; shift ;;
+    --project-skills-merged=*) PROJECT_SKILLS_MERGED="${1#*=}"; shift ;;
     -h | --help) usage ;;
     *) echo "Unknown option: $1" >&2; usage ;;
   esac
@@ -99,15 +102,21 @@ esac
 SETUP_FILE="$TARGET/.ai-kit-setup"
 COMPLETED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
+# ADR-0012: a machine fact, not a per-project choice — always computed,
+# never a flag. Whether it's *used* for anything is a later phase; this
+# just starts the dual-write.
+GLOBAL_CHANNEL_AVAILABLE="false"
+global_channel_available && GLOBAL_CHANNEL_AVAILABLE="true"
+
 python3 - "$SETUP_FILE" "$VERSION" "$COMPLETED_AT" \
   "$SETUP_MODE" "$SETUP_TIER" "$DOCKER" "$TRACKER" "$WORKFLOW" "$DOMAIN_DOCS" "$ARCHITECTURE" "$SANDCASTLE" \
   "$AUTOMATION_RECOMMENDER" "$CONTEXT_DRIFT_HOOK" "$RULE_RECOMMENDATION" "$TOOL_RECOMMENDATION" "$REPO_TEMPLATES" \
   "$LIFECYCLE" "$UNIVERSAL_MCPS_PROMPTED" "$UNIVERSAL_COMPANIONS_PROMPTED" "$SEARCH_DELEGATION_HOOK" "$PHASE_CHECK_HOOK" \
-  "$SKIP_SKILL_MERGE" "$SECRETS_SCAN" <<'PY'
+  "$SKIP_SKILL_MERGE" "$SECRETS_SCAN" "$PROJECT_SKILLS_MERGED" "$GLOBAL_CHANNEL_AVAILABLE" <<'PY'
 import json, sys, os
 
 path, version, completed = sys.argv[1:4]
-setup_mode, tier, docker, tracker, workflow, domain_docs, architecture, sandcastle, automation_recommender, context_drift_hook, rule_recommendation, tool_recommendation, repo_templates, lifecycle, universal_mcps_prompted, universal_companions_prompted, search_delegation_hook, phase_check_hook, skip_skill_merge, secrets_scan = sys.argv[4:24]
+setup_mode, tier, docker, tracker, workflow, domain_docs, architecture, sandcastle, automation_recommender, context_drift_hook, rule_recommendation, tool_recommendation, repo_templates, lifecycle, universal_mcps_prompted, universal_companions_prompted, search_delegation_hook, phase_check_hook, skip_skill_merge, secrets_scan, project_skills_merged, global_channel_available = sys.argv[4:26]
 
 VALID_LIFECYCLE = {"development", "production"}
 if lifecycle and lifecycle not in VALID_LIFECYCLE:
@@ -169,6 +178,9 @@ if skip_skill_merge:
     branches["skip_skill_merge"] = skip_skill_merge.lower() == "true"
 if secrets_scan:
     branches["secrets_scan"] = secrets_scan
+if project_skills_merged:
+    branches["project_skills_merged"] = project_skills_merged.lower() == "true"
+branches["global_channel_available"] = global_channel_available.lower() == "true"
 
 
 def accumulate(key, csv):

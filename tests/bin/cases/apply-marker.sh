@@ -71,6 +71,12 @@ for VAL in clean findings-acknowledged findings-issue-filed skipped-no-binary sk
   assert "secrets-scan round-trips $VAL" "grep -q '\"secrets_scan\": \"$VAL\"' \"\$TMP_M/.ai-kit-setup\""
 done
 assert "secrets-scan write preserves setup_mode" 'grep -q "\"setup_mode\": \"solo-both\"" "$TMP_M/.ai-kit-setup"'
+assert "no project_skills_merged key without flag" '! grep -q "project_skills_merged" "$TMP_M/.ai-kit-setup"'
+for VAL in true false; do
+  "$AIKIT/bin/write-setup-marker.sh" "$TMP_M" --project-skills-merged="$VAL"
+  assert "project-skills-merged round-trips $VAL" "grep -q '\"project_skills_merged\": $VAL' \"\$TMP_M/.ai-kit-setup\""
+done
+assert "global_channel_available always written (ADR-0012)" 'grep -q "\"global_channel_available\":" "$TMP_M/.ai-kit-setup"'
 rm -rf "$TMP_M"
 
 
