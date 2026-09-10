@@ -26,6 +26,7 @@ For wide cross-file impact analysis where you don't need a full verdict, prefer 
    - Test coverage for behaviour changes
    - Naming aligned with CONTEXT.md domain language
    - No drive-by refactors mixed with the stated change
+   - File-size threshold — a changed file crossing from <1000 to ≥1000 lines is a blocker unless justified
 4. **Report** — blockers first, then suggestions. Be specific (file + line).
 5. **Fix** — only fix blockers if the user asks; otherwise list them.
 

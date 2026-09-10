@@ -34,6 +34,7 @@ If any is missing, pick a sane default and note it under "Scope" in the report.
    - Test coverage for behaviour changes
    - Naming aligned with CONTEXT.md domain language
    - No drive-by refactors mixed with the stated change
+   - File-size threshold — a changed file crossing from <1000 to ≥1000 lines is a blocker unless justified
 4. **Security pass** — apply the **Security deep pass** checklist below. `default` depth: only high-confidence findings on changed lines. `deep` depth: also run the dependency audit and add critical/high CVEs.
 5. **Test coverage** — for behaviour changes, identify which test file should cover them; flag missing coverage. Don't fail on style-only changes.
 6. **Verdict** — `APPROVE` only when zero blockers and zero high-severity security findings. Otherwise `REQUEST CHANGES`.
