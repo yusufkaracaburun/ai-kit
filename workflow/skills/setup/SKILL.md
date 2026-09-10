@@ -71,7 +71,7 @@ Ask once: **Fast (Tier A, ~5 min)** or **Full (Tier B)**?
 
 | # | Branch | Apply |
 | - | ------ | ----- |
-| 0 | Setup mode | one question (below) |
+| 0 | Setup mode | auto-detect + conditional question (below) |
 | 1 | Bootstrap | scripts from mode |
 | 2 | Dev environment | `--write` + refine URLs |
 | 2b | Lifecycle | one question (below) — default `development` |
@@ -85,7 +85,8 @@ Then:
 
 ```bash
 $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" \
-  --setup-mode=solo-both|solo-global|project-only|brownfield \
+  --project-skills-merged=true|false \
+  --setup-mode=<derived — agent-stack-guide.md §4 table> \
   --tier=minimal \
   --lifecycle=development|production \
   --universal-mcps-prompted=context7,... \
@@ -99,20 +100,18 @@ $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict --minimal
 
 **Tier B — on demand:** branches 3–9 below. Skip any the user does not need.
 
-## Branch 0 — Setup mode (one question)
+## Branch 0 — Setup mode (fact + conditional question, ADR-0012)
 
-See [agent-stack-guide.md](./agent-stack-guide.md).
+See [agent-stack-guide.md](./agent-stack-guide.md) for the full procedure.
 
-**Choices:** solo-both | solo-global | project-only | brownfield
-
-| Mode | install-global | bootstrap |
-| ---- | -------------- | --------- |
-| solo-both | yes | `--merge-skills` |
-| solo-global | yes | `--no-skills` |
-| project-only | no | `--merge-skills` |
-| brownfield | usually yes | `--merge-skills` + `--write-agent-stack` if needed |
-
-Default recommendation from detect: `agent_stack.recommendation`.
+1. Auto-detect `global_channel_available` (plugin or symlink-install) —
+   no question.
+2. Ask the one merge question **only if** that fact is true; otherwise
+   `project_skills_merged=true` silently.
+3. Brownfield stays auto-detected (`detect-tooling.sh --json`'s
+   `needs_doc`) and unrelated to (1)/(2) — it only sets Tier-B defaults.
+4. Record both new fields, plus a derived legacy `--setup-mode=` for
+   anything still reading it.
 
 ### Branch 1 — Bootstrap
 
@@ -602,7 +601,8 @@ Full setup Done:
 
 ```bash
 $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" \
-  --setup-mode=... --tier=full \
+  --project-skills-merged=true|false \
+  --setup-mode=<derived — agent-stack-guide.md §4 table> --tier=full \
   --lifecycle=development|production \
   --universal-mcps-prompted=context7,... \
   --universal-companions-prompted=caveman,... \
@@ -627,6 +627,8 @@ $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict
   "completed_at": "<ISO8601>",
   "branches": {
     "bootstrap": true,
+    "global_channel_available": true,
+    "project_skills_merged": true,
     "setup_mode": "solo-both",
     "setup_tier": "minimal",
     "dev_environment": true,

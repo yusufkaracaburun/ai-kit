@@ -71,10 +71,16 @@ assert "setup SKILL.md exists" '[ -f "$SETUP" ]'
 assert "onboard SKILL.md exists" '[ -f "$ONBOARD" ]'
 
 # Positive: install-layout vocabulary preserved (regression guard).
-assert "setup SKILL.md: setup_mode=solo-both still documented (install layout preserved)" \
-  'grep -q "solo-both" "$SETUP"'
-assert "setup SKILL.md: setup_mode=solo-global still documented (install layout preserved)" \
-  'grep -q "solo-global" "$SETUP"'
+# ADR-0012 moved the literal solo-both/solo-global/project-only/brownfield
+# values out of SKILL.md's Branch 0 prose (no longer a 4-way user choice)
+# into agent-stack-guide.md's derived-setup_mode mapping table, which
+# Branch 0 links to — the vocabulary survives as a dual-written legacy
+# value, just relocated, so the guard now covers both files.
+AGENT_STACK_GUIDE="$AIKIT/workflow/skills/setup/agent-stack-guide.md"
+assert "setup_mode=solo-both still documented (install layout preserved)" \
+  'grep -q "solo-both" "$SETUP" "$AGENT_STACK_GUIDE"'
+assert "setup_mode=solo-global still documented (install layout preserved)" \
+  'grep -q "solo-global" "$SETUP" "$AGENT_STACK_GUIDE"'
 
 # Positive: rewritten lines mention the 2-dev framing.
 assert "setup SKILL.md: 2-dev framing present where the 'informal solo' row was" \
