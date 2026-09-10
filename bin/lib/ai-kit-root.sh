@@ -54,6 +54,18 @@ sync_plugin_current_link() {
   esac
 }
 
+# ADR-0012: does *some* global channel already serve ai-kit skills
+# without this project's involvement — the plugin (Claude Code only,
+# cache dir only exists once actually installed) or the legacy
+# symlink-install (`~/.config/ai-kit/root`, written only by
+# install-global.sh)? Read-only fact, no side effects, no behavior change
+# yet — phase (b) of the setup_mode decomposition.
+global_channel_available() {
+  [ -d "${HOME}/.claude/plugins/cache/yusufkaracaburun/ai" ] && return 0
+  [ -f "${HOME}/.config/ai-kit/root" ] && return 0
+  return 1
+}
+
 write_ai_kit_root_config() {
   local root="$1"
   mkdir -p "${HOME}/.config/ai-kit"
