@@ -2,6 +2,13 @@
 
 ## Status
 
+**Superseded by [ADR-0012](0012-setup-mode-decomposition.md) (2026-09-10).**
+The plugin marketplace channel this ADR never anticipated made the
+`install-global` axis ambiguous (symlink-install vs plugin), and
+brownfield turned out to only ever gate six Tier-B defaults, not a
+distinct linking behavior — see ADR-0012 for the decomposition. This ADR
+is preserved as historical record of the v1.0.0 reasoning.
+
 Accepted (v1.0.0)
 
 ## Context

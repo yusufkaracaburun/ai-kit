@@ -178,7 +178,14 @@ fi
 # Detect a marketplace-installed ai-kit plugin coexisting with the
 # symlink-install. Both work, but skill resolution gets confusing if the
 # plugin and the symlinks point at different ai-kit clones.
-INSTALLED_PLUGIN="$HOME/.claude/plugins/marketplaces/ai-kit"
+#
+# The marketplace dir is keyed by marketplace name (`yusufkaracaburun`),
+# not plugin name — there is no `.../marketplaces/ai-kit` and never has
+# been since the v3.0 rename (ADR-0004) moved the plugin from `ai-kit` to
+# `ai@yusufkaracaburun`. The cache dir IS keyed by plugin name and only
+# exists once the plugin is actually installed (not just the marketplace
+# added), so it's the correct "is the plugin installed" signal.
+INSTALLED_PLUGIN="$HOME/.claude/plugins/cache/yusufkaracaburun/ai"
 if [ -d "$INSTALLED_PLUGIN" ] && [ "$EFFECTIVE_MODE" != "project-only" ]; then
   if [ -d "$HOME/.claude/skills" ]; then
     GLOBAL_AI_LINKS="$(find "$HOME/.claude/skills" -mindepth 1 -maxdepth 1 -type l -exec readlink {} \; 2>/dev/null | grep -c "$AIKIT" || true)"
