@@ -65,6 +65,12 @@ TMP_DD=$(mktemp -d)
 assert "tracker=github no longer auto-sets domain_docs" '! grep -q "domain_docs" "$TMP_DD/.ai-kit-setup"'
 assert "tracker=github still sets triage_labels" 'grep -q "\"triage_labels\": true" "$TMP_DD/.ai-kit-setup"'
 rm -rf "$TMP_DD"
+assert "no secrets_scan key without flag" '! grep -q "secrets_scan" "$TMP_M/.ai-kit-setup"'
+for VAL in clean findings-acknowledged findings-issue-filed skipped-no-binary skipped-not-git error; do
+  "$AIKIT/bin/write-setup-marker.sh" "$TMP_M" --secrets-scan="$VAL"
+  assert "secrets-scan round-trips $VAL" "grep -q '\"secrets_scan\": \"$VAL\"' \"\$TMP_M/.ai-kit-setup\""
+done
+assert "secrets-scan write preserves setup_mode" 'grep -q "\"setup_mode\": \"solo-both\"" "$TMP_M/.ai-kit-setup"'
 rm -rf "$TMP_M"
 
 

@@ -79,6 +79,7 @@ Ask once: **Fast (Tier A, ~5 min)** or **Full (Tier B)**?
 | 2d | Search-delegation hook | auto-apply, no question (below) |
 | 2e | Universal companions | auto-prompt each `universal: true` companion not yet handled |
 | 2f | Phase-check hook | auto-apply, no question (below) |
+| 2g | Secrets scan | auto-run once, conditional question on findings (below) |
 
 Then:
 
@@ -90,6 +91,7 @@ $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" \
   --universal-mcps-prompted=context7,... \
   --universal-companions-prompted=caveman,... \
   --search-delegation-hook=wired --phase-check-hook=wired \
+  --secrets-scan=clean|findings-acknowledged|findings-issue-filed|skipped-no-binary|skipped-not-git|error \
   --docker=skipped --tracker=skipped --workflow=skipped \
   --domain-docs=skipped --architecture=skipped --sandcastle=false --context-drift-hook=skipped
 $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict --minimal
@@ -302,6 +304,67 @@ this hook is what puts it in front of the agent. Fixed string, so it needs
 none of #148's ranking or budget machinery. Advisory
 `additionalContext` only (it can never block), blast radius stops at the
 project. Record `--phase-check-hook=wired`.
+
+### Branch 2g — Secrets scan (auto-run, conditional question)
+
+**Skip entirely if `branches.secrets_scan` is already set** in `.ai-kit-setup`
+— this branch runs exactly once per project, never re-scans on a
+re-invocation that keeps it. (Unlike 2d/2f: those are idempotent appliers,
+safe to always re-run; this one is a discovery scan, not.)
+
+```bash
+$AI_KIT_ROOT/bin/ai-kit-secrets-scan.sh "$(pwd)"
+```
+
+Read the exit code and match the printed message to decide the marker value.
+Exit 0 covers four distinct scanner outcomes, not just "clean" — the scanner
+itself only exits 1 when a HIGH SIGNAL finding exists; low-signal-only
+findings (e.g. `generic-api-key` noise, nothing outside a fixture path)
+still exit 0, and that message reads `"secrets-scan: N findings across M
+files..."` plus a LOW SIGNAL block, not `"no findings"`. Match on why it
+couldn't scan first, then treat everything else that exits 0 as `clean`:
+
+| Exit | Printed message contains | `--secrets-scan=` |
+| ---- | ------------------------- | ------------------ |
+| 0 | "gitleaks not on PATH" | `skipped-no-binary` |
+| 0 | "not a git repository" | `skipped-not-git` |
+| 0 | anything else (including "no findings" and low-signal-only) | `clean` |
+| 1 | (HIGH SIGNAL block, findings) | see below |
+| 2 | "gitleaks failed" | `error` |
+
+**Exit 0**: print the scanner's own message verbatim (the low-signal report
+included — visible, just not gated). No question — continue.
+
+**Exit 1** (findings): print the scanner's report verbatim (already
+redacted — paths, lines, rule ids, entropy, never a value), then ask:
+
+> Rotate any real credential first — ai-kit can't do that for you.
+> File a GitHub issue with this report (paths/lines/rule-ids only, never
+> secret values)?
+> [1] Yes, file it → then continue
+> [2] No, just continue
+
+On [1]: `gh issue create` with the scanner's printed report (verbatim, it is
+already redacted) as the body — `emeq-system#209` is the worked example of
+the format (rotate-first ordering, remediation checklist, no secrets in the
+body). Record `--secrets-scan=findings-issue-filed`. If `gh` fails or has no
+remote to file against, degrade visibly (print the failure, don't retry) and
+fall back to `findings-acknowledged`.
+On [2]: record `--secrets-scan=findings-acknowledged`.
+Either way, continue setup — this is never a hard stop.
+
+**Exit 2** (scan itself failed — `gitleaks` ran but the result is UNKNOWN,
+not clean): print a one-line warning, record `--secrets-scan=error`. No
+question — continue.
+
+**Why this one pauses and 2d/2f don't.** Those two are advisory hooks with
+project-only blast radius; nothing they do needs a human decision. A found
+secret needs one: whether to file a public-ish record of it, and the human
+is the only one who can judge that. Not a hard stop either — ai-kit cannot
+rotate a vendor key or force-push a history rewrite from inside `/ai:setup`,
+so blocking on work that provably cannot happen in this run would just make
+the repos with real findings the only ones unable to onboard. See #120/#124
+for the full rationale.
 
 ## Tier B branches (optional)
 
@@ -544,6 +607,7 @@ $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" \
   --universal-mcps-prompted=context7,... \
   --universal-companions-prompted=caveman,... \
   --search-delegation-hook=wired --phase-check-hook=wired \
+  --secrets-scan=clean|findings-acknowledged|findings-issue-filed|skipped-no-binary|skipped-not-git|error \
   --docker=... --tracker=... --workflow=... \
   --domain-docs=scaffolded|filled|skipped \
   --architecture=... --sandcastle=... \
@@ -571,6 +635,7 @@ $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict
     "universal_companions_prompted": ["caveman"],
     "search_delegation_hook": "wired",
     "phase_check_hook": "wired",
+    "secrets_scan": "clean",
     "docker": "skipped",
     "issue_tracker": "skipped",
     "architecture": "skipped",

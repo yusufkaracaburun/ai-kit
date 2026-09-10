@@ -165,7 +165,7 @@ sed -i '' '/Filled by \/ai:setup/d' "$TMP_MIN/docs/agents/dev-environment.md" 2>
   || sed -i '/Filled by \/ai:setup/d' "$TMP_MIN/docs/agents/dev-environment.md"
 printf '\n| Tool | Documentation |\n| ---- | ------------- |\n| nx | https://nx.dev |\n' >> "$TMP_MIN/docs/agents/dev-environment.md"
 "$AIKIT/bin/write-setup-marker.sh" "$TMP_MIN" --setup-mode=solo-both --tier=minimal \
-  --docker=skipped --tracker=skipped --workflow=skipped --architecture=skipped --sandcastle=false
+  --docker=skipped --tracker=skipped --workflow=skipped --architecture=skipped --sandcastle=false --secrets-scan=clean
 if "$AIKIT/bin/verify-setup.sh" "$TMP_MIN" --strict --minimal >/dev/null 2>&1; then
   assert "verify minimal tier passes" true
 else
@@ -188,7 +188,7 @@ cp "$AIKIT/context/templates/docs/agents/triage-labels.md" "$TMP_V/docs/agents/"
 cp "$AIKIT/context/templates/docs/agents/domain.md" "$TMP_V/docs/agents/"
 cp "$AIKIT/context/templates/docs/agents/workflow.md" "$TMP_V/docs/agents/"
 "$AIKIT/bin/apply-docker.sh" "$TMP_V" none
-"$AIKIT/bin/write-setup-marker.sh" "$TMP_V" --setup-mode=solo-both --tier=full --architecture=skipped --docker=none --tracker=github --workflow=informal --sandcastle=false --automation-recommender=deferred
+"$AIKIT/bin/write-setup-marker.sh" "$TMP_V" --setup-mode=solo-both --tier=full --architecture=skipped --docker=none --tracker=github --workflow=informal --sandcastle=false --automation-recommender=deferred --secrets-scan=clean
 if "$AIKIT/bin/verify-setup.sh" "$TMP_V" >/dev/null 2>&1; then
   assert "verify skipped arch passes" true
 else

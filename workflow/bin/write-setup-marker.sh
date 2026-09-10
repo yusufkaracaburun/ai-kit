@@ -31,6 +31,7 @@ usage() {
   echo "  --search-delegation-hook=wired|skipped"
   echo "  --phase-check-hook=wired|skipped"
   echo "  --skip-skill-merge=true|false  (plugin already serves ai-kit skills; don't merge them into this project's skills dirs)"
+  echo "  --secrets-scan=clean|findings-acknowledged|findings-issue-filed|skipped-no-binary|skipped-not-git|error"
   exit 1
 }
 
@@ -58,6 +59,7 @@ UNIVERSAL_COMPANIONS_PROMPTED=""
 SEARCH_DELEGATION_HOOK=""
 PHASE_CHECK_HOOK=""
 SKIP_SKILL_MERGE=""
+SECRETS_SCAN=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -81,6 +83,7 @@ while [ $# -gt 0 ]; do
     --search-delegation-hook=*) SEARCH_DELEGATION_HOOK="${1#*=}"; shift ;;
     --phase-check-hook=*) PHASE_CHECK_HOOK="${1#*=}"; shift ;;
     --skip-skill-merge=*) SKIP_SKILL_MERGE="${1#*=}"; shift ;;
+    --secrets-scan=*) SECRETS_SCAN="${1#*=}"; shift ;;
     -h | --help) usage ;;
     *) echo "Unknown option: $1" >&2; usage ;;
   esac
@@ -100,15 +103,20 @@ python3 - "$SETUP_FILE" "$VERSION" "$COMPLETED_AT" \
   "$SETUP_MODE" "$SETUP_TIER" "$DOCKER" "$TRACKER" "$WORKFLOW" "$DOMAIN_DOCS" "$ARCHITECTURE" "$SANDCASTLE" \
   "$AUTOMATION_RECOMMENDER" "$CONTEXT_DRIFT_HOOK" "$RULE_RECOMMENDATION" "$TOOL_RECOMMENDATION" "$REPO_TEMPLATES" \
   "$LIFECYCLE" "$UNIVERSAL_MCPS_PROMPTED" "$UNIVERSAL_COMPANIONS_PROMPTED" "$SEARCH_DELEGATION_HOOK" "$PHASE_CHECK_HOOK" \
-  "$SKIP_SKILL_MERGE" <<'PY'
+  "$SKIP_SKILL_MERGE" "$SECRETS_SCAN" <<'PY'
 import json, sys, os
 
 path, version, completed = sys.argv[1:4]
-setup_mode, tier, docker, tracker, workflow, domain_docs, architecture, sandcastle, automation_recommender, context_drift_hook, rule_recommendation, tool_recommendation, repo_templates, lifecycle, universal_mcps_prompted, universal_companions_prompted, search_delegation_hook, phase_check_hook, skip_skill_merge = sys.argv[4:23]
+setup_mode, tier, docker, tracker, workflow, domain_docs, architecture, sandcastle, automation_recommender, context_drift_hook, rule_recommendation, tool_recommendation, repo_templates, lifecycle, universal_mcps_prompted, universal_companions_prompted, search_delegation_hook, phase_check_hook, skip_skill_merge, secrets_scan = sys.argv[4:24]
 
 VALID_LIFECYCLE = {"development", "production"}
 if lifecycle and lifecycle not in VALID_LIFECYCLE:
     print(f"error: invalid --lifecycle={lifecycle!r} (expected one of {sorted(VALID_LIFECYCLE)})", file=sys.stderr)
+    sys.exit(2)
+
+VALID_SECRETS_SCAN = {"clean", "findings-acknowledged", "findings-issue-filed", "skipped-no-binary", "skipped-not-git", "error"}
+if secrets_scan and secrets_scan not in VALID_SECRETS_SCAN:
+    print(f"error: invalid --secrets-scan={secrets_scan!r} (expected one of {sorted(VALID_SECRETS_SCAN)})", file=sys.stderr)
     sys.exit(2)
 
 data = {}
@@ -159,6 +167,8 @@ if phase_check_hook:
     branches["phase_check_hook"] = phase_check_hook
 if skip_skill_merge:
     branches["skip_skill_merge"] = skip_skill_merge.lower() == "true"
+if secrets_scan:
+    branches["secrets_scan"] = secrets_scan
 
 
 def accumulate(key, csv):

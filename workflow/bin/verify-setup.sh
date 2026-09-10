@@ -54,6 +54,7 @@ SETUP_MODE=""
 SETUP_TIER=""
 ARCH_BRANCH="skipped"
 DOCKER_BRANCH=""
+SECRETS_SCAN_BRANCH=""
 SETUP_JSON=""
 
 if [ -f "$SETUP_FILE" ]; then
@@ -79,6 +80,11 @@ import json, sys
 d = json.load(sys.stdin)
 print(d.get('branches', {}).get('docker', 'skipped'))
 " <<<"$SETUP_JSON" 2>/dev/null || echo skipped)"
+  SECRETS_SCAN_BRANCH="$(python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+print(d.get('branches', {}).get('secrets_scan', ''))
+" <<<"$SETUP_JSON" 2>/dev/null || echo "")"
 fi
 
 # Legacy mode aliases
@@ -145,6 +151,12 @@ print('true' if d.get('ai_kit_version') == '$EXPECTED_VERSION' else 'false')
   else
     check ".ai-kit-setup version matches ai-kit" false
   fi
+
+  # #124 — mandatory Tier-A branch, every setup mode. Value doesn't matter
+  # here (clean/findings/skipped-* all mean the branch ran); an empty string
+  # means a pre-#124 project or a wiring bug, either way worth flagging.
+  check "secrets_scan recorded (pre-#124 project — run /ai:setup once to backfill)" \
+    "$(bool [ -n "$SECRETS_SCAN_BRANCH" ])"
 fi
 
 check "dev-environment.md" "$(bool [ -f "$TARGET/docs/agents/dev-environment.md" ])"
