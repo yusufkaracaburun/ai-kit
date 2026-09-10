@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.80.0 — 2026-09-10
+
+### Added
+
+- **`/ai:setup` Branch 0 replaces the 4-way `solo-both`/`solo-global`/`project-only`/`brownfield` menu with an auto-detected fact + one conditional question** (ADR-0012, supersedes ADR-0001). The old enum conflated three independent things: whether a global channel already serves ai-kit skills (a *machine fact*, not a choice — the plugin, the legacy symlink-install, or neither), whether a project also wants its skills merged in anyway (the one real per-project decision), and brownfield's six Tier-B defaults (lifecycle, Sandcastle, automation-recommender, architecture, agent-stack.md — unrelated to skill-linking, and safe under every mode since `link_preserving_custom` shipped in v1.78.3). New behavior: `global_channel_available` is auto-detected via `bin/lib/ai-kit-root.sh`, no question asked; the one merge question is asked only when that fact is true, defaulting toward "skip merge" when the channel found covers every host (the symlink-install) and toward "merge anyway" when it's the plugin only (which never covers Cursor — running under Cursor ignores the plugin half of the fact entirely). `setup_mode`/`agent_stack` keep working as derived, dual-written legacy values; no enum removal yet — that's its own later ADR once every consumer has migrated.
+- **`branches.global_channel_available` and `branches.project_skills_merged`** in `.ai-kit-setup`, dual-written alongside the existing `setup_mode`. `write-setup-marker.sh` always auto-computes `global_channel_available` (no flag — it's a fact, not a choice) and accepts `--project-skills-merged=true|false`. `verify-setup.sh` and `ai-kit-doctor.sh` prefer the new fields when present, falling back to deriving from `setup_mode` for every marker written before this release — verified zero behavior change against two real installs (`naschool`, `emeq-hub`) before shipping.
+- **`/ai:setup` scans git history for secrets before finishing** (#124). New Branch 2g runs `bin/ai-kit-secrets-scan.sh` (#121) exactly once per project. Clean or low-signal-only scans continue without a prompt; a missing `gitleaks` binary or a non-git target records that and continues; a high-signal finding prints the scanner's own redacted report and offers to file a GitHub issue with it before continuing — never a hard stop.
+
+### Fixed
+
+- **`ai-kit-doctor.sh`'s plugin-coexistence check read a marketplace path that has never existed since the v3.0 rename** (`ai-kit` → `ai@yusufkaracaburun`) moved the marketplace directory to be keyed by marketplace name, not plugin name. Likely silently broken for months. Switched to the plugin cache path, which only exists once the plugin is actually installed.
+- **`ai-kit-doctor.sh`'s `.claude/skills`/`.agents/skills`-absent-is-healthy check tested whether *this invocation's own* `$AIKIT` happened to resolve via a plugin-cache path, not whether the plugin is actually installed on the machine** — so running doctor from a dev clone (with the plugin separately installed and active, as in every ai-kit dev session) always warned incorrectly. Now uses the real, `$HOME`-scoped `global_channel_available` fact. Caught in the same pass: the existing test for this had been silently passing against the *real* ambient `$HOME` of whichever machine ran the suite rather than actually isolating the no-plugin case — rewritten to mock `$HOME` in both directions.
+- **`merge_skills`/`merge_agents`/`merge_commands` no longer clobber a custom entry that shares an ai-kit entry's name.** `ln -sfn` ran unconditionally for every ai-kit skill/agent/command, so a project's own entry with the same name got silently corrupted on `/ai:upgrade` or `/ai:setup --merge-skills`. `link_preserving_custom` now only relinks an entry that resolves *outside* the project tree, leaving anything resolving inside the project untouched — a stale pre-plugin-current link into a since-GC'd version still gets repaired.
+- **`/ai:review` and the `reviewer` subagent flag a file crossing 1000 lines in a diff** as a blocker unless justified — a diff-time mechanical trigger distinct from `/ai:audit-architecture`'s periodic, percentile-relative "god module" check.
+
+### Changed
+
+- **`skip_skill_merge` opt-out, sticky per project.** `ai-kit-upgrade.sh /path --skip-skill-merge=true` persists a flag so a project whose ai-kit skills are already served by the plugin at user scope stops having all ~43 of them re-merged into its own skills dirs on every upgrade. Not retroactive — an upgrade run before the flag was set still merged once.
+- **`checkpoint`'s `--to tmp` branch moved to a sibling `transfer-briefing.md`** (466 → 367 lines), loaded only when that flag actually fires.
+
 ## 1.79.0 — 2026-09-10
 
 ### Added
