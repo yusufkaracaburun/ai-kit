@@ -11,23 +11,22 @@ source "$AIKIT/tests/bin/lib/harness.sh"
 # for those two. .cursor/skills is unaffected: Cursor has no plugin channel,
 # so its absence still warns regardless (caveat in the issue, deliberately
 # left as-is).
+#
+# ADR-0012 phase (d): the signal is now global_channel_available — a
+# machine fact read from $HOME — not "is this doctor invocation's own
+# $AIKIT resolved via a plugin-cache path." $HOME must be mocked in both
+# directions here, since the machine actually running this suite may or
+# may not have the real plugin installed under its real $HOME.
 
 H=$(mktemp -d)
 trap 'rm -rf "$H"' EXIT
 
-# A fake plugin-cache-shaped ai-kit root so doctor resolves itself as
-# plugin-installed (same detection ai-kit-root.sh's sync_plugin_current_link
-# already uses: */plugins/cache/* in the resolved root).
-FAKE_ROOT="$H/plugins/cache/mkt/ai/1.0.0"
-mkdir -p "$FAKE_ROOT/bin" "$FAKE_ROOT/workflow/skills" "$FAKE_ROOT/workflow/commands"
-cp -R "$AIKIT/bin/." "$FAKE_ROOT/bin/"
-ln -sfn "$AIKIT/context" "$FAKE_ROOT/context"
-
 P="$H/proj"
 mkdir -p "$P"
 
-echo "=== doctor resolved via the plugin cache ==="
-OUT="$(HOME="$H" bash "$FAKE_ROOT/bin/ai-kit-doctor.sh" "$P" --project-only 2>&1 || true)"
+echo "=== global channel available (plugin cache present under \$HOME) ==="
+mkdir -p "$H/.claude/plugins/cache/yusufkaracaburun/ai/1.0.0"
+OUT="$(HOME="$H" bash "$AIKIT/bin/ai-kit-doctor.sh" "$P" --project-only 2>&1 || true)"
 assert ".claude/skills absent is not warned (plugin serves it)" \
   '! echo "$OUT" | grep -q "\.claude/skills absent (run bootstrap-project.sh)"'
 assert ".agents/skills absent is not warned (plugin serves it)" \
@@ -38,9 +37,10 @@ assert ".agents/skills absent surfaces as info instead" \
   'echo "$OUT" | grep -q "info  .agents/skills absent — served by the ai-kit plugin"'
 assert ".cursor/skills absent still warns (no plugin channel for Cursor)" \
   'echo "$OUT" | grep -q "\.cursor/skills absent (run bootstrap-project.sh)"'
+rm -rf "$H/.claude/plugins/cache/yusufkaracaburun"
 
-echo "=== doctor resolved from a dev clone (not a plugin) — unchanged ==="
-OUT_DEV="$(bash "$AIKIT/bin/ai-kit-doctor.sh" "$P" --project-only 2>&1 || true)"
+echo "=== no global channel available — unchanged ==="
+OUT_DEV="$(HOME="$H" bash "$AIKIT/bin/ai-kit-doctor.sh" "$P" --project-only 2>&1 || true)"
 assert ".claude/skills absent still warns without a plugin install" \
   'echo "$OUT_DEV" | grep -q "\.claude/skills absent (run bootstrap-project.sh)"'
 assert ".agents/skills absent still warns without a plugin install" \

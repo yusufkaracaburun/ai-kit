@@ -55,6 +55,7 @@ SETUP_TIER=""
 ARCH_BRANCH="skipped"
 DOCKER_BRANCH=""
 SECRETS_SCAN_BRANCH=""
+PROJECT_SKILLS_MERGED_RAW=""
 SETUP_JSON=""
 
 if [ -f "$SETUP_FILE" ]; then
@@ -85,6 +86,12 @@ import json, sys
 d = json.load(sys.stdin)
 print(d.get('branches', {}).get('secrets_scan', ''))
 " <<<"$SETUP_JSON" 2>/dev/null || echo "")"
+  PROJECT_SKILLS_MERGED_RAW="$(python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+b = d.get('branches', {})
+print(('true' if b['project_skills_merged'] else 'false') if 'project_skills_merged' in b else '')
+" <<<"$SETUP_JSON" 2>/dev/null || echo "")"
 fi
 
 # Legacy mode aliases
@@ -93,6 +100,19 @@ case "$SETUP_MODE" in
   merge-skills | link-all) SETUP_MODE="solo-both" ;;
   parallel) SETUP_MODE="brownfield" ;;
 esac
+
+# ADR-0012 phase (d): prefer the explicit dual-written field once a marker
+# has it; fall back to deriving from setup_mode for markers written before
+# phase (c) — solo-global is the only legacy value that meant "skip the
+# project skills dirs", every other value (including no marker at all)
+# meant "merge them." Zero behavior change for every marker on disk today.
+if [ -n "$PROJECT_SKILLS_MERGED_RAW" ]; then
+  PROJECT_SKILLS_MERGED="$PROJECT_SKILLS_MERGED_RAW"
+elif [ "$SETUP_MODE" = "solo-global" ]; then
+  PROJECT_SKILLS_MERGED=false
+else
+  PROJECT_SKILLS_MERGED=true
+fi
 
 MINIMAL_TIER=false
 if [ "$FORCE_MINIMAL" = true ] || [ "$SETUP_TIER" = "minimal" ]; then
@@ -106,10 +126,7 @@ else
   check "AGENTS.md or CLAUDE.md" false
 fi
 
-SKILLS_REQUIRED=true
-if [ "$SETUP_MODE" = "solo-global" ]; then
-  SKILLS_REQUIRED=false
-fi
+SKILLS_REQUIRED="$PROJECT_SKILLS_MERGED"
 
 if [ "$SKILLS_REQUIRED" = true ]; then
   if [ -d "$TARGET/.claude/skills" ] || [ -L "$TARGET/.claude/skills" ]; then
@@ -130,9 +147,9 @@ if [ "$SKILLS_REQUIRED" = true ]; then
     check ".cursor/skills present" false
   fi
 else
-  check ".claude/skills skipped (solo-global)" true
-  check ".agents/skills skipped (solo-global)" true
-  check ".cursor/skills skipped (solo-global)" true
+  check ".claude/skills skipped (project_skills_merged=false)" true
+  check ".agents/skills skipped (project_skills_merged=false)" true
+  check ".cursor/skills skipped (project_skills_merged=false)" true
 fi
 
 check ".ai-kit-setup exists" "$(bool [ -f "$SETUP_FILE" ])"

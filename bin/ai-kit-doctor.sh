@@ -305,13 +305,21 @@ if [ -n "$TARGET" ]; then
         # /ai:* — so their absence is the healthy config, not a finding
         # (#114). .cursor/skills is unaffected: Cursor has no plugin channel,
         # so it still needs the project symlink.
+        #
+        # ADR-0012 phase (d): global_channel_available is a machine fact
+        # (is the plugin installed anywhere on this machine), not "is THIS
+        # doctor invocation's own $AIKIT a plugin-cache path" — the old
+        # `case "$AIKIT" in */plugins/cache/*)` check answered the wrong
+        # question and missed the common case of running doctor from a dev
+        # clone while the plugin is separately installed and active.
         case "$d" in
           */rules) ;;
           .claude/skills | .agents/skills)
-            case "$AIKIT" in
-              */plugins/cache/*) info "$d absent — served by the ai-kit plugin" ;;
-              *) warn "$d absent (run bootstrap-project.sh)" ;;
-            esac
+            if global_channel_available; then
+              info "$d absent — served by the ai-kit plugin"
+            else
+              warn "$d absent (run bootstrap-project.sh)"
+            fi
             ;;
           *) warn "$d absent (run bootstrap-project.sh)" ;;
         esac
