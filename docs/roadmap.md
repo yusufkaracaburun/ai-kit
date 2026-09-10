@@ -47,23 +47,7 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P1 — broken in the wild
 
-- **#124** `enhancement · HITL` — wire the secrets scan into `/ai:setup`:
-  `branches.secrets_scan` plus an acknowledgement gate. Left over from #120, which
-  closed with the CI half done (scanning full history goes red forever on any repo
-  carrying a pre-existing finding — four of six measured — so CI now scans only the
-  range an event adds). Human-driven: it adds the first stop-point to a skill that
-  has none, and the wording of a pause in an onboarding flow wants human judgement.
-- **#114** `bug` — `bootstrap-project.sh` symlinks skills to the **version-numbered
-  plugin-cache path** (`~/.claude/plugins/cache/…/ai/<VERSION>/skills/`), so every
-  `/plugin update` orphans every project symlink. Bricked `emeq` (114 dead links,
-  score 80/100 → 95 after removal); `naschool` is pinned to `1.43.1` with `1.43.2`
-  already installed and reproduces on the next cache GC. Doctor compounds it:
-  `ai-kit-doctor.sh:276` blames "ai-kit moved?" and prescribes the very command that
-  recreates the bug, then warns when the dirs are absent — penalising the healthy
-  plugin-only config that `emeq-hub` runs at 95/100. Fix = stable indirection
-  (`~/.config/ai-kit/plugin-current`) + plugin-aware doctor checks. Open question:
-  Cursor has no plugin channel, so `.cursor/skills` removal must key off actual
-  Cursor usage.
+None open.
 
 ## P2 — next up
 
