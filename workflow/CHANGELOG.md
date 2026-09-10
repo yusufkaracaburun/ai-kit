@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.79.0 — 2026-09-10
+
+### Added
+
+- **`/ai:setup` scans git history for secrets before finishing** (#124). New Branch 2g runs `bin/ai-kit-secrets-scan.sh` (#121) exactly once per project. A clean or low-signal-only scan (both exit 0) continues without a prompt; a missing `gitleaks` binary or a non-git target records that and continues; a high-signal finding (exit 1) prints the scanner's own redacted report (paths, lines, rule ids, entropy — never a value) and offers to file a GitHub issue with it before continuing. Never a hard stop: ai-kit cannot rotate a vendor key or rewrite history from inside `/ai:setup`, so blocking the run on work that provably cannot happen there would just make the repos with real findings the only ones unable to onboard. State lands in `branches.secrets_scan` (`clean` / `findings-acknowledged` / `findings-issue-filed` / `skipped-no-binary` / `skipped-not-git` / `error`), written via a new `write-setup-marker.sh --secrets-scan=` flag and checked by a new `verify-setup.sh` assertion — a pre-#124 project fails that check once with a message pointing straight at the fix (`run /ai:setup once to backfill`).
+
+### Fixed
+
+- **`merge_skills`/`merge_agents`/`merge_commands` no longer clobber a custom entry that shares an ai-kit entry's name.** `ln -sfn` ran unconditionally for every ai-kit skill/agent/command, so a project's own entry with the same name got silently corrupted on `/ai:upgrade` or `/ai:setup --merge-skills`: a real custom directory got a stray symlink nested *inside* it instead of being left alone, and a custom cross-link (e.g. `.claude/skills/x -> ../../.agents/skills/x`) got overwritten outright. `link_preserving_custom` now only relinks an entry that resolves *outside* the project tree — a stale pre-plugin-current link into a since-GC'd version still gets repaired (#114 behavior intact), but anything resolving inside the project is left untouched.
+- **`/ai:review` and the `reviewer` subagent flag a file crossing 1000 lines in a diff** as a blocker unless justified — a diff-time mechanical trigger distinct from `/ai:audit-architecture`'s periodic, percentile-relative "god module" check. Idea credited to cursor-team-kit's `thermo-nuclear-code-quality-review` skill (should-i-use verdict: Ignore the whole persona — content mostly overlaps ponytail/audit-architecture already installed — narrow spike on this one nugget only).
+
+### Changed
+
+- **`skip_skill_merge` opt-out, sticky per project.** `ai-kit-upgrade.sh /path --skip-skill-merge=true` persists a flag in `.ai-kit-setup` so a project whose ai-kit skills are already served by the plugin at user scope stops having all ~43 of them re-merged into its own skills dirs on every upgrade — only its hand-added custom skills stay there. `=false` undoes it. Not retroactive: an upgrade run before the flag was set still merged once; the flag only stops future runs.
+- **`checkpoint`'s `--to tmp` branch moved to a sibling `transfer-briefing.md`** (466 → 367 lines) — loaded only when that flag actually fires, per the kit's own "push conditional depth to sibling files" rule.
+
 ## 1.78.3 — 2026-09-09
 
 ### Fixed
