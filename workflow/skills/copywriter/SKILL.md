@@ -270,6 +270,7 @@ Copy requests get options, not essays. Present variants in a plain list, lead wi
 ### 7. Overused "AI Vocabulary" Words
 
 **High-frequency AI words:** Actually, additionally, align with, crucial, delve, emphasizing, enduring, enhance, fostering, garner, highlight (verb), interplay, intricate/intricacies, key (adjective), landscape (abstract noun), pivotal, showcase, tapestry (abstract noun), testament, underscore (verb), valuable, vibrant
+**Business-jargon substitutes** (credit: hardikpandya/stop-slop): navigate → handle/address, unpack → explain/examine, lean into → accept/embrace, game-changer → significant/important, double down → commit/increase, deep dive → analysis/examination, circle back → return to/revisit, take a step back → reconsider, moving forward → next/from now, on the same page → aligned/agreed
 **Problem:** These words appear far more frequently in post-2023 text. They often co-occur.
 **Before:**
 > Additionally, a distinctive feature of Somali cuisine is the incorporation of camel meat. An enduring testament to Italian colonial influence is the widespread adoption of pasta in the local culinary landscape, showcasing how these dishes have integrated into the traditional diet.
@@ -624,6 +625,7 @@ upstream sources carry it, and their terms travel with this file.
 | Packaged 33-pattern engine | [blader/humanizer](https://github.com/blader/humanizer) v2.9.1, Copyright (c) 2025 Siqi Chen | MIT |
 | Copywriting mode, intake, format rules | [mikiarlo3/ai-copywriter](https://github.com/mikiarlo3/ai-copywriter), Copyright (c) 2026 Mickey Haslavsky | MIT |
 | Plain-speech patterns (§34-39) | ai-kit original, added 2026-08-19 | MIT |
+| §7 business-jargon substitutes | [hardikpandya/stop-slop](https://github.com/hardikpandya/stop-slop), added 2026-09-11 | MIT |
 | Reader-first method | [enso.bot/research](https://enso.bot/research) | cited, not copied |
 
 Vendored at commit `08b53b1ad39887cd94cbaab61cac3b6aae2d8518` (upstream v1.6.0,
