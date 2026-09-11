@@ -1,5 +1,4 @@
 {
-  "_comment": "Claude Code plugin hooks. PostToolUse: skill invocations are logged ONLY when AI_KIT_USAGE=1 is set in the env. The SessionStart rule-injection hook (hooks/session-rules-inject.sh, issue #144) ships but is deliberately NOT registered here: its selection fills the word budget smallest-first, so the heaviest rules lose on length rather than on merit (issue #148). Re-add the SessionStart entry when #148 lands. Hook scripts are silent + crash-proof by design.",
   "hooks": {
     "PostToolUse": [
       {
