@@ -45,8 +45,20 @@ users talk to it) is still business-logic-only here — Track A is about tools
 that help the coding agent build the project, not tools the project embeds for
 its own end users.
 
-If the current project *is* ai-kit itself, Track A and Track B are the same
-check — do not produce two verdicts pointing at one repo.
+**cwd is never the signal for which track to skip.** Before collapsing Track A
+and Track B because the session happens to be running from ai-kit's own repo,
+ask explicitly: is this candidate about ai-kit's *own* build/release tooling
+(a linter for its bash scripts, a CI action for its test suite), or is it
+catalog/companion-shaped — something a *consuming* project would install (a
+skill, plugin, agent-harness, hook pack, rule pack, MCP server)? Only the
+former collapses Track A and Track B into one verdict, because Track B's
+target genuinely is ai-kit itself there. The latter — most candidates arriving
+via this skill — never collapses: Track B must still be run against the real
+consuming project(s) ai-kit is deployed in (surface them from memory, the
+user's known projects, or ask), read directly, never assumed from ai-kit's own
+tree or from what those projects contained last time you looked. A candidate
+can fail Track A (wrong for ai-kit's own catalog) and still need a real Track
+B verdict for downstream use, and the reverse.
 
 **Track A — does ai-kit's own catalog have a gap?** ai-kit is not "wherever
 this skill happens to be running" — it is a fixed, separate project, reachable
