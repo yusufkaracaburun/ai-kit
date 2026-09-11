@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.80.1 — 2026-09-11
+
+### Fixed
+
+- **Plugin's `workflow/hooks/hooks.json` shipped a top-level `_comment` key** — Claude Code's hooks loader rejects unknown top-level keys, logging `ai: hooks.json: unknown key "_comment" ignored` on every session start for any project with the ai-kit plugin installed. Removed; its content (why `session-rules-inject.sh` ships unregistered, issue #148 blocker) moved into that script's own header comment.
+
 ## 1.80.0 — 2026-09-10
 
 ### Added
