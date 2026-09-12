@@ -110,6 +110,38 @@ the tooling already in place (`package.json`, configs, `AGENTS.md` /
 `CLAUDE.md`, installed skills). A candidate that fits a 300-file brownfield
 repo can be pure noise in a 5-file greenfield one.
 
+**Test the claim, don't just argue about it.** The same discipline applies to
+objections as to value: a blocker stated as prose ("this could collide with
+X", "this might read files lossily") is a hypothesis, not a finding, right up
+until you run it. When the Decision hinges on something checkable — a
+default flag's actual behaviour, whether two hooks coexist, a compression
+ratio, a licence clause's real scope, a claimed benchmark — run it before
+writing Ignore or Wire, not instead of reading the docs. Prefer the cheapest
+real test: download the artifact directly and run it against the exact input
+in question, grep the shipped defaults instead of trusting the README's
+summary table, feed a hook script the exact stdin/stdout contract by hand.
+Downloading and running an unpinned upstream binary/script is exactly the
+kind of side effect Track B's cost question (4) must price in — verify its
+checksum against the release manifest first, run it in a scratch dir, and
+uninstall/remove what the test installed once you have the answer.
+
+If a test is genuinely blocked — a sandbox self-modification guard, no
+second live session to fire a hook in, infra you don't have — say so
+explicitly and mark that objection **Untested**, not Confirmed. Presenting a
+blocked test as a settled reason to Ignore is worse than not testing at all,
+because it reads as verified when it never ran. Hand the user the smallest
+possible repro they could run themselves in the environment where the test
+*is* possible (exact commands, exact expected signal to look for).
+
+**Re-asked candidate: advance the evidence, don't restate the verdict.** If
+`plugins-excluded.json` / `VETTING.md` already has an entry for this
+candidate, re-reading it is the start of the pass, not the end. Check the
+HEAD SHA and version against upstream now — re-verify every claim that
+carries a specific number or specific behaviour, don't assume the old
+snapshot still holds. Then look at what the old entry left **Untested**: that
+is the actual to-do for this pass. A second verdict that repeats the same
+untested objection in the same words is not a re-verification, it is a copy.
+
 ## The six-part verdict
 
 When only Track B applies, produce one verdict. When both tracks apply, produce
@@ -183,7 +215,9 @@ finish, write it where this project keeps decisions, and say where you put it.
   verdict. Six months on, "we looked at this and said no" is worth nothing;
   "this is `unslop` under another name, already in two of our files" stops the
   next person re-adopting it. In ai-kit that is
-  `standards/external/plugins-excluded.json`.
+  `standards/external/plugins-excluded.json`. Tag each objection **Confirmed**
+  (you ran the test) or **Untested** (you could not, and said why) so the next
+  pass knows what is still owed instead of re-parking the same unproven claim.
 
 When the project has no such place, say so and propose one rather than
 inventing a file nobody will read.
