@@ -20,10 +20,6 @@
 #      $MAX_WORDS. The rest stay out; nothing is deleted, they are still
 #      readable on demand in .claude/rules/.
 #
-# Deliberately NOT registered in hooks.json: the smallest-first budget
-# above makes the heaviest rules lose on length rather than on merit
-# (issue #148). Re-add the SessionStart entry once #148 lands.
-#
 # $MAX_WORDS mirrors the order of magnitude bin/ai-kit-context-lean.sh
 # already tolerates for a root CLAUDE.md/AGENTS.md (200 lines ~ 2k words) —
 # this hook does not open a second, bigger always-loaded budget. `--report`
