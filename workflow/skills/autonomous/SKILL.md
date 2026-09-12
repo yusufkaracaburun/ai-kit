@@ -111,6 +111,25 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
 1. **Read state.** `cat .ai-kit/autonomous/progress.txt` (cold). Note
    the last `pick` line that has no matching `exit-*` — that's an
    abandoned iteration; surface it and stop.
+1a. **Usage guard (opt-in).** Runs every iteration — `one`, each lap
+    of `drain`, and each fresh `/loop`-fired invocation — since usage
+    accumulates across issues, not just at run start. No-op unless
+    `AI_KIT_AUTONOMOUS_USAGE_GUARD_USD` is set:
+    ```bash
+    if [ -n "$AI_KIT_AUTONOMOUS_USAGE_GUARD_USD" ]; then
+      projected=$(npx -y ccusage@latest blocks --active --json 2>/dev/null \
+        | node -e 'const d=JSON.parse(require("fs").readFileSync(0,"utf8")||"{}");console.log(d.blocks?.at(-1)?.projection?.totalCost ?? 0)' 2>/dev/null)
+      awk -v p="${projected:-0}" -v g="$AI_KIT_AUTONOMOUS_USAGE_GUARD_USD" 'BEGIN{exit !(p+0>=g+0)}' && {
+        printf '%s\t-\texit-gate usage-cap\tprojected=$%s guard=$%s\n' \
+          "$(date -u +%FT%TZ)" "$projected" "$AI_KIT_AUTONOMOUS_USAGE_GUARD_USD" >> .ai-kit/autonomous/progress.txt
+        exit 0
+      }
+    fi
+    ```
+    `projection.totalCost` is ccusage's projected spend for the *active*
+    5-hour block by its end, not a hard Anthropic-reported limit — ccusage
+    has no API for the account's real cap, so the guard is a user-chosen
+    dollar ceiling, not a universal threshold. Silent no-op when unset.
 2. **Pick next issue.** `gh issue list --label ready-for-agent --json number,title,updatedAt --jq 'sort_by(.updatedAt) | .[0]'`. Oldest first. Queue empty → write `exit-empty`, stop.
 3. **Read Agent Brief.** `gh issue view <n> --comments` — find the
    comment whose header is the literal `## Agent Brief`. If missing or
@@ -185,6 +204,7 @@ Always exit with a one-line `exit-*` entry in `progress.txt`:
 | Security ≥ high | `exit-gate security` | Human review |
 | Triage labels missing on tracker | `exit-gate triage-labels-missing <label>` | `gh label create <label>`; re-run |
 | Merge policy disagreement (brief vs project config) | `exit-gate merge-policy-mismatch <detail>` | Align brief or project config; re-run |
+| Projected 5-hour cost ≥ `AI_KIT_AUTONOMOUS_USAGE_GUARD_USD` (opt-in) | `exit-gate usage-cap <projected-vs-guard>` | Wait for the block to roll (`ccusage blocks --active` shows `remainingMinutes`), then re-invoke |
 | Push needs force / conflict resolution | `exit-gate git-conflict` | Human resolution |
 | User explicit stop OR harness instability skill cannot remediate | `exit-handoff <reason>` | Human drives remaining gates (see Handoff protocol) |
 | `max_iterations` reached | `exit-cap` | User re-invokes |
@@ -314,3 +334,16 @@ bash "$AI_KIT_ROOT/bin/log-skill.sh" autonomous done   # or `abort` if you bail
 
 Silent no-op when the env var is unset. See
 [SECURITY.md](../../../SECURITY.md) for what is logged and where.
+
+## Usage guard (opt-in)
+
+Set `AI_KIT_AUTONOMOUS_USAGE_GUARD_USD` (e.g. `140`) to pause a `drain`
+run — or a `/loop`-scheduled sequence of `one` runs — once the active
+5-hour block's *projected* spend reaches that dollar figure. See step
+1a above for the check and the `usage-cap` stop condition for the
+resume path. Requires `npx` (ccusage runs unpinned via
+`npx -y ccusage@latest`) and Node, both already implied by `npx`
+itself. Silent no-op when the env var is unset; adapted from
+[agent-native/skills' `stay-within-limits`](https://github.com/BuilderIO/skills/blob/main/skills/stay-within-limits/SKILL.md)
+(should-i-use verdict: Ignore the bundle, adopt this one pattern — see
+`standards/external/plugins-excluded.json`).
