@@ -93,7 +93,8 @@ import json, sys
 try:
     d = json.load(sys.stdin)
     print(",".join(d.get("frameworks", [])))
-except Exception:
+except Exception as e:
+    print(f"recommend-lib: detect-tooling output unparseable ({e}) — treating as no frameworks", file=sys.stderr)
     print("")
 ')"
   arch_csv="$(printf '%s' "$json" | python3 -c '
@@ -107,7 +108,8 @@ try:
     if fe: parts.append(fe)
     if be: parts.append(be)
     print(",".join(parts))
-except Exception:
+except Exception as e:
+    print(f"recommend-lib: detect-tooling output unparseable ({e}) — treating as no architecture", file=sys.stderr)
     print("")
 ')"
 

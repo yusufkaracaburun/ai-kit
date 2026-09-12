@@ -697,3 +697,11 @@ _json_array() {
   out+="]"
   printf '%s' "$out"
 }
+
+# JSON string helper: escape a scalar for embedding inside a "..." JSON value.
+_json_str() {
+  local s="$1"
+  s="${s//\\/\\\\}"
+  s="${s//\"/\\\"}"
+  printf '%s' "$s"
+}

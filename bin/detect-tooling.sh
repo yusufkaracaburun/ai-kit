@@ -223,16 +223,16 @@ if [ "$JSON" = true ]; then
     fi
     [ -z "$url" ] && continue
     if [ "$first_doc" = true ]; then first_doc=false; else docs_json+=","; fi
-    docs_json+="{\"tool\":\"${fw}\",\"url\":\"${url}\"}"
+    docs_json+="{\"tool\":\"$(_json_str "$fw")\",\"url\":\"$(_json_str "$url")\"}"
   done
   docs_json+="]"
 
   cat <<EOF
 {
   "package_manager": {
-    "name": "${PM_NAME:-}",
-    "install": "${INSTALL_CMD:-}",
-    "audit": "${AUDIT_CMD:-}",
+    "name": "$(_json_str "${PM_NAME:-}")",
+    "install": "$(_json_str "${INSTALL_CMD:-}")",
+    "audit": "$(_json_str "${AUDIT_CMD:-}")",
     "has_js": ${HAS_JS:-false},
     "has_php": ${HAS_PHP:-false},
     "has_dart": ${HAS_DART:-false}
@@ -240,44 +240,44 @@ if [ "$JSON" = true ]; then
   "dependencies": ${DEPENDENCIES_JSON:-[]},
   "frameworks": ${fw_json},
   "docker": {
-    "recommendation": "${DOCKER_REC}",
+    "recommendation": "$(_json_str "${DOCKER_REC}")",
     "files": ${docker_files}
   },
   "deploy": {
-    "shape": "${DEPLOY_SHAPE}",
+    "shape": "$(_json_str "${DEPLOY_SHAPE}")",
     "serverless_markers": ${deploy_serverless_markers},
     "self_host_markers": ${deploy_self_host_markers},
     "coolify_detected": ${deploy_coolify_json}
   },
   "issue_tracker": {
-    "recommendation": "${TRACKER_REC}",
-    "remote": "${TRACKER_REMOTE}"
+    "recommendation": "$(_json_str "${TRACKER_REC}")",
+    "remote": "$(_json_str "${TRACKER_REMOTE}")"
   },
   "domain": {
-    "layout": "${DOMAIN_LAYOUT}",
+    "layout": "$(_json_str "${DOMAIN_LAYOUT}")",
     "has_context": ${HAS_CONTEXT},
     "has_adr": ${HAS_ADR}
   },
   "bootstrap": {
-    "state": "${BOOTSTRAP_STATE}",
+    "state": "$(_json_str "${BOOTSTRAP_STATE}")",
     "missing": ${bootstrap_missing}
   },
   "scripts": {
-    "test": "${SCRIPT_TEST}",
-    "build": "${SCRIPT_BUILD}",
-    "lint": "${SCRIPT_LINT}"
+    "test": "$(_json_str "${SCRIPT_TEST}")",
+    "build": "$(_json_str "${SCRIPT_BUILD}")",
+    "lint": "$(_json_str "${SCRIPT_LINT}")"
   },
   "architecture": {
     "frontend": {
-      "detected": "${ARCH_FE}",
+      "detected": "$(_json_str "${ARCH_FE}")",
       "paths": ${fe_paths}
     },
     "backend": {
-      "detected": "${ARCH_BE}",
+      "detected": "$(_json_str "${ARCH_BE}")",
       "paths": ${be_paths}
     },
     "monorepo": ${monorepo_json},
-    "recommendation": "${ARCH_RECOMMENDATION}"
+    "recommendation": "$(_json_str "${ARCH_RECOMMENDATION}")"
   },
   "monorepo": {
     "detected": ${mono_detected_json},
@@ -302,7 +302,7 @@ if [ "$JSON" = true ]; then
     "has_agents_md": ${has_agents_md},
     "has_claude_md": ${has_claude_md},
     "needs_doc": ${needs_doc_json},
-    "recommendation": "${AGENT_STACK_RECOMMENDATION}"
+    "recommendation": "$(_json_str "${AGENT_STACK_RECOMMENDATION}")"
   },
   "docs_suggestions": ${docs_json}
 }

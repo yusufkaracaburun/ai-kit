@@ -68,8 +68,8 @@ try:
     d = json.load(sys.stdin)
     for f in d.get("frameworks", []) or []:
         print(f)
-except Exception:
-    pass' 2>/dev/null || true)"
+except Exception as e:
+    print(f"audit-extension-loader: detect-tooling output unparseable ({e}) — treating as no signals", file=sys.stderr)' || true)"
 
 DETECTED_LANGUAGES=""
 [ -f "$TARGET/tsconfig.json" ] && DETECTED_LANGUAGES="$DETECTED_LANGUAGES"$'\n'"typescript"

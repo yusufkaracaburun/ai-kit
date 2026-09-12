@@ -53,7 +53,8 @@ paas_path = Path(paas_path_str) if paas_path_str else None
 
 try:
     detect = json.loads(sys.argv[1])
-except Exception:
+except Exception as e:
+    print(f"recommend-tools-lib: detect-tooling output unparseable ({e}) — treating as no signals", file=sys.stderr)
     detect = {}
 
 frameworks = {s.lower() for s in detect.get("frameworks", []) if isinstance(s, str)}
