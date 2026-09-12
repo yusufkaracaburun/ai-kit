@@ -257,6 +257,17 @@ None open.
   no answer, same shape as #111 exposing VETTING.md's missing security criterion.
   Tension to resolve before building: a second contract surface is the exact
   cohesion failure OpenSpec was rejected for. No pain today.
+- **#163** `enhancement · catalog-candidate` — spike: evaluate `slopo`
+  (rafal-qa, AGPL-3.0) as an embedding-based cross-module **duplicate-code
+  detection** companion, free local-Ollama path (no API cost, no cloud).
+  should-i-use verdict was Ignore both tracks (logged in
+  `plugins-excluded.json`) — the DRY gap it targets is real (`/ai:audit-architecture`'s
+  DRY dimension is explicitly bounded to a scoped subagent pass on repos
+  >200 files) but no confirmed real-world miss in naschool/emeq-hub/planny/
+  emeq-web yet, and the empirical test (`uv tool install slopo` + local run
+  against emeq-hub) was blocked mid-install by the harness's own auto-mode
+  classifier (Untrusted Code Integration) — Untested, not Confirmed. Repro
+  steps to close it are in the issue.
 - **#111** `enhancement · catalog-candidate` — spike: wire `SkillSpector` (NVIDIA,
   Apache-2.0) skill-security scanner into ai-kit's **own** CI + should-i-use
   vetting. should-i-use verdict was Ignore for the catalog (one-shot scanner, not
