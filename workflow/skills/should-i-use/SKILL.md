@@ -21,6 +21,10 @@ The candidate arrives in any form. Normalise it first:
   runtime, dependencies, licence.
   If the tool is already installed locally, diff the install against that SHA
   before assessing. They drift.
+  If the candidate bundles multiple items (skills, agents, rules, commands),
+  enumerate every item against a literal directory/file listing before writing
+  any count or per-item claim. A narrative read of the README undercounts —
+  it misses the item nobody's prose mentioned.
 - **URL / article** — fetch it. Extract what the thing *is*, not the author's enthusiasm.
 - **Pasted text** — read it as given.
 - **Image** — read it visually; identify the tool, architecture, or screenshot shown.
@@ -101,6 +105,13 @@ Four questions, in order. Stop at the first one you cannot answer.
 4. **What does it cost here?** Always-on context budget, install footprint,
    maintenance, and what it adds to the number of things a newcomer must learn.
 
+**"No signal" has two different causes.** Either the project genuinely lacks
+the pattern, or your detection method — an existing scorer, a grep, a tool
+you're used to trusting — doesn't recognise that pattern yet. Confirm which
+one before writing Ignore: check by hand (grep the repo's real content)
+rather than trusting an existing signal list. A missing signal *type* is a
+tooling gap worth flagging, not proof the project has no signal.
+
 **No verdict without a path or a count from this project.** A verdict built
 only from the candidate's own README is a verdict about the candidate, not
 about whether you should use it.
@@ -132,6 +143,14 @@ blocked test as a settled reason to Ignore is worse than not testing at all,
 because it reads as verified when it never ran. Hand the user the smallest
 possible repro they could run themselves in the environment where the test
 *is* possible (exact commands, exact expected signal to look for).
+
+This applies as much to claims about **this project's own mechanisms** as to
+the candidate's. "X is redundant, we already do Y" is a testable claim about
+Y's actual behaviour — grep the delivery code, check the config, run the
+thing Y is supposed to run — not a given fact you can assume from a rule's
+name, its frontmatter label, or its stated intent. An Ignore that rests on an
+untested "already covered" is the same failure as an Adopt that rests on an
+untested benchmark.
 
 **Re-asked candidate: advance the evidence, don't restate the verdict.** If
 `plugins-excluded.json` / `VETTING.md` already has an entry for this
@@ -172,6 +191,10 @@ Produce exactly these, as a compact structured block — tables over prose:
    | project | this repo's stack or shape | per-project wiring, signal-gated |
    | person | whoever is working, in any repo | their own global install |
    | one-off | a task that ends | run it, wire nothing |
+
+   One-off vs person: would you reach for this again next week, in an
+   unrelated repo? Yes → person; no → one-off. Don't default to one-off just
+   because today's invocation looks like a single task.
 
    Scope decides the verdict as often as category does. A great tool at the
    wrong scope is noise in every repo that did not ask for it.
