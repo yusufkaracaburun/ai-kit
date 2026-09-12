@@ -1,3 +1,19 @@
+## Commands
+
+- Test: `./tests/bin/run-all.sh`
+- Skill-structure check: `./tests/bin/eval-structure.sh`
+- Lint bash: `shellcheck bin/**/*.sh tests/bin/*.sh` (CI-enforced, zero warnings)
+- Full conventions: [CONTRIBUTING.md](CONTRIBUTING.md)
+
+## Architecture
+
+- `bin/` — CLI scripts (ai-kit-*.sh: doctor, status, hygiene, dedupe, release.sh)
+- `workflow/skills/<name>/SKILL.md` — skill sources, emitted to the plugin
+- `workflow/agents/<name>/AGENT.md` — paired subagents (generated region; re-run `bin/emit-agents.sh` after editing a SKILL.md with one)
+- `tests/bin/` — test harness (`cases/`, `fixtures/`, `lib/`)
+- `standards/rules/` — canonical rules (e.g. `git-hygiene.mini.md`, source of truth for `/ai:ship`, `/ai:to-issues`)
+- `docs/` — architecture docs, ADRs
+
 ## graphify
 
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
