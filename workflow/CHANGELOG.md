@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.81.0 — 2026-09-12
+
+### Added
+
+- **`/ai:should-i-use` requires testing checkable claims, not just arguing them.** A candidate's Decision must run the cheapest real test before writing Ignore/Wire when the claim is checkable (a default flag's behaviour, whether two hooks coexist, a licence clause's scope, a benchmark). If the test is genuinely blocked, the objection is tagged **Untested** (with why) instead of presented as a settled finding. A re-ask of an already-recorded candidate must advance what was left Untested, not restate the old verdict verbatim.
+
+## 1.80.1 — 2026-09-11
+
+### Fixed
+
+- **Plugin's `workflow/hooks/hooks.json` shipped a top-level `_comment` key** — Claude Code's hooks loader rejects unknown top-level keys, logging `ai: hooks.json: unknown key "_comment" ignored` on every session start for any project with the ai-kit plugin installed. Removed; its content (why `session-rules-inject.sh` ships unregistered, issue #148 blocker) moved into that script's own header comment.
+
 ## 1.80.0 — 2026-09-10
 
 ### Added
