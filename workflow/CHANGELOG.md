@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.82.0 — 2026-09-12
+
+### Fixed
+
+- **`detect-tooling.sh` built its `--json` output via raw string interpolation, producing invalid JSON for any project script containing a double quote** (e.g. `"test": "vitest run --reporter=\"verbose\""`). The three consumers (`recommend-tools-lib.sh`, `recommend-lib.sh`, `audit-extension-loader.sh`) swallowed the resulting parse error silently, so a project with real signals got zero recommendations/extensions with exit 0 and no trace. Scalars are now escaped through a `_json_str()` helper (matching the existing `_json_array()` convention); each consumer now prints one stderr line when a parse genuinely fails, instead of pretending the project has no signals.
+- **`count-primitives.sh --check` was red on master** — docs said 41 rules, reality was 42 (a rule landed without updating the count), and the same drift broke an `emit-rules --list` test (51 vs actual 52). `release.sh` never ran the check, so nothing caught it; it now gates every release.
+
+### Changed
+
+- **Deduped the 3 project-scoped hook installers** (`apply-phase-check-hook.sh`, `apply-context-drift-hook.sh`, `apply-search-delegation-hook.sh`) into a shared `bin/lib/settings-hooks.sh::wire_hook()`. They had diverged: all three silently reset a malformed `settings.json` to `{}`, contradicting their own "non-destructive" header comment — they now refuse and exit 1, matching the safer behavior `install-rename-hook.sh` already had.
+- **Deduped the 4 identical plugin directory-mirror scripts** (`sync-plugin-{bin,standards,context,orchestration}.sh`) into a shared `bin/lib/sync-mirror.sh::sync_mirror()`. Script names, CLIs, and output are unchanged — only the duplicated rsync/diff body moved.
+
 ## 1.81.1 — 2026-09-12
 
 ### Changed
