@@ -96,6 +96,11 @@ if [ "$DRY_RUN" = false ]; then
     echo "Tag v$NEW_VERSION already exists" >&2
     exit 2
   fi
+
+  if ! bash "$SCRIPT_BIN/count-primitives.sh" --check; then
+    echo "Primitive counts drifted — fix the doc lines above before releasing" >&2
+    exit 2
+  fi
 fi
 
 # Build the CHANGELOG entry.
