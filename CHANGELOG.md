@@ -1,11 +1,5 @@
 # Changelog
 
-## Unreleased
-
-### Changed
-
-- **`/ai:should-i-use` closes four gaps found by grilling its own git history.** Five verdicts it had to self-correct — BuilderIO/skills miscounted, hyperframes scope, a Track B cwd-collapse already patched, and two full reversals (diagram-design, ponytail) — exposed four still-open gaps. A candidate that bundles multiple items must now be enumerated against a literal directory listing, not read narratively from a README — the BuilderIO/skills count was wrong by one item nobody's prose mentioned. One-off vs person scope now carries an explicit test (would you reach for this again next week, in an unrelated repo) instead of defaulting to one-off because today's invocation looks like a single task. "No signal" now distinguishes a real project gap from a detection method — an existing scorer, a grep — that doesn't recognise the pattern yet, the exact confusion behind diagram-design's same-session Ignore-then-Wire reversal. And "test the claim, don't just argue about it" now explicitly covers claims about this project's own mechanisms, not only the candidate's — ponytail's Ignore rested a month on an untested "already covered by an always-on rule" claim that turned out false. Two new eval fixtures (`capability-vs-project-signal`, `unverified-redundancy-claim`) lock in the diagram-design and ponytail failure shapes.
-
 ## 1.81.0 — 2026-09-12
 
 ### Added
