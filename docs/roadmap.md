@@ -143,6 +143,17 @@ None open.
 
 ## P3 — backlog
 
+- **#165** `catalog-candidate` — adopt-as-pattern "Compound Packs":
+  project-declared house rules cited back at plan/review time. Source idea:
+  `EveryInc/compound-engineering-plugin`'s `docs/guides/packs.md` (MIT), found
+  via `/ai:should-i-use` (2026-09-13, whole-plugin verdict: Ignore — category,
+  alternative full lifecycle, same bucket as superpowers/openspec/ecc). Real
+  gap confirmed: `standards/rules/*.mini.md` is ai-kit's own catalog wired
+  outward via `/ai:setup`/`recommend-rules`; nothing lets a single project
+  (naschool, emeq-hub, emeq-web) declare its own ad-hoc house rules that
+  `to-prd`/`review` read and cite back to (`(house-rule: <path>)`). Needs its
+  own scoping/design pass before buildable — touches `to-prd`/`review` output
+  contracts.
 - **#164** `catalog-candidate` — swap the archived `ts-prune` for `knip` in
   `audit-architecture-typescript`'s tool-gate (`bin/audit-typescript-helpers.sh`
   T8 heuristic). `nadeesha/ts-prune` is archived on GitHub and its own README
