@@ -143,6 +143,16 @@ None open.
 
 ## P3 — backlog
 
+- **#164** `catalog-candidate` — swap the archived `ts-prune` for `knip` in
+  `audit-architecture-typescript`'s tool-gate (`bin/audit-typescript-helpers.sh`
+  T8 heuristic). `nadeesha/ts-prune` is archived on GitHub and its own README
+  points users at `knip` as successor. Surfaced by `/ai:should-i-use
+  webpro-nl/knip` (2026-09-13): knip is ISC-licensed, actively maintained
+  (v6.35.1, 2026-09), zero-config, checks unused files/exports/deps/unresolved
+  deps (ts-prune only covers unused exports). `naschool/frontend/partner`
+  already runs knip in production, validating the swap. Needs a `VETTING.md`
+  pass before landing; scope stays to swapping the T8 tool-gate, not adding new
+  heuristics.
 - **#158** `enhancement` — decide whether doctor should stop warning about
   absent `.cursor/skills` when a project shows no other sign of Cursor usage.
   Split off #114's "Caveat worth deciding": `.claude/skills`/`.agents/skills`
