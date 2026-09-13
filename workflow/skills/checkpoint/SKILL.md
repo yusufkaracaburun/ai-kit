@@ -98,12 +98,9 @@ Edge cases:
 - **Not a git repo**: that is fine. Skip the git-derived fields in the
   memo (`Branch`, `commits ahead`) and note "(no git)" so the next session
   knows to expect no SHAs.
-- **gsd project detected** (`.planning/` or `STATE.md` exists **and** gsd is
-  actually installed, per the disambiguation block above): route to
-  `/gsd-pause-work`. Do not write a generic checkpoint alongside a gsd
-  pause-doc unless the user insists. If `.planning/`/`STATE.md` exists but
-  gsd is not installed, this is leftover state from an uninstalled tool —
-  proceed with the normal checkpoint below.
+- **gsd project detected** (see the disambiguation rule above): route to
+  `/gsd-pause-work` instead. Do not write a generic checkpoint alongside a
+  gsd pause-doc unless the user insists.
 
 ## 3. Gather what to capture
 
@@ -200,9 +197,13 @@ if it doesn't exist either — frontmatter is not required for `MEMORY.md`):
 
 **While you are in there, auto-flag stale entries.** For each existing line
 under `## Session checkpoints`, look at the linked file's `Branch:` field.
-If that branch no longer exists locally **and** has no remote (`git
-show-ref --verify refs/heads/<branch>` and `git ls-remote --exit-code
---heads origin <branch>` both fail), prepend `[stale]` to that line:
+Skip entries where that field is `(no git)` — nothing to check. Otherwise
+check locally first: `git show-ref --verify refs/heads/<branch>`. Only when
+that fails, confirm there is no remote copy either: `git ls-remote
+--exit-code --heads origin <branch>`. Most branches still exist locally, so
+this keeps the common case a single fast local check instead of a network
+round-trip on every line, every checkpoint. Prepend `[stale]` only when both
+checks fail:
 
 ```markdown
 - [stale] [<topic> — <date>](project/...) — <one-line hook>
