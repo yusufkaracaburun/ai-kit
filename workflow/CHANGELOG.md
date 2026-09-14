@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.83.0 — 2026-09-14
+
+### Added
+
+- **Two new `/ai:recommend-tools` companions: `skillui` and `scrapling`**, both owner-directed after the owner found they already run them locally (`skillui --url <site> --mode ultra`; `scrapling` behind a personal `site-scrapers` wrapper that scraped SnelStart's B2B API docs for emeq-hub). `skillui` extracts a reference site's actual design tokens (colors, fonts, spacing, components) into DESIGN.md instead of eyeballing a screenshot; `scrapling` is the fetch/crawl layer underneath it — official MCP server with multi-page/session crawling, JS-rendering, and anti-bot bypass (Cloudflare Turnstile) for pages plain `WebFetch`/browser tools can't reach. `design-direction`'s research flow now escalates through both: named reference site → `skillui`; page unreachable → `scrapling` first, then `skillui` on what it fetched. VETTING.md audit found the two candidates in stark contrast — `skillui`'s README claims "no AI, no API keys, no cloud" while its shipped CLI hardcodes a live Google Fonts key and calls `googleapis.com` on every scan, and its upstream repo ships no LICENSE file (landed anyway, with both caveats disclosed inline in the catalog and every offer); `scrapling` passed all eight criteria clean — BSD-3 with a matching LICENSE file, every headline claim (adaptive element relocation, Turnstile solving, ad-domain blocklist count, `--ai-targeted` sanitization) spot-checked against source and confirmed real.
+
 ## 1.82.0 — 2026-09-12
 
 ### Fixed
