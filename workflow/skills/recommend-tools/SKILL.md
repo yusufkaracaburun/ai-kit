@@ -7,7 +7,7 @@ Recommend and wire **companion tools** for this project — external AI-producti
 
 ## What a companion tool is
 
-A third-party tool *or pattern* that improves the AI coding setup but is **not** part of ai-kit's agile lifecycle. ai-kit owns the *integration glue* (a rules block, a hook, a scaffold), never the tool itself. The current catalog lives at `standards/external/companions.json` — that file is the source of truth for which companions exist, their tiers, detection signals, and conflict checks. The table below summarises; see the JSON for fields, glue paths, and conflict rules. Seven are known today:
+A third-party tool *or pattern* that improves the AI coding setup but is **not** part of ai-kit's agile lifecycle. ai-kit owns the *integration glue* (a rules block, a hook, a scaffold), never the tool itself. The current catalog lives at `standards/external/companions.json` — that file is the source of truth for which companions exist, their tiers, detection signals, and conflict checks. The table below summarises; see the JSON for fields, glue paths, and conflict rules. Eight are known today:
 
 | Companion | Optimizes | Effect | Risk |
 | --------- | --------- | ------ | ---- |
@@ -18,6 +18,7 @@ A third-party tool *or pattern* that improves the AI coding setup but is **not**
 | **context7** | Documentation — live library docs vs. training-data snapshots | MCP server (project-scope) + optional user-scope `~/.claude/rules/context7.md` rule. Cuts API hallucinations on third-party libraries. Universal: any project with deps benefits. | Low — read-only doc lookups, no auto-install of packages. |
 | **ui-ux-pro-max** | Design — what the AI knows about styling before it writes UI | Searchable style/palette/typography/UX-guideline database, priority-ranked by product type. Reference only — not real product screenshots. | Low — read-only reference skill, no code generated on its own. |
 | **skillui** | Design — real tokens from a reference site instead of a taxonomy | CLI extracts colors/fonts/spacing/animations/components from a URL/repo/dir the user names, writes DESIGN.md + a .skill file. | Medium — README's "no API keys" claim is false (hardcoded Google Fonts key, calls googleapis.com); no LICENSE file upstream. See VETTING.md. |
+| **scrapling** | Web-fetch — reaching pages WebFetch/browser tools can't | Official MCP server: multi-page/session crawling, JS-render, anti-bot bypass (Cloudflare Turnstile), prompt-injection sanitization. Feeds design-direction reference research and API-doc ingestion. | Low — clean VETTING.md pass, BSD-3-Clause, no caveats. |
 
 They are orthogonal to each other and to ai-kit. Recommend per project, never blanket — except **context7**, which scores `universal: true` in `standards/external/mcp-servers.json` and surfaces for every stack the deterministic recommender runs against (Phase "MCP servers + Claude Code hooks + Claude Code plugins" below).
 
@@ -67,6 +68,8 @@ claude plugin list 2>/dev/null | grep -qi ponytail && echo "ponytail: installed"
 { [ -d "$HOME/.claude/skills/ui-ux-pro-max" ] || [ -d .claude/skills/ui-ux-pro-max ] || claude plugin list 2>/dev/null | grep -qi ui-ux-pro-max; } && echo "ui-ux-pro-max: installed" || echo "ui-ux-pro-max: not installed"
 { [ -f tailwind.config.js ] || [ -f tailwind.config.ts ] || [ -d src/components ] || [ -d components ] || { [ -f package.json ] && grep -qE '"(react|vue|@angular/core|next|nuxt|svelte|astro|react-native)"' package.json; }; } && echo "ui-ux-pro-max: project has UI to design" || echo "ui-ux-pro-max: no frontend/UI signal in this repo"
 command -v skillui >/dev/null 2>&1 && echo "skillui: CLI present" || echo "skillui: not installed"
+command -v scrapling >/dev/null 2>&1 && echo "scrapling: CLI present" || echo "scrapling: not installed"
+{ claude mcp list 2>/dev/null | grep -qi scrapling; } && echo "scrapling: MCP server registered" || echo "scrapling: MCP server not registered"
 ```
 
 Report the lines plainly. Detection drives the recommendation — never claim a tool is wired when it is not. The two graphify lines disambiguate **base tier** (`graphify-out/`) from **wiki tier** (`graphify-out/wiki/`); the wiki tier is an opt-in nudge described in Phase 3.
@@ -81,6 +84,7 @@ Judge fit against the actual repo, do not blanket-recommend:
 - **llm-wiki** — strong fit when the project accumulates **non-code documents** (PRDs, meeting transcripts, competitor research, PDFs) the user re-reads to find things. Weak fit for a pure code repo — **graphify** already indexes code. Do not recommend graphify and llm-wiki for the *same* need; they cover code vs. documents respectively.
 - **ui-ux-pro-max** — strong fit when the repo has UI to design (frontend framework, Tailwind/CSS config, or a component directory). No fit for a pure backend/CLI/API repo — do not offer it there. It is a rules/taxonomy reference, not real product screenshots — if the user's complaint is "output doesn't look premium," say so explicitly and point at pairing it with real reference sites (Mobbin, Land-book) rather than treating this companion alone as the fix.
 - **skillui** — strong fit whenever the user names a specific reference URL/repo/dir during design or component work; run it against that target before eyeballing a screenshot. No fit as a standalone recommendation — it needs a concrete target to point at, unlike ui-ux-pro-max's static taxonomy. Always disclose the two VETTING.md caveats when offering it: the README's "no AI, no API keys, no cloud" claim is false (hardcoded Google Fonts key, calls googleapis.com on every scan), and the upstream repo has no LICENSE file despite package.json claiming MIT.
+- **scrapling** — strong fit for any project doing external research, third-party API-doc ingestion, or reference-site work (design-direction, llm-wiki raw material) — not gated to UI like ui-ux-pro-max/skillui. Weak fit for a project with no external-fetch need at all. Clean VETTING.md pass — no caveats to disclose, unlike skillui. Complements skillui (this fetches the page, skillui extracts tokens from it) and is a different scope than the `playwright`/`puppeteer`/`firecrawl` entries in `mcp-servers.json` — those fire when the *project itself* depends on them; this fires when *the agent* needs to reach a page the project doesn't otherwise touch.
 
 State, for each: present-or-not, fit for *this* repo, and the one-line why.
 
@@ -142,6 +146,12 @@ Glue templates live in `$AI_KIT_ROOT/context/templates/companions/`. Wire only t
 2. If already installed (Phase 1 detection), skip straight to appending the AGENTS.md pointer.
 3. Otherwise offer it, stating both VETTING.md caveats up front: the README's "no AI, no API keys, no cloud" claim is false (it calls googleapis.com with a hardcoded key on every scan), and the upstream repo has no LICENSE file (package.json's MIT claim is unconfirmed). On yes: `npm install -g skillui`.
 4. Append `companions/skillui.md` to the project `AGENTS.md` — the pointer note, including both caveats.
+
+**scrapling:**
+1. Offer when the project does external research, third-party API-doc ingestion, or reference-site work (design-direction, llm-wiki) — or simply when the user reports WebFetch/browser tools missing pages.
+2. If already installed (Phase 1 detection), skip straight to appending the AGENTS.md pointer; if the CLI is present but the MCP server isn't registered, offer just the `claude mcp add` step.
+3. Otherwise offer it — clean VETTING.md pass, no caveats to state. On yes: `pip install "scrapling[ai]" && scrapling install --force`, then `claude mcp add scrapling -- scrapling mcp`.
+4. Append `companions/scrapling.md` to the project `AGENTS.md`.
 
 ### Phase 4 — Output contract
 

@@ -437,6 +437,65 @@ skillui · category=design-extraction · added 2026-09-14
                     months).
 ```
 
+### `scrapling` — added 2026-09-14 (companions.json)
+
+`/should-i-use https://github.com/d4vinci/Scrapling` 2026-09-14, same session
+as `skillui` above. Owner already runs it in production via a personal
+wrapper (`~/Sites/localhost/ws/site-scrapers`, built on
+`scrapling[fetchers]`) that scraped the SnelStart B2B API docs for emeq-hub —
+Track B was a confirmed **Wire** before this audit even started. This row
+covers Track A: does ai-kit's own catalog get a companion out of it.
+
+```
+scrapling · category=web-fetch · added 2026-09-14
+  MARKETING-PARITY: pass — spot-checked every headline claim against source
+                    (local unpacked repo, not just the README): adaptive
+                    element relocation (`scrapling/parser.py::relocate()`,
+                    real), Cloudflare Turnstile solving (real, present across
+                    4 engine files), spider/crawl framework
+                    (`scrapling/spiders/spider.py::CrawlSpider`, real),
+                    "~3,500 known ad and tracker domains" (ad_domains.py:
+                    3528 entries — matches), `--ai-targeted` CLI flag wired to
+                    `main_content_only` sanitization (real, scrapling/cli.py).
+                    Zero false claims found — direct contrast with skillui's
+                    "no API keys" fail in the row above.
+  BENCHMARK:        n/a (no numeric performance claims in the README/skill;
+                    benchmarks.py ships but is opt-in, not a marketing figure)
+  MARKETING-AUDIT:  pass (official MCP server doc — agent-skill/Scrapling-
+                    Skill/references/mcp-server.md — lists 10 tools; all 10
+                    confirmed wired in the bundled skill's tool-selection
+                    table; no "coming soon" features presented as shipped)
+  LICENSE:          BSD-3-Clause. LICENSE file present at repo root, matches
+                    pyproject.toml's `license = {file = "LICENSE"}` — parity,
+                    unlike skillui. Safe for MIT-consumer use.
+  MATURITY:         pass — created 2024-10-13 (2 years old), 80,915★, 8,166
+                    forks, 7 open issues (very low ratio for the star count),
+                    pushed 2026-09-13 (1 day before this audit), latest
+                    release v0.4.15 (2026-08-23). `.bandit.yml` present with
+                    per-skip justification comments — active security
+                    hygiene, not blanket lint suppression.
+  DATA-LOCALITY:    local — no telemetry/analytics calls found in a source
+                    scan; the only "telemetry" string hits are third-party
+                    hostnames in the tool's own ad/tracker BLOCKLIST
+                    (ad_domains.py), not outbound calls Scrapling makes
+                    itself. Network activity is exactly what the user asks it
+                    to fetch, nothing more.
+  PROVENANCE:       48da61d1ee85cea7bbbdff013d98c90602e1d93f (main, 2026-09-14)
+  SECURITY-SCAN:    pass, hand-read (same n/a-for-skillspector reasoning as
+                    skillui — CLI/library, not an agent-facing skill prompt).
+                    Grepped the full unpacked repo for hardcoded
+                    keys/telemetry/analytics — zero hits beyond the ad-domain
+                    blocklist noted above. `.bandit.yml` skip list is narrow
+                    and each entry justified inline (e.g. B113 skip scoped to
+                    "benchmark and examples scripts only").
+  VERDICT:          ADD (companions.json, category web-fetch). Clean pass on
+                    all eight — no caveats to disclose, unlike skillui.
+                    Project-judgement-gated like graphify/llm-wiki, not
+                    universal like context7: fires when the project does
+                    external research, API-doc ingestion, or reference-site
+                    work, not for every repo.
+```
+
 ## Relationship to `/should-i-use`
 
 `/should-i-use` is the *runtime gate* — it evaluates one candidate against

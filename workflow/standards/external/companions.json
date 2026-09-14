@@ -5,7 +5,7 @@
     "source_url": "https://github.com/yusufkaracaburun/ai-kit/blob/master/standards/external/companions.json",
     "source_license": "MIT",
     "vendored_at": "2026-05-25",
-    "notes": "Catalogues the companions branch of /ai:recommend-tools (graphify, caveman, ponytail, llm-wiki, context7, ui-ux-pro-max, skillui). Each entry documents its tier(s), detection signal, glue file(s), conflict checks, and wiring path. Consumed by `audit-setup-symmetry.sh` so new companions cannot land without a documented wiring path. Companions are orthogonal to MCP/hooks/plugins/subagents — the latter score via `recommend-tools-lib.sh` from stack-signals; companions are surfaced per project judgement and never scored numerically."
+    "notes": "Catalogues the companions branch of /ai:recommend-tools (graphify, caveman, ponytail, llm-wiki, context7, ui-ux-pro-max, skillui, scrapling). Each entry documents its tier(s), detection signal, glue file(s), conflict checks, and wiring path. Consumed by `audit-setup-symmetry.sh` so new companions cannot land without a documented wiring path. Companions are orthogonal to MCP/hooks/plugins/subagents — the latter score via `recommend-tools-lib.sh` from stack-signals; companions are surfaced per project judgement and never scored numerically."
   },
   "recommendations": [
     {
@@ -283,6 +283,35 @@
         "notes": "Third-party, single maintainer, no LICENSE file in the upstream repo — package.json's MIT claim is asserted, not confirmed. Quiet since 2026-05-07 (repo push + last npm publish both that date); 2256 stars, 4 open issues."
       },
       "license": "MIT (asserted in package.json only — no LICENSE file upstream, see VETTING.md audit 2026-09-14)"
+    },
+    {
+      "name": "scrapling",
+      "category": "web-fetch",
+      "best_for": "Fetching a page WebFetch can't: multi-page/paginated docs, JS-rendered SPAs, anti-bot-protected sites (Cloudflare Turnstile) — the source layer for design-direction reference research, API-doc ingestion, and llm-wiki raw material. Not project-signal-gated to UI work like ui-ux-pro-max/skillui — any project doing external research or third-party API integration benefits.",
+      "value": "Official MCP server (`scrapling mcp`, 10 tools: get/bulk_get/fetch/bulk_fetch/stealthy_fetch/bulk_stealthy_fetch/open_session/close_session/list_sessions/screenshot) built by the library author. Plain HTTP or browser-rendered fetch, escalating to stealth/anti-bot bypass; persistent sessions for same-site multi-page crawls; built-in prompt-injection sanitization (strips hidden/zero-width/comment content) and ~3.5k-domain ad/tracker blocking to cut tokens. Complements skillui: this is the fetch/crawl layer, skillui extracts design tokens from what gets fetched.",
+      "risk": "Low — BSD-3-Clause with a matching LICENSE file (verified, unlike skillui), no hardcoded secrets or telemetry found in a source scan, headline claims (adaptive element relocation, Turnstile solving, ~3.5k ad-domain blocklist, `--ai-targeted` sanitization flag) spot-checked against source and confirmed real. See VETTING.md audit, 2026-09-14 — clean pass, no caveats to disclose.",
+      "tiers": [
+        {
+          "name": "base",
+          "description": "`scrapling mcp` starts the MCP server (stdio by default, `--http` for Streamable HTTP). Escalation ladder: `get`/`bulk_get` (plain HTTP) → `fetch`/`bulk_fetch` (JS-rendered) → `stealthy_fetch`/`bulk_stealthy_fetch` (anti-bot, `solve_cloudflare=true` for Turnstile). `open_session` + `screenshot` cover same-site multi-page crawls and page captures.",
+          "wired_via": "workflow/skills/recommend-tools/SKILL.md Phase 3 scrapling branch (AGENTS.md pointer + MCP registration) + workflow/skills/design-direction/RESEARCH.md Real-product patterns section (escalate here when WebFetch/browser tools fail on a reference URL)",
+          "glue_files": [
+            "context/templates/companions/scrapling.md"
+          ]
+        }
+      ],
+      "detection": {
+        "cli": "command -v scrapling"
+      },
+      "install": {
+        "upstream": "https://github.com/d4vinci/Scrapling",
+        "pip_extra": "scrapling[ai]",
+        "install_command": "pip install \"scrapling[ai]\" && scrapling install --force",
+        "mcp_register_command": "claude mcp add scrapling -- scrapling mcp",
+        "auto_install": false,
+        "notes": "Third-party, MIT-maintainer-equivalent trust (BSD-3, 80.9k★, pushed 2026-09-13, 7 open issues) — actively maintained. The `[ai]` extra bundles exactly `mcp` + `markdownify` + `scrapling[fetchers]`, the intended install shape for the MCP server. `scrapling install --force` downloads browser dependencies after the pip install."
+      },
+      "license": "BSD-3-Clause (LICENSE file present, matches package metadata — see VETTING.md audit 2026-09-14)"
     }
   ]
 }

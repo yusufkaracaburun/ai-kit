@@ -43,6 +43,12 @@ caveats before offering it (`standards/external/VETTING.md`): its README's
 "no API keys" claim is false (it calls googleapis.com with a hardcoded key
 to resolve fonts), and its upstream repo ships no LICENSE file.
 
+If the standard browse/fetch tools can't reach the page at all (anti-bot
+protection, a paginated docs site, a JS-only SPA), escalate to `scrapling`
+(its official MCP server) if installed — `stealthy_fetch` for anti-bot,
+`open_session` for multi-page crawls of the same site — then run `skillui`
+against what it fetched.
+
 Then, if `ui-ux-pro-max` or `lazyweb` is already installed in this project,
 query them — they are a live, structured pattern/palette database and a
 screenshot reference tool respectively, useful for broader category context
