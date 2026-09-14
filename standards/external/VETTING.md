@@ -362,6 +362,81 @@ diagram-design · category=diagrams · added 2026-08-23
   VERDICT:          ADD (signal-gated: content:```mermaid)
 ```
 
+### `skillui` — added 2026-09-14 (companions.json)
+
+Owner-directed add (`/ai-kit skillui`, not a `/should-i-use` run) after the
+owner found they already use the CLI locally
+(`skillui --url <site> --mode ultra`). Source-dove the published npm tarball
+(`skillui@1.3.4`, 105k-line bundled `dist/cli.js`) plus the upstream GitHub
+repo before landing it, since a catalog entry is an endorsement to every
+downstream project, not just this one.
+
+```
+skillui · category=design-extraction · added 2026-09-14
+  MARKETING-PARITY: fail — README states (twice, incl. the tagline): "No AI,
+                    no API keys, no cloud - everything runs locally." False:
+                    `src/font-resolver.ts` (bundled into dist/cli.js) hardcodes
+                    a live key — `GOOGLE_FONTS_API_KEY =
+                    "AIzaSyCETey82fDURE2zp-MPF2lb_R-9PeAcPjY"` — and calls
+                    `https://www.googleapis.com/webfonts/v1/webfonts` on every
+                    scan that finds a font family to resolve font files. Not
+                    user-supplied, not disclosed. Everything else checked out:
+                    no LLM/agent-sdk calls found, no telemetry/analytics
+                    strings, `--repo` clones via `simple-git` (argv-based, no
+                    shell-string injection), `--url` crawl falls back to plain
+                    `fetch` and only uses Playwright (optional peerDependency)
+                    when present — that part of the static-analysis claim
+                    holds.
+  BENCHMARK:        n/a (no numeric performance claims)
+  MARKETING-AUDIT:  fail, same finding as MARKETING-PARITY (one claim, two
+                    criteria) — no other aspirational/unshipped features found
+                    in a spot-check of `--help` against `dist/cli.js`'s mode
+                    dispatch (`default`/`ultra`, `--url`/`--repo`/`--dir`,
+                    `--screens`, `--format`, `--no-skill` all present and wired)
+  LICENSE:          MIT asserted in `package.json`, but
+                    `github.com/amaancoderx/npxskillui` root has no LICENSE
+                    file (`GET /repos/.../contents/` 404s on it; GitHub API
+                    itself reports `license: null`) — fails criterion #4's
+                    "unspecified = fail" bar as written. Treat as MIT-asserted,
+                    not MIT-confirmed, until upstream adds the file.
+  MATURITY:         caution — repo created 2026-04-14, 25 npm versions shipped
+                    in one month (2026-04-08 → 2026-05-07), then quiet: no
+                    push and no npm publish since 2026-05-07 (4+ months as of
+                    this audit). 2256★, 231 forks, 4 open issues, single
+                    named author ("Amaan"). Works today; no evidence of
+                    active maintenance if something breaks.
+  DATA-LOCALITY:    vendor — every scan that detects a font family sends that
+                    family name to Google's webfonts API using the author's
+                    embedded key (see MARKETING-PARITY). Low sensitivity
+                    (font family strings, not user/page content) but real and
+                    undisclosed; the key is unauthenticated-caller-scoped
+                    (public Fonts listing API), not a credential leak of the
+                    ai-kit user's own secrets.
+  PROVENANCE:       repo default branch `main`, no tags/releases found at
+                    audit time — pin is "npm dist-tag latest @ 1.3.4"
+                    (unpacked via `npm pack skillui@1.3.4`), not a git SHA
+  SECURITY-SCAN:    pass, hand-read (not skillspector — this is a CLI tool,
+                    not an agent-facing skill/prompt, so the injection-pattern
+                    scanner doesn't apply; same reasoning as the MCP-server
+                    carve-out in criterion #8's scope note). Checked for
+                    `child_process`/`exec`/`eval`/credential-env-reads across
+                    the full 105k-line bundle: the only `child_process` uses
+                    are `commander`'s own bundled subcommand-spawn (argv array,
+                    unused — skillui defines no subcommands) and a fixed-string
+                    `execSync("npm root -g")` from a bundled dependency; no
+                    `eval(`; no `process.env.*_KEY`/`*_TOKEN`/`*_SECRET` reads;
+                    `--repo` goes through `simple-git` (reputable, argv-based).
+  VERDICT:          ADD, with caveats (owner-approved after the two fails were
+                    surfaced: MARKETING-PARITY/-AUDIT and LICENSE do not clear
+                    the "must pass all eight" bar as written). Disclosed
+                    verbatim in companions.json's `risk`/`install.notes`/
+                    `license` fields and in the Phase 3 offer text in
+                    recommend-tools/SKILL.md — never silently presented as a
+                    clean pass. Revisit if upstream adds a LICENSE file, drops
+                    the hardcoded key, or goes fully dormant (no push in 12
+                    months).
+```
+
 ## Relationship to `/should-i-use`
 
 `/should-i-use` is the *runtime gate* — it evaluates one candidate against

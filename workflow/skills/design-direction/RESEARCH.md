@@ -35,10 +35,19 @@ confidence, and implication. Note login, paywall, region, or sample limitations.
 
 ### Real-product patterns
 
-If `ui-ux-pro-max` or `lazyweb` is already installed in this project, query
-them first — they are a live, structured pattern/palette database and a
-screenshot reference tool respectively. Fall back to manual browsing below
-only for what they don't cover.
+When the user names a specific reference site (not just a competitor to
+browse), run `skillui --url <url> --mode ultra` first, if the `skillui` CLI
+is installed — it extracts that site's actual colors, fonts, spacing, and
+components into DESIGN.md instead of eyeballing a screenshot. Two disclosed
+caveats before offering it (`standards/external/VETTING.md`): its README's
+"no API keys" claim is false (it calls googleapis.com with a hardcoded key
+to resolve fonts), and its upstream repo ships no LICENSE file.
+
+Then, if `ui-ux-pro-max` or `lazyweb` is already installed in this project,
+query them — they are a live, structured pattern/palette database and a
+screenshot reference tool respectively, useful for broader category context
+beyond the one site skillui just extracted. Fall back to manual browsing
+below only for what none of them cover.
 
 - [Refero Styles](https://styles.refero.design/) — AI-readable `DESIGN.md`
   examples with colors, typography, spacing, and components. Use it to name and

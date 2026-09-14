@@ -5,7 +5,7 @@
     "source_url": "https://github.com/yusufkaracaburun/ai-kit/blob/master/standards/external/companions.json",
     "source_license": "MIT",
     "vendored_at": "2026-05-25",
-    "notes": "Catalogues the companions branch of /ai:recommend-tools (graphify, caveman, ponytail, llm-wiki, context7, ui-ux-pro-max). Each entry documents its tier(s), detection signal, glue file(s), conflict checks, and wiring path. Consumed by `audit-setup-symmetry.sh` so new companions cannot land without a documented wiring path. Companions are orthogonal to MCP/hooks/plugins/subagents — the latter score via `recommend-tools-lib.sh` from stack-signals; companions are surfaced per project judgement and never scored numerically."
+    "notes": "Catalogues the companions branch of /ai:recommend-tools (graphify, caveman, ponytail, llm-wiki, context7, ui-ux-pro-max, skillui). Each entry documents its tier(s), detection signal, glue file(s), conflict checks, and wiring path. Consumed by `audit-setup-symmetry.sh` so new companions cannot land without a documented wiring path. Companions are orthogonal to MCP/hooks/plugins/subagents — the latter score via `recommend-tools-lib.sh` from stack-signals; companions are surfaced per project judgement and never scored numerically."
   },
   "recommendations": [
     {
@@ -255,6 +255,34 @@
         "vetted_at": "2026-08-29"
       },
       "license": "MIT"
+    },
+    {
+      "name": "skillui",
+      "category": "design-extraction",
+      "best_for": "A reference website, repo, or local dir the user actually points at during design/component work — extracts its real tokens instead of eyeballing a screenshot or reasoning from a taxonomy",
+      "value": "CLI (`skillui --url <url> --repo <url> --dir <path> --mode default|ultra`) reverse-engineers colors, fonts, spacing, animations, and components via static analysis, and writes DESIGN.md + a packaged .skill file. Complements ui-ux-pro-max: that is a style/palette taxonomy, this is tokens pulled from one concrete site the user names.",
+      "risk": "Medium — the README claims 'No AI, no API keys, no cloud - everything runs locally', which is false: the shipped CLI (v1.3.4) hardcodes a live Google Fonts API key and calls googleapis.com on every scan to resolve font files. Upstream repo also carries no LICENSE file despite package.json declaring MIT. See VETTING.md audit, 2026-09-14, for the full finding — disclose both to the user before offering this companion.",
+      "tiers": [
+        {
+          "name": "base",
+          "description": "`skillui --url <url> --mode ultra` (or `--repo`/`--dir`) writes DESIGN.md + a .skill file for the target. Default mode does a plain HTTP fetch; ultra mode crawls up to `--screens` pages (default 5) and renders with Playwright — an optional peerDependency — when it's installed, for JS-rendered styles/animations.",
+          "wired_via": "workflow/skills/recommend-tools/SKILL.md Phase 3 skillui branch (AGENTS.md pointer) + workflow/skills/design-direction/RESEARCH.md Real-product patterns section (run against every reference URL the user supplies before eyeballing it)",
+          "glue_files": [
+            "context/templates/companions/skillui.md"
+          ]
+        }
+      ],
+      "detection": {
+        "cli": "command -v skillui"
+      },
+      "install": {
+        "upstream": "https://github.com/amaancoderx/npxskillui",
+        "npm_package": "skillui",
+        "install_command": "npm install -g skillui",
+        "auto_install": false,
+        "notes": "Third-party, single maintainer, no LICENSE file in the upstream repo — package.json's MIT claim is asserted, not confirmed. Quiet since 2026-05-07 (repo push + last npm publish both that date); 2256 stars, 4 open issues."
+      },
+      "license": "MIT (asserted in package.json only — no LICENSE file upstream, see VETTING.md audit 2026-09-14)"
     }
   ]
 }

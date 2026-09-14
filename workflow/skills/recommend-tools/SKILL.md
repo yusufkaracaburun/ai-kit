@@ -7,7 +7,7 @@ Recommend and wire **companion tools** for this project — external AI-producti
 
 ## What a companion tool is
 
-A third-party tool *or pattern* that improves the AI coding setup but is **not** part of ai-kit's agile lifecycle. ai-kit owns the *integration glue* (a rules block, a hook, a scaffold), never the tool itself. The current catalog lives at `standards/external/companions.json` — that file is the source of truth for which companions exist, their tiers, detection signals, and conflict checks. The table below summarises; see the JSON for fields, glue paths, and conflict rules. Six are known today:
+A third-party tool *or pattern* that improves the AI coding setup but is **not** part of ai-kit's agile lifecycle. ai-kit owns the *integration glue* (a rules block, a hook, a scaffold), never the tool itself. The current catalog lives at `standards/external/companions.json` — that file is the source of truth for which companions exist, their tiers, detection signals, and conflict checks. The table below summarises; see the JSON for fields, glue paths, and conflict rules. Seven are known today:
 
 | Companion | Optimizes | Effect | Risk |
 | --------- | --------- | ------ | ---- |
@@ -17,6 +17,7 @@ A third-party tool *or pattern* that improves the AI coding setup but is **not**
 | **llm-wiki** | Memory — knowledge from non-code documents | Self-maintaining wiki; ingests specs/transcripts/research into interlinked pages. The wiki, not the raw files, is the artifact that compounds. | Low — additive scaffold; the agent owns `wiki/`, never touches `raw/`. |
 | **context7** | Documentation — live library docs vs. training-data snapshots | MCP server (project-scope) + optional user-scope `~/.claude/rules/context7.md` rule. Cuts API hallucinations on third-party libraries. Universal: any project with deps benefits. | Low — read-only doc lookups, no auto-install of packages. |
 | **ui-ux-pro-max** | Design — what the AI knows about styling before it writes UI | Searchable style/palette/typography/UX-guideline database, priority-ranked by product type. Reference only — not real product screenshots. | Low — read-only reference skill, no code generated on its own. |
+| **skillui** | Design — real tokens from a reference site instead of a taxonomy | CLI extracts colors/fonts/spacing/animations/components from a URL/repo/dir the user names, writes DESIGN.md + a .skill file. | Medium — README's "no API keys" claim is false (hardcoded Google Fonts key, calls googleapis.com); no LICENSE file upstream. See VETTING.md. |
 
 They are orthogonal to each other and to ai-kit. Recommend per project, never blanket — except **context7**, which scores `universal: true` in `standards/external/mcp-servers.json` and surfaces for every stack the deterministic recommender runs against (Phase "MCP servers + Claude Code hooks + Claude Code plugins" below).
 
@@ -65,6 +66,7 @@ claude plugin list 2>/dev/null | grep -qi ponytail && echo "ponytail: installed"
 { claude mcp list 2>/dev/null | grep -qi context7 || claude plugin list 2>/dev/null | grep -qi context7; } && echo "context7: already available (user-scope MCP or plugin)" || echo "context7: not available — recommend the plugin path first"
 { [ -d "$HOME/.claude/skills/ui-ux-pro-max" ] || [ -d .claude/skills/ui-ux-pro-max ] || claude plugin list 2>/dev/null | grep -qi ui-ux-pro-max; } && echo "ui-ux-pro-max: installed" || echo "ui-ux-pro-max: not installed"
 { [ -f tailwind.config.js ] || [ -f tailwind.config.ts ] || [ -d src/components ] || [ -d components ] || { [ -f package.json ] && grep -qE '"(react|vue|@angular/core|next|nuxt|svelte|astro|react-native)"' package.json; }; } && echo "ui-ux-pro-max: project has UI to design" || echo "ui-ux-pro-max: no frontend/UI signal in this repo"
+command -v skillui >/dev/null 2>&1 && echo "skillui: CLI present" || echo "skillui: not installed"
 ```
 
 Report the lines plainly. Detection drives the recommendation — never claim a tool is wired when it is not. The two graphify lines disambiguate **base tier** (`graphify-out/`) from **wiki tier** (`graphify-out/wiki/`); the wiki tier is an opt-in nudge described in Phase 3.
@@ -78,6 +80,7 @@ Judge fit against the actual repo, do not blanket-recommend:
 - **ponytail** — universal (`universal: true`), same Branch 2e treatment as caveman: check `branches.universal_companions_prompted` first and do not re-ask. Same machine-wide blast radius (it changes how the agent writes code in *every* repo on the machine), so state it whenever it is offered. Applier: `bin/apply-ponytail.sh`. It is **orthogonal to caveman, not an alternative** — caveman compresses prose, ponytail constrains code; upstream endorses running both.
 - **llm-wiki** — strong fit when the project accumulates **non-code documents** (PRDs, meeting transcripts, competitor research, PDFs) the user re-reads to find things. Weak fit for a pure code repo — **graphify** already indexes code. Do not recommend graphify and llm-wiki for the *same* need; they cover code vs. documents respectively.
 - **ui-ux-pro-max** — strong fit when the repo has UI to design (frontend framework, Tailwind/CSS config, or a component directory). No fit for a pure backend/CLI/API repo — do not offer it there. It is a rules/taxonomy reference, not real product screenshots — if the user's complaint is "output doesn't look premium," say so explicitly and point at pairing it with real reference sites (Mobbin, Land-book) rather than treating this companion alone as the fix.
+- **skillui** — strong fit whenever the user names a specific reference URL/repo/dir during design or component work; run it against that target before eyeballing a screenshot. No fit as a standalone recommendation — it needs a concrete target to point at, unlike ui-ux-pro-max's static taxonomy. Always disclose the two VETTING.md caveats when offering it: the README's "no AI, no API keys, no cloud" claim is false (hardcoded Google Fonts key, calls googleapis.com on every scan), and the upstream repo has no LICENSE file despite package.json claiming MIT.
 
 State, for each: present-or-not, fit for *this* repo, and the one-line why.
 
@@ -133,6 +136,12 @@ Glue templates live in `$AI_KIT_ROOT/context/templates/companions/`. Wire only t
 2. If already installed (Phase 1 detection), skip straight to appending the AGENTS.md pointer.
 3. Otherwise offer it. On yes: `claude plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill --scope user` then `claude plugin install ui-ux-pro-max@ui-ux-pro-max-skill --scope user` — user-scope, same as caveman/ponytail, since it is equally useful in every UI project on the machine, not just this one.
 4. Append `companions/ui-ux-pro-max.md` to the project `AGENTS.md` — the pointer note, including that it is a taxonomy reference, not real product screenshots.
+
+**skillui:**
+1. Only offer when Phase 1's project-signal check found UI to design (same gate as ui-ux-pro-max) — no fit for a pure backend/CLI repo.
+2. If already installed (Phase 1 detection), skip straight to appending the AGENTS.md pointer.
+3. Otherwise offer it, stating both VETTING.md caveats up front: the README's "no AI, no API keys, no cloud" claim is false (it calls googleapis.com with a hardcoded key on every scan), and the upstream repo has no LICENSE file (package.json's MIT claim is unconfirmed). On yes: `npm install -g skillui`.
+4. Append `companions/skillui.md` to the project `AGENTS.md` — the pointer note, including both caveats.
 
 ### Phase 4 — Output contract
 

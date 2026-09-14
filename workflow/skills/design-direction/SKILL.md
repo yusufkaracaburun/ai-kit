@@ -41,8 +41,10 @@ Capture:
 
 Browse for current competitors, category patterns, and inspiration. Prefer live
 pages over remembered examples. Record the URL, access date, observation, and
-why it matters. Follow the source hierarchy and research method in
-[RESEARCH.md](RESEARCH.md).
+why it matters. When the user names a specific reference site, extract its
+actual tokens with `skillui` before comparing — see RESEARCH.md's
+"Real-product patterns" section. Follow the source hierarchy and research
+method in [RESEARCH.md](RESEARCH.md).
 
 If the host supports subagents and at least two research lanes are independent,
 optionally delegate read-only competitor analysis and standards/inspiration
