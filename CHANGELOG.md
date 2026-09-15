@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.85.0 — 2026-09-15
+
+### Added
+
+- **New skill `prod-watch`** (43 → 44 skills). Harvested from a single real ~9.5-hour proactive production-monitoring session on `emeq/system`, the day after a zero-downtime-deploy cutover: a self-pacing `/loop`-driven poll of error tracking and server logs, a dedicated debugging sub-agent that root-causes a finding before any fix is proposed, PR-plus-explicit-human-go for every merge and every deploy, vertical-slice verification of user-facing fixes, and an end-of-day findings report. That session found and shipped 4 fixed-and-deployed findings plus 1 merged test-only fix; 3 of the 6 findings had a root cause different from what the reported symptom suggested, which is why the skill leads with "triage before fixing" rather than "poll and patch." Marked as newly-proposed in its own status line — not yet run a second time.
+
 ## 1.84.0 — 2026-09-15
 
 ### Added
