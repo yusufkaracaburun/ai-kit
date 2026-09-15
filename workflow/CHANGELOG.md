@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.84.0 — 2026-09-15
+
+### Added
+
+- **New canonical rule `ui-states.mini.md`** (42 → 43 rules). Found via `/ai:should-i-use` on `elayadesign/ai-design-skills`: the candidate's fixed font/color/motion visual system was Ignored on both tracks (it would override an already-established brand on every real landing-page repo checked — emeq-web, theorieplek), but its "component states" section (loading/empty/error/hover/active/no-dead-links/current-nav-indication) named a genuine, stack-agnostic gap — zero coverage across `a11y.mini.md` (owns focus/live-regions only) and `design-tokens.mini.md` (token consistency, not interaction states). Landed as its own rule instead of adopting the whole skill. Verdict recorded in `standards/external/plugins-excluded.json`.
+
+### Fixed
+
+- **`public-surface.mini.md` now names `og:image` explicitly** in its hard rules. The generic "OG tags" phrasing let a real site ship title/description/url/locale/site_name while the image quietly stayed unset — found during a `/ai:should-i-use` pass on a pasted pre-launch checklist, audited against emeq-web and theorieplek.
+
 ## 1.83.0 — 2026-09-14
 
 ### Added
