@@ -855,3 +855,78 @@ inspo-mcp · category=design-reference · added 2026-09-15
                     guarantee. Revisit if upstream goes quiet (no push in 6+
                     months) or adds auth/pricing.
 ```
+
+### `emilkowalski-skills` — added 2026-09-15 (companions.json)
+
+`/ai:should-i-use https://github.com/emilkowalski/skills` 2026-09-15. Track A
+found a real catalog gap: none of the existing design entries (ui-ux-pro-max,
+impeccable, skillui, inspo-mcp) cover animation-specific taste — easing,
+duration, physicality, interruptibility. Track B checked every downstream
+repo, not just the ones already open: `emeq-app` (React 19 + `motion` dep,
+155 files with transition/animate/`useAnimat*` usage, `sonner` dependency),
+`naschool/frontend/{portal,admin,partner}` (152 files same signal across all
+three, `sonner` in all three), `emeq-web` (Astro, 7 files — lighter),
+`theorieplek` (Astro, 6 files, but a hand-built 377-line animated component
+with `prefers-reduced-motion` handling already — real if light), `planny`
+(Vue, 9 files, but `vue-toastification` not `sonner` — sonner tier doesn't
+fire there), `planny-app-mobile` (Flutter/Dart — 1467 `.dart` files, 1527
+`.swift`-named files turned out to be vendored CocoaPods/Flutter-runner
+boilerplate + `.tmp/` example repos, only 18 real and none importing SwiftUI —
+confirmed NOT a native Swift target by import statements, not extension
+count; `write-swift`/`animate-expo` correctly not wired anywhere).
+
+```
+emilkowalski-skills · category=animation · added 2026-09-15
+  MARKETING-PARITY: pass — README lists 14 skills, `git ls-tree -r` of the
+                    skills/ directory matches exactly (verified via
+                    `gh api .../git/trees/main?recursive=true`, not a
+                    narrative read of the README). No undercounted item.
+  BENCHMARK:        n/a — no performance/accuracy claims made; the content is
+                    prescriptive rules (exact cubic-beziers, duration ranges),
+                    not a benchmarked capability.
+  MARKETING-AUDIT:  pass — no "coming soon" content; every skill named in the
+                    README has a matching SKILL.md on disk with substantive
+                    content (spot-read: animate/SKILL.md 207 lines,
+                    review-animations/STANDARDS.md 187 lines,
+                    improve-animations/{SKILL,AUDIT,PLAN-TEMPLATE}.md
+                    109+115+73 lines — not stub files).
+  LICENSE:          MIT. LICENSE file present at repo root (`gh api
+                    repos/emilkowalski/skills/contents/LICENSE`), matches
+                    GitHub API's `license.spdx_id`. Single copyright holder,
+                    whole-repo scope, no per-package carve-outs.
+  MATURITY:         pass — 37,950 stars, pushed same day as this audit
+                    (2026-09-15), author is Vercel/Linear alumnus and
+                    maintainer of Vaul/Sonner/cmdk (established track
+                    record, not an anonymous single-purpose repo). Install
+                    mechanism is `vercel-labs/skills` (maintained by
+                    Guillermo Rauch), the same CLI already active in
+                    naschool's `skills-lock.json` for `frontend-design`/
+                    `superdesign` — not a new dependency on this ecosystem.
+  DATA-LOCALITY:    local — plain markdown skill files, no network calls, no
+                    telemetry in the repo itself. The installer CLI
+                    (`skills@latest`) exposes an optional `--metadata` flag
+                    documented as attaching to an "install telemetry event" —
+                    not independently source-audited this session (out of
+                    scope: it is the same CLI already trusted elsewhere in
+                    this ecosystem), disclosed here for completeness.
+  PROVENANCE:       85e8e2363b713506e1d5b6e07a0eb2da66be1bc3 (main, 2026-09-15)
+  SECURITY-SCAN:    n/a (markdown-only) — the repo contains no executable
+                    code (14 `SKILL.md`/reference `.md` files, `LICENSE`,
+                    `.gitattributes`/`.gitignore`, one empty `.pl` file).
+                    Nothing to scan under criterion #8's scope; the installer
+                    CLI is the only executable surface and is third-party
+                    infra already in use, not vendored here.
+  VERDICT:          ADD (companions.json, category `animation`, two
+                    independently-gated tiers). Clean pass on all eight.
+                    Wired subset only: `animate`, `review-animations`,
+                    `improve-animations`, `find-animation-opportunities`,
+                    `animation-vocabulary` (animation tier) + `ask-sonner`
+                    (sonner tier, gated separately). NOT wired:
+                    `emil-design-eng` (674-line duplicate of animate +
+                    review-animations' own tables), `apple-design`/
+                    `mobile-native`/`pick-ui-library`/`prototype` (no
+                    confirmed downstream signal at audit time — revisit if a
+                    project shows PWA/mobile-web-first or gesture-heavy UI
+                    work), `write-swift`/`animate-expo` (no native Swift or
+                    Expo/React Native codebase anywhere in the checked repos).
+```

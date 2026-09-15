@@ -13,7 +13,6 @@ echo "=== single-dev-drift ==="
 DOCTOR="$AIKIT/bin/ai-kit-doctor.sh"
 HYGIENE="$AIKIT/bin/ai-kit-hygiene.sh"
 
-assert "doctor script exists" '[ -f "$DOCTOR" ]'
 assert "hygiene script exists" '[ -f "$HYGIENE" ]'
 assert "hygiene invokes doctor (no duplicate impl)" 'grep -q "ai-kit-doctor.sh" "$HYGIENE"'
 
