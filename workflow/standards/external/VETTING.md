@@ -776,3 +776,82 @@ ui-ux-pro-max · category=design · added 2026-08-29
                     ever needs to raise this past a reference-only companion —
                     they are upstream's code to fix, ai-kit vendors none of it)
 ```
+
+### `inspo-mcp` — added 2026-09-15 (companions.json)
+
+`/ai:should-i-use https://inspomcp.dev/` 2026-09-15. Track A found the same gap
+`ui-ux-pro-max`'s own entry above names — "pair with actual reference sites for
+concrete visual exemplars" — nothing filled it generically. Queued as
+`yusufkaracaburun/ai-kit#168` pending this pass; Track B in the same session
+found one confirmed downstream need (`emeq-hub#112` — `design-taste-frontend`
+skill names "Linear-style"/"Awwwards-experimental" vibe words with no live
+lookup mechanism) against three Ignores (theorieplek/emeq-web/planny-app-mobile
+— design-led via Pencil, or wrong category for planny-app-mobile's native-app
+screens, already covered by #166's curated mobile-app sources).
+
+```
+inspo-mcp · category=design-reference · added 2026-09-15
+  MARKETING-PARITY: pass — source-dove the monorepo (github.com/Nutlope/inspo,
+                    apps/mcp/src/tools.ts), not just the marketing page. All 15
+                    documented tools exist with matching implementations:
+                    `find_by_color` genuinely computes OKLAB palette distance
+                    (packages/shared, `paletteDistance`), `find_similar` uses
+                    real embeddings with an honest fallback to tag-overlap
+                    ranking when vectors are still in flight ("waiting for
+                    them rather than guess" — own code comment), and the
+                    "19 named macrostructures" claim in `find_examples_for_
+                    macrostructure`'s docstring matches the /mcp page. The
+                    "SSRF protection on external URL fetches" claim (from the
+                    /mcp page) holds: `packages/shared/src/study.ts` blocks
+                    private/loopback/link-local/CGNAT ranges, IPv4-mapped
+                    IPv6, and the cloud-metadata range (169.254.x.x)
+                    explicitly, resolves DNS to close the
+                    public-name-to-private bypass (nip.io/sslip.io-style), and
+                    discloses its own limitation (no-op on Cloudflare Workers,
+                    where a compat flag substitutes) rather than hiding it.
+  BENCHMARK:        n/a — the 832-sites/2,320-screens catalogue-size figures
+                    are inventory counts, not performance/accuracy claims;
+                    matched the live /mcp and /screens pages at audit time,
+                    expected to grow (repo pushed same day as this audit).
+  MARKETING-AUDIT:  pass — no "coming soon" features presented as shipped in
+                    `apps/mcp/src/tools.ts`'s 15 registered tools; the per-IP
+                    rate limit (`apps/web/src/app/api/mcp/route.ts`) is
+                    disclosed by upstream as in-memory/per-lambda-instance, a
+                    real ceiling stated plainly rather than oversold as
+                    distributed.
+  LICENSE:          MIT. LICENSE file present at repo root (`gh api
+                    repos/Nutlope/inspo/contents/LICENSE`), matches GitHub
+                    API's `license.spdx_id` — parity, no carve-outs.
+  MATURITY:         pass for the "MCP server" floor (stdio + JSON-RPC
+                    compliance, declared tools list): built on the official
+                    `@modelcontextprotocol/sdk`
+                    (`server/mcp.js`+`server/stdio.js`), not a hand-rolled
+                    protocol shim. 147★, 0 open issues, 249 commits, pushed
+                    2026-09-15 (day of this audit) — actively maintained.
+  DATA-LOCALITY:    vendor (Vercel-hosted, region unspecified in DEPLOY.md).
+                    Read-only design catalogue: the gallery + MCP route serve
+                    a static seed (`packages/db/src/static-screens.json`), no
+                    live DB read at query time. Query inputs (search text, hex
+                    colors, macrostructure/slug names) reach inspo's backend;
+                    no project code or private content is sent. No self-host
+                    path documented — DEPLOY.md describes Postgres/Fly.io/
+                    Vercel as upstream's own deploy, not something a
+                    downstream project stands up itself. Retention policy for
+                    query text is not documented — disclose as unspecified.
+  PROVENANCE:       85acb10f42e433b696fd95a447baf4d47d11021d (main, 2026-09-15)
+  SECURITY-SCAN:    n/a (remote) — MCP server contacted purely over the wire
+                    (npx installer writes client config, no vendored source),
+                    per criterion #8's scope carve-out. The source dive above
+                    (marketing-parity + SSRF review) covered the parts of the
+                    codebase relevant to trust anyway, in more depth than a
+                    static scanner would have.
+  VERDICT:          ADD (companions.json design-reference category). Clean
+                    pass on all eight — better-engineered than several
+                    existing catalog entries (real SSRF hardening with a
+                    disclosed platform limitation, honest per-instance
+                    rate-limit disclosure). Sole caveat carried into the
+                    catalog entry's `risk` field: vendor-hosted-only, no
+                    self-host — free/no-API-key today is not a durability
+                    guarantee. Revisit if upstream goes quiet (no push in 6+
+                    months) or adds auth/pricing.
+```

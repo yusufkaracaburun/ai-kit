@@ -5,7 +5,7 @@
     "source_url": "https://github.com/yusufkaracaburun/ai-kit/blob/master/standards/external/companions.json",
     "source_license": "MIT",
     "vendored_at": "2026-05-25",
-    "notes": "Catalogues the companions branch of /ai:recommend-tools (graphify, caveman, ponytail, llm-wiki, context7, ui-ux-pro-max, skillui, scrapling). Each entry documents its tier(s), detection signal, glue file(s), conflict checks, and wiring path. Consumed by `audit-setup-symmetry.sh` so new companions cannot land without a documented wiring path. Companions are orthogonal to MCP/hooks/plugins/subagents — the latter score via `recommend-tools-lib.sh` from stack-signals; companions are surfaced per project judgement and never scored numerically."
+    "notes": "Catalogues the companions branch of /ai:recommend-tools (graphify, caveman, ponytail, llm-wiki, context7, ui-ux-pro-max, skillui, scrapling, inspo-mcp). Each entry documents its tier(s), detection signal, glue file(s), conflict checks, and wiring path. Consumed by `audit-setup-symmetry.sh` so new companions cannot land without a documented wiring path. Companions are orthogonal to MCP/hooks/plugins/subagents — the latter score via `recommend-tools-lib.sh` from stack-signals; companions are surfaced per project judgement and never scored numerically."
   },
   "recommendations": [
     {
@@ -312,6 +312,34 @@
         "notes": "Third-party, MIT-maintainer-equivalent trust (BSD-3, 80.9k★, pushed 2026-09-13, 7 open issues) — actively maintained. The `[ai]` extra bundles exactly `mcp` + `markdownify` + `scrapling[fetchers]`, the intended install shape for the MCP server. `scrapling install --force` downloads browser dependencies after the pip install."
       },
       "license": "BSD-3-Clause (LICENSE file present, matches package metadata — see VETTING.md audit 2026-09-14)"
+    },
+    {
+      "name": "inspo-mcp",
+      "category": "design-reference",
+      "best_for": "Landing-page / marketing-site / portfolio design work that needs real production-site exemplars — not a style taxonomy (ui-ux-pro-max) and not a single named URL (skillui), a searchable archive to pull comparable real sites from on demand",
+      "value": "MCP server over a curated archive of 832 production sites / 2,320 screens. 15 tools: `recommend`/`search_screens`/`find_similar`/`find_by_color`/`find_examples_for_macrostructure` for discovery, `get_screen`/`get_design_system`/`compare` for study, `find_components`/`find_reference_jsx` for concrete code. Closes the gap ui-ux-pro-max's own entry names — 'pair with actual reference sites for concrete visual exemplars' — by giving the agent a live lookup instead of reasoning from training-data associations of vibe words like 'Linear-style' or 'Awwwards-experimental'.",
+      "risk": "Low-medium — vendor-hosted only (Vercel, static catalogue seed; no self-host path documented in DEPLOY.md), so availability/pricing depend on the maintainer keeping it free. Search/query text and hex colors go to inspo's backend; no project code or private content is sent. Per-IP rate limit is in-memory/per-lambda-instance — upstream discloses this as a real ceiling, not a hidden ceiling. See VETTING.md audit, 2026-09-15 — clean pass on all eight, no undisclosed marketing claims found.",
+      "tiers": [
+        {
+          "name": "base",
+          "description": "Read-only design-reference lookups (discovery/study/reference-code tools). Signal-gated like skillui/scrapling: only offered when the project shows landing-page/marketing/portfolio design work, never for backend/CLI/admin-only repos.",
+          "wired_via": "workflow/skills/recommend-tools/SKILL.md Phase 3 inspo-mcp branch (AGENTS.md pointer + MCP install)",
+          "glue_files": [
+            "context/templates/companions/inspo-mcp.md"
+          ]
+        }
+      ],
+      "detection": {
+        "mcp": "claude mcp list 2>/dev/null | grep -qi inspo"
+      },
+      "install": {
+        "upstream": "https://github.com/Nutlope/inspo",
+        "install_command": "npx -y inspo-mcp install",
+        "mcp_register_command": "npx -y inspo-mcp install",
+        "auto_install": false,
+        "notes": "Auto-detects Claude Code/Cursor/VS Code/Windsurf/Zed/Claude Desktop and writes its own MCP config. No API key required. Hosted at inspomcp.dev (Vercel); the MCP server itself uses the official @modelcontextprotocol/sdk over stdio."
+      },
+      "license": "MIT (LICENSE file present, matches GitHub API license field — see VETTING.md audit 2026-09-15)"
     }
   ]
 }
