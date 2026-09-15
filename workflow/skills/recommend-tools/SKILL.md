@@ -7,7 +7,7 @@ Recommend and wire **companion tools** for this project — external AI-producti
 
 ## What a companion tool is
 
-A third-party tool *or pattern* that improves the AI coding setup but is **not** part of ai-kit's agile lifecycle. ai-kit owns the *integration glue* (a rules block, a hook, a scaffold), never the tool itself. The current catalog lives at `standards/external/companions.json` — that file is the source of truth for which companions exist, their tiers, detection signals, and conflict checks. The table below summarises; see the JSON for fields, glue paths, and conflict rules. Eight are known today:
+A third-party tool *or pattern* that improves the AI coding setup but is **not** part of ai-kit's agile lifecycle. ai-kit owns the *integration glue* (a rules block, a hook, a scaffold), never the tool itself. The current catalog lives at `standards/external/companions.json` — that file is the source of truth for which companions exist, their tiers, detection signals, and conflict checks. The table below summarises; see the JSON for fields, glue paths, and conflict rules. Nine are known today:
 
 | Companion | Optimizes | Effect | Risk |
 | --------- | --------- | ------ | ---- |
@@ -19,6 +19,7 @@ A third-party tool *or pattern* that improves the AI coding setup but is **not**
 | **ui-ux-pro-max** | Design — what the AI knows about styling before it writes UI | Searchable style/palette/typography/UX-guideline database, priority-ranked by product type. Reference only — not real product screenshots. | Low — read-only reference skill, no code generated on its own. |
 | **skillui** | Design — real tokens from a reference site instead of a taxonomy | CLI extracts colors/fonts/spacing/animations/components from a URL/repo/dir the user names, writes DESIGN.md + a .skill file. | Medium — README's "no API keys" claim is false (hardcoded Google Fonts key, calls googleapis.com); no LICENSE file upstream. See VETTING.md. |
 | **scrapling** | Web-fetch — reaching pages WebFetch/browser tools can't | Official MCP server: multi-page/session crawling, JS-render, anti-bot bypass (Cloudflare Turnstile), prompt-injection sanitization. Feeds design-direction reference research and API-doc ingestion. | Low — clean VETTING.md pass, BSD-3-Clause, no caveats. |
+| **inspo-mcp** | Design — real production-site exemplars instead of vibe-word taxonomy | MCP server over 832 curated production sites / 2,320 screens: discovery (`find_similar`/`find_by_color`/`find_examples_for_macrostructure`), study (`get_design_system`/`compare`), and reference code (`find_reference_jsx`). | Low-medium — clean VETTING.md pass, but vendor-hosted only (no self-host). |
 
 They are orthogonal to each other and to ai-kit. Recommend per project, never blanket — except **context7**, which scores `universal: true` in `standards/external/mcp-servers.json` and surfaces for every stack the deterministic recommender runs against (Phase "MCP servers + Claude Code hooks + Claude Code plugins" below).
 
@@ -70,6 +71,7 @@ claude plugin list 2>/dev/null | grep -qi ponytail && echo "ponytail: installed"
 command -v skillui >/dev/null 2>&1 && echo "skillui: CLI present" || echo "skillui: not installed"
 command -v scrapling >/dev/null 2>&1 && echo "scrapling: CLI present" || echo "scrapling: not installed"
 { claude mcp list 2>/dev/null | grep -qi scrapling; } && echo "scrapling: MCP server registered" || echo "scrapling: MCP server not registered"
+{ claude mcp list 2>/dev/null | grep -qi inspo; } && echo "inspo-mcp: MCP server registered" || echo "inspo-mcp: MCP server not registered"
 ```
 
 Report the lines plainly. Detection drives the recommendation — never claim a tool is wired when it is not. The two graphify lines disambiguate **base tier** (`graphify-out/`) from **wiki tier** (`graphify-out/wiki/`); the wiki tier is an opt-in nudge described in Phase 3.
@@ -85,6 +87,7 @@ Judge fit against the actual repo, do not blanket-recommend:
 - **ui-ux-pro-max** — strong fit when the repo has UI to design (frontend framework, Tailwind/CSS config, or a component directory). No fit for a pure backend/CLI/API repo — do not offer it there. It is a rules/taxonomy reference, not real product screenshots — if the user's complaint is "output doesn't look premium," say so explicitly and point at pairing it with real reference sites (Mobbin, Land-book) rather than treating this companion alone as the fix.
 - **skillui** — strong fit whenever the user names a specific reference URL/repo/dir during design or component work; run it against that target before eyeballing a screenshot. No fit as a standalone recommendation — it needs a concrete target to point at, unlike ui-ux-pro-max's static taxonomy. Always disclose the two VETTING.md caveats when offering it: the README's "no AI, no API keys, no cloud" claim is false (hardcoded Google Fonts key, calls googleapis.com on every scan), and the upstream repo has no LICENSE file despite package.json claiming MIT.
 - **scrapling** — strong fit for any project doing external research, third-party API-doc ingestion, or reference-site work (design-direction, llm-wiki raw material) — not gated to UI like ui-ux-pro-max/skillui. Weak fit for a project with no external-fetch need at all. Clean VETTING.md pass — no caveats to disclose, unlike skillui. Complements skillui (this fetches the page, skillui extracts tokens from it) and is a different scope than the `playwright`/`puppeteer`/`firecrawl` entries in `mcp-servers.json` — those fire when the *project itself* depends on them; this fires when *the agent* needs to reach a page the project doesn't otherwise touch.
+- **inspo-mcp** — strong fit for landing-page/marketing-site/portfolio design work, especially a redesign brief that names vibe words ("Linear-style", "Awwwards-experimental") the model would otherwise only match from training-data associations. Same UI-signal gate as ui-ux-pro-max/skillui. Complements both: ui-ux-pro-max names the pattern from a taxonomy, skillui extracts tokens from one URL the user already named, inspo-mcp is the step in between — finding a real comparable site when none was named yet. Clean VETTING.md pass, but disclose the vendor-hosted-only risk (no self-host path; free today, could add pricing/auth later).
 
 State, for each: present-or-not, fit for *this* repo, and the one-line why.
 
@@ -152,6 +155,12 @@ Glue templates live in `$AI_KIT_ROOT/context/templates/companions/`. Wire only t
 2. If already installed (Phase 1 detection), skip straight to appending the AGENTS.md pointer; if the CLI is present but the MCP server isn't registered, offer just the `claude mcp add` step.
 3. Otherwise offer it — clean VETTING.md pass, no caveats to state. On yes: `pip install "scrapling[ai]" && scrapling install --force`, then `claude mcp add scrapling -- scrapling mcp`.
 4. Append `companions/scrapling.md` to the project `AGENTS.md`.
+
+**inspo-mcp:**
+1. Only offer when Phase 1's project-signal check found UI to design (same gate as ui-ux-pro-max/skillui) — no fit for a pure backend/CLI repo.
+2. If already installed (Phase 1 detection), skip straight to appending the AGENTS.md pointer.
+3. Otherwise offer it — clean VETTING.md pass, but disclose it is vendor-hosted only (no self-host path; free today, could add pricing/auth later). On yes: `npx -y inspo-mcp install` (auto-detects the client and writes its own MCP config).
+4. Append `companions/inspo-mcp.md` to the project `AGENTS.md`.
 
 ### Phase 4 — Output contract
 
