@@ -143,6 +143,19 @@ None open.
 
 ## P3 — backlog
 
+- **#166** `catalog-candidate` — harvest `planny-app-mobile`'s project-scoped
+  `mobile-app-ui-design` skill into ai-kit's own catalog, wired via the
+  existing extension-loader pattern keyed on `pubspec.yaml` `sdk: flutter`
+  (ai-kit already detects Flutter, `bin/lib/detect-lib.sh:73,168-169`, but
+  ships no Flutter/mobile-native design skill). Surfaced by `/ai:should-i-use`
+  (2026-09-15) on 7 mobile-design-inspiration URLs; while harvesting, curate
+  references down to `appshots.design`, `screensdesign.com`, `gummble.com`,
+  Mobbin, `pageflows.com` — drop `revyl.com` (verified live: a mobile QA/test
+  platform, not design, wrongly bundled) and skip `collectui.com` (general
+  web UI, weak native-mobile fit). Related to #155 (Dart/Flutter MCP +
+  Patrol, same signal-gate, same source repo) — worth cross-checking the
+  extension-loader wiring once instead of twice. Deferred: user wants to wait
+  before running the harvest.
 - **#165** `catalog-candidate` — adopt-as-pattern "Compound Packs":
   project-declared house rules cited back at plan/review time. Source idea:
   `EveryInc/compound-engineering-plugin`'s `docs/guides/packs.md` (MIT), found
