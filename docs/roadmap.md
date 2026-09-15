@@ -143,6 +143,19 @@ None open.
 
 ## P3 — backlog
 
+- **#168** `catalog-candidate` — evaluate `inspo-mcp` (github.com/Nutlope/inspo,
+  MIT, 146★) as a new `design` companion: a curated MCP-native archive of 832
+  production websites / 2,320 screens (semantic search, design-system
+  extraction, reference JSX), filling the gap `ui-ux-pro-max`'s own entry
+  names — "pair with actual reference sites for concrete visual exemplars".
+  Free, no API key, `npx -y inspo-mcp install`. Surfaced by `/ai:should-i-use`
+  (2026-09-15). No downstream project has an active need today: naschool's
+  marketing visual-direction rework is parked pending pilot data, emeq-web's
+  landing page runs through its own `.pen` workflow, planny's design system is
+  locked. Complements rather than duplicates #166 (that's mobile-native app
+  screens; this is web). Still needs a VETTING.md pass — licence is clean but
+  it's a free hosted-only dependency (Together AI, no self-host) with no
+  maturity/security-scan check yet.
 - **#166** `catalog-candidate` — harvest `planny-app-mobile`'s project-scoped
   `mobile-app-ui-design` skill into ai-kit's own catalog, wired via the
   existing extension-loader pattern keyed on `pubspec.yaml` `sdk: flutter`
