@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.85.0 — 2026-09-15
+
+### Added
+
+- **New `/ai:recommend-tools` companion: `inspo-mcp`**, a design-reference MCP server over a curated archive of 832 production sites / 2,320 screens. Surfaced by `/ai:should-i-use https://inspomcp.dev/`: `ui-ux-pro-max`'s own catalog entry already named the gap — "pair with actual reference sites for concrete visual exemplars" — and nothing filled it generically (`skillui` only extracts tokens from a URL the user already names). Track B checked six real projects: `emeq-hub` had an active, confirmed need (`design-taste-frontend` skill names vibe words like "Linear-style"/"Awwwards-experimental" with no live lookup mechanism — filed as `emeq-hub#112`), while `theorieplek`, `emeq-web`, and `planny-app-mobile` were Ignore (design-led via Pencil, or wrong category — `planny-app-mobile`'s native-app-screen gap is already covered by `#166`'s curated mobile sources). VETTING.md pass source-dove the monorepo rather than trusting the marketing page: OKLAB color search, embedding-based similarity with an honest fallback, and real SSRF hardening (private/loopback/link-local/CGNAT/cloud-metadata-range blocking with DNS-rebinding resolution) all confirmed in `apps/mcp/src/tools.ts` and `packages/shared/src/study.ts`. Clean pass on all eight criteria; sole caveat disclosed in the catalog entry is that it's vendor-hosted only (Vercel, no self-host path) — free/no-API-key today isn't a durability guarantee.
+
 ## 1.84.0 — 2026-09-15
 
 ### Added
