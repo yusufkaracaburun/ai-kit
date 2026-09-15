@@ -28,6 +28,9 @@ internal tools.
 - One shared builder produces `<title>`, meta description, canonical, OG tags
   and JSON-LD. Not per-page duplication, not client-side injection — a crawler
   that runs no JavaScript must receive the finished tags.
+- `og:image` is set explicitly, not left to a platform's fallback screenshot.
+  "OG tags" as a blanket term lets title/description/url ship while the image
+  quietly stays unset — the most common share-preview gap.
 - Canonical is derived from the current URL, never hand-written per page.
 - Non-indexable pages (confirmations, thank-you, previews) carry `noindex`
   **and** stay out of the sitemap. One signal without the other reads as a
