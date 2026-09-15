@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.86.0 — 2026-09-15
+
+### Added
+
+- **New `/ai:recommend-tools` companion: `emilkowalski-skills`**, animation-specific taste (easing/duration/physicality/interruptibility) that no existing design companion covers — `ui-ux-pro-max`/`impeccable` are palette/anti-slop taxonomies, `skillui`/`inspo-mcp` extract tokens or reference real sites, none judge motion. Surfaced by `/ai:should-i-use https://github.com/emilkowalski/skills`. Two independently-gated tiers: **animation** (`animate`/`review-animations`/`improve-animations`/`find-animation-opportunities`/`animation-vocabulary`, gated on a frontend framework + real transition/`@keyframes`/framer-motion code) and **sonner** (`ask-sonner` alone, gated on the `sonner` dependency regardless of the animation signal). Track B checked six real projects: `emeq-app` (React 19 + `motion` dep, 155 files with animation usage, `sonner` present) and `naschool`'s three frontends (152 files, `sonner` in all three) fire both tiers; `emeq-web`/`theorieplek` are lighter but real; `planny` uses `vue-toastification`, not `sonner` — sonner tier correctly doesn't fire; `planny-app-mobile` is Flutter/Dart, confirmed by import statements (not just `.swift` file count, which is inflated by vendored CocoaPods/Flutter-runner boilerplate) — `write-swift`/`animate-expo` correctly not wired anywhere. Deliberately narrow: the upstream repo's `emil-design-eng` (674 lines, duplicates `animate` + `review-animations`) and four other skills with no confirmed downstream signal are not wired — see the catalog entry's install notes.
+
+### Fixed
+
+- **Re-verified the `designlang` (Manavarya09/design-extract) Ignore** in `plugins-excluded.json` with concrete new evidence: its npm-published version is 3 months behind the GitHub/plugin-manifest-advertised release, so 5 of its 14 documented Claude Code plugin commands (`/dna`, `/fidelity`, `/site`, `/gallery`, `/studio`) 404 on a fresh install — confirmed by downloading and inspecting the actual published tarball, not assumed from the README. Otherwise cleaner than the incumbent `skillui` (real LICENSE, real MCP SDK, disclosed opt-in AI); reopens if npm catches up to the GitHub release.
+- **Two test-suite issues found via a redundancy audit**: `bootstrap-emit.sh`'s exact rule-count assertion broke on every new rule addition (51→52, then 52→53 this session alone) for zero extra regression-catching value beyond the membership check already next to it — now checks existence instead. `single-dev-drift.sh` dropped a `doctor script exists` assertion duplicated verbatim in `doctor-workflow-solo-lint.sh`.
+
 ## 1.85.0 — 2026-09-15
 
 ### Added
