@@ -31,6 +31,13 @@ Release a working increment. Stack-agnostic — derive deploy commands from `doc
 4. **Post-deploy**
    - Run `qa` quick tier against staging/production URL if applicable
    - Verify critical paths manually if no E2E exists
+   - Notify dependent peer sessions ([session-coordination](../../../standards/rules/session-coordination.mini.md)):
+     ```bash
+     bash "${CLAUDE_PLUGIN_ROOT}/bin/ai-kit-claim.sh" show
+     ```
+     For every live claim whose `depends_on` names this repo, `SendMessage` a deploy
+     notice: the commit range (`prod deployed <from>..<to>`) and the consumer-relevant
+     changes in ≤5 bullets ("relevant for the app: (1)… (2)…"). Empty table → skip.
 
 5. **Done**
    - Close release issues

@@ -68,6 +68,7 @@ $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" \
   --universal-mcps-prompted=context7,... \
   --universal-companions-prompted=caveman,... \
   --search-delegation-hook=wired --build-delegation-hook=wired --phase-check-hook=wired \
+  --peer-sessions-hook=wired \
   --secrets-scan=clean|findings-acknowledged|findings-issue-filed|skipped-no-binary|skipped-not-git|error \
   --docker=skipped --tracker=skipped --workflow=skipped \
   --domain-docs=skipped --architecture=skipped --sandcastle=false --context-drift-hook=skipped
@@ -179,6 +180,7 @@ Tier-A because the universals' value is stack-agnostic.
 ```bash
 $AI_KIT_ROOT/bin/apply-search-delegation-hook.sh "$(pwd)"
 $AI_KIT_ROOT/bin/apply-build-delegation-hook.sh "$(pwd)"
+$AI_KIT_ROOT/bin/apply-peer-sessions-hook.sh "$(pwd)"
 ```
 
 **Search-delegation** wires a `PreToolUse(Bash|Grep|Glob)` hook that fires
@@ -209,6 +211,14 @@ applied, not negotiated. Record `--search-delegation-hook=wired` and
 The search hook supersedes the older graphify-only nudge that
 `/ai:recommend-tools` used to merge; its applier **replaces** that entry
 rather than stacking a second one.
+
+The second applier wires a `SessionStart` hook that fires **only when other
+Claude Code sessions are live on this machine** (ADR-0014): it injects the
+peers table plus the
+[`session-coordination`](../../../standards/rules/session-coordination.mini.md)
+protocol and asks the agent to register a claim (`ai-kit-claim.sh`). No
+peers → silent, zero context. Same auto-apply reasoning as above. Record
+`--peer-sessions-hook=wired`.
 
 ### Branch 2e — Universal companions (auto-prompt)
 
@@ -593,6 +603,7 @@ $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" \
   --universal-mcps-prompted=context7,... \
   --universal-companions-prompted=caveman,... \
   --search-delegation-hook=wired --build-delegation-hook=wired --phase-check-hook=wired \
+  --peer-sessions-hook=wired \
   --secrets-scan=clean|findings-acknowledged|findings-issue-filed|skipped-no-binary|skipped-not-git|error \
   --docker=... --tracker=... --workflow=... \
   --domain-docs=scaffolded|filled|skipped \
@@ -624,6 +635,7 @@ $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict
     "search_delegation_hook": "wired",
     "build_delegation_hook": "wired",
     "phase_check_hook": "wired",
+    "peer_sessions_hook": "wired",
     "secrets_scan": "clean",
     "docker": "skipped",
     "issue_tracker": "skipped",
