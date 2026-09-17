@@ -161,6 +161,11 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
 6. **Review.** Invoke `review` in `comprehensive` mode with
    security depth `deep`. Any **Blocker** or security finding ≥ `high`
    → `exit-gate review-blocked`, leave branch for human.
+6a. **Verify.** Spawn `verifier` (Task tool, `subagent_type=verifier`)
+    on the claim "the acceptance criteria in the Agent Brief are met by
+    this branch"; pass the brief and `git diff <default-branch>...HEAD`.
+    REFUTED → `exit-gate verify-refuted <counter-evidence line>`, leave
+    branch for human. CONFIRMED or UNTESTABLE → continue.
 7. **Ship.** Invoke `ship` to open a PR. **Never auto-merge.**
    The project's merge policy (CI, approval, branch protection) is
    the safety net.
@@ -202,6 +207,7 @@ Always exit with a one-line `exit-*` entry in `progress.txt`:
 | TDD cap (≤3 attempts per cycle) | `exit-gate tdd-stuck` | Human implementation |
 | Review blockers | `exit-gate review-blocked` | Human review |
 | Security ≥ high | `exit-gate security` | Human review |
+| Verifier refutes "acceptance criteria met" | `exit-gate verify-refuted <counter-evidence>` | Human review |
 | Triage labels missing on tracker | `exit-gate triage-labels-missing <label>` | `gh label create <label>`; re-run |
 | Merge policy disagreement (brief vs project config) | `exit-gate merge-policy-mismatch <detail>` | Align brief or project config; re-run |
 | Projected 5-hour cost ≥ `AI_KIT_AUTONOMOUS_USAGE_GUARD_USD` (opt-in) | `exit-gate usage-cap <projected-vs-guard>` | Wait for the block to roll (`ccusage blocks --active` shows `remainingMinutes`), then re-invoke |

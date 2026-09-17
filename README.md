@@ -11,7 +11,7 @@ runtime daemon, no network calls, no telemetry.
 | Primitive | Count | Reaches |
 | --------- | -----:| ------- |
 | Skills | 43 | Claude Code · Cursor |
-| Subagents | 3 | Claude Code |
+| Subagents | 4 | Claude Code |
 | Slash commands | 11 | Claude Code · Cursor |
 | Hooks | 2 | Claude Code |
 | Rules | 43 canonical mini-rules | Cursor · Claude Code (via emitter) |

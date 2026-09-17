@@ -149,7 +149,7 @@ install_dir_to "$PRIMITIVES/skills" "${HOME}/.cursor/skills"
 echo ""
 if [ "$PREFER_PLUGIN" = true ]; then
   echo "=== Claude Code subagents — skipped (prefer-plugin marker) ==="
-  echo "  Install via /plugin install ai@yusufkaracaburun to get explore/reviewer/qa-runner."
+  echo "  Install via /plugin install ai@yusufkaracaburun to get explore/reviewer/qa-runner/verifier."
 else
   echo "=== Claude Code subagents (~/.claude/agents) ==="
   install_dir_to "$PRIMITIVES/agents" "${HOME}/.claude/agents"

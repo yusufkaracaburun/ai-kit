@@ -10,7 +10,7 @@ second shows what happens *during* a turn. For the prose version see
 ```mermaid
 flowchart LR
   subgraph SRC["Source layer — ai-kit repo (single source of truth)"]
-    SA["workflow/skills · agents<br/>43 skills + 3 subagents"]
+    SA["workflow/skills · agents<br/>43 skills + 4 subagents"]
     CB["workflow/commands + bin/ai-kit-*.sh<br/>11 slash commands + CLI"]
     H["bin/hooks/*.sh + hooks.json<br/>2 hook wirings"]
     R["standards/rules/*.mini.md<br/>43 agent-agnostic rules"]
@@ -74,7 +74,7 @@ flowchart TD
   SK --> TOOL["Tools: Read · Grep · Bash · Edit · Write"]
   SK --> DEL{"Claude Code?"}
 
-  DEL -->|yes| SUB["Subagent in its own context<br/>reviewer · qa-runner · explore"]
+  DEL -->|yes| SUB["Subagent in its own context<br/>reviewer · qa-runner · explore · verifier"]
   DEL -->|no, Cursor| INL["Inline checklist inside the skill<br/>same source, no Task tool"]
 
   SUB --> REP["Structured report back<br/>≤300 lines, raw output stays isolated"]

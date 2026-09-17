@@ -20,15 +20,18 @@ assert "rename-housekeeping skill exists" '[ -f "$AIKIT/workflow/skills/rename-h
 echo "=== agents ==="
 # section: agents
 AGENT_COUNT=$(find "$AIKIT/workflow/agents" -name AGENT.md | wc -l | tr -d ' ')
-assert "3 subagents present" '[ "$AGENT_COUNT" -eq 3 ]'
+assert "4 subagents present" '[ "$AGENT_COUNT" -eq 4 ]'
 assert "explore exists" '[ -f "$AIKIT/workflow/agents/explore/AGENT.md" ]'
 assert "reviewer exists" '[ -f "$AIKIT/workflow/agents/reviewer/AGENT.md" ]'
 assert "qa-runner exists" '[ -f "$AIKIT/workflow/agents/qa-runner/AGENT.md" ]'
+assert "verifier exists" '[ -f "$AIKIT/workflow/agents/verifier/AGENT.md" ]'
 assert "explore frontmatter name" 'head -5 "$AIKIT/workflow/agents/explore/AGENT.md" | grep -q "^name: explore$"'
 assert "explore frontmatter tools" 'head -5 "$AIKIT/workflow/agents/explore/AGENT.md" | grep -q "^tools:"'
 assert "reviewer frontmatter name" 'head -5 "$AIKIT/workflow/agents/reviewer/AGENT.md" | grep -q "^name: reviewer$"'
 assert "qa-runner frontmatter name" 'head -5 "$AIKIT/workflow/agents/qa-runner/AGENT.md" | grep -q "^name: qa-runner$"'
 assert "qa-runner frontmatter tools" 'head -5 "$AIKIT/workflow/agents/qa-runner/AGENT.md" | grep -q "^tools:"'
+assert "verifier frontmatter name" 'head -5 "$AIKIT/workflow/agents/verifier/AGENT.md" | grep -q "^name: verifier$"'
+assert "verifier frontmatter has no model pin" '! head -5 "$AIKIT/workflow/agents/verifier/AGENT.md" | grep -q "^model:"'
 
 
 echo "=== slash-commands ==="
@@ -51,6 +54,9 @@ for s in qa diagnose to-issues improve-codebase-architecture; do
   assert "$s skill has a Run mode block" 'grep -q "^## Run mode" "$AIKIT/workflow/skills/'"$s"'/SKILL.md"'
 done
 assert "qa skill delegates to qa-runner" 'grep -q "qa-runner" "$AIKIT/workflow/skills/qa/SKILL.md"'
+assert "review skill spawns verifier" 'grep -q "subagent_type=verifier" "$AIKIT/workflow/skills/review/SKILL.md"'
+assert "autonomous skill spawns verifier" 'grep -q "subagent_type=verifier" "$AIKIT/workflow/skills/autonomous/SKILL.md"'
+assert "autonomous stop conditions list verify-refuted" 'grep -q "exit-gate verify-refuted" "$AIKIT/workflow/skills/autonomous/SKILL.md"'
 assert "diagnose skill delegates to explore" 'grep -q "explore" "$AIKIT/workflow/skills/diagnose/SKILL.md"'
 assert "to-issues skill delegates to explore" 'grep -q "explore" "$AIKIT/workflow/skills/to-issues/SKILL.md"'
 assert "improve-arch skill delegates to explore" 'grep -q "explore" "$AIKIT/workflow/skills/improve-codebase-architecture/SKILL.md"'

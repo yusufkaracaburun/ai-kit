@@ -11,8 +11,9 @@ Read `CONTEXT.md` and relevant ADRs first; they're cached truth. See [`context-d
 
 ## Run mode
 
-- **Claude Code (preferred):** delegate the full review pass to the `reviewer` subagent via the Task tool with `subagent_type=reviewer`. Pass: base branch, target ref (default `HEAD`), mode (`daily` or `comprehensive`), security depth (`default` or `deep`). Return the subagent's markdown report to the user verbatim, then discuss the verdict.
+- **Claude Code (preferred):** delegate the full review pass to the `reviewer` subagent via the Task tool with `subagent_type=reviewer`. Pass: base branch, target ref (default `HEAD`), mode (`daily` or `comprehensive`), security depth (`default` or `deep`). Run the verify pass below, return the adjusted report to the user, then discuss the verdict.
 - **Cursor / hosts without subagents:** run the inline checklist below in the main context. The checklist below is the canonical source of truth — `reviewer`'s system prompt mirrors it.
+- **Verify pass (Claude Code):** after `reviewer` returns and before you surface the verdict, spawn one `verifier` per item under **Blockers** and per high-severity item under **Security** — all in parallel, one Task call each with `subagent_type=verifier`. Claim: "`<file:line>` — <finding> is a blocker"; pass the report excerpt as evidence. REFUTED → move the item to **Suggestions**, appending the verifier's one-line basis. CONFIRMED → stays. UNTESTABLE → stays, annotated "(verifier: untestable — <residual doubt>)". Then re-derive the verdict (APPROVE only with zero Blockers and zero high-severity Security items). Hosts without subagents: skip the pass and say so under Scope.
 
 For wide cross-file impact analysis where you don't need a full verdict, prefer `explore` (read-only sweep) over inline grepping.
 

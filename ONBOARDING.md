@@ -10,7 +10,7 @@ Stack-agnostic. Pure Bash + Markdown. One canonical source emits skills,
 subagents, slash commands, hooks, and rules to both hosts — no per-host
 duplication, no runtime daemon, no network calls, no telemetry.
 
-Today (v1.39.0): **43 skills · 3 subagents · 11 slash commands · 2 hooks ·
+Today (v1.39.0): **43 skills · 4 subagents · 11 slash commands · 2 hooks ·
 43 canonical mini-rules · 21 curated MCP servers · 25 curated hook recipes ·
 12 curated plugins · 5 baseline repo templates.**
 
@@ -61,8 +61,8 @@ See [docs/architecture.md](docs/architecture.md) for the full diagram.
 
 - **Skill** — a `SKILL.md` invoked by name (e.g. `/ai:setup`). Lives in
   `workflow/skills/`.
-- **Subagent** — an `AGENT.md` a skill can delegate to. Three exist:
-  `explore`, `reviewer`, `qa-runner`.
+- **Subagent** — an `AGENT.md` a skill can delegate to. Four exist:
+  `explore`, `reviewer`, `qa-runner`, `verifier`.
 - **Slash command** — a `workflow/commands/<name>.md` resolving to a
   bash script. Eight exist (`doctor`, `which`, `status`, `no-globals`,
   `upgrade`, `next`, `dedupe`, `prefer-plugin`).

@@ -1,6 +1,6 @@
 # Mental model
 
-How the 43 skills fit together, plus the 3 subagents and 11 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
+How the 43 skills fit together, plus the 4 subagents and 11 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
 
 For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossary.md). For "I want to add X — which primitive?" see [primitives.md](primitives.md).
 
@@ -63,6 +63,7 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
 | ----------------- | -------------- |
 | `review` skill on Claude Code | `reviewer` (full pre-merge review with structured markdown report) |
 | `qa` skill on Claude Code | `qa-runner` (full QA pass — Playwright/CLI tests, structured findings report; large browser output stays isolated) |
+| A blocker from `review`, or the "acceptance criteria met" claim before `autonomous` ships | `verifier` (adversarial check of one claim — REFUTED / CONFIRMED / UNTESTABLE, verdict only) |
 | Codebase walk from `diagnose`, `to-issues`, `improve-codebase-architecture` | `explore` (read-only sweeps, ≤300 lines, structured return) |
 | Cross-file impact analysis from any other skill | `explore` |
 
