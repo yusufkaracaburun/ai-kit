@@ -96,6 +96,9 @@ echo ""
 #   3. If a project marker has any OTHER setup_mode (solo-both, solo-global,
 #      brownfield) — project explicitly opted into globals, so CHECK them even
 #      if the machine has opted out. (Project intent beats machine preference.)
+#      Exception: with the plugin installed, "globals" are served by the plugin,
+#      not by ~/.claude/skills symlinks — a machine opt-out then means what it
+#      says, whatever the project's setup_mode.
 #   4. Otherwise (no project context, or marker has no setup_mode), respect
 #      the machine-wide opt-out marker if present.
 #   5. Otherwise, check globals as normal.
@@ -112,7 +115,7 @@ if [ "$EFFECTIVE_MODE" = "auto" ] && [ -n "$TARGET" ] && [ -f "$TARGET/.ai-kit-s
     fi
   fi
 fi
-if [ "$EFFECTIVE_MODE" = "auto" ] && [ "$HAS_PROJECT_MODE" = false ] && [ -f "${HOME}/.config/ai-kit/no-globals" ]; then
+if [ "$EFFECTIVE_MODE" = "auto" ] && { [ "$HAS_PROJECT_MODE" = false ] || [ -d "$HOME/.claude/plugins/cache/yusufkaracaburun/ai" ]; } && [ -f "${HOME}/.config/ai-kit/no-globals" ]; then
   EFFECTIVE_MODE="project-only"
   SKIP_REASON="machine opt-out via ${HOME}/.config/ai-kit/no-globals"
 fi

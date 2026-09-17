@@ -123,6 +123,13 @@ set +e
 OUT_OO_PROJ="$(HOME="$TMP_HOME_OO" "$AIKIT/bin/ai-kit-doctor.sh" "$TMP_OO_PROJ" 2>&1)"
 set -e
 assert "doctor: project solo-both overrides opt-out" '! echo "$OUT_OO_PROJ" | grep -q "machine opt-out"'
+# …unless the plugin serves the globals: then the machine opt-out means it,
+# whatever the project's setup_mode (no ~/.claude/skills symlink nagging).
+mkdir -p "$TMP_HOME_OO/.claude/plugins/cache/yusufkaracaburun/ai/0.0.0"
+set +e
+OUT_OO_PLUGIN="$(HOME="$TMP_HOME_OO" "$AIKIT/bin/ai-kit-doctor.sh" "$TMP_OO_PROJ" 2>&1)"
+set -e
+assert "doctor: opt-out wins over solo-both when the plugin is installed" 'echo "$OUT_OO_PLUGIN" | grep -q "machine opt-out"'
 rm -rf "$TMP_OO_PROJ" "$TMP_HOME_OO"
 
 # ai-kit-no-globals.sh CLI lifecycle: on -> off -> status.
