@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.88.1 — 2026-09-17
+
+### Fixed
+- **`ai-kit-upgrade.sh` no longer installs ai-kit skills, agents or commands into a project that has none.** `repair_links` treated "the directory exists" as "this project has ai-kit links", so a plugin-served repo (emeq/system: three project-own skills, no links) got all 47 plugin skills symlinked into `.claude/skills/` and `.cursor/skills/` on upgrade — every `/ai:*` skill shadowed as a bare project skill (#116). Repair now requires at least one existing ai-kit link; otherwise it prints `No ai-kit <kind> links in … — nothing to repair (plugin serves them)`. Stale links into a GC'd cache dir are still repaired; `--link-all` dirs and `skip_skill_merge` unchanged.
+- **`/ai:doctor` without a path skipped the whole Project section** and reported "all green" while hooks were unwired. With no argument the doctor now treats a cwd that holds `.git`, `.claude` or `.ai-kit-setup` as the project.
+- **Doctor project-hooks check:** an opt-in hook (`context-drift`, recorded `skipped` by Tier-A setup) with no marker claim is `info`, not `warn`; auto-apply hooks still warn. A wired hook whose `.claude/hooks/` copy differs from the kit's source warns with the applier to re-run (copies do not update on `/plugin update`).
+- **Doctor env check:** a `~/.config/ai-kit/root` that points at a removed plugin-cache dir (e.g. `…/ai/1.73.2`) is now a warning with the fix (`printf '%s\n' "$HOME/.config/ai-kit/plugin-current" > "$HOME/.config/ai-kit/root"`) instead of "fallback works".
+- `/ai:doctor` command hints point at `/ai:upgrade`, `/ai:setup` and `apply-<name>-hook.sh` instead of symlink-era `~/.local/share/ai-kit` paths.
+
+### Filed
+- #170 `verify-setup` / `ai-kit-status` ignore `setup_mode=solo-global` and `dev_environment=false`; #171 `/ai:setup` emits 58 rule files + docs scaffold into a plugin-served repo (P1, grill first); #172 absolute `$HOME` symlinks and double skill listing when the plugin serves.
+
 ## 1.88.0 — 2026-09-17
 
 ### Added
