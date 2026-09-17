@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.88.2 — 2026-09-17
+
+### Fixed
+- **Doctor: three bogus "`~/.claude/skills` — N entries but none link to …" warnings on plugin-served machines.** Since 1.88.1 the doctor detects the cwd as the project; mode-resolution rule 3 then read `setup_mode=brownfield`/`solo-both` as "project opted into globals — check them even if the machine opted out" and demanded symlink-install links the user had deliberately replaced with the plugin. With the plugin installed, `~/.config/ai-kit/no-globals` now wins regardless of the project's setup_mode; only a machine without the plugin still gets rule 3. Reported from emeq/system.
+
 ## 1.88.1 — 2026-09-17
 
 ### Fixed
