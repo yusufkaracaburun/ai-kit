@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.88.0 — 2026-09-17
+
+### Added
+- **Three skill-paired subagents** — `builder` (test-first implementer, spawned by `tdd` for ≥3-file changes and by `autonomous` per issue; the red-green-refactor loop is emitted from `tdd/SKILL.md`), `verifier` (adversarial claim-checker: `review` spawns one per blocker in parallel and demotes REFUTED findings; `autonomous` verifies "acceptance criteria met" before ship, `exit-gate verify-refuted`), `designer` (build worker for `design-to-code`; inherits tools so the Pencil MCP works when present). ADR-0013.
+- **`design-to-code` skill** (#106) — stack-agnostic design → audit → build → prove against a `.pen` or other MCP-readable design source; Flutter two-render prove gate; project specifics stay in the project's own overlay skill.
+- **`build-delegation-check` hook** — PreToolUse(Edit|Write|MultiEdit), fires once per session on the third distinct file edited inline and points at `builder`. Installed by `/ai:setup` Branch 2d; marker flag `--build-delegation-hook`.
+- **Peer-session coordination** (ADR-0014) — plugin-shipped SessionStart hook `peer-sessions-check.sh` reads Claude Code's own `~/.claude/sessions` registry and, only when other sessions are live, injects a peers table plus the new `session-coordination` rule (one lead per repo, four messaging triggers, decision relay). `bin/ai-kit-claim.sh set|show|release|prune` keeps a machine-global claims registry under `~/.config/ai-kit/claims/`. `/ai:ship` notifies sessions whose claim depends on the deployed repo.
+- **Doctor: project hooks wired** (#113) — expected hooks derive from `bin/apply-*-hook.sh`; missing → warn with the apply command; marker says wired but `settings.json`/`settings.local.json` disagree → warn naming the drift; marker says skipped → info.
+- **Structure test: agent pairing rule** — every `workflow/agents/<x>/` must be named by ≥1 skill, every `subagent_type=<x>` must resolve, no `model:` pins. `count-primitives` now guards subagent counts.
+
+### Changed
+- `diagnose` folds the debugger rules: never fix a flake with a retry, no try/catch-as-fix, measure before and after, "the expectation was wrong" is a valid outcome.
+- `autonomous` writes `cycle-*` lines from builder's `## Cycles` report and logs `verify-pass`.
+- The four `apply-*-hook.sh` installers collapse onto `install_project_hook` in `bin/lib/settings-hooks.sh`.
+- `docs-sync-nudge` test measures the script with bash's `time` builtin instead of two python startups (was flaky under load).
+- ONBOARDING/glossary list primitive counts with an `ls`, not hand-maintained name lists.
+
+### Fixed
+- `docs/roadmap-archive.md` dead link to the autonomous spike.
+
 ## 1.87.0 — 2026-09-17
 
 ### Removed
