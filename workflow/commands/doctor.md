@@ -14,10 +14,10 @@ Summarise the output for the user:
 2. **Warnings next** (exit code 1).
 3. **All-clear last** (exit code 0) — single line: "ai-kit install is healthy."
 
-Common fixes to suggest by name:
-- Missing global symlinks → `~/.local/share/ai-kit/bin/install-global.sh`
-- Project not bootstrapped → `~/.local/share/ai-kit/bin/bootstrap-project.sh .`
-- Want to skip global checks → `~/.local/share/ai-kit/bin/ai-kit-no-globals.sh on`
-- ai-kit root not resolvable → `export AI_KIT_ROOT=/path/to/ai-kit`
+Common fixes to suggest by name (the doctor prints the exact command per finding — repeat it verbatim):
+- Hook not wired → `bash "${CLAUDE_PLUGIN_ROOT}/bin/apply-<name>-hook.sh" .`
+- Marker version behind → `/ai:upgrade`
+- Project not set up → `/ai:setup`
+- Want to skip global checks → `/ai:no-globals on`
 
 Don't editorialise — just route the user to the right next command.

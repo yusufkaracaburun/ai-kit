@@ -107,8 +107,9 @@ mkdir -p "$TMP_HOME_OO/.config/ai-kit"
 
 set +e
 # AI_KIT_ROOT set so the env section is clean — we're isolating the opt-out
-# effect, not the env check.
-OUT_OO_NOPROJ="$(HOME="$TMP_HOME_OO" AI_KIT_ROOT="$AIKIT" "$AIKIT/bin/ai-kit-doctor.sh" 2>&1)"
+# effect, not the env check. Run from a non-project cwd: with no path the
+# doctor treats a cwd holding .git/.claude/.ai-kit-setup as the project.
+OUT_OO_NOPROJ="$(cd "$TMP_HOME_OO" && HOME="$TMP_HOME_OO" AI_KIT_ROOT="$AIKIT" "$AIKIT/bin/ai-kit-doctor.sh" 2>&1)"
 OO_NOPROJ_EXIT=$?
 set -e
 assert "doctor: machine opt-out skips globals (no project arg)" 'echo "$OUT_OO_NOPROJ" | grep -q "machine opt-out"'

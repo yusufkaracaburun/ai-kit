@@ -34,20 +34,33 @@ assert "ok line names every hook" \
 assert "no hook warning when all are wired" \
   '! echo "$OUT_A" | grep -E "^  warn" | grep -q "hook"'
 
-echo "=== one hook missing ==="
+echo "=== one auto-apply hook missing ==="
 M="$TMP/missing"
 mkdir -p "$M"
-wire_all "$M" context-drift
+wire_all "$M" phase-check
 OUT_M="$(bash "$DOCTOR" "$M" --project-only 2>&1 || true)"
 assert "missing hook warns, never errors" \
-  'echo "$OUT_M" | grep -qE "^  warn .*hook context-drift not in .claude/settings.json"'
+  'echo "$OUT_M" | grep -qE "^  warn .*hook phase-check not in .claude/settings.json"'
 assert "warning carries the apply recipe" \
-  'echo "$OUT_M" | grep -F -q "run: bash $AIKIT/bin/apply-context-drift-hook.sh $M"'
+  'echo "$OUT_M" | grep -F -q "run: bash $AIKIT/bin/apply-phase-check-hook.sh $M"'
 OK_M="$(echo "$OUT_M" | grep -E "^  ok .*hooks wired in .claude/settings.json:" || true)"
 assert "wired hooks still reported ok, missing one left out" \
-  'grep -q "phase-check" <<<"$OK_M" && grep -q "search-delegation" <<<"$OK_M" && ! grep -q "context-drift" <<<"$OK_M"'
+  'grep -q "context-drift" <<<"$OK_M" && grep -q "search-delegation" <<<"$OK_M" && ! grep -q "phase-check" <<<"$OK_M"'
 assert "no disagreement claimed without a marker" \
   '! echo "$OUT_M" | grep -q "disagree"'
+
+echo "=== opt-in hook absent, no marker ==="
+# Four repos that never ran /ai:setup warned "hook context-drift not in
+# settings" — but setup's Tier-A default records it skipped, so a project
+# with no marker claim never chose it. Not chosen is not drifted.
+O="$TMP/optin"
+mkdir -p "$O"
+wire_all "$O" context-drift
+OUT_O="$(bash "$DOCTOR" "$O" --project-only 2>&1 || true)"
+assert "absent opt-in hook is info, naming it opt-in" \
+  'echo "$OUT_O" | grep -E "^  info .*hook context-drift" | grep -q "opt-in"'
+assert "no warn for an opt-in hook the project never chose" \
+  '! echo "$OUT_O" | grep -E "^  warn" | grep -q "context-drift"'
 
 echo "=== marker says wired, settings.json lacks it ==="
 D="$TMP/disagree"
@@ -77,5 +90,29 @@ mkdir -p "$C/.cursor/skills"
 OUT_C="$(bash "$DOCTOR" "$C" --project-only 2>&1 || true)"
 assert "hook check absent without .claude/" \
   '! echo "$OUT_C" | grep -qE "hook.*(wired|not in|skipped)"'
+
+echo "=== wired but the project copy is stale ==="
+ST="$TMP/stale"
+mkdir -p "$ST"
+wire_all "$ST"
+echo "# drifted" >> "$ST/.claude/hooks/phase-check.sh"
+OUT_ST="$(bash "$DOCTOR" "$ST" --project-only 2>&1 || true)"
+assert "stale hook copy is warned with the apply recipe" \
+  'echo "$OUT_ST" | grep -E "^  warn .*hook phase-check copy in .claude/hooks differs" | grep -F -q "apply-phase-check-hook.sh $ST"'
+assert "stale hook is not listed as wired" \
+  '! echo "$OUT_ST" | grep -E "^  ok .*hooks wired" | grep -q "phase-check"'
+
+echo "=== stale ~/.config/ai-kit/root ==="
+RH="$TMP/home-stale"
+mkdir -p "$RH/.config/ai-kit"
+echo "$RH/gone/1.0.0" > "$RH/.config/ai-kit/root"
+OUT_RH="$(HOME="$RH" bash "$DOCTOR" "$TMP/all" --project-only 2>&1 || true)"
+assert "stale root file is warned with the plugin-current recipe" \
+  'echo "$OUT_RH" | grep -E "^  warn .*config/ai-kit/root points at .*gone/1.0.0 \(missing\)" | grep -q "plugin-current"'
+
+echo "=== no path argument: cwd is the project ==="
+OUT_CWD="$(cd "$TMP/all" && bash "$DOCTOR" --project-only 2>&1 || true)"
+assert "doctor run from a project cwd without a path still checks the project" \
+  'echo "$OUT_CWD" | grep -q "^Project: " && echo "$OUT_CWD" | grep -qE "^  ok .*hooks wired"'
 
 print_summary_and_exit

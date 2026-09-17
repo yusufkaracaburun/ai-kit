@@ -47,7 +47,11 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P1 — broken in the wild
 
-None open.
+- **#171** `bug` — `/ai:setup` on a plugin-served repo still emits 29 rules ×2 hosts
+  + docs scaffold with `--no-skills --no-agents --no-commands` (68 files in planny,
+  reverted by hand). Rules are agent behaviour → plugin channel, not per-repo
+  copies; `detect-tooling` then misclassifies them as custom. Grill first —
+  reshapes setup modes (ADR-0011/0012). Sibling of #149.
 
 ## P2 — next up
 
@@ -68,6 +72,12 @@ None open.
   rerun, but nothing tells you to rerun. #114's stable-indirection fix stops them
   being created; this one stops them being invisible.
 
+- **#170** `bug` — `verify-setup.sh` / `ai-kit-status.sh` hard-code project files
+  and never read the marker: a solo-global + `dev_environment=false` project
+  stays FAIL forever; emeq/system's sibling-dir agents skills likewise.
+- **#172** `bug` — `link-primitives` writes absolute `$HOME` symlinks into repos and
+  merges skills a plugin-served machine already exposes as `ai:*` (double
+  listing, #116). Skip the merge when the plugin serves; relative links otherwise.
 - **#149** `bug · primitive:rule` — bestaande projecten krijgen nooit nieuwe
   `universal: true` regels, en doctor meldt dat als groen. emeq-hub mist
   `pre-write-discipline` en `writing-style`; `recommend-rules` adviseert ze

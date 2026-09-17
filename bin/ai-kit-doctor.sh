@@ -40,6 +40,13 @@ for arg in "$@"; do
   esac
 done
 
+# `/ai:doctor` with no argument runs from the project — a cwd that carries a
+# repo or an ai-kit marker is the project. Without this the project section
+# is silently skipped and "all green" says nothing about the hooks.
+if [ -z "$TARGET" ] && [ "$MODE" != "check-global" ] && { [ -d .git ] || [ -d .claude ] || [ -f .ai-kit-setup ]; }; then
+  TARGET="$PWD"
+fi
+
 WARN=0
 ERR=0
 ok()   { echo "  ok    $*"; }
@@ -60,7 +67,14 @@ if [ -n "${AI_KIT_ROOT:-}" ]; then
   fi
 else
   if [ -f "$HOME/.config/ai-kit/root" ]; then
-    ok "AI_KIT_ROOT unset; fallback ~/.config/ai-kit/root works"
+    _root_cfg="$(tr -d '[:space:]' < "$HOME/.config/ai-kit/root")"
+    if [ -d "$_root_cfg" ]; then
+      ok "AI_KIT_ROOT unset; fallback ~/.config/ai-kit/root works"
+    else
+      # A versioned plugin-cache path goes stale on every /plugin update;
+      # the plugin-current symlink does not.
+      warn "\$HOME/.config/ai-kit/root points at $_root_cfg (missing) — run: printf '%s\\n' \"\$HOME/.config/ai-kit/plugin-current\" > \"\$HOME/.config/ai-kit/root\""
+    fi
   else
     # Script-location fallback resolved AIKIT successfully — globals are
     # optional, so this is advisory, not a warning. Counting it as a warn
@@ -363,6 +377,9 @@ for p in sys.argv[1:]:
     except Exception: continue
     print('\n'.join(h.get('command','') for bs in d.get('hooks',{}).values() for b in bs for h in b.get('hooks',[])))" "$TARGET/.claude/settings.json" "$TARGET/.claude/settings.local.json" 2>/dev/null || true)"
       _marker_hooks="$(python3 -c "import json, sys; b=json.load(open(sys.argv[1])).get('branches',{}); print(' '.join(k[:-5].replace('_','-')+'='+str(v) for k,v in b.items() if k.endswith('_hook')))" "$TARGET/.ai-kit-setup" 2>/dev/null || true)"
+      # Opt-in hooks: /ai:setup's Tier-A default records them `skipped`, so
+      # no marker claim means "never chosen", not "drifted" — info, not warn.
+      _opt_in_hooks="context-drift"
       _hooks_ok=()
       for _apply in "$AIKIT"/bin/apply-*-hook.sh; do
         _name="${_apply##*/apply-}"
@@ -374,13 +391,22 @@ for p in sys.argv[1:]:
           *" $_name=skipped "*) _claim=skipped ;;
         esac
         if printf '%s\n' "$_wired_cmds" | grep -qF "$_script"; then
-          _hooks_ok+=("$_name")
+          # The project holds a copy, not a link: a hook that changed in a
+          # newer ai-kit stays old there until the applier re-runs.
+          if [ -f "$TARGET/$_script" ] && [ -f "$AIKIT/bin/hooks/${_script##*/}" ] && ! cmp -s "$TARGET/$_script" "$AIKIT/bin/hooks/${_script##*/}"; then
+            warn "hook $_name copy in .claude/hooks differs from ai-kit $KIT_VERSION — re-run: bash $AIKIT/bin/apply-$_name-hook.sh $TARGET"
+          else
+            _hooks_ok+=("$_name")
+          fi
         elif [ "$_claim" = skipped ]; then
           info "hook $_name skipped per .ai-kit-setup"
         elif [ "$_claim" = wired ]; then
           warn "hook $_name: .ai-kit-setup says wired but .claude/settings.json does not register $_script — marker and reality disagree; run: bash $AIKIT/bin/apply-$_name-hook.sh $TARGET"
         else
-          warn "hook $_name not in .claude/settings.json — run: bash $AIKIT/bin/apply-$_name-hook.sh $TARGET"
+          case " $_opt_in_hooks " in
+            *" $_name "*) info "hook $_name is opt-in — not wired; choose it in /ai:setup" ;;
+            *) warn "hook $_name not in .claude/settings.json — run: bash $AIKIT/bin/apply-$_name-hook.sh $TARGET" ;;
+          esac
         fi
       done
       if [ "${#_hooks_ok[@]}" -gt 0 ]; then

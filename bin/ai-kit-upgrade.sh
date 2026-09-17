@@ -123,7 +123,13 @@ PY
 # now says $VERSION while the links still say $old_version, so the marker
 # lies about install state until the old cache dir is GC'd and everything
 # bricks. Only repairs a link kind the project actually has; --no-skills /
-# --no-agents / --no-commands projects are left exactly as they are.
+# --no-agents / --no-commands projects are left exactly as they are, and so
+# is a dir holding only the project's own entries — the plugin serves ai-kit's
+# there, and merging would shadow every /ai:* skill (#116).
+has_aikit_links() {
+  [ -n "$(find "$1" -maxdepth 1 -type l \( -lname '*ai-kit*' -o -lname '*plugins/cache/*' \))" ]
+}
+
 repair_links() {
   local dest_parent="$1" label="$2" kind="$3"
   local dir="$dest_parent/$kind"
@@ -137,12 +143,26 @@ repair_links() {
         link_skills_all "$dest_parent" "$label" "$PRIMITIVES"
       elif [ "$SKIP_SKILL_MERGE" = "True" ]; then
         echo "Skipping ai-kit skill merge into $label (skip_skill_merge=true)"
+      elif ! has_aikit_links "$dir"; then
+        echo "No ai-kit skill links in $label — nothing to repair (plugin serves them)"
       else
         merge_skills "$dest_parent" "$label" "$PRIMITIVES"
       fi
       ;;
-    agents) merge_agents "$dest_parent" "$label" "$PRIMITIVES" ;;
-    commands) merge_commands "$dest_parent" "$label" "$PRIMITIVES" ;;
+    agents)
+      if has_aikit_links "$dir"; then
+        merge_agents "$dest_parent" "$label" "$PRIMITIVES"
+      else
+        echo "No ai-kit agent links in $label — nothing to repair (plugin serves them)"
+      fi
+      ;;
+    commands)
+      if has_aikit_links "$dir"; then
+        merge_commands "$dest_parent" "$label" "$PRIMITIVES"
+      else
+        echo "No ai-kit command links in $label — nothing to repair (plugin serves them)"
+      fi
+      ;;
   esac
 }
 

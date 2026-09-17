@@ -24,11 +24,12 @@ trap 'rm -rf "$H"' EXIT
 make_fake_version() {
   local version="$1" marker="$2"
   local root="$H/plugins/cache/mkt/ai/$version"
-  mkdir -p "$root/bin" "$root/workflow/skills/demo-skill" "$root/workflow/agents" "$root/workflow/commands"
+  mkdir -p "$root/bin" "$root/workflow/skills/demo-skill" "$root/workflow/agents/demo-agent" "$root/workflow/commands"
   cp -R "$AIKIT/bin/." "$root/bin/"
   ln -sfn "$AIKIT/context" "$root/context"
   printf '%s\n' "$version" > "$root/VERSION"
   printf '# demo-skill (%s)\n' "$marker" > "$root/workflow/skills/demo-skill/SKILL.md"
+  printf '# demo-agent (%s)\n' "$marker" > "$root/workflow/agents/demo-agent/AGENT.md"
   echo "$root"
 }
 
@@ -81,5 +82,40 @@ HOME="$H" bash "$V5/bin/bootstrap-project.sh" --minimal --no-skills --no-agents 
 write_marker "$PN" "3.0.0"
 HOME="$H" bash "$V5/bin/ai-kit-upgrade.sh" "$PN" >/dev/null 2>&1
 assert "no .claude/skills materialized" '[ ! -e "$PN/.claude/skills" ]'
+
+echo "=== plugin-served project holding only its own skills/agents: nothing gets installed ==="
+# emeq/system: .claude/skills/ existed with three project-own dirs and no
+# ai-kit link at all, yet upgrade merged every plugin skill into it — "the
+# dir exists" was read as "this project has ai-kit links to repair".
+V6="$(make_fake_version 4.0.0 v6)"
+PO="$H/proj-own-only"
+mkdir -p "$PO/.claude/skills/my-own-skill" "$PO/.claude/agents/my-own-agent" "$PO/.claude/commands"
+echo "own" > "$PO/.claude/commands/my-own.md"
+echo "own" > "$PO/.claude/skills/my-own-skill/SKILL.md"
+echo "own" > "$PO/.claude/agents/my-own-agent/AGENT.md"
+write_marker "$PO" "4.0.0"
+OUT_PO="$(HOME="$H" bash "$V6/bin/ai-kit-upgrade.sh" "$PO" 2>&1)"
+assert "skills dir still holds exactly the project's own entry" \
+  '[ "$(find "$PO/.claude/skills" -mindepth 1 -maxdepth 1 | wc -l)" -eq 1 ]'
+assert "skills: nothing-to-repair line printed" \
+  'grep -qF "No ai-kit skill links in .claude/skills — nothing to repair (plugin serves them)" <<<"$OUT_PO"'
+assert "agents dir still holds exactly the project's own entry" \
+  '[ "$(find "$PO/.claude/agents" -mindepth 1 -maxdepth 1 | wc -l)" -eq 1 ]'
+assert "agents: nothing-to-repair line printed" \
+  'grep -qF "No ai-kit agent links in .claude/agents — nothing to repair (plugin serves them)" <<<"$OUT_PO"'
+assert "commands dir still holds exactly the project's own entry" \
+  '[ "$(find "$PO/.claude/commands" -mindepth 1 -maxdepth 1 | wc -l)" -eq 1 ]'
+assert "commands: nothing-to-repair line printed" \
+  'grep -qF "No ai-kit command links in .claude/commands — nothing to repair (plugin serves them)" <<<"$OUT_PO"'
+
+echo "=== a single stale ai-kit link, nothing else, is still repaired ==="
+PS="$H/proj-stale"
+mkdir -p "$PS/.claude/skills"
+ln -s "$H/plugins/cache/yusufkaracaburun/ai/0.0.1/skills/demo-skill" "$PS/.claude/skills/demo-skill"
+write_marker "$PS" "4.0.0"
+OUT_PS="$(HOME="$H" bash "$V6/bin/ai-kit-upgrade.sh" "$PS" 2>&1)"
+assert "stale link resolves again" '[ -e "$PS/.claude/skills/demo-skill/SKILL.md" ]'
+assert "it resolves to the current version content" 'grep -q "v6" "$PS/.claude/skills/demo-skill/SKILL.md"'
+assert "repair ran, not skipped" '! grep -q "nothing to repair" <<<"$OUT_PS"'
 
 print_summary_and_exit
