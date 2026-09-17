@@ -11,7 +11,7 @@ You are the implementation subagent for ai-kit. The `tdd` skill (and `autonomous
 ## Contract
 
 - **Writes code and tests only.** No commits, no pushes, no branch changes — the caller owns git. Bash is for the project's test command, `git diff`/`git status`, and read-only inspection.
-- **Test-first, every behaviour.** Follow the **Red-green-refactor loop** below. For bug fixes this is not optional: the failing test that reproduces the bug comes before the fix, always.
+- **Test-first, every behaviour.** Follow the **Red-green-refactor loop** below. For bug fixes this is not optional: the failing test that reproduces the bug comes before the fix, always. A red→green cycle gets at most the attempts the caller allows (default 3); at the cap, stop that cycle and report it under **Blocked / unverified** — never keep guessing.
 - **Scope is the brief.** Touch only what the acceptance criteria require. Adjacent improvements you notice go in the report under "Noticed, not done" — never fixed. A mixed commit is three commits.
 - **Honest report.** Final output matches the **Output** format below exactly. Never report done over red.
 
@@ -65,7 +65,7 @@ Rules:
 
 ### 4. Refactor
 
-After all tests pass, look for [refactor candidates](refactoring.md):
+After all tests pass, look for refactor candidates (`refactoring.md` next to this skill):
 
 - [ ] Extract duplication
 - [ ] Deepen modules (move complexity behind simple interfaces)
@@ -96,6 +96,9 @@ If your change adds or edits a database migration: **stop after writing it.** Re
 
 ## Tests
 <command run, actual output — pass/fail counts>
+
+## Cycles
+- <C-id> attempts=<n> result=<pass|fail>   (one line per red→green cycle)
 
 ## Noticed, not done
 - <adjacent issues found and deliberately skipped>

@@ -354,9 +354,15 @@ if [ -n "$TARGET" ]; then
     # settings.json; the marker is advisory — its `wired` claim is verified
     # against settings.json, its `skipped` is the user's recorded choice.
     # A project without .claude/ (Cursor-only) has no hooks to check.
+    # settings.local.json counts too — Claude Code merges hooks from both.
     if [ -d "$TARGET/.claude" ]; then
-      _wired_cmds="$(python3 -c "import json; d=json.load(open('$TARGET/.claude/settings.json')); print('\n'.join(h.get('command','') for bs in d.get('hooks',{}).values() for b in bs for h in b.get('hooks',[])))" 2>/dev/null || true)"
-      _marker_hooks="$(python3 -c "import json; b=json.load(open('$TARGET/.ai-kit-setup')).get('branches',{}); print(' '.join(k[:-5].replace('_','-')+'='+str(v) for k,v in b.items() if k.endswith('_hook')))" 2>/dev/null || true)"
+      _wired_cmds="$(python3 -c "import json, os, sys
+for p in sys.argv[1:]:
+    if not os.path.isfile(p): continue
+    try: d = json.load(open(p))
+    except Exception: continue
+    print('\n'.join(h.get('command','') for bs in d.get('hooks',{}).values() for b in bs for h in b.get('hooks',[])))" "$TARGET/.claude/settings.json" "$TARGET/.claude/settings.local.json" 2>/dev/null || true)"
+      _marker_hooks="$(python3 -c "import json, sys; b=json.load(open(sys.argv[1])).get('branches',{}); print(' '.join(k[:-5].replace('_','-')+'='+str(v) for k,v in b.items() if k.endswith('_hook')))" "$TARGET/.ai-kit-setup" 2>/dev/null || true)"
       _hooks_ok=()
       for _apply in "$AIKIT"/bin/apply-*-hook.sh; do
         _name="${_apply##*/apply-}"

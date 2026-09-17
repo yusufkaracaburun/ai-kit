@@ -100,7 +100,7 @@ Rules:
 
 ### 4. Refactor
 
-After all tests pass, look for [refactor candidates](refactoring.md):
+After all tests pass, look for refactor candidates (`refactoring.md` next to this skill):
 
 - [ ] Extract duplication
 - [ ] Deepen modules (move complexity behind simple interfaces)

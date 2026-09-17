@@ -40,7 +40,7 @@ Compose from the design's own library (reuse components as instances, never redr
 
 ### audit — fidelity per component
 
-For each component the frame maps to, score against the design: **text** (every string in the design exists in the build), **tokens** (colours, type, spacing, radius resolve to the project's tokens), **no hardcoded values** (no hex, px, magic sizes a token already owns), **icons and states** (default / hover / focus / disabled / loading / empty / error present or explicitly flagged). Per component, not averaged — an average hides the outlier. A missing text is never a taste difference.
+For each component the frame maps to, score against the design: **text** (every string in the design exists in the build), **tokens** (colours, type, spacing, radius resolve to the project's tokens), **no hardcoded values** (no hex, px, magic sizes a token already owns), **icons and states** (default / hover / focus / disabled / loading / empty / error present or explicitly flagged). Per component, not averaged — an average hides the outlier. A missing text is never a taste difference. For a `.pen` frame, start with a *structural sweep* via the MCP: frames with ≥2 children and no explicit layout, real layout problems, masters left as loose copies — those are design defects to raise before scoring code against them.
 
 Bar: every component ≥ 90 unless the project's overlay sets another threshold. Below the bar → fix the code, re-score. The score goes up only by repairing code: never by loosening the threshold, widening exceptions, or editing the design. A suspected measurement error is reported with evidence, not silently overruled.
 
@@ -50,10 +50,10 @@ Per unit: source order is the project's own tokens and best existing components 
 
 ### prove — delegate to `verifier`
 
-Claim: **"`<component or route>` matches design frame `<id>`."** Evidence: the frame export (PNG or `html-css` via the MCP, exported by the main thread — `verifier` has no MCP tools) and the observation method:
+Claim: **"`<component or route>` matches design frame `<id>`."** The main thread produces both pieces of evidence — `verifier` has no MCP and no dev server — and passes them in: the frame export (PNG or `html-css` via the MCP) and the render of the built code, obtained as follows:
 
-- **Web:** render the built route (dev server, story, or the project's HTML build), screenshot at the frame's width; compare block by block — order, spacing, type, colours, icons, grouping, copy, empty state.
-- **Flutter / mobile — the three-step gate.** (1) *Structural sweep* of the frame via the MCP: frames with ≥2 children and no explicit layout, real layout problems, masters left as loose copies. (2) *Full-scale render* — export the scope to `html-css`, serve it locally, look at true pixel size (a thumbnail hides a collapsed divider). (3) *Live on device at two densities* — the screen with real data on the emulator and the user's phone class; a sizing bug only shows as a difference between devices.
+- **Web:** render the built route (dev server, story, or the project's HTML build) and screenshot at the frame's width. `verifier` compares block by block — order, spacing, type, colours, icons, grouping, copy, empty state.
+- **Flutter / mobile — two renders.** (1) *Full-scale render* — export the scope to `html-css`, serve it locally, capture at true pixel size (a thumbnail hides a collapsed divider). (2) *Live on device at two densities* — screenshot the screen with real data on the emulator and the user's phone class; a sizing bug only shows as a difference between devices. `verifier` compares each against the frame export.
 
 Verdict CONFIRMED means done; REFUTED means the counter-evidence is the next fix; UNTESTABLE means say what could not be observed — never upgrade it to a pass.
 
