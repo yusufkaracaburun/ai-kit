@@ -75,6 +75,9 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 - **#170** `bug` — `verify-setup.sh` / `ai-kit-status.sh` hard-code project files
   and never read the marker: a solo-global + `dev_environment=false` project
   stays FAIL forever; emeq/system's sibling-dir agents skills likewise.
+- **#173** `bug` — `/ai:setup` on a non-git monorepo root (emeq/) writes a marker +
+  `${CLAUDE_PROJECT_DIR}` hook wiring that no session can ever resolve (cwd is
+  always an app below it); doctor never sees the parent. Refuse/warn, no walk-up.
 - **#172** `bug` — `link-primitives` writes absolute `$HOME` symlinks into repos and
   merges skills a plugin-served machine already exposes as `ai:*` (double
   listing, #116). Skip the merge when the plugin serves; relative links otherwise.
