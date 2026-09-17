@@ -349,6 +349,39 @@ if [ -n "$TARGET" ]; then
       warn ".ai-kit-setup absent — /ai:setup not yet run"
     fi
 
+    # Project hooks (#113). One expected hook per bin/apply-<name>-hook.sh,
+    # so a new applier registers itself here with no doctor change. Truth is
+    # settings.json; the marker is advisory — its `wired` claim is verified
+    # against settings.json, its `skipped` is the user's recorded choice.
+    # A project without .claude/ (Cursor-only) has no hooks to check.
+    if [ -d "$TARGET/.claude" ]; then
+      _wired_cmds="$(python3 -c "import json; d=json.load(open('$TARGET/.claude/settings.json')); print('\n'.join(h.get('command','') for bs in d.get('hooks',{}).values() for b in bs for h in b.get('hooks',[])))" 2>/dev/null || true)"
+      _marker_hooks="$(python3 -c "import json; b=json.load(open('$TARGET/.ai-kit-setup')).get('branches',{}); print(' '.join(k[:-5].replace('_','-')+'='+str(v) for k,v in b.items() if k.endswith('_hook')))" 2>/dev/null || true)"
+      _hooks_ok=()
+      for _apply in "$AIKIT"/bin/apply-*-hook.sh; do
+        _name="${_apply##*/apply-}"
+        _name="${_name%-hook.sh}"
+        _script="$(grep -oE -m1 '\.claude/hooks/[A-Za-z0-9_.-]+' "$_apply")"
+        _claim=""
+        case " $_marker_hooks " in
+          *" $_name=wired "*) _claim=wired ;;
+          *" $_name=skipped "*) _claim=skipped ;;
+        esac
+        if printf '%s\n' "$_wired_cmds" | grep -qF "$_script"; then
+          _hooks_ok+=("$_name")
+        elif [ "$_claim" = skipped ]; then
+          info "hook $_name skipped per .ai-kit-setup"
+        elif [ "$_claim" = wired ]; then
+          warn "hook $_name: .ai-kit-setup says wired but .claude/settings.json does not register $_script — marker and reality disagree; run: bash $AIKIT/bin/apply-$_name-hook.sh $TARGET"
+        else
+          warn "hook $_name not in .claude/settings.json — run: bash $AIKIT/bin/apply-$_name-hook.sh $TARGET"
+        fi
+      done
+      if [ "${#_hooks_ok[@]}" -gt 0 ]; then
+        ok "hooks wired in .claude/settings.json: ${_hooks_ok[*]}"
+      fi
+    fi
+
     # ------------------------------------------------------------------
     # Single-dev drift — 3 checks. ai-kit issue #69 (parent #52).
     # All warn-only; never raise to error. Each gated on its preconditions

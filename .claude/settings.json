@@ -9,6 +9,15 @@
             "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/search-delegation-check.sh"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/build-delegation-check.sh"
+          }
+        ],
+        "matcher": "Edit|Write|MultiEdit"
       }
     ],
     "UserPromptSubmit": [
@@ -19,6 +28,17 @@
             "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/phase-check.sh"
           }
         ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/context-drift-check.sh"
+          }
+        ],
+        "matcher": "Edit|Write|MultiEdit"
       }
     ]
   }

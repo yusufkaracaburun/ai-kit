@@ -78,9 +78,12 @@ assert "doctor: exit 2 on error" '[ "$DOC_BROKEN_EXIT" -eq 2 ]'
 
 rm -rf "$TMP_DOC"
 
-# Mode-aware: project-only marker should skip global checks.
+# Mode-aware: project-only marker should skip global checks. Hooks wired as
+# /ai:setup would — doctor warns on any bin/apply-*-hook.sh missing from
+# .claude/settings.json (#113), and a fixture without them is not all-green.
 TMP_DOC_PO=$(mktemp -d)
 bootstrap_fixture "$TMP_DOC_PO" --minimal
+for a in "$AIKIT"/bin/apply-*-hook.sh; do "$a" "$TMP_DOC_PO" >/dev/null; done
 "$AIKIT/bin/write-setup-marker.sh" "$TMP_DOC_PO" --setup-mode=project-only --tier=minimal >/dev/null
 set +e
 OUT_PO="$("$AIKIT/bin/ai-kit-doctor.sh" "$TMP_DOC_PO" 2>&1)"
