@@ -108,6 +108,10 @@ assert "emit-agents: qa-runner AGENT.md carries the markers" \
   'grep -q "emit-agents:begin" "$AIKIT/workflow/agents/qa-runner/AGENT.md" && grep -q "emit-agents:end" "$AIKIT/workflow/agents/qa-runner/AGENT.md"'
 assert "emit-agents: qa-runner pulled the Tiers + Output sections" \
   'grep -q "## Tiers" "$AIKIT/workflow/agents/qa-runner/AGENT.md" && grep -q "## Output" "$AIKIT/workflow/agents/qa-runner/AGENT.md"'
+assert "emit-agents: builder AGENT.md carries the markers" \
+  'grep -q "emit-agents:begin" "$AIKIT/workflow/agents/builder/AGENT.md" && grep -q "emit-agents:end" "$AIKIT/workflow/agents/builder/AGENT.md"'
+assert "emit-agents: builder pulled the loop section from tdd" \
+  'grep -q "^## Red-green-refactor loop" "$AIKIT/workflow/agents/builder/AGENT.md" && grep -q "^## Red-green-refactor loop" "$AIKIT/workflow/skills/tdd/SKILL.md"'
 # Drift detection: tweak the source skill, confirm --check catches it, restore.
 EMITA_SKILL="$AIKIT/workflow/skills/review/SKILL.md"
 EMITA_BAK=$(mktemp)

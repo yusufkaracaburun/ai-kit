@@ -152,7 +152,10 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
    `git switch -c agent/issue-<n>-<slug>` from the project's default
    branch. Fail-fast if dirty working tree.
 5. **TDD.** Invoke `tdd` against the Agent Brief's acceptance
-   criteria. Hard cap: each red→green cycle gets ≤3 attempts. Cap
+   criteria. The per-issue worker is the `builder` subagent
+   (`subagent_type=builder`, fed the brief's acceptance criteria and
+   the project's test command) — that is the fresh context per
+   issue. Hard cap: each red→green cycle gets ≤3 attempts. Cap
    hit → `exit-gate tdd-stuck`, leave branch for human. Emit one
    `cycle-attempt <C-id> attempt=<n> result=<pass|fail>` line per
    attempt and one `cycle-done <C-id> result=<pass|fail>` line per

@@ -20,11 +20,12 @@ assert "rename-housekeeping skill exists" '[ -f "$AIKIT/workflow/skills/rename-h
 echo "=== agents ==="
 # section: agents
 AGENT_COUNT=$(find "$AIKIT/workflow/agents" -name AGENT.md | wc -l | tr -d ' ')
-assert "4 subagents present" '[ "$AGENT_COUNT" -eq 4 ]'
+assert "5 subagents present" '[ "$AGENT_COUNT" -eq 5 ]'
 assert "explore exists" '[ -f "$AIKIT/workflow/agents/explore/AGENT.md" ]'
 assert "reviewer exists" '[ -f "$AIKIT/workflow/agents/reviewer/AGENT.md" ]'
 assert "qa-runner exists" '[ -f "$AIKIT/workflow/agents/qa-runner/AGENT.md" ]'
 assert "verifier exists" '[ -f "$AIKIT/workflow/agents/verifier/AGENT.md" ]'
+assert "builder exists" '[ -f "$AIKIT/workflow/agents/builder/AGENT.md" ]'
 assert "explore frontmatter name" 'head -5 "$AIKIT/workflow/agents/explore/AGENT.md" | grep -q "^name: explore$"'
 assert "explore frontmatter tools" 'head -5 "$AIKIT/workflow/agents/explore/AGENT.md" | grep -q "^tools:"'
 assert "reviewer frontmatter name" 'head -5 "$AIKIT/workflow/agents/reviewer/AGENT.md" | grep -q "^name: reviewer$"'
@@ -32,6 +33,8 @@ assert "qa-runner frontmatter name" 'head -5 "$AIKIT/workflow/agents/qa-runner/A
 assert "qa-runner frontmatter tools" 'head -5 "$AIKIT/workflow/agents/qa-runner/AGENT.md" | grep -q "^tools:"'
 assert "verifier frontmatter name" 'head -5 "$AIKIT/workflow/agents/verifier/AGENT.md" | grep -q "^name: verifier$"'
 assert "verifier frontmatter has no model pin" '! head -5 "$AIKIT/workflow/agents/verifier/AGENT.md" | grep -q "^model:"'
+assert "builder frontmatter name" 'head -5 "$AIKIT/workflow/agents/builder/AGENT.md" | grep -q "^name: builder$"'
+assert "builder frontmatter tools" 'head -5 "$AIKIT/workflow/agents/builder/AGENT.md" | grep -q "^tools:"'
 
 
 echo "=== slash-commands ==="
@@ -61,6 +64,9 @@ assert "diagnose skill delegates to explore" 'grep -q "explore" "$AIKIT/workflow
 assert "to-issues skill delegates to explore" 'grep -q "explore" "$AIKIT/workflow/skills/to-issues/SKILL.md"'
 assert "improve-arch skill delegates to explore" 'grep -q "explore" "$AIKIT/workflow/skills/improve-codebase-architecture/SKILL.md"'
 assert "improve-arch skill dropped the generic Explore subagent" '! grep -q "subagent_type=Explore" "$AIKIT/workflow/skills/improve-codebase-architecture/SKILL.md"'
+assert "tdd skill has a Run mode block" 'grep -q "^## Run mode" "$AIKIT/workflow/skills/tdd/SKILL.md"'
+assert "tdd skill delegates to builder" 'grep -q "subagent_type=builder" "$AIKIT/workflow/skills/tdd/SKILL.md"'
+assert "autonomous skill names builder as the per-issue worker" 'grep -q "subagent_type=builder" "$AIKIT/workflow/skills/autonomous/SKILL.md"'
 
 
 echo "=== plugin-manifest ==="

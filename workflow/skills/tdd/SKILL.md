@@ -9,6 +9,11 @@ Apply [`context-discipline.mini.md`](../../../standards/rules/context-discipline
 
 Apply [`grill-first.mini.md`](../../../standards/rules/grill-first.mini.md) **before** writing the first failing test. If the user handed you an issue/PRD/spec, open with grill questions on scope, edge cases, detection logic, and override patterns — even when the source doc looks complete. Skip only if those questions were already answered in the same turn.
 
+## Run mode
+
+- **Claude Code:** when the change spans ≥3 files, or the caller wants the main context kept clean for review, delegate the whole red→green→refactor pass to the `builder` subagent via the Task tool with `subagent_type=builder`. Pass: the acceptance criteria agreed in Planning and the project's test command. It returns a `## Changed` / `## Tests` report — read it here, then continue with Review.
+- **Hosts without subagents:** run the loop below inline. The loop below is the canonical source of truth — `builder`'s system prompt mirrors it.
+
 ## Philosophy
 
 **Core principle**: Tests should verify behavior through public interfaces, not implementation details. Code can change entirely; tests shouldn't.
@@ -63,6 +68,8 @@ Ask: "What should the public interface look like? Which behaviors are most impor
 
 **You can't test everything.** Confirm with the user exactly which behaviors matter most. Focus testing effort on critical paths and complex logic, not every possible edge case.
 
+## Red-green-refactor loop
+
 ### 2. Tracer Bullet
 
 Write ONE test that confirms ONE thing about the system:
@@ -86,6 +93,7 @@ GREEN: Minimal code to pass → passes
 Rules:
 
 - One test at a time
+- Read the RED failure — it must fail for the reason you intend; a test that fails on a missing import proves nothing
 - Only enough code to pass current test
 - Don't anticipate future tests
 - Keep tests focused on observable behavior
@@ -102,7 +110,7 @@ After all tests pass, look for [refactor candidates](refactoring.md):
 
 **Never refactor while RED.** Get to GREEN first.
 
-### 5. Review (required)
+## 5. Review (required)
 
 Before opening a PR, a human reviewer reads the diff. This step is **not
 optional**. ai-kit defaults assume ≥2 devs (one writer, one reviewer) per
