@@ -52,7 +52,7 @@ Ask once: **Fast (Tier A, ~5 min)** or **Full (Tier B)**?
 | 2 | Dev environment | `--write` + refine URLs |
 | 2b | Lifecycle | one question (below) — default `development` |
 | 2c | Universal MCPs | auto-prompt each `universal: true` MCP not yet handled |
-| 2d | Search-delegation hook | auto-apply, no question (below) |
+| 2d | Search + build delegation hooks | auto-apply, no question (below) |
 | 2e | Universal companions | auto-prompt each `universal: true` companion not yet handled |
 | 2f | Phase-check hook | auto-apply, no question (below) |
 | 2g | Secrets scan | auto-run once, conditional question on findings (below) |
@@ -67,7 +67,7 @@ $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" \
   --lifecycle=development|production \
   --universal-mcps-prompted=context7,... \
   --universal-companions-prompted=caveman,... \
-  --search-delegation-hook=wired --phase-check-hook=wired \
+  --search-delegation-hook=wired --build-delegation-hook=wired --phase-check-hook=wired \
   --secrets-scan=clean|findings-acknowledged|findings-issue-filed|skipped-no-binary|skipped-not-git|error \
   --docker=skipped --tracker=skipped --workflow=skipped \
   --domain-docs=skipped --architecture=skipped --sandcastle=false --context-drift-hook=skipped
@@ -174,31 +174,41 @@ run automatically — no skill-body edit needed.
 install covers all repos on the machine; this branch is intentionally
 Tier-A because the universals' value is stack-agnostic.
 
-### Branch 2d — Search-delegation hook (auto-apply)
+### Branch 2d — Search + build delegation hooks (auto-apply)
 
 ```bash
 $AI_KIT_ROOT/bin/apply-search-delegation-hook.sh "$(pwd)"
+$AI_KIT_ROOT/bin/apply-build-delegation-hook.sh "$(pwd)"
 ```
 
-Wires a `PreToolUse(Bash|Grep|Glob)` hook that fires **only on repo-wide
-sweeps** — a Bash `grep`/`rg`/`find`, or a `Grep`/`Glob` with no `path` to
-narrow it. A search already scoped to a directory stays silent.
+**Search-delegation** wires a `PreToolUse(Bash|Grep|Glob)` hook that fires
+**only on repo-wide sweeps** — a Bash `grep`/`rg`/`find`, or a `Grep`/`Glob`
+with no `path` to narrow it. A search already scoped to a directory stays
+silent.
 
 On a wide sweep it points the agent at the cheaper route: `graphify query`
 when `graphify-out/graph.json` exists, otherwise a sub-agent (`Explore`,
 `ai:explore`, `cavecrew-investigator`) so the raw output lands in the
 sub-agent's context instead of the main one.
 
-**Why this one does not ask.** Raw search output is the single biggest source
+**Build-delegation** wires a `PreToolUse(Edit|Write|MultiEdit)` hook that
+fires **once per session, on the third distinct file** edited inline, and
+points the agent at the `builder` subagent for the rest of the change.
+One- and two-file changes, repeat edits to the same file, and every edit
+after the nudge stay silent.
+
+**Why these do not ask.** Raw search output is the single biggest source
 of context bloat, and [`context-discipline`](../../../standards/rules/context-discipline.mini.md)
 already mandates delegation — but a rule is prose an agent skips under
-pressure. This hook is ai-kit's own primitive, emits advisory
-`additionalContext` only (it can never block a tool call), and its blast
+pressure. Both hooks are ai-kit's own primitives, emit advisory
+`additionalContext` only (they can never block a tool call), and their blast
 radius stops at the project. Same category as bootstrap and dev-environment:
-applied, not negotiated. Record `--search-delegation-hook=wired`.
+applied, not negotiated. Record `--search-delegation-hook=wired` and
+`--build-delegation-hook=wired`.
 
-It supersedes the older graphify-only nudge that `/ai:recommend-tools` used to
-merge; the applier **replaces** that entry rather than stacking a second one.
+The search hook supersedes the older graphify-only nudge that
+`/ai:recommend-tools` used to merge; its applier **replaces** that entry
+rather than stacking a second one.
 
 ### Branch 2e — Universal companions (auto-prompt)
 
@@ -582,7 +592,7 @@ $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" \
   --lifecycle=development|production \
   --universal-mcps-prompted=context7,... \
   --universal-companions-prompted=caveman,... \
-  --search-delegation-hook=wired --phase-check-hook=wired \
+  --search-delegation-hook=wired --build-delegation-hook=wired --phase-check-hook=wired \
   --secrets-scan=clean|findings-acknowledged|findings-issue-filed|skipped-no-binary|skipped-not-git|error \
   --docker=... --tracker=... --workflow=... \
   --domain-docs=scaffolded|filled|skipped \
@@ -612,6 +622,7 @@ $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict
     "universal_mcps_prompted": ["context7"],
     "universal_companions_prompted": ["caveman"],
     "search_delegation_hook": "wired",
+    "build_delegation_hook": "wired",
     "phase_check_hook": "wired",
     "secrets_scan": "clean",
     "docker": "skipped",

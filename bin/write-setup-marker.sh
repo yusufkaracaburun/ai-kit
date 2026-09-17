@@ -29,6 +29,7 @@ usage() {
   echo "  --universal-mcps-prompted=name1,name2  (CSV; appended to existing list — names not re-prompted on next /ai:setup)"
   echo "  --universal-companions-prompted=name1,name2  (CSV; same accumulating semantics)"
   echo "  --search-delegation-hook=wired|skipped"
+  echo "  --build-delegation-hook=wired|skipped"
   echo "  --phase-check-hook=wired|skipped"
   echo "  --skip-skill-merge=true|false  (plugin already serves ai-kit skills; don't merge them into this project's skills dirs)"
   echo "  --secrets-scan=clean|findings-acknowledged|findings-issue-filed|skipped-no-binary|skipped-not-git|error"
@@ -58,6 +59,7 @@ LIFECYCLE=""
 UNIVERSAL_MCPS_PROMPTED=""
 UNIVERSAL_COMPANIONS_PROMPTED=""
 SEARCH_DELEGATION_HOOK=""
+BUILD_DELEGATION_HOOK=""
 PHASE_CHECK_HOOK=""
 SKIP_SKILL_MERGE=""
 SECRETS_SCAN=""
@@ -83,6 +85,7 @@ while [ $# -gt 0 ]; do
     --universal-mcps-prompted=*) UNIVERSAL_MCPS_PROMPTED="${1#*=}"; shift ;;
     --universal-companions-prompted=*) UNIVERSAL_COMPANIONS_PROMPTED="${1#*=}"; shift ;;
     --search-delegation-hook=*) SEARCH_DELEGATION_HOOK="${1#*=}"; shift ;;
+    --build-delegation-hook=*) BUILD_DELEGATION_HOOK="${1#*=}"; shift ;;
     --phase-check-hook=*) PHASE_CHECK_HOOK="${1#*=}"; shift ;;
     --skip-skill-merge=*) SKIP_SKILL_MERGE="${1#*=}"; shift ;;
     --secrets-scan=*) SECRETS_SCAN="${1#*=}"; shift ;;
@@ -111,12 +114,12 @@ global_channel_available && GLOBAL_CHANNEL_AVAILABLE="true"
 python3 - "$SETUP_FILE" "$VERSION" "$COMPLETED_AT" \
   "$SETUP_MODE" "$SETUP_TIER" "$DOCKER" "$TRACKER" "$WORKFLOW" "$DOMAIN_DOCS" "$ARCHITECTURE" "$SANDCASTLE" \
   "$AUTOMATION_RECOMMENDER" "$CONTEXT_DRIFT_HOOK" "$RULE_RECOMMENDATION" "$TOOL_RECOMMENDATION" "$REPO_TEMPLATES" \
-  "$LIFECYCLE" "$UNIVERSAL_MCPS_PROMPTED" "$UNIVERSAL_COMPANIONS_PROMPTED" "$SEARCH_DELEGATION_HOOK" "$PHASE_CHECK_HOOK" \
+  "$LIFECYCLE" "$UNIVERSAL_MCPS_PROMPTED" "$UNIVERSAL_COMPANIONS_PROMPTED" "$SEARCH_DELEGATION_HOOK" "$BUILD_DELEGATION_HOOK" "$PHASE_CHECK_HOOK" \
   "$SKIP_SKILL_MERGE" "$SECRETS_SCAN" "$PROJECT_SKILLS_MERGED" "$GLOBAL_CHANNEL_AVAILABLE" <<'PY'
 import json, sys, os
 
 path, version, completed = sys.argv[1:4]
-setup_mode, tier, docker, tracker, workflow, domain_docs, architecture, sandcastle, automation_recommender, context_drift_hook, rule_recommendation, tool_recommendation, repo_templates, lifecycle, universal_mcps_prompted, universal_companions_prompted, search_delegation_hook, phase_check_hook, skip_skill_merge, secrets_scan, project_skills_merged, global_channel_available = sys.argv[4:26]
+setup_mode, tier, docker, tracker, workflow, domain_docs, architecture, sandcastle, automation_recommender, context_drift_hook, rule_recommendation, tool_recommendation, repo_templates, lifecycle, universal_mcps_prompted, universal_companions_prompted, search_delegation_hook, build_delegation_hook, phase_check_hook, skip_skill_merge, secrets_scan, project_skills_merged, global_channel_available = sys.argv[4:27]
 
 VALID_LIFECYCLE = {"development", "production"}
 if lifecycle and lifecycle not in VALID_LIFECYCLE:
@@ -172,6 +175,8 @@ if lifecycle:
     branches["lifecycle"] = lifecycle
 if search_delegation_hook:
     branches["search_delegation_hook"] = search_delegation_hook
+if build_delegation_hook:
+    branches["build_delegation_hook"] = build_delegation_hook
 if phase_check_hook:
     branches["phase_check_hook"] = phase_check_hook
 if skip_skill_merge:
