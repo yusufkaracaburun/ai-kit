@@ -118,7 +118,6 @@ This skill does not consult the hook state at runtime; it acts on whatever `<old
 
 - `@-import` recursion across non-default import paths
 - Pre-write validator that catches paths LLM *introduces* (own issue)
-- Semantic gsd → ai-kit `.planning/` migration (string-match only)
 - Symlink-flip detection (mv-rename only)
 - Auto-apply without confirm
 - Cross-machine sync of `known-projects.json`

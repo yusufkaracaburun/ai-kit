@@ -30,9 +30,7 @@ warning, and waits for confirmation — does not run anything yet.
 
 ---
 
-(Quick route check — no `.planning/` or `STATE.md` here, so `/ai:resume` is
-correct rather than `/gsd-resume-work`. Memory folder present, one
-non-stale checkpoint from yesterday.)
+(Memory folder present, one non-stale checkpoint from yesterday.)
 
 Most recent checkpoint:
 `project/session-checkpoint-2026-05-21-admin-section-port.md` (1 day old).

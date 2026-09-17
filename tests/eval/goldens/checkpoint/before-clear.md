@@ -33,9 +33,7 @@ reference, both required sections) and the response must explicitly NOT run
 
 ---
 
-(Quick route check — no `.planning/` or `STATE.md` in this project, so I'm
-using `/ai:checkpoint` rather than `/gsd-pause-work`. Auto-memory folder
-present at the expected path.)
+(Auto-memory folder present at the expected path.)
 
 I'll write the memo to
 `~/.claude/projects/<encoded-cwd>/memory/project/session-checkpoint-2026-05-21-admin-section-port.md`:

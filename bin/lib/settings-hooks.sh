@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Merge one hook command into a Claude Code settings.json, idempotently.
 # Shared by the apply-*-hook.sh installers so the JSON-merge logic — and its
 # malformed-file handling — lives in exactly one place.

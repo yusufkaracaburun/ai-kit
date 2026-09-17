@@ -2,7 +2,7 @@
 
 Full procedure for `--to tmp`. This path replaces §2-§7 of `SKILL.md` entirely:
 write a transfer briefing for another agent, machine, or teammate — no
-MEMORY.md update, no docs-sync nudge, no GSD routing.
+MEMORY.md update, no docs-sync nudge.
 
 ## 1. Locate prior artefacts
 

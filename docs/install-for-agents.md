@@ -47,16 +47,7 @@ Plan (run in order; stop on the first failure and report it):
 4. Verify the install. Plugin users: invoke `/ai:doctor` in Claude Code.
    Curl-install users: run `~/.local/share/ai-kit/bin/ai-kit-doctor.sh`.
 
-   Expect exit code 0 and no `BLOCKER` lines. If the doctor reports a
-   "Legacy gsd" section with N > 0 artifacts, the user has the
-   predecessor `get-shit-done` co-installed; ai-kit will still work but
-   `/gsd-*` will keep competing with `/ai:*`. Surface this to the user
-   and offer the migration (plugin: ask the user to run; curl-install:
-   run directly):
-
-       ~/.local/share/ai-kit/bin/ai-kit-migrate-gsd.sh --project "$(pwd)"
-
-   (dry-run; pass `--apply` after confirming).
+   Expect exit code 0 and no `BLOCKER` lines.
 
 5. Detect command surface. The host install path determines whether
    primitives carry the /ai: prefix. Pick the right variant for steps
@@ -100,8 +91,7 @@ Rules:
   stop and ask the human first.
 
 Report at the end: install version, host(s) detected, install path used
-(plugin vs. symlink), skills/subagents/commands counted, any blockers
-(including legacy gsd), and the two suggested next moves.
+(plugin vs. symlink), skills/subagents/commands counted, any blockers, and the two suggested next moves.
 ````
 
 If your model supports it, hand the prompt above to a sub-agent so its output

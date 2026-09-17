@@ -28,25 +28,12 @@ mode, where there is no clear at all.
   you* in the same project; pairs with `/ai:resume`. `--to tmp` writes a
   transfer briefing to `$TMPDIR` for another agent, machine, or teammate,
   with redaction always-on.
-- **`/gsd-pause-work`** — writes `.continue-here.md` *into the project repo*
-  with a WIP commit. Belongs to the separate "gsd" (get-shit-done) tool, not
-  ai-kit. Pairs with `/gsd-resume-work`. The `--to memory` path here routes
-  to it automatically, but only when gsd is actually installed (see below).
 - **`precompact-checkpoint-nudge` hook** (opt-in, `standards/external/hooks-patterns.json`)
   — a `PreCompact` hook that warns, non-blockingly, when a compaction is
   about to fire with uncommitted work and no recent checkpoint memo. It
   cannot invoke this skill itself (checkpoint is a skill, not a script) or
   block the compaction — only nudge. Offered per-project via
   `/ai:recommend-tools`, never auto-wired.
-
-If the project has `.planning/` or `STATE.md` **and** gsd is actually
-installed (`~/.claude/commands/gsd/` or `~/.claude/skills/gsd-*` exists —
-`.planning/`/`STATE.md` alone is not proof; they outlive an uninstalled gsd)
-and `--to memory` is selected and you do not have a strong reason to
-override, stop and route the user to `/gsd-pause-work` instead. If gsd is
-not installed, ignore `.planning/`/`STATE.md` entirely and proceed with this
-skill normally. `--to tmp` is not gsd-routed either way — a transfer
-briefing crosses the machine boundary, gsd pause-docs do not.
 
 </other_skills_in_this_space>
 
@@ -81,7 +68,7 @@ silently default away from an explicit user choice.
   auto-memory, update MEMORY.md, fire docs-sync nudge.
 - **`--to tmp`**: see [`transfer-briefing.md`](transfer-briefing.md) for the
   full procedure — write a transfer briefing to `$TMPDIR`, with redaction
-  always-on. No MEMORY.md update, no docs-sync nudge, no GSD routing.
+  always-on. No MEMORY.md update, no docs-sync nudge.
 
 ## 2. Locate the project memory folder
 
@@ -98,9 +85,6 @@ Edge cases:
 - **Not a git repo**: that is fine. Skip the git-derived fields in the
   memo (`Branch`, `commits ahead`) and note "(no git)" so the next session
   knows to expect no SHAs.
-- **gsd project detected** (see the disambiguation rule above): route to
-  `/gsd-pause-work` instead. Do not write a generic checkpoint alongside a
-  gsd pause-doc unless the user insists.
 
 ## 3. Gather what to capture
 

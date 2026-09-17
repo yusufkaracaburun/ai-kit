@@ -38,36 +38,6 @@ export AI_KIT_ROOT="/path/to/your/ai-kit/clone"
 
 Run `bootstrap-project.sh` first. `verify-setup` checks the post-setup state; it doesn't create files.
 
-### Chats still trigger `/gsd-*` after installing ai-kit
-
-ai-kit's predecessor — `get-shit-done` (gsd) — installs itself under
-`~/.claude/` with its own subagents, SessionStart hooks, and statusline.
-Installing ai-kit on top **does not remove** that footprint: the gsd
-SessionStart hook keeps injecting every `gsd-*` skill into Claude Code's
-available-skills list at session start, so the agent keeps preferring
-`/gsd-…` over `/ai:…`.
-
-Inspect (read-only, dry-run by default):
-
-```bash
-$AI_KIT_ROOT/bin/ai-kit-migrate-gsd.sh
-$AI_KIT_ROOT/bin/ai-kit-migrate-gsd.sh --project /path/to/repo   # add per-project artifacts
-```
-
-Remove. The tool asks "Keep a backup before removing? [Y/n]" by default; with
-`Y` it stashes everything under `~/.cache/ai-kit/migrate-gsd-<ts>/` first, with
-`n` it deletes irreversibly. Pass `--backup` or `--no-backup` to skip the
-prompt:
-
-```bash
-$AI_KIT_ROOT/bin/ai-kit-migrate-gsd.sh --apply --project /path/to/repo
-$AI_KIT_ROOT/bin/ai-kit-migrate-gsd.sh --apply --no-backup   # skip prompt + skip backup
-```
-
-`ai-kit-doctor.sh` also reports the count under its `Legacy gsd` section.
-After removal, **restart Claude Code** — the gsd SessionStart hook only stops
-firing once the new `settings.json` is re-read.
-
 ### Slash menu shows mixed `/ai:foo` and bare `/foo`
 
 You installed ai-kit via both routes — the marketplace plugin (gives the
