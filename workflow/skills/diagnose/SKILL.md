@@ -49,6 +49,8 @@ A 30-second flaky loop is barely better than no loop. A 2-second deterministic l
 
 The goal is not a clean repro but a **higher reproduction rate**. Loop the trigger 100×, parallelise, add stress, narrow timing windows, inject sleeps. A 50%-flake bug is debuggable; 1% is not — keep raising the rate until it's debuggable.
 
+Never fix a flake with a retry. Prove the fix the way you proved the bug: "passed 50 times" is evidence, "seems fine now" is not.
+
 ### When you genuinely cannot build a loop
 
 Stop and say so explicitly. List what you tried. Ask the user for: (a) access to whatever environment reproduces it, (b) a captured artifact (HAR file, log dump, core dump, screen recording with timestamps), or (c) permission to add temporary production instrumentation. Do **not** proceed to hypothesise without a loop.
@@ -91,7 +93,7 @@ Tool preference:
 
 **Tag every debug log** with a unique prefix, e.g. `[DEBUG-a4f2]`. Cleanup at the end becomes a single grep. Untagged logs survive; tagged logs die.
 
-**Perf branch.** For performance regressions, logs are usually wrong. Instead: establish a baseline measurement (timing harness, `performance.now()`, profiler, query plan), then bisect. Measure first, fix second.
+**Perf branch.** For performance regressions, logs are usually wrong. Instead: establish a baseline measurement (timing harness, `performance.now()`, profiler, query plan), then bisect. Measure first, fix second, then measure again under the same conditions and report both numbers. No optimisation without a measurement.
 
 ## Phase 5 — Fix + regression test
 
@@ -108,6 +110,10 @@ If a correct seam exists:
 3. Apply the fix.
 4. Watch it pass.
 5. Re-run the Phase 1 feedback loop against the original (un-minimised) scenario.
+
+A try/catch, retry, null-guard or sleep is not a fix unless that IS the correct behaviour — it hides the cause and the same incident recurs.
+
+If the reproduced behaviour turns out to be correct and the expectation was wrong, say so. That is a valid outcome, not a failed diagnosis.
 
 ## Phase 6 — Cleanup + post-mortem
 

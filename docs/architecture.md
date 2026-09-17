@@ -68,7 +68,7 @@ every ai-kit release; `bin/release.sh` prints the copy-paste command.
 | You want to add … | Put it in … |
 |---|---|
 | A new workflow with `name:` + `description:` frontmatter | `workflow/skills/<name>/SKILL.md` |
-| An isolated context worker for one specific task | `workflow/agents/<name>/AGENT.md` |
+| An isolated context worker for one specific task | `workflow/agents/<name>/AGENT.md` — plus a skill that names it and the phase it fires in (ADR-0013) |
 | A short prompt-template invoked by `/<name>` | `workflow/commands/<name>.md` |
 | Cross-cutting guidance applicable to every host | `standards/rules/<name>.mini.md` + extend `bin/emit-rules.sh` |
 | A behavior triggered by tool events | `bin/hooks/<name>.sh` + register in `.claude/settings.json` |

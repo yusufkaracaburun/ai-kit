@@ -43,6 +43,10 @@ Start: "I want to add X to ai-kit"
 │  │  │   → SUBAGENT called from a SKILL
 │  │  │     Source: workflow/agents/<name>/AGENT.md
 │  │  │     Example: review skill delegates to reviewer
+│  │  │     Paired: ≥1 skill names it + the phase it fires in
+│  │  │       (enforced by tests/bin/eval-structure.sh)
+│  │  │     Nudged: PreToolUse hook at the moment of reaching
+│  │  │       (pattern: bin/hooks/search-delegation-check.sh)
 │  │  │
 │  │  └─ NO → SKILL
 │  │         Source: workflow/skills/<name>/SKILL.md
@@ -117,6 +121,7 @@ Start: "I want to add X to ai-kit"
 - **Hook that calls the LLM** — hooks are deterministic shell. If you need LLM logic on an event, the hook should *invoke a skill via slash command* or just leave it as a skill the user runs explicitly.
 - **Rule that's project-specific** — rules are cross-cutting. Project-specific guidance belongs in `CONTEXT.md` or `docs/adr/`.
 - **Subagent for a one-shot task in main context** — if you don't actually need isolation, just do it inline. Subagents add a hop; don't pay for it gratuitously.
+- **Subagent promoted without a skill and a nudge** — a listed agent is capability, not habit. Without a skill that names it and a hook that fires at the moment of reaching, you have only moved the forgetting downstream (ADR-0013).
 - **Slash command duplicating a skill** — pick one. If the workflow is multi-step and discovery-by-description matters, it's a skill. If it's "run this script and summarize," it's a slash command.
 
 ---
