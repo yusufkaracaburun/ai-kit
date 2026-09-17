@@ -39,30 +39,6 @@ Read `monorepo` and `boost` from the JSON:
   patches those (`agents-patch.sh` skips any `<laravel-boost-guidelines>` file);
   see Branch 1.
 
-### Legacy gsd detection
-
-```bash
-$AI_KIT_ROOT/bin/ai-kit-migrate-gsd.sh --project "$(pwd)"
-```
-
-Always run this. Output is a dry-run listing — exit 0 with `(nothing detected)`
-means the user is clean. **If any artifacts are listed**, ai-kit's predecessor
-(`get-shit-done` / `gsd`) is co-installed. Its SessionStart hooks surface every
-`gsd-*` skill in Claude Code's available-skills list, which silently competes
-with `/ai:*` and confuses the agent. Surface the finding to the user verbatim
-and offer two paths:
-
-1. **Migrate now** — re-run with `--apply` (and `--project` if any project
-   artifacts were listed). The tool prompts "Keep a backup before
-   removing? [Y/n]" — default backup lands in
-   `~/.cache/ai-kit/migrate-gsd-<ts>/`. Pass `--no-backup` to skip the prompt
-   and delete irreversibly, or `--backup` to skip the prompt and always back up.
-2. **Keep both** — explicit user choice; warn that `gsd-*` will keep
-   appearing in the skill menu and may shadow `/ai:*` autoselection.
-
-Never apply without confirmation — this touches `~/.claude/` which is shared
-across every project on the machine.
-
 ## Fast path (default)
 
 Ask once: **Fast (Tier A, ~5 min)** or **Full (Tier B)**?

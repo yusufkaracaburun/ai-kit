@@ -205,9 +205,9 @@ None open.
   `doc-to-skill.sh` (179 lines, needs a PDF/EPUB fixture or a mocked conversion
   step), `eval-skill.sh` (102, sits in the eval layer so the contract needs
   pinning first), `ai-kit-auto-release.sh` (37, hard to exercise without
-  triggering a real release). The destructive ones —
-  `ai-kit-migrate-gsd.sh` and `install-global.sh` — were covered 2026-08-26
-  with 30 and 19 assertions. Related: `ai-kit-doctor.sh` is the largest script
+  triggering a real release). The destructive one —
+  `install-global.sh` — was covered 2026-08-26 with 19 assertions.
+  Related: `ai-kit-doctor.sh` is the largest script
   in `bin/` at 443 lines with only 29 assertions across three narrow cases —
   thin for its size, but that is widening existing coverage, not a gap.
 
