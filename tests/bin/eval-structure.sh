@@ -1,11 +1,21 @@
 #!/usr/bin/env bash
-# Structural checks across all workflow/skills/*/SKILL.md and tests/eval/prompts/.
+# Structural checks across all workflow/skills/*/SKILL.md, workflow/agents/*/AGENT.md
+# and tests/eval/prompts/.
 # Pure, deterministic, no network. Run from ai-kit clone root or via run-all.sh.
 set -euo pipefail
 
-AIKIT="$(cd "$(dirname "$0")/../.." && pwd)"
+# AIKIT is overridable so a test case can point the checks at a fixture tree.
+AIKIT="${AIKIT:-$(cd "$(dirname "$0")/../.." && pwd)}"
 SKILLS_DIR="$AIKIT/workflow/skills"
+AGENTS_DIR="$AIKIT/workflow/agents"
 PROMPTS_DIR="$AIKIT/tests/eval/prompts"
+
+# Pairing rule: an agent under workflow/agents/<x>/ ships only as a skill's
+# delegate. A SKILL.md names its agent as `subagent_type=<x>` (backticks
+# optional); this one pattern drives both directions of the check — no
+# dangling reference, no orphan agent.
+AGENT_REF_RE='subagent_type=`?[a-z][a-z0-9-]*'
+referenced_agents=""
 
 PASS=0
 FAIL=0
@@ -161,6 +171,65 @@ EOF_FIELDS
     ok "[$name] has at least one ## heading"
   else
     bad "[$name] longer than 20 lines but has no ## heading"
+  fi
+
+  # 9: every subagent_type=<x> the skill names has an agent to resolve to.
+  refs="$(grep -oE "$AGENT_REF_RE" "$skill_file" | sed -E 's/^subagent_type=`?//' | sort -u || true)"
+  referenced_agents="${referenced_agents}${refs}"$'\n'
+  missing_agents=""
+  while IFS= read -r ref; do
+    [ -z "$ref" ] && continue
+    if [ ! -f "$AGENTS_DIR/$ref/AGENT.md" ]; then
+      missing_agents="${missing_agents}${ref} "
+    fi
+  done <<< "$refs"
+  if [ -n "$missing_agents" ]; then
+    bad "[$name] subagent_type names agent(s) with no workflow/agents/<x>/AGENT.md: $missing_agents"
+  else
+    ok "[$name] subagent_type refs resolve"
+  fi
+done
+
+echo ""
+echo "=== AGENT.md pairing checks ==="
+echo ""
+
+for agent_dir in "$AGENTS_DIR"/*/; do
+  name="$(basename "$agent_dir")"
+  agent_file="$agent_dir/AGENT.md"
+
+  if [ ! -f "$agent_file" ]; then
+    bad "[agent $name] missing AGENT.md"
+    continue
+  fi
+
+  fm_name="$(read_field "$agent_file" name)"
+  if [ -z "$fm_name" ]; then
+    bad "[agent $name] frontmatter missing 'name:'"
+  elif [ "$fm_name" != "$name" ]; then
+    bad "[agent $name] frontmatter name '$fm_name' != dir name"
+  else
+    ok "[agent $name] frontmatter name matches dir"
+  fi
+
+  if [ -z "$(read_field "$agent_file" description)" ]; then
+    bad "[agent $name] frontmatter missing 'description:'"
+  else
+    ok "[agent $name] has description"
+  fi
+
+  # Kit agents never pin a model — which model runs a delegate is the
+  # consumer's choice.
+  if frontmatter "$agent_file" | grep -q '^model:'; then
+    bad "[agent $name] frontmatter pins 'model:' — drop it, the consumer decides"
+  else
+    ok "[agent $name] no model pinned"
+  fi
+
+  if grep -qx "$name" <<< "$referenced_agents"; then
+    ok "[agent $name] referenced by ≥1 skill"
+  else
+    bad "[agent $name] orphan — no SKILL.md names subagent_type=$name"
   fi
 done
 
