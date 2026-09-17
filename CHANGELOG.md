@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.87.0 — 2026-09-17
+
+### Removed
+
+- **Every gsd trace** (#169). gsd (`get-shit-done`, the predecessor tool) was fully purged from the machine on 2026-08-30, yet the "route to `/gsd-pause-work` when gsd is installed" guard kept surfacing as a visible step in `/ai:checkpoint` and `/ai:resume`, and the doctor printed a "Legacy gsd" section on every housekeeping run. Gone: the routing in `checkpoint`/`resume`/`transfer-briefing`, the "Legacy gsd detection" branch in `setup`, the doctor section, `ai-kit-migrate-gsd.sh` (bin + plugin mirror + its 30-assertion test case), the troubleshooting/install-for-agents/roadmap paragraphs, and the eval prompts + goldens that asserted the routing — 18 files, −792/+10. Deliberately kept: the `gsd-core` Ignore verdict in `plugins-excluded.json` and the provenance note in `hooks-patterns.json` (that ledger keeps gsd-core out of `/ai:should-i-use`), plus ADRs and this CHANGELOG as history.
+
+### Fixed
+
+- **CI `lint` job red since v1.85.0** — `bin/lib/sync-mirror.sh` and `bin/lib/settings-hooks.sh` (sourced, not executed, introduced by the mirror-script dedupe) had no shebang, so shellcheck failed them with SC2148 on every push. Added `# shellcheck shell=bash` as line 1 of both; no runtime change.
+
 ## 1.86.0 — 2026-09-15
 
 ### Added
