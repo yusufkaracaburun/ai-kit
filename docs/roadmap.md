@@ -208,7 +208,7 @@ None open.
   triggering a real release). The destructive one —
   `install-global.sh` — was covered 2026-08-26 with 19 assertions.
   Related: `ai-kit-doctor.sh` is the largest script
-  in `bin/` at 443 lines with only 29 assertions across three narrow cases —
+  in `bin/` with only 29 assertions across three narrow cases —
   thin for its size, but that is widening existing coverage, not a gap.
 
 - **#143** `enhancement` `primitive:rule` — `copywriter` writes page-scale copy

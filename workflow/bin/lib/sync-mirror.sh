@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Mirror one source directory into its workflow/ plugin-payload destination,
 # or (--check) report drift. Shared by sync-plugin-{bin,standards,context,
 # orchestration}.sh — those four mirror an entire directory identically,
