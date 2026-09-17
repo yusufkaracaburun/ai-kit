@@ -4,7 +4,7 @@
 #
 # Usage:
 #   count-primitives.sh                # emit JSON {"skills":N,…}
-#   count-primitives.sh --human        # one-liner "37 skills · 10 commands · 30 rules · 3 subagents"
+#   count-primitives.sh --human        # one-liner "N skills · N commands · N rules · N subagents"
 #   count-primitives.sh --check        # exit 1 when docs/plugin.json drift from reality
 #
 # Single-source-of-truth: bin/count-primitives.sh. Anything else that prints
@@ -21,7 +21,7 @@ PRIMITIVES="$(resolve_primitives_root "$AIKIT")"
 count_skills()    { find "$PRIMITIVES/skills" -mindepth 2 -maxdepth 2 -name SKILL.md 2>/dev/null | wc -l | tr -d ' '; }
 count_commands()  { find "$PRIMITIVES/commands" -mindepth 1 -maxdepth 1 -name '*.md' 2>/dev/null | wc -l | tr -d ' '; }
 count_rules()     { find "$AIKIT/standards/rules" -mindepth 1 -maxdepth 1 -name '*.mini.md' 2>/dev/null | wc -l | tr -d ' '; }
-count_subagents() { find "$PRIMITIVES/agents" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' '; }
+count_subagents() { find "$PRIMITIVES/agents" -mindepth 2 -maxdepth 2 -name AGENT.md 2>/dev/null | wc -l | tr -d ' '; }
 
 emit_json() {
   printf '{"skills":%s,"commands":%s,"rules":%s,"subagents":%s}\n' \
@@ -33,7 +33,7 @@ emit_human() {
     "$(count_skills)" "$(count_commands)" "$(count_rules)" "$(count_subagents)"
 }
 
-# Each tuple: file:pattern_template (where %SKILLS%/%COMMANDS%/%RULES% are
+# Each tuple: file:pattern_template (where %SKILLS%/%COMMANDS%/%RULES%/%SUBAGENTS% are
 # the canonical numbers). Checker substitutes the current counts and asserts
 # the rendered pattern appears in the file. Missing file → silent skip; the
 # checker only flags files that exist and disagree.
@@ -46,28 +46,39 @@ PATTERNS=(
   "README.md|| Skills | %SKILLS% |"
   "README.md|| Slash commands | %COMMANDS% |"
   "README.md|%SKILLS% skills covering one loop"
+  "README.md|| Subagents | %SUBAGENTS% |"
   "docs/diagrams.md|%SKILLS% skills"
   "docs/diagrams.md|%COMMANDS% slash commands"
   "docs/diagrams.md|%RULES% agent-agnostic rules"
+  "docs/diagrams.md|%SKILLS% skills + %SUBAGENTS% subagents"
+  "docs/glossary.md|%RULES% mini-rules shipped today"
+  "docs/glossary.md|primitive — %SKILLS% shipped today"
   "docs/install-plugin.md|All %SKILLS% skills"
   "docs/install-plugin.md|All %COMMANDS% slash commands"
+  "docs/install-plugin.md|All %SUBAGENTS% subagents"
   "docs/mental-model.md|How the %SKILLS% skills"
   "docs/mental-model.md|%COMMANDS% slash commands"
+  "docs/mental-model.md|the %SUBAGENTS% subagents"
   "workflow/.claude-plugin/plugin.json|%SKILLS% skills"
   "workflow/.claude-plugin/plugin.json|%COMMANDS% slash commands"
   "workflow/.claude-plugin/plugin.json|%RULES% canonical rules"
+  "workflow/.claude-plugin/plugin.json|%SUBAGENTS% subagents"
   "workflow/.cursor-plugin/plugin.json|%SKILLS% skills"
   "workflow/.cursor-plugin/plugin.json|%COMMANDS% commands"
   "ONBOARDING.md|%SKILLS% skills"
   "ONBOARDING.md|%COMMANDS% slash commands"
   "ONBOARDING.md|%RULES% canonical mini-rules"
+  "ONBOARDING.md|%SUBAGENTS% subagents"
+  "ONBOARDING.md|%SUBAGENTS% exist:"
+  "ONBOARDING.md|%COMMANDS% exist ("
 )
 
 check_drift() {
-  local skills commands rules
+  local skills commands rules subagents
   skills="$(count_skills)"
   commands="$(count_commands)"
   rules="$(count_rules)"
+  subagents="$(count_subagents)"
 
   local drift=0
   local entry file template pattern
@@ -78,6 +89,7 @@ check_drift() {
     pattern="${pattern//%SKILLS%/$skills}"
     pattern="${pattern//%COMMANDS%/$commands}"
     pattern="${pattern//%RULES%/$rules}"
+    pattern="${pattern//%SUBAGENTS%/$subagents}"
 
     if [ ! -f "$AIKIT/$file" ]; then
       continue
@@ -94,19 +106,22 @@ check_drift() {
       stale_re="${stale_re//%SKILLS%/[0-9]+}"
       stale_re="${stale_re//%COMMANDS%/[0-9]+}"
       stale_re="${stale_re//%RULES%/[0-9]+}"
-      grep -nE "$stale_re" "$AIKIT/$file" 2>/dev/null | head -2 | sed 's/^/  found: /'
+      stale_re="${stale_re//%SUBAGENTS%/[0-9]+}"
+      # `|| true`: a spelled-out count ("Six exist") matches no digit, and under
+      # `set -e` that empty grep would abort the loop before the summary.
+      grep -nE "$stale_re" "$AIKIT/$file" 2>/dev/null | head -2 | sed 's/^/  found: /' || true
       drift=$((drift + 1))
     fi
   done
 
   if [ "$drift" -gt 0 ]; then
     echo ""
-    echo "Canonical counts: skills=$skills commands=$commands rules=$rules"
+    echo "Canonical counts: skills=$skills commands=$commands rules=$rules subagents=$subagents"
     echo "Fix the lines above OR run bin/count-primitives.sh --check after every release."
     return 1
   fi
 
-  echo "OK — all tracked surfaces carry the canonical counts (skills=$skills commands=$commands rules=$rules)."
+  echo "OK — all tracked surfaces carry the canonical counts (skills=$skills commands=$commands rules=$rules subagents=$subagents)."
   return 0
 }
 

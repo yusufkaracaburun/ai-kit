@@ -61,11 +61,10 @@ See [docs/architecture.md](docs/architecture.md) for the full diagram.
 
 - **Skill** — a `SKILL.md` invoked by name (e.g. `/ai:setup`). Lives in
   `workflow/skills/`.
-- **Subagent** — an `AGENT.md` a skill can delegate to. Six exist:
+- **Subagent** — an `AGENT.md` a skill can delegate to. 6 exist:
   `explore`, `reviewer`, `qa-runner`, `verifier`, `builder`, `designer`.
 - **Slash command** — a `workflow/commands/<name>.md` resolving to a
-  bash script. Eight exist (`doctor`, `which`, `status`, `no-globals`,
-  `upgrade`, `next`, `dedupe`, `prefer-plugin`).
+  bash script. 11 exist (`ls workflow/commands/`).
 - **Mini-rule** — agent-agnostic rule book under `standards/rules/`,
   emitted per host by `bin/emit-rules.sh`.
 - **Marker** — `.ai-kit-setup` JSON written by `/ai:setup` to record

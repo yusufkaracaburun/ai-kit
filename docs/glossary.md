@@ -91,7 +91,7 @@ Setup mode that skips `install-global.sh` — only the project gets ai-kit asset
 
 ### Rule
 
-Agent-agnostic guidance derived from canonical books, stored in `standards/rules/<name>.mini.md` or `.nano.md`. Shipped today: aposd, context-discipline, ddd-distilled, git-hygiene, legacy-code, pragmatic, refactoring, release-it (8 total). Emitted per host by `bin/emit-rules.sh`.
+Agent-agnostic guidance derived from canonical books, stored in `standards/rules/<name>.mini.md` or `.nano.md`. 44 mini-rules shipped today (`ls standards/rules/`). Emitted per host by `bin/emit-rules.sh`.
 
 ### Setup
 
@@ -99,7 +99,7 @@ The `/ai:setup` skill (`workflow/skills/setup/SKILL.md`) — the user-facing ent
 
 ### Skill
 
-A workflow with `name:` + `description:` frontmatter, auto-discovered by the host. Lives at `workflow/skills/<name>/SKILL.md`. The primary ai-kit primitive — 20 shipped today.
+A workflow with `name:` + `description:` frontmatter, auto-discovered by the host. Lives at `workflow/skills/<name>/SKILL.md`. The primary ai-kit primitive — 44 shipped today.
 
 When the host sees a user intent matching a skill's `description`, it loads the SKILL.md body on demand.
 

@@ -155,12 +155,14 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
    criteria. The per-issue worker is the `builder` subagent
    (`subagent_type=builder`, fed the brief's acceptance criteria and
    the project's test command) — that is the fresh context per
-   issue. Hard cap: each red→green cycle gets ≤3 attempts. Cap
-   hit → `exit-gate tdd-stuck`, leave branch for human. Emit one
+   issue. The brief passes the hard cap (≤3 attempts per red→green
+   cycle) to builder, whose report carries a `## Cycles` block
+   (`<C-id> attempts=<n> result=<pass|fail>` per cycle); after it
+   returns, write from that block one
    `cycle-attempt <C-id> attempt=<n> result=<pass|fail>` line per
    attempt and one `cycle-done <C-id> result=<pass|fail>` line per
-   cycle boundary, so the cold-read log shows real-time progress
-   instead of a 20-minute silent gap.
+   cycle. A cycle at the cap or under builder's `## Blocked /
+   unverified` → `exit-gate tdd-stuck`, leave branch for human.
 6. **Review.** Invoke `review` in `comprehensive` mode with
    security depth `deep`. Any **Blocker** or security finding ≥ `high`
    → `exit-gate review-blocked`, leave branch for human.
@@ -168,7 +170,7 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
     on the claim "the acceptance criteria in the Agent Brief are met by
     this branch"; pass the brief and `git diff <default-branch>...HEAD`.
     REFUTED → `exit-gate verify-refuted <counter-evidence line>`, leave
-    branch for human. CONFIRMED or UNTESTABLE → continue.
+    branch for human. CONFIRMED or UNTESTABLE → `verify-pass`, continue.
 7. **Ship.** Invoke `ship` to open a PR. **Never auto-merge.**
    The project's merge policy (CI, approval, branch protection) is
    the safety net.
@@ -265,7 +267,7 @@ Events:
   `preflight-*` line on a fresh run = step 0 was skipped — refuse to
   consume that progress.txt and start over.
 - **Lifecycle:** `pick`, `brief-ok`, `cycle-attempt`, `cycle-done`,
-  `tdd-green`, `review-pass`, `ship-ok`.
+  `tdd-green`, `review-pass`, `verify-pass`, `ship-ok`.
 - **Liveness:** `heartbeat` — one per 60s wall-clock while the skill
   is alive (emitted by `bin/autonomous-heartbeat.sh`, not the LLM).
   Absence of `heartbeat` for >120s = process gone or runner crashed.
@@ -287,6 +289,7 @@ Example trace (columns separated by literal `\t`):
 2026-05-23T10:02:00Z \t 42 \t heartbeat      \t brewing
 2026-05-23T10:02:30Z \t 42 \t tdd-green      \t cycles=4
 2026-05-23T10:03:10Z \t 42 \t review-pass    \t mode=comprehensive
+2026-05-23T10:03:30Z \t 42 \t verify-pass    \t verdict=confirmed
 2026-05-23T10:03:45Z \t 42 \t ship-ok        \t pr=#101
 2026-05-23T10:03:46Z \t 43 \t pick           \t fix: bar
 2026-05-23T10:04:00Z \t 43 \t exit-gate      \t brief-thin header-mismatch

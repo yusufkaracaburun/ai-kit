@@ -96,10 +96,12 @@ assert "triage context → 'After closing issues, consider:' header" \
   'echo "$OUT_TRIAGE" | grep -q "^After closing issues, consider:"'
 
 echo "=== performance ==="
-START_MS=$(python3 -c 'import time; print(int(time.time()*1000))')
-bash "$NUDGE" "$TMP_BOTH" --context=checkpoint >/dev/null
-END_MS=$(python3 -c 'import time; print(int(time.time()*1000))')
-ELAPSED_MS=$(( END_MS - START_MS ))
+# The `time` builtin clocks only the child. Bracketing it between two
+# python3 startups measured those too: under full-suite load the total
+# reached 506–1569ms and failed this assert five runs out of seven.
+TIMEFORMAT=%3R
+ELAPSED_S="$( { time bash "$NUDGE" "$TMP_BOTH" --context=checkpoint >/dev/null 2>&1; } 2>&1 )"
+ELAPSED_MS=$(( 10#${ELAPSED_S/./} ))
 assert "nudge runs in < 500ms (allow CI noise; target <50ms per call)" \
   '[ "$ELAPSED_MS" -lt 500 ]'
 

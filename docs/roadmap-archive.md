@@ -223,7 +223,7 @@ in priority order:
    artifact.
 6. **Spike: autonomous-loop variant of `tdd`** — landed
    2026-05-23 (#17). See
-   [docs/spikes/ai:autonomous-ralph.md](spikes/ai:autonomous-ralph.md).
+   [docs/spikes/aikit-autonomous-ralph.md](spikes/aikit-autonomous-ralph.md).
    Verdict: ship as a **sibling skill** (`autonomous`), not a
    flag on existing skills and not a separate plugin. **Complementary,
    not competing** with `/loop` — `/loop` is the scheduler,

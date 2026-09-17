@@ -27,6 +27,10 @@ RULES_ACTUAL="$(find "$AIKIT/standards/rules" -mindepth 1 -maxdepth 1 -name '*.m
 RULES_REPORTED="$(echo "$JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["rules"])')"
 assert "JSON rules matches find" '[ "$RULES_ACTUAL" = "$RULES_REPORTED" ]'
 
+SUBAGENTS_ACTUAL="$(find "$AIKIT/workflow/agents" -mindepth 2 -maxdepth 2 -name AGENT.md | wc -l | tr -d ' ')"
+SUBAGENTS_REPORTED="$(echo "$JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["subagents"])')"
+assert "JSON subagents matches find" '[ "$SUBAGENTS_ACTUAL" = "$SUBAGENTS_REPORTED" ]'
+
 # --human one-liner shape.
 HUMAN="$("$AIKIT/bin/count-primitives.sh" --human)"
 assert "human says 'skills'" 'echo "$HUMAN" | grep -q "skills"'
@@ -60,5 +64,6 @@ cp -r "$AIKIT/standards/rules" "$TMPDIR_RUN/standards/"
 DRIFT_OUT="$(AI_KIT_ROOT="$TMPDIR_RUN" "$AIKIT/bin/count-primitives.sh" --check 2>&1 || true)"
 assert "--check detects synthetic drift" 'echo "$DRIFT_OUT" | grep -q "DRIFT"'
 assert "--check shows expected pattern" 'echo "$DRIFT_OUT" | grep -q "expected to contain"'
+assert "--check detects subagent drift" 'echo "$DRIFT_OUT" | grep -q "$SUBAGENTS_ACTUAL subagents"'
 
 print_summary_and_exit
