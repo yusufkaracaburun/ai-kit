@@ -40,16 +40,6 @@
         ],
         "matcher": "Edit|Write|MultiEdit"
       }
-    ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/peer-sessions-check.sh"
-          }
-        ]
-      }
     ]
   }
 }

@@ -61,7 +61,7 @@ The machine-wide install path. `bin/install-global.sh` creates symlinks under `~
 
 ### Hook
 
-A shell script registered in `.claude/settings.json` (or, for the plugin, `workflow/hooks/hooks.json`) that fires on host events. Plugin-shipped: a PostToolUse hook (`bin/hooks/post-skill-log.sh`) matching `^Skill$` for usage logging, and a SessionStart hook (`bin/hooks/session-rules-inject.sh`) that injects a project's emitted always-on, high-weight rules into Claude Code's context (issue #144). Opt out per machine with `bin/ai-kit-no-rule-injection.sh on`. Project-installed by `/ai:setup`: `search-delegation-check.sh` (PreToolUse), `phase-check.sh` (UserPromptSubmit) and `peer-sessions-check.sh` (SessionStart — fires only when other Claude Code sessions are live on the machine; ADR-0014).
+A shell script registered in `.claude/settings.json` (or, for the plugin, `workflow/hooks/hooks.json`) that fires on host events. Plugin-shipped: a PostToolUse hook (`bin/hooks/post-skill-log.sh`) matching `^Skill$` for usage logging, and a SessionStart hook (`bin/hooks/session-rules-inject.sh`) that injects a project's emitted always-on, high-weight rules into Claude Code's context (issue #144). Opt out per machine with `bin/ai-kit-no-rule-injection.sh on`. Also plugin-shipped: `peer-sessions-check.sh` (SessionStart — fires only when other Claude Code sessions are live on the machine; ADR-0014). Project-installed by `/ai:setup`: `search-delegation-check.sh` and `build-delegation-check.sh` (PreToolUse), `phase-check.sh` (UserPromptSubmit).
 
 Event types: `PreToolUse`, `PostToolUse`, `SessionStart`, `UserPromptSubmit`, `Notification`.
 

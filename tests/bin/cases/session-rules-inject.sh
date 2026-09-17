@@ -155,11 +155,12 @@ assert "hooks.json is valid JSON" 'python3 -c "import json; json.load(open(\"$HO
 # the heaviest rules lose on length rather than on merit (#148). The hook,
 # its tests and its opt-out all ship; only the registration waits. Flip this
 # back to asserting presence when #148 lands.
-assert "hooks.json does NOT register SessionStart yet (#148)" \
+assert "hooks.json does NOT register session-rules-inject yet (#148)" \
   'python3 -c "
 import json
 d = json.load(open(\"$HOOKS_JSON\"))
-assert \"SessionStart\" not in d[\"hooks\"], d[\"hooks\"].keys()
+cmds = [h[\"command\"] for b in d[\"hooks\"].get(\"SessionStart\", []) for h in b[\"hooks\"]]
+assert not any(\"session-rules-inject\" in c for c in cmds), cmds
 "'
 assert "hooks.json PostToolUse entry untouched" \
   'python3 -c "

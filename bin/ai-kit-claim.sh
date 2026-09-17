@@ -20,12 +20,12 @@
 #   ai-kit-claim.sh [--session ID] set key=value ...   create or update own claim
 #   ai-kit-claim.sh [--session ID] show                live peers as a table (own row omitted)
 #   ai-kit-claim.sh [--session ID] release             delete own claim
-#   ai-kit-claim.sh prune                              delete every stale claim
+#   ai-kit-claim.sh [--session ID] prune               delete every stale claim
 #
 # --session beats $AI_KIT_SESSION_ID, which bin/hooks/peer-sessions-check.sh
 # exports for the session via CLAUDE_ENV_FILE. No dependencies beyond
-# coreutils: this file is copied next to the hook into a project's
-# .claude/hooks/, so it must not source ai-kit libs.
+# coreutils: the hook runs from the plugin cache under /bin/bash 3.2 and
+# must never break a session, so this sources no ai-kit libs.
 set -euo pipefail
 
 CLAIMS_DIR="${HOME}/.config/ai-kit/claims"
@@ -39,7 +39,7 @@ usage() {
 Usage: ai-kit-claim.sh [--session ID] set key=value ...   create or update own claim
        ai-kit-claim.sh [--session ID] show                live peers as a table (own row omitted)
        ai-kit-claim.sh [--session ID] release             delete own claim
-       ai-kit-claim.sh prune                              delete every stale claim
+       ai-kit-claim.sh [--session ID] prune               delete every stale claim
 Keys: name repo cwd branch role owns provides depends_on. ID defaults to $AI_KIT_SESSION_ID.
 EOF
   exit 2
@@ -50,6 +50,8 @@ if [ "${1:-}" = "--session" ]; then
   SESSION="${2:-}"
   shift 2 || usage
 fi
+# The id names a file under CLAIMS_DIR; keep it there.
+SESSION="${SESSION//[^A-Za-z0-9_-]/_}"
 CMD="${1:-}"
 [ $# -gt 0 ] && shift
 
@@ -72,9 +74,12 @@ registry_get() {
   sed -n 's/.*"'"$1"'":"\{0,1\}\([^",}]*\)"\{0,1\}.*/\1/p' "$2" 2>/dev/null | head -1
 }
 
-# One line per live registry entry: session<TAB>name<TAB>cwd<TAB>status<TAB>updatedAt
+# One line per live registry entry: session name cwd status updatedAt, joined
+# by SEP. Unit separator, not tab: `read` collapses runs of whitespace IFS, so
+# an empty name would shift every column after it.
 # ponytail: kill -0 trusts the pid; pid reuse across a reboot would show a
 # ghost — compare procStart against `ps -o lstart` if that ever bites.
+SEP=$'\x1f'
 live_sessions() {
   local f pid
   for f in "$REGISTRY_DIR"/*.json; do
@@ -82,7 +87,7 @@ live_sessions() {
     pid="$(registry_get pid "$f")"
     [ -n "$pid" ] || continue
     kill -0 "$pid" 2>/dev/null || continue
-    printf '%s\t%s\t%s\t%s\t%s\n' "$(registry_get sessionId "$f")" "$(registry_get name "$f")" \
+    printf "%s$SEP%s$SEP%s$SEP%s$SEP%s\n" "$(registry_get sessionId "$f")" "$(registry_get name "$f")" \
       "$(registry_get cwd "$f")" "$(registry_get status "$f")" "$(registry_get updatedAt "$f")"
   done
 }
@@ -102,11 +107,10 @@ claim_set() {
   tmp="$(mktemp)"
   echo '---' > "$tmp"
   for key in $KEYS; do
-    val=""
+    val="$(claim_get "$key" "$file")"
     for arg in "$@"; do
       [ "${arg%%=*}" = "$key" ] && val="${arg#*=}"
     done
-    [ -n "$val" ] || val="$(claim_get "$key" "$file")"
     [ -n "$val" ] || continue
     case " $LIST_KEYS " in *" $key "*)
       val="${val#[}"
@@ -136,18 +140,18 @@ claim_show() {
   local rows="" sid name cwd status upd file live now
   now="$(date +%s)"
   live="$(live_sessions)"
-  while IFS=$'\t' read -r sid name cwd status upd; do
+  while IFS="$SEP" read -r sid name cwd status upd; do
     [ -n "$sid" ] && [ "$sid" != "$SESSION" ] || continue
     file="$CLAIMS_DIR/$sid.md"
     [ -n "$name" ] || name="$(claim_get name "$file")"
     [ -n "$upd" ] || upd="${now}000"
     rows+="| ${name:-${sid:0:8}} | $(basename "$cwd")$(claim_cells "$file") | ${status:--} $(( (now - upd / 1000) / 60 ))m ago |"$'\n'
-  done < <(sort -t $'\t' -k2 <<<"$live")
+  done < <(sort -t "$SEP" -k2 <<<"$live")
   for file in "$CLAIMS_DIR"/*.md; do
     [ -f "$file" ] || continue
     sid="$(basename "$file" .md)"
     [ "$sid" != "$SESSION" ] || continue
-    cut -f1 <<<"$live" | grep -qxF "$sid" && continue
+    cut -d "$SEP" -f1 <<<"$live" | grep -qxF "$sid" && continue
     name="$(claim_get name "$file")"
     rows+="| ${name:-${sid:0:8}} | $(claim_get repo "$file")$(claim_cells "$file") | stale |"$'\n'
   done
@@ -156,8 +160,12 @@ claim_show() {
 }
 
 claim_prune() {
+  need_session
   local file sid live
-  live="$(live_sessions | cut -f1)"
+  live="$(live_sessions | cut -d "$SEP" -f1)"
+  # The caller is a live session. If the registry does not list it, the
+  # registry is unreadable or absent — every claim would look stale.
+  grep -qxF "$SESSION" <<<"$live" || return 0
   for file in "$CLAIMS_DIR"/*.md; do
     [ -f "$file" ] || continue
     sid="$(basename "$file" .md)"

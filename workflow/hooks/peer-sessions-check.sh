@@ -17,22 +17,25 @@
 # still visible to the others, and prunes claims whose session is gone.
 #
 # With peers: ONE additionalContext — the peers table, the coordination
-# protocol (the session-coordination rule, inlined: this file is copied into
-# projects and cannot read standards/), and the instruction to call
+# protocol (the bullets of standards/rules/session-coordination.mini.md,
+# read at fire time so the rule has one home), and the instruction to call
 # `ListAgents` once and register a claim. Without peers: nothing, so a solo
 # session pays zero context for this.
 #
 # Silent by design — a hook must never break a session. Missing registry,
-# malformed payload, helper not found: exit 0, no output.
+# malformed payload, helper not found: exit 0, no output. Rule file not
+# found: peers table without the protocol block.
 #
-# Wire it up with bin/apply-peer-sessions-hook.sh, or by hand:
+# Peers are machine-wide, so this ships in the plugin's own manifest
+# (workflow/hooks/hooks.json) — every session gets it, no /ai:setup needed.
+# Source layout, by hand in .claude/settings.json:
 #
 #   {
 #     "hooks": {
 #       "SessionStart": [{
 #         "hooks": [{
 #           "type": "command",
-#           "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/peer-sessions-check.sh"
+#           "command": "${CLAUDE_PROJECT_DIR}/bin/hooks/peer-sessions-check.sh"
 #         }]
 #       }]
 #     }
@@ -59,17 +62,26 @@ print(v if isinstance(v, str) else "")' "$1" <<<"$payload" 2>/dev/null
 
 sid="$(read_field '.session_id')"
 [ -z "$sid" ] && exit 0
+# Lands unquoted in CLAUDE_ENV_FILE and names the claim file; same charset
+# ai-kit-claim.sh enforces so both resolve to the same claim.
+sid="${sid//[^A-Za-z0-9_-]/_}"
 cwd="$(read_field '.cwd')"
 [ -n "$cwd" ] || cwd="${CLAUDE_PROJECT_DIR:-$PWD}"
 
-# Two layouts: copied into a project (.claude/hooks/, helper alongside) or
-# run from source (bin/hooks/, helper one dir up).
+# Two layouts, same fallback as session-rules-inject.sh: plugin
+# (workflow/hooks/ + workflow/bin/ + workflow/standards/) or source
+# (bin/hooks/ + bin/ + standards/).
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd 2>/dev/null || true)"
 claim=""
-for cand in "$HOOK_DIR/ai-kit-claim.sh" "$HOOK_DIR/../ai-kit-claim.sh"; do
+for cand in "$HOOK_DIR/../bin/ai-kit-claim.sh" "$HOOK_DIR/../ai-kit-claim.sh"; do
   [ -x "$cand" ] && { claim="$(cd "$(dirname "$cand")" && pwd)/ai-kit-claim.sh"; break; }
 done
 [ -n "$claim" ] || exit 0
+protocol=""
+for cand in "$HOOK_DIR/../standards/rules/session-coordination.mini.md" \
+            "$HOOK_DIR/../../standards/rules/session-coordination.mini.md"; do
+  [ -f "$cand" ] && { protocol="$(sed -n '/^- /p' "$cand")"; break; }
+done
 
 export AI_KIT_SESSION_ID="$sid"
 "$claim" prune >/dev/null 2>&1 || true
@@ -80,27 +92,13 @@ branch="$(git -C "$cwd" symbolic-ref --short HEAD 2>/dev/null || true)"
 peers="$("$claim" show 2>/dev/null || true)"
 [ -n "$peers" ] || exit 0
 
-# Verbatim copy of the bullets in standards/rules/session-coordination.mini.md
-# — tests/bin/cases/peer-sessions-hook.sh pins the two together. `read`, not
-# `$(cat <<EOF)`: bash 3.2 (macOS /bin/bash) cannot parse the apostrophes in
-# a heredoc nested inside a command substitution.
-read -r -d '' protocol <<'EOF' || true
-- Register a claim at start and refresh it when your scope changes: `ai-kit-claim.sh set role=<lead|build|design|e2e|review> owns=<paths, .pen frames, devices> provides=<api version, release> depends_on=<repos, resources>`.
-- One lead per repo, named by the user. The lead owns push/merge order; non-leads commit locally and report to the lead. No lead named → the first session on the repo is lead and says so in its claim.
-- "Who owns X" is a file read, not a broadcast: `ai-kit-claim.sh show`. Before editing a path, .pen frame or device a peer claims, message the owner first and wait for a reply.
-- Message a peer only on: (1) same repo with branch/file overlap; (2) your work touches something the peer claims as a dependency (kit release, API contract, deploy); (3) a shared-resource clash (emulator, device, port, DB, .pen frame); (4) relaying a user decision that affects the peer's claimed area. Anything else: read, don't send.
-- Relay a user decision verbatim and attributed — "From <user>, via <me>: …" — never paraphrased as your own.
-- Keep the index empty around a peer's announced commit: stage per path, read the staged diff, commit — never leave a partial stage in a shared tree.
-- Release your claim when done: `ai-kit-claim.sh release`.
-EOF
-
 ctx="ai-kit peer sessions: other Claude Code sessions are live on this machine. Coordinate — do not re-negotiate.
 
 $peers
-
+${protocol:+
 Protocol (session-coordination rule):
 $protocol
-
+}
 Do now: call \`ListAgents\` once, then register with \`$claim set role=… owns=… depends_on=…\` (AI_KIT_SESSION_ID=$sid is exported for this session; your skeleton claim already records repo, cwd and branch)."
 
 if command -v jq >/dev/null 2>&1; then

@@ -68,15 +68,10 @@ assert "own session not listed as a peer" '! grep -q "ai-kit-99" <<<"$OUT"'
 assert "nudge asks for ListAgents + claim" 'grep -q "ListAgents" <<<"$OUT" && grep -q "ai-kit-claim.sh" <<<"$OUT"'
 assert "emits valid JSON" 'bash "$HOOK" <<<"$OWN" | python3 -c "import json,sys; json.load(sys.stdin)"'
 
-echo "=== peer-sessions-check: protocol inlined verbatim from the rule ==="
+echo "=== peer-sessions-check: protocol read from the rule ==="
 # section: peer-sessions-protocol
-# The hook cannot read standards/ once copied into a project, so it carries
-# the bullets itself. Pin them to the rule so the two cannot drift apart.
-RULE_OK=1
-while IFS= read -r line; do
-  grep -qF -- "$line" "$HOOK" || RULE_OK=0
-done < <(grep '^- ' "$RULE")
-assert "every rule bullet appears in the hook" '[ "$RULE_OK" -eq 1 ]'
+FIRST_BULLET="$(grep -m1 '^- ' "$RULE")"
+assert "injected context carries the rule's bullets" 'grep -qF -- "$FIRST_BULLET" <<<"$OUT"'
 assert "rule body is ≤14 lines" '[ "$(awk "f; /^---$/ && NR>1 {f=1}" "$RULE" | grep -c .)" -le 14 ]'
 
 echo "=== peer-sessions-check: stale claims pruned ==="
@@ -125,38 +120,59 @@ assert "release deletes the claim" '[ ! -f "$CLAIMS/own-1.md" ]'
 "$CLAIM" --session own-1 release
 assert "release is idempotent" '[ ! -f "$CLAIMS/own-1.md" ]'
 
-echo "=== apply-peer-sessions-hook ==="
-# section: apply-peer-sessions-hook
-TMP_A=$(mktemp -d)
-"$AIKIT/bin/apply-peer-sessions-hook.sh" "$TMP_A" >/dev/null
-assert "hook copied + executable" '[ -x "$TMP_A/.claude/hooks/peer-sessions-check.sh" ]'
-assert "claim helper copied next to it" '[ -x "$TMP_A/.claude/hooks/ai-kit-claim.sh" ]'
-assert "SessionStart wired" \
+echo "=== plugin delivery: hooks.json + plugin-shaped layout ==="
+# section: peer-sessions-plugin
+# Peers are machine-wide, so the hook ships in the plugin's own manifest —
+# a project that never ran /ai:setup still gets the nudge.
+HOOKS_JSON="$AIKIT/workflow/hooks/hooks.json"
+assert "hooks.json registers the hook on SessionStart" \
   'python3 -c "
 import json
-d = json.load(open(\"$TMP_A/.claude/settings.json\"))
-ss = d[\"hooks\"][\"SessionStart\"]
-assert len(ss) == 1, ss
-assert ss[0][\"hooks\"][0][\"command\"].endswith(\"/.claude/hooks/peer-sessions-check.sh\"), ss
+d = json.load(open(\"$HOOKS_JSON\"))
+cmds = [h[\"command\"] for b in d[\"hooks\"][\"SessionStart\"] for h in b[\"hooks\"]]
+assert \"\${CLAUDE_PLUGIN_ROOT}/hooks/peer-sessions-check.sh\" in cmds, cmds
 "'
-"$AIKIT/bin/apply-peer-sessions-hook.sh" "$TMP_A" >/dev/null
-assert "idempotent: second run does not stack" \
-  'python3 -c "
-import json
-d = json.load(open(\"$TMP_A/.claude/settings.json\"))
-assert len(d[\"hooks\"][\"SessionStart\"]) == 1
-"'
-OUT=$(fire "$OWN" "$TMP_A/.claude/hooks/peer-sessions-check.sh")
-assert "copied hook finds the copied helper and still fires" 'grep -q "planny-7f" <<<"$OUT"'
-rm -rf "$TMP_A"
+assert "sync-plugin-hooks --check clean" 'bash "$AIKIT/bin/sync-plugin-hooks.sh" --check >/dev/null 2>&1'
 
-echo "=== write-setup-marker records the branch ==="
-# section: peer-sessions-marker
-TMP_M=$(mktemp -d)
-"$AIKIT/bin/write-setup-marker.sh" "$TMP_M" --peer-sessions-hook=wired >/dev/null
-assert "marker records peer_sessions_hook" \
-  'python3 -c "import json,sys; print(json.load(open(sys.argv[1]))[\"branches\"][\"peer_sessions_hook\"])" "$TMP_M/.ai-kit-setup" | grep -q wired'
-rm -rf "$TMP_M"
+# ${CLAUDE_PLUGIN_ROOT} layout: hooks/, bin/ and standards/ are siblings.
+TMP_P=$(mktemp -d)
+mkdir -p "$TMP_P/hooks" "$TMP_P/bin"
+cp "$HOOK" "$TMP_P/hooks/"
+cp "$CLAIM" "$TMP_P/bin/"
+OUT=$(fire "$OWN" "$TMP_P/hooks/peer-sessions-check.sh")
+assert "plugin layout resolves bin/ai-kit-claim.sh and fires" 'grep -q "planny-7f" <<<"$OUT"'
+assert "rule file missing -> peers table without the protocol block" '! grep -q "Protocol" <<<"$OUT"'
+mkdir -p "$TMP_P/standards/rules"
+cp "$RULE" "$TMP_P/standards/rules/"
+OUT=$(fire "$OWN" "$TMP_P/hooks/peer-sessions-check.sh")
+assert "plugin layout reads standards/rules beside hooks/" 'grep -qF -- "$FIRST_BULLET" <<<"$OUT"'
+rm -rf "$TMP_P"
+
+echo "=== ai-kit-claim: hardening ==="
+# section: claim-hardening
+registry "$PPID" peer-1 "" /x/planny
+OUT_SHOW=$("$CLAIM" --session own-1 show)
+ROW=$(grep "^| peer-1 |" <<<"$OUT_SHOW" || true)
+assert "registry entry without a name falls back to the sid prefix" '[ -n "$ROW" ]'
+assert "empty registry field keeps every column in place" '[ "$(awk -F"|" "{print NF}" <<<"$ROW")" -eq 9 ]'
+
+"$CLAIM" --session '../../evil' set role=lead >/dev/null
+assert "session id with / is sanitised into the claims dir" '[ -f "$CLAIMS/______evil.md" ] && [ ! -e "$TMP_H/.config/evil.md" ]'
+"$CLAIM" --session '../../evil' release
+assert "sanitised release removes the same file" '[ ! -f "$CLAIMS/______evil.md" ]'
+
+ENVF="$TMP_H/env"
+CLAUDE_ENV_FILE="$ENVF" bash "$HOOK" <<<'{"session_id":"x;touch /tmp/pwn","cwd":"'"$REPO"'"}' >/dev/null
+assert "hook sanitises session_id before writing CLAUDE_ENV_FILE" 'grep -qx "export AI_KIT_SESSION_ID=x_touch__tmp_pwn" "$ENVF"'
+rm -f "$CLAIMS/x_touch__tmp_pwn.md"
+
+"$CLAIM" --session own-1 set owns="lib/a, lib/b" >/dev/null
+"$CLAIM" --session own-1 set owns= >/dev/null
+assert "set key= clears the key" '! grep -q "^owns:" "$CLAIMS/own-1.md"'
+
+rm -rf "$REG"
+"$CLAIM" --session own-1 prune
+assert "prune with the registry absent leaves claims untouched" '[ -f "$CLAIMS/own-1.md" ]'
 
 rm -rf "$TMP_H"
 print_summary_and_exit

@@ -1,12 +1,8 @@
 #!/usr/bin/env bash
-# Install the build-delegation hook into a target project.
-#
-#   1. Copy bin/hooks/build-delegation-check.sh into TARGET/.claude/hooks/ so
-#      the project references it by a portable ${CLAUDE_PROJECT_DIR}-relative
-#      path (no absolute ai-kit path baked into a committed settings.json).
-#   2. Merge a PreToolUse(Edit|Write|MultiEdit) entry into
-#      TARGET/.claude/settings.json — non-destructive (keeps every other key
-#      and hook) and idempotent.
+# Install the build-delegation hook into a target project: copy
+# bin/hooks/build-delegation-check.sh into TARGET/.claude/hooks/ and merge a
+# PreToolUse(Edit|Write|MultiEdit) entry into TARGET/.claude/settings.json
+# — non-destructive and idempotent (bin/lib/settings-hooks.sh).
 #
 # Usage: apply-build-delegation-hook.sh /path/to/project
 set -euo pipefail
@@ -24,19 +20,7 @@ if [ $# -lt 1 ]; then
 fi
 TARGET="$(cd "$1" && pwd)"
 
-HOOK_SRC="$AIKIT/bin/hooks/build-delegation-check.sh"
-[ -f "$HOOK_SRC" ] || { echo "Hook source missing: $HOOK_SRC" >&2; exit 1; }
-
-command -v python3 >/dev/null 2>&1 || {
-  echo "python3 is required to merge settings.json" >&2
-  exit 1
-}
-
-mkdir -p "$TARGET/.claude/hooks"
-cp "$HOOK_SRC" "$TARGET/.claude/hooks/build-delegation-check.sh"
-chmod +x "$TARGET/.claude/hooks/build-delegation-check.sh"
-
-wire_hook "$TARGET/.claude/settings.json" "PreToolUse" "Edit|Write|MultiEdit" \
+install_project_hook "$TARGET" "$AIKIT/bin/hooks/build-delegation-check.sh" "PreToolUse" "Edit|Write|MultiEdit" \
   '${CLAUDE_PROJECT_DIR}/.claude/hooks/build-delegation-check.sh'
 
 echo "build-delegation hook installed in $TARGET"

@@ -43,8 +43,9 @@ assert "missing hook warns, never errors" \
   'echo "$OUT_M" | grep -qE "^  warn .*hook context-drift not in .claude/settings.json"'
 assert "warning carries the apply recipe" \
   'echo "$OUT_M" | grep -F -q "run: bash $AIKIT/bin/apply-context-drift-hook.sh $M"'
-assert "wired hooks still reported ok" \
-  'echo "$OUT_M" | grep -qE "^  ok .*hooks wired in .claude/settings.json: phase-check search-delegation"'
+OK_M="$(echo "$OUT_M" | grep -E "^  ok .*hooks wired in .claude/settings.json:" || true)"
+assert "wired hooks still reported ok, missing one left out" \
+  'grep -q "phase-check" <<<"$OK_M" && grep -q "search-delegation" <<<"$OK_M" && ! grep -q "context-drift" <<<"$OK_M"'
 assert "no disagreement claimed without a marker" \
   '! echo "$OUT_M" | grep -q "disagree"'
 

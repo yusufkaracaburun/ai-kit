@@ -68,12 +68,14 @@ Two facts found on the machine while building this shaped the mechanism:
    `show` marks it, the next hook run prunes it. Claims live under ai-kit's
    own `~/.config/ai-kit/`, not inside Claude Code's `~/.claude/sessions/`.
 5. **SessionStart nudge only when peers exist.** `bin/hooks/peer-sessions-check.sh`
-   (installed per project by `/ai:setup` Branch 2d via
-   `bin/apply-peer-sessions-hook.sh`) writes a skeleton claim for the current
+   (delivered machine-wide by the plugin's own `workflow/hooks/hooks.json`,
+   because peers are machine-wide and a fresh `/plugin install` must be
+   correct without `/ai:setup`) writes a skeleton claim for the current
    session, prunes stale claims, and — only if at least one other session is
    live — injects one `additionalContext`: the peers table, the
-   `session-coordination` rule inlined, and the instruction to call
-   `ListAgents` once and register. Solo session: no output, zero context cost.
+   `session-coordination` rule's bullets read from the rule file, and the
+   instruction to call `ListAgents` once and register. Solo session: no
+   output, zero context cost.
    No `SessionEnd` cleanup: liveness is exact, and releasing on `/clear` would
    lose role/owns mid-work.
 6. **Ship-time deploy broadcast.** `/ai:ship` post-deploy runs
@@ -107,17 +109,12 @@ Two facts found on the machine while building this shaped the mechanism:
 - `kill -0` trusts the pid. After a reboot with a stale registry entry a reused
   pid could show a ghost peer; `procStart` in the registry is the upgrade
   path if that ever bites.
-- The protocol text is duplicated: rule file and hook (the hook is copied into
-  projects and cannot read `standards/`). A test pins every rule bullet to the
-  hook so the two cannot drift silently.
-- Per-project install (`/ai:setup`) means a repo that never ran setup gets no
-  nudge even though its session is still listed as a peer by the others.
+- The hook reads the rule file at fire time; a plugin cache without
+  `standards/rules/` emits the peers table with no protocol block, silently.
 
 ## Reversibility
 
-Cheap. Delete the hook entry from `.claude/settings.json` (or never run the
-applier) and the two copied scripts; remove `~/.config/ai-kit/claims/`. The
+Cheap. Delete the `SessionStart` entry from `workflow/hooks/hooks.json` and
+`bin/hooks/peer-sessions-check.sh`; remove `~/.config/ai-kit/claims/`. The
 rule file is on-demand and inert without the hook. No state outside those
-paths, nothing in `~/.claude/` is touched. Moving the hook from per-project
-to the plugin's `hooks.json` (machine-wide, no setup needed) is a one-line
-change if the per-project gap in Consequences turns out to matter.
+paths, nothing in `~/.claude/` is touched.

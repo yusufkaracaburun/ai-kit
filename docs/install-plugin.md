@@ -87,6 +87,10 @@ Bundled (via `workflow/.claude-plugin/plugin.json`):
   the bundled `log-skill.sh` via `${CLAUDE_PLUGIN_ROOT}`, no project paths
   required. Source-of-truth lives at `bin/hooks/post-skill-log.sh` +
   `bin/log-skill.sh`; `bin/sync-plugin-hooks.sh --check` enforces no drift.
+- The SessionStart peer-sessions hook (`workflow/hooks/peer-sessions-check.sh`,
+  ADR-0014). Fires only when other Claude Code sessions are live on the
+  machine; resolves `${CLAUDE_PLUGIN_ROOT}/bin/ai-kit-claim.sh` and reads the
+  protocol from `${CLAUDE_PLUGIN_ROOT}/standards/rules/session-coordination.mini.md`.
 
 **Not bundled** (intentionally):
 

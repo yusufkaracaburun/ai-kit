@@ -3,6 +3,25 @@
 # Shared by the apply-*-hook.sh installers so the JSON-merge logic — and its
 # malformed-file handling — lives in exactly one place.
 #
+# install_project_hook <target> <hook_src> <event> <matcher|""> <command> [legacy_marker]
+#   Copies hook_src into TARGET/.claude/hooks/ (executable), then wire_hook
+#   with the remaining args. <command> is that copy's
+#   ${CLAUDE_PROJECT_DIR}-relative path: the applier spells it out so a
+#   committed settings.json never carries an absolute ai-kit path, and so
+#   bin/ai-kit-doctor.sh can read the expected script name off the applier.
+install_project_hook() {
+  local target="$1" src="$2"
+  [ -f "$src" ] || { echo "Hook source missing: $src" >&2; return 1; }
+  command -v python3 >/dev/null 2>&1 || {
+    echo "python3 is required to merge settings.json" >&2
+    return 1
+  }
+  mkdir -p "$target/.claude/hooks"
+  cp "$src" "$target/.claude/hooks/"
+  chmod +x "$target/.claude/hooks/$(basename "$src")"
+  wire_hook "$target/.claude/settings.json" "$3" "$4" "$5" "${6:-}"
+}
+
 # wire_hook <settings_path> <event> <matcher|""> <command> [legacy_marker]
 #   Creates settings_path with '{}' if missing. Refuses (prints to stderr,
 #   returns 1) rather than silently discarding a malformed settings.json —
