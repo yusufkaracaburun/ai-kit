@@ -8,7 +8,7 @@ source "$AIKIT/tests/bin/lib/harness.sh"
 echo "=== skills-count ==="
 # section: skills-count
 SKILL_COUNT=$(find "$AIKIT/workflow/skills" -name SKILL.md | wc -l | tr -d ' ')
-assert "43 skills" '[ "$SKILL_COUNT" -eq 43 ]'
+assert "44 skills" '[ "$SKILL_COUNT" -eq 44 ]'
 assert "plugin payload carries the changelog" '[ -f "$AIKIT/workflow/CHANGELOG.md" ]'
 assert "plugin changelog matches root" 'cmp -s "$AIKIT/CHANGELOG.md" "$AIKIT/workflow/CHANGELOG.md"'
 assert "checkpoint skill exists" '[ -f "$AIKIT/workflow/skills/checkpoint/SKILL.md" ]'
@@ -20,12 +20,13 @@ assert "rename-housekeeping skill exists" '[ -f "$AIKIT/workflow/skills/rename-h
 echo "=== agents ==="
 # section: agents
 AGENT_COUNT=$(find "$AIKIT/workflow/agents" -name AGENT.md | wc -l | tr -d ' ')
-assert "5 subagents present" '[ "$AGENT_COUNT" -eq 5 ]'
+assert "6 subagents present" '[ "$AGENT_COUNT" -eq 6 ]'
 assert "explore exists" '[ -f "$AIKIT/workflow/agents/explore/AGENT.md" ]'
 assert "reviewer exists" '[ -f "$AIKIT/workflow/agents/reviewer/AGENT.md" ]'
 assert "qa-runner exists" '[ -f "$AIKIT/workflow/agents/qa-runner/AGENT.md" ]'
 assert "verifier exists" '[ -f "$AIKIT/workflow/agents/verifier/AGENT.md" ]'
 assert "builder exists" '[ -f "$AIKIT/workflow/agents/builder/AGENT.md" ]'
+assert "designer exists" '[ -f "$AIKIT/workflow/agents/designer/AGENT.md" ]'
 assert "explore frontmatter name" 'head -5 "$AIKIT/workflow/agents/explore/AGENT.md" | grep -q "^name: explore$"'
 assert "explore frontmatter tools" 'head -5 "$AIKIT/workflow/agents/explore/AGENT.md" | grep -q "^tools:"'
 assert "reviewer frontmatter name" 'head -5 "$AIKIT/workflow/agents/reviewer/AGENT.md" | grep -q "^name: reviewer$"'
@@ -35,6 +36,10 @@ assert "verifier frontmatter name" 'head -5 "$AIKIT/workflow/agents/verifier/AGE
 assert "verifier frontmatter has no model pin" '! head -5 "$AIKIT/workflow/agents/verifier/AGENT.md" | grep -q "^model:"'
 assert "builder frontmatter name" 'head -5 "$AIKIT/workflow/agents/builder/AGENT.md" | grep -q "^name: builder$"'
 assert "builder frontmatter tools" 'head -5 "$AIKIT/workflow/agents/builder/AGENT.md" | grep -q "^tools:"'
+assert "designer frontmatter name" 'head -5 "$AIKIT/workflow/agents/designer/AGENT.md" | grep -q "^name: designer$"'
+assert "designer frontmatter has no model pin" '! head -5 "$AIKIT/workflow/agents/designer/AGENT.md" | grep -q "^model:"'
+# No tools: line on purpose — designer inherits the Pencil MCP tools when the host has them.
+assert "designer frontmatter has no tools list" '! head -5 "$AIKIT/workflow/agents/designer/AGENT.md" | grep -q "^tools:"'
 
 
 echo "=== slash-commands ==="
@@ -67,6 +72,9 @@ assert "improve-arch skill dropped the generic Explore subagent" '! grep -q "sub
 assert "tdd skill has a Run mode block" 'grep -q "^## Run mode" "$AIKIT/workflow/skills/tdd/SKILL.md"'
 assert "tdd skill delegates to builder" 'grep -q "subagent_type=builder" "$AIKIT/workflow/skills/tdd/SKILL.md"'
 assert "autonomous skill names builder as the per-issue worker" 'grep -q "subagent_type=builder" "$AIKIT/workflow/skills/autonomous/SKILL.md"'
+assert "design-to-code skill has a Run mode block" 'grep -q "^## Run mode" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "design-to-code skill delegates to designer" 'grep -q "subagent_type=designer" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "design-to-code skill delegates to verifier" 'grep -q "subagent_type=verifier" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
 
 
 echo "=== plugin-manifest ==="

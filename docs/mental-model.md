@@ -1,6 +1,6 @@
 # Mental model
 
-How the 43 skills fit together, plus the 5 subagents and 11 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
+How the 44 skills fit together, plus the 6 subagents and 11 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
 
 For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossary.md). For "I want to add X — which primitive?" see [primitives.md](primitives.md).
 
@@ -42,6 +42,7 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
 | Shatter a plan / PRD into N independently-grabbable tracer-bullet issues | `to-issues` |
 | Pick the next ticket to work on | `triage` |
 | Build a feature via red-green-refactor | `tdd` |
+| Build a screen from a design file and prove the code matches it | `design-to-code` |
 | Get a second pass on a diff before PR | `review` |
 | Smoke-test a running web app | `qa` |
 | Hunt a hard bug or perf regression | `diagnose` |
@@ -65,6 +66,7 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
 | `qa` skill on Claude Code | `qa-runner` (full QA pass — Playwright/CLI tests, structured findings report; large browser output stays isolated) |
 | A blocker from `review`, or the "acceptance criteria met" claim before `autonomous` ships | `verifier` (adversarial check of one claim — REFUTED / CONFIRMED / UNTESTABLE, verdict only) |
 | `tdd` skill on Claude Code, change spans ≥3 files; `autonomous` per issue | `builder` (whole red→green→refactor pass against the acceptance criteria; returns a Changed/Tests report, never commits) |
+| `design-to-code` build flow, one per frame | `designer` (UI from a design frame against the project's own tokens and components; Design sources / Changed / States / Verified report, never commits) |
 | Codebase walk from `diagnose`, `to-issues`, `improve-codebase-architecture` | `explore` (read-only sweeps, ≤300 lines, structured return) |
 | Cross-file impact analysis from any other skill | `explore` |
 

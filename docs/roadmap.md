@@ -318,9 +318,6 @@ None open.
   `plugins-excluded.json`); only open question is whether its type-aware /
   semantic / Cypher engine beats graphify enough to migrate, against the MCP
   footprint cost (ADR-0006). No pain with graphify today.
-- **#106** `enhancement · catalog-candidate` — fold the Pencil design→code→verify
-  skill into ai-kit. Adopt-candidate → routes through `/ai:should-i-use` + the
-  `plugins-excluded.json` / catalog ledger before any fold.
 - **#83** `enhancement` — `audit-architecture-flutter`: 8 Flutter 3.27 / Dart 3.6
   heuristics + helper-script, mirroring the existing per-stack audit extensions.
 - **#47** `enhancement · needs-info` — optional Tier-B EOD-email branch for AFK

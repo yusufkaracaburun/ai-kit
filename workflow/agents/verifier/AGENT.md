@@ -54,6 +54,9 @@ If the claim is vague enough that you cannot test it, that is itself a refutatio
 **"The acceptance criteria are met"**
 - Take each criterion literally. Find the line in the diff that satisfies it, or the test that proves it. One unmet criterion refutes the whole claim.
 
+**"`<component>` matches design frame `<id>`"**
+- Compare the caller's render against the caller's frame export block by block — order, spacing, type, colours, copy, empty state. No render or no export → UNTESTABLE, never CONFIRMED from the code alone.
+
 ## Output
 
 ```markdown

@@ -13,7 +13,7 @@ Inside Claude Code:
 
 The first command registers the catalog at `https://github.com/yusufkaracaburun/marketplace/blob/master/.claude-plugin/marketplace.json` — a standalone marketplace listing ai-kit (and any future plugins under `yusufkaracaburun`). The second installs the `ai` plugin from that marketplace; `source.url` in the catalog points back at `https://github.com/yusufkaracaburun/ai-kit.git`, subdir `workflow`, pinned to the latest release tag.
 
-After install, Claude Code namespace-prefixes plugin skills: `/ai:setup`, `/ai:ship`, `/ai:tdd`, etc. Slash commands likewise get the prefix: `/ai:doctor`. Subagents (`explore`, `reviewer`, `qa-runner`, `verifier`, `builder`) become discoverable via the Task tool.
+After install, Claude Code namespace-prefixes plugin skills: `/ai:setup`, `/ai:ship`, `/ai:tdd`, etc. Slash commands likewise get the prefix: `/ai:doctor`. Subagents (`explore`, `reviewer`, `qa-runner`, `verifier`, `builder`, `designer`) become discoverable via the Task tool.
 
 > **3.0 rename.** Until ai-kit 3.0 (2026-05-23) the plugin was named
 > `ai-kit` and skills were prefixed `aikit-` — `/plugin install
@@ -78,8 +78,8 @@ If you switch from symlink to plugin, run `bin/ai-kit-no-globals.sh on` to suppr
 
 Bundled (via `workflow/.claude-plugin/plugin.json`):
 
-- All 43 skills (`workflow/skills/`)
-- All 5 subagents (`workflow/agents/explore`, `workflow/agents/reviewer`, `workflow/agents/qa-runner`, `workflow/agents/verifier`, `workflow/agents/builder`)
+- All 44 skills (`workflow/skills/`)
+- All 6 subagents (`workflow/agents/explore`, `workflow/agents/reviewer`, `workflow/agents/qa-runner`, `workflow/agents/verifier`, `workflow/agents/builder`, `workflow/agents/designer`)
 - All 11 slash commands (`workflow/commands/*.md`)
 - The PostToolUse skill-logging hook (`workflow/hooks/post-skill-log.sh` +
   `workflow/hooks/log-skill.sh`, wired by `workflow/hooks/hooks.json`).

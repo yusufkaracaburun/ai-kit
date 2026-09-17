@@ -10,8 +10,8 @@ runtime daemon, no network calls, no telemetry.
 
 | Primitive | Count | Reaches |
 | --------- | -----:| ------- |
-| Skills | 43 | Claude Code · Cursor |
-| Subagents | 4 | Claude Code |
+| Skills | 44 | Claude Code · Cursor |
+| Subagents | 6 | Claude Code |
 | Slash commands | 11 | Claude Code · Cursor |
 | Hooks | 2 | Claude Code |
 | Rules | 44 canonical mini-rules | Cursor · Claude Code (via emitter) |
@@ -66,12 +66,12 @@ First moves:
 
 ## The agile lifecycle
 
-43 skills covering one loop — idea to retro:
+44 skills covering one loop — idea to retro:
 
 | Phase | Skills |
 | ----- | ------ |
 | Ideation | `grill-me` · `grill-with-docs` · `to-prd` · `prototype` · `design-direction` · `zoom-out` · `show-me` · `should-i-use` |
-| Development | `to-issues` → `triage` → `tdd` |
+| Development | `to-issues` → `triage` → `tdd` · `design-to-code` |
 | Testing | `review` · `qa` · `diagnose` |
 | Deployment | `ship` |
 | Ops & review | `retro` · `feedback` · `contribute-eval` |

@@ -1,7 +1,7 @@
 {
   "_meta": {
     "title": "Claude Code subagent recommendations — stack signal → subagent map",
-    "notes": "Curated third-party Claude Code subagents (Agent tool specialists) worth surfacing per project. ai-kit recommends, never bundles. Install entries point at the parent plugin/repo — users invoke /plugin install themselves. Subagents differ from plugins in trust surface: they execute via the Agent tool with an explicit tool-list, so each entry documents which tools the subagent gets access to. Mirrors plugins.json schema with additional 'parent_plugin' + 'tools' fields. Built-in subagents (general-purpose, Explore, Plan, statusline-setup) are excluded — always available, not recommendation candidates. ai-kit's own subagents (ai:explore, ai:qa-runner, ai:reviewer, ai:verifier, ai:builder) are excluded — installed with ai-kit itself.",
+    "notes": "Curated third-party Claude Code subagents (Agent tool specialists) worth surfacing per project. ai-kit recommends, never bundles. Install entries point at the parent plugin/repo — users invoke /plugin install themselves. Subagents differ from plugins in trust surface: they execute via the Agent tool with an explicit tool-list, so each entry documents which tools the subagent gets access to. Mirrors plugins.json schema with additional 'parent_plugin' + 'tools' fields. Built-in subagents (general-purpose, Explore, Plan, statusline-setup) are excluded — always available, not recommendation candidates. ai-kit's own subagents (ai:explore, ai:qa-runner, ai:reviewer, ai:verifier, ai:builder, ai:designer) are excluded — installed with ai-kit itself.",
     "vendored_at": "2026-05-25"
   },
   "recommendations": [
