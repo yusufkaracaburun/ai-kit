@@ -328,6 +328,29 @@
       }
     },
     {
+      "name": "modern-web-guidance",
+      "marketplace": "claude-plugins-official",
+      "install": "/plugin install modern-web-guidance@claude-plugins-official",
+      "category": "web-platform",
+      "best_for": "Web frontends where the agent builds components, layout, motion, forms or dark mode — the how-to-implement-it-with-the-platform counterpart to ui-ux-pro-max (what to choose) and web-quality-skills (measure it afterwards)",
+      "value": "Chrome + Edge team's curated, eval-graded guides (143 in v0.0.189: css 15, forms 16, performance 24, ui-behaviors 29, ui-atoms 10, ui-components 7, visual-design 16, js 8, security 7, …) retrieved on demand: the skill runs a local semantic search (`npx modern-web-guidance search`, MiniLM model shipped in the package, no network) and pulls one guide of 1–4k tokens into context only when a task matches. Steers away from legacy JS toward `<dialog>`/popover, `@starting-style`, View Transitions, scroll-driven animations, `light-dark()`, `:has()`, container queries, `fetchpriority`. Not design direction and not product-specific UI — a quiz-answer pattern scores 0.40, a mobile nav drawer 0.52 and dark-mode tokens 0.63. Telemetry: anonymous search queries + guide ids go to Google unless `DISABLE_TELEMETRY=1` is exported — set it in the shell profile before enabling. Preview release; the skill's own trigger is aggressive ('execute FIRST for all HTML/CSS tasks'), so measure the per-session token cost on the first real repo before calling it a default.",
+      "signals": {
+        "frameworks": [
+          "react",
+          "vue",
+          "angular",
+          "nextjs",
+          "nuxt",
+          "svelte",
+          "remix",
+          "astro"
+        ],
+        "architectures": [
+          "frontend"
+        ]
+      }
+    },
+    {
       "name": "dart-flutter",
       "marketplace": "dart-flutter",
       "install": "/plugin install dart-flutter@dart-flutter",

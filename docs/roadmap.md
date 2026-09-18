@@ -156,6 +156,23 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P3 — backlog
 
+- **#177** `enhancement` — `design-to-code`: ship a web design-fidelity script
+  (texts 45 · tokens 30 · hex 15 · icons 10, per component ≥ 90) as the
+  reference impl of the audit flow's four measurements. Source is theorieplek's
+  `scripts/check-fidelity.mjs`, which has never run outside theorieplek: plain-JSON
+  `.pen` only, Astro-coupled page resolution, `design-map.json` as contract.
+  Ships only behind a `tests/` fixture (tiny `.pen` + `dist/` + map) the suite
+  scores deterministically. Deferred from the v1.89.0 harvest.
+- **#176** `enhancement` — `/ai:ship` Flutter branch: route to `/release-ios` +
+  `/release-android`, refuse a store build without a review marker (the
+  `pubspec.yaml` bump is the trigger, nothing checks it), opt-in changelog-line
+  hook (`fix`/`feat` touching source must touch `CHANGELOG.md`; static sites
+  keep status in a context doc and want none). Same cluster as #155 / #166 /
+  #83 — decide once whether ai-kit ships a Flutter pack behind the `pubspec.yaml`
+  signal (release-ios/android/e2e at user scope, apple-hig +
+  make-interfaces-feel-better project-scoped in planny-app-mobile). Deferred
+  from the v1.89.0 harvest; CI minutes exhausted until 2026-10 so any
+  enforcement is a local pre-push hook.
 - **#166** `catalog-candidate` — harvest `planny-app-mobile`'s project-scoped
   `mobile-app-ui-design` skill into ai-kit's own catalog, wired via the
   existing extension-loader pattern keyed on `pubspec.yaml` `sdk: flutter`

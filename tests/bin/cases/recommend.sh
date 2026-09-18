@@ -76,6 +76,19 @@ assert "recommend: score is integer" 'echo "$JSON_REC" | python3 -c "import json
 assert "recommend: results sorted desc" 'echo "$JSON_REC" | python3 -c "import json,sys; d=json.load(sys.stdin); s=[r[\"score\"] for r in d[\"recommendations\"]]; assert s == sorted(s, reverse=True)"'
 rm -rf "$REC_TMP"
 
+# design-leads: a *.pen design file at the root (or under .pencil/) is the `pencil`
+# framework signal; the rule is non-universal so without it it never surfaces.
+PEN_TMP=$(mktemp -d)
+: > "$PEN_TMP/design.pen"
+JSON_PEN="$("$AIKIT/bin/recommend-rules.sh" "$PEN_TMP" --json)"
+assert "recommend: design.pen surfaces design-leads rule" \
+  'echo "$JSON_PEN" | python3 -c "import json,sys; d=json.load(sys.stdin); r=[x for x in d[\"recommendations\"] if x[\"name\"]==\"design-leads\"]; assert r and \"framework match: pencil\" in r[0][\"reason\"], d"'
+rm -rf "$PEN_TMP"
+PEN_TMP2=$(mktemp -d); mkdir "$PEN_TMP2/.pencil"; : > "$PEN_TMP2/.pencil/app.pen"
+assert "recommend: .pencil/*.pen also surfaces design-leads" \
+  '"$AIKIT/bin/recommend-rules.sh" "$PEN_TMP2" --json | python3 -c "import json,sys; d=json.load(sys.stdin); assert any(x[\"name\"]==\"design-leads\" for x in d[\"recommendations\"])"'
+rm -rf "$PEN_TMP2"
+
 
 echo "=== recommend-tools ==="
 # section: recommend-tools

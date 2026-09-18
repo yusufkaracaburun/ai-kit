@@ -174,6 +174,12 @@ detect_frameworks() {
   if [ -f "$target/components.json" ] && grep -qE '"\$schema"\s*:\s*"https://ui\.shadcn\.com/schema\.json"' "$target/components.json" 2>/dev/null; then
     FRAMEWORKS+=("shadcn")
   fi
+
+  # Pencil (pen.dev) design file: a `*.pen` at the repo root or under `.pencil/`.
+  # Signal for the design-leads rule and the design-to-code skill.
+  if compgen -G "$target/*.pen" >/dev/null 2>&1 || compgen -G "$target/.pencil/*.pen" >/dev/null 2>&1; then
+    FRAMEWORKS+=("pencil")
+  fi
 }
 
 detect_docker() {

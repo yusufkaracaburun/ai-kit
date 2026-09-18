@@ -20,5 +20,6 @@ Other Claude Code sessions may be live on this machine (`ListAgents`). The peer-
 - "Who owns X" is a file read, not a broadcast: `ai-kit-claim.sh show`. Before editing a path, .pen frame or device a peer claims, message the owner first and wait for a reply.
 - Message a peer only on: (1) same repo with branch/file overlap; (2) your work touches something the peer claims as a dependency (kit release, API contract, deploy); (3) a shared-resource clash (emulator, device, port, DB, .pen frame); (4) relaying a user decision that affects the peer's claimed area. Anything else: read, don't send.
 - Relay a user decision verbatim and attributed — "From <user>, via <me>: …" — never paraphrased as your own.
-- Keep the index empty around a peer's announced commit: stage per path, read the staged diff, commit — never leave a partial stage in a shared tree.
+- Keep the index empty around a peer's announced commit: stage per path, read the staged diff, commit — never leave a partial stage in a shared tree. Two or more sessions editing the same files → each non-lead works in its own worktree under `.agents/worktrees/<name>` inside the repo; in a shared checkout, non-leads hand their diff to the lead and only the lead commits.
+- Generated artifacts (goldens, exports, snapshots) are regenerated once at the end of a batch, by the committer — not on every commit by every session; they churn the shared tree.
 - Release your claim when done: `ai-kit-claim.sh release`.

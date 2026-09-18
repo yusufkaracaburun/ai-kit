@@ -33,9 +33,16 @@ according to *their* upgrade burden, not your effort.
 - **Pre-1.0 (0.x.y)** — anything can break in a MINOR bump. Tell consumers
   with a banner in the README.
 - **Tag every release.** `git tag vX.Y.Z` + `git push --tags`. Untagged
-  versions strand downstream pinned consumers.
+  versions strand downstream pinned consumers. An artifact that ships with
+  a build number (app stores) tags version *and* build — `v1.6.2+61` — the
+  store shows the build, and one version can have several; build numbers
+  are monotonic across versions, never reused.
 - **CHANGELOG.md updated in the same commit as the version bump.** No
-  "I'll write the changelog later".
+  "I'll write the changelog later". Stronger: the commit that changes
+  user-visible behavior writes its own line under `## [Unreleased]` — whoever
+  writes the commit knows what changed; three weeks later nobody does. The
+  bump then only dates the section, and the store text is that section,
+  shortened.
 - **Deprecate before remove.** Mark for removal in MINOR N, remove in
   MAJOR N+1. Never skip the deprecation cycle.
 

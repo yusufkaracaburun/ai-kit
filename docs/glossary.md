@@ -91,7 +91,7 @@ Setup mode that skips `install-global.sh` — only the project gets ai-kit asset
 
 ### Rule
 
-Agent-agnostic guidance derived from canonical books, stored in `standards/rules/<name>.mini.md` or `.nano.md`. 44 mini-rules shipped today (`ls standards/rules/`). Emitted per host by `bin/emit-rules.sh`.
+Agent-agnostic guidance derived from canonical books, stored in `standards/rules/<name>.mini.md` or `.nano.md`. 45 mini-rules shipped today (`ls standards/rules/`). Emitted per host by `bin/emit-rules.sh`.
 
 ### Setup
 

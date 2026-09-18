@@ -939,3 +939,78 @@ emilkowalski-skills · category=animation · added 2026-09-15
                     work), `write-swift`/`animate-expo` (no native Swift or
                     Expo/React Native codebase anywhere in the checked repos).
 ```
+
+### `modern-web-guidance` — added 2026-09-19 (plugins.json)
+
+`/ai:should-i-use https://developer.chrome.com/docs/modern-web-guidance`
+2026-09-19, asked during the design→code→live harvest (v1.89.0) with the
+question "useful for design work?". Answer in two halves: not for choosing a
+direction (no palettes, no typography, no product UI — a quiz-answer query
+scores 0.40), yes for the *build* step of `design-to-code` on the web, where
+the frame demands a dialog, a drawer, dark mode, scroll-driven motion or a
+form and the agent would otherwise write the legacy-JS version.
+
+Gap it closes, measured: `plugins.json` had `design` (what to choose:
+ui-ux-pro-max, frontend-design), `quality` (measure afterwards:
+web-quality-skills) and nothing for "implement it with the platform".
+Downstream evidence: theorieplek (Astro, 24 components / 33 pages) hand-rolls
+its mobile nav in `src/components/Header.astro` with WAAPI + a reduced-motion
+branch and has 0 `<dialog>`, 0 `popover`, 0 `color-scheme`, 0 `@container`
+across `src/`; emeq-web (Astro, 39 components / 10 pages) the same profile.
+MWG's `navigation-drawer` (4384 t) and `animate-element-entry-exit` (1415 t)
+are the platform versions of exactly that nav.
+
+```
+modern-web-guidance · category=web-platform · added 2026-09-19
+  MARKETING-PARITY: pass (README lists 135 guide ids; all 135 on disk in the
+                    published package plus 8 category-overview guides = 143.
+                    "Local search" holds: `search.mjs` bundles a MiniLM
+                    tfjs model + `use-cases.vectors.gen.json.gz` (1473
+                    use-case vectors); three searches ran in ~3 s each with
+                    no network. The source repo carries ~490 guide dirs;
+                    the published 143 is the released subset — the README
+                    describes the package, not the source tree)
+  BENCHMARK:        n/a (no numeric claims; "token-efficient" is a design
+                    goal, measured here: 1.3–4.4k tokens per retrieved guide,
+                    on demand, plus a ~700-token always-on skill description)
+  MARKETING-AUDIT:  pass (install paths verified: `claude plugin install
+                    modern-web-guidance@claude-plugins-official`, npm
+                    `modern-web-guidance@0.0.189` bin → `modern-web.mjs`;
+                    maintainers paulirish / rviscomi / hoten / micahjo7 —
+                    the Chrome DevRel names the site claims. Self-labelled
+                    "early preview")
+  LICENSE:          Apache-2.0 on the source repo, on npm, and restated in the
+                    package's LICENSE + THIRD_PARTY_NOTICES (tfjs, MiniLM)
+  MATURITY:         preview — created 2026-01-27, 1073★, 357 open issues,
+                    pushed 2026-09-18 (the day before audit), v0.0.189 with
+                    a dated skill-version (2026_09_04-7de96777); backed by
+                    Chrome + Edge teams. Passes on activity and ownership,
+                    not on API stability: the CLI flags may move
+  DATA-LOCALITY:    search/retrieve local. DISCLOSE: telemetry — a detached
+                    watchdog process (`spawn(..., {detached:true})` +
+                    `unref()`, `watchdog/main.js`) posts install counts,
+                    guide ids and the agent's search queries to
+                    `https://play.googleapis.com/log` (Clearcut). Documented
+                    in the README with opt-out `DISABLE_TELEMETRY=1`; raw
+                    prompts are not sent. The catalog entry says to export
+                    the opt-out before enabling
+  PROVENANCE:       18881c5893646d31d561c0f3229cdef7355292f5 (main,
+                    2026-09-18) / npm 0.0.189
+  SECURITY-SCAN:    pass — hand-read `modern-web.mjs` (64 KB): the only
+                    network endpoint is the telemetry one above; `install`
+                    and `update` shell out to `npx skills` (Vercel's skills
+                    CLI) with `stdio: inherit` — that path is the wizard,
+                    not the Claude plugin path, and not used here.
+                    `search.mjs` (852 KB) is the bundled tfjs + model
+                    loader; no eval, no writes outside the npx cache
+  VERDICT:          ADD (signals mirror web-quality-skills: frontend +
+                    the 8 JS frameworks; not universal). Two caveats carried
+                    into the entry: export `DISABLE_TELEMETRY=1` first, and
+                    the skill's own trigger ("execute FIRST for all HTML/CSS
+                    tasks") is aggressive — the first downstream repo to
+                    enable it measures the per-session token cost before
+                    it becomes a default recommendation. Wire it in the
+                    `design-to-code` build source order as the
+                    platform-implementation source next to the
+                    design-intelligence one; it never picks a direction)
+```
