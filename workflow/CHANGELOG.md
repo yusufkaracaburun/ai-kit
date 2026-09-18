@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.88.3 — 2026-09-18
+
+### Fixed
+- **`scrapling` companion named MCP tools that do not exist.** `companions.json` and `context/templates/companions/scrapling.md` told the agent to call `get` (the plain-HTTP tool is `make_request`) and counted 10 tools where the server ships 13 — the session-based `open_request_session`, `session_fetch` and `session_make_request` were missing, so the glue's "multi-page with a `session_id`" advice pointed at the wrong tool. Checked against the 0.4.15 docs (`ai/mcp-server.html`) and the bundled skill's `references/mcp-server.md`; the 2026-09-14 VETTING audit under-counted (the rework predates the audit, so a counting error, not drift) — correction recorded under that entry, verdict unchanged. Also notes that `--http` now requires `--auth-token` and binds 127.0.0.1.
+
+- **`peer-sessions-hook` test failed when run from inside an ai-kit session.** `tests/bin/cases/peer-sessions-hook.sh` asserted that `ai-kit-claim set` without a session id is rejected, but never unset the `AI_KIT_SESSION_ID` the peer-sessions hook exports — so from any live session the parent's id leaked in and the call succeeded. Now runs that call under `env -u AI_KIT_SESSION_ID`.
+
+### Added
+- **`scrapling` glue: two one-line nudges for the library's other AI surfaces.** `SiteToMarkdownSpider` (≥ 0.4.15) for crawling a site into a Markdown corpus (llm-wiki / RAG raw material) instead of hand-rolling a crawler, and the official agent skill — install it in the repo that writes Scrapling code, not globally. Neither gets a catalog entry: the skill is 23 KB that only pays off where the library is used, and the spider is a library API, not a companion.
+
 ## 1.88.2 — 2026-09-17
 
 ### Fixed
