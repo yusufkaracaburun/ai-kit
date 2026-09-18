@@ -47,6 +47,10 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P1 — broken in the wild
 
+- **#175** `bug` — `recommend-tools` wiki tier says `graphify . --wiki` (AST-only,
+  no LLM): graphify 0.9.62 has no such flag — planny got a full LLM re-extraction
+  ($0.64, 6 min) and no wiki. Real command is `graphify export wiki`; detect it
+  via `--help`, say `graphify <path>` costs LLM and only `update` is AST-only.
 - **#171** `bug` — `/ai:setup` on a plugin-served repo still emits 29 rules ×2 hosts
   + docs scaffold with `--no-skills --no-agents --no-commands` (68 files in planny,
   reverted by hand). Rules are agent behaviour → plugin channel, not per-repo
