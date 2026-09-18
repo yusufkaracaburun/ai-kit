@@ -51,6 +51,10 @@ Name these in the report instead of "fixing" them:
   status table in a doc drifts; the canvas is what the next person opens.
 - Keep the progress doc short: archive closed phases to a sibling file. A
   thousand-line progress doc is read by every session and by nobody.
+- Done is derived from artefacts, not declared: the code names its frame where
+  a grep can find it, the check that passed is pinned to the hash of the frame
+  it ran against, and an exemption has a reason, an owner and an expiry.
+  A permanent exemption is a lie with a config key.
 
 ## Editing the design
 
@@ -60,8 +64,10 @@ Name these in the report instead of "fixing" them:
   does not fit its neighbours, choose out loud: change the master, promote a
   named variant, or fix the layout around it — never an instance-only
   override.
-- A "could be better" proposal goes on the canvas as a sibling frame next to
-  the current one so the user compares at true size; the loser is deleted.
+- A visual "could be better" proposal goes on the canvas as a sibling frame
+  next to the current one so the user compares at true size; the loser is
+  deleted. A copy pass is reviewed as the design file's diff plus a change
+  list — a sibling per line drowns the canvas.
 - After changing a token, read it back and confirm the exact name changed.
   A typo creates an orphan token beside the real one and nothing rebinds.
 
@@ -71,7 +77,8 @@ Name these in the report instead of "fixing" them:
 - No 100 with an open finding; no "matches the design" without a render
   looked at.
 - One screen at a time, with a user OK before the next.
-- Done means marked on the canvas, not only in a table.
+- Done means marked on the canvas and derived from a pinned check, not
+  declared in a table.
 
 ## See also
 

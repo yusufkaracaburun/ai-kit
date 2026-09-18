@@ -58,6 +58,9 @@ Greenfield surface with no precedent: 3 leads, and you name the rows you used.
 - **Accessibility is not a follow-up.** Real contrast, visible focus, semantic elements over `div` + handler, labels bound to inputs, alt text that says something.
 - **Interaction states are part of the component:** hover, focus-visible, active, disabled, loading, empty, error. Without empty and error it is unfinished.
 - **Motion** is subtle, fast, and respects `prefers-reduced-motion`.
+- **Spec table first.** Before the first line of markup, extract the frame's exact values (sizes, tokens, copy, per instance) into a table and build from it — never from a screenshot or a text dump. Put the table under Design sources.
+- **Frame proposes, contract disposes.** Where the unit maps a backend resource, the frame decides which fields and their order; the API contract decides names and types. A field the contract lacks is mock-only plus a line under "Noticed, not done" — never an invented column.
+- **Rebuild = clean slate.** Replacing an existing screen: remove the old implementation first (keep routing, wiring, mocks), then build from the frame.
 
 ## Verify
 

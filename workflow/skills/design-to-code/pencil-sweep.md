@@ -47,6 +47,12 @@ Print("sweep-done")
 - Promoted master left on `width:"fill_container"` instead of a fixed content
   width stretches to whatever wide section it lives in. For every master
   touched since the last gate: `Get(masterId,{depth:0})` and read `width`.
+- Judging tokens: read with `resolveVariables:false`. A resolved read turns
+  every `$token` into hex and hides whether a fill or radius is tokenized or
+  raw — a raw-hex component looks fine.
+- Trailing dead space: the last child's bottom must equal the frame's inner
+  height. If not, the slot is a fixed height that outgrew its content — set it
+  to `fit_content` or size the frame from the measured pieces, then re-check.
 
 ## 2. Promote sweep
 
@@ -60,6 +66,7 @@ const seen = {};
 Get(SCOPE,(n,c)=>{
   if(n.type==="frame" && !n.reusable && n.name && masters.has(n.name)) Print("LOOSE-COPY:",n.id,n.name,"in",c.parentCtx?.node.name);
   if(n.type==="frame" && n.name && RAW_RE.test(n.name) && c.parentCtx) (seen[n.name] ??= new Set()).add(c.parentCtx.node.id);
+  if(n.type==="broken_ref") Print("BROKEN-REF:",n.id,"in",c.parentCtx?.node.name);
 });
 for (const [name,parents] of Object.entries(seen)) if(parents.size>=2) Print("RAW-REPEAT:",name,"x"+parents.size);
 Print("promote-sweep-done")
@@ -69,6 +76,12 @@ Print("promote-sweep-done")
   `Move` into place, `Delete` the copy. Do not `Update` children of an
   instance to "fix" it — that wipes the descendants.
 - `RAW-REPEAT` — promote to a master under the project's naming prefix first, then instance it.
+- `BROKEN-REF` — an instance whose master no longer exists. Silent and toxic:
+  it collapses to 1px (`fit_content`) or an empty box (`fill_container`), and
+  the export draws a red hatch that a raster tolerance of a few percent hides
+  completely — one sat in a dashboard baseline for three months. It cannot be
+  `Update`d (`Unknown node type: broken_ref`): `Replace(id,{type:"ref",ref:"…"})`
+  and restore the descendant overrides. Run this after **every** library refactor.
 - Library sections (components, shell) are in scope too, not only screens.
 
 ## 3. Exports for the prove step
@@ -83,6 +96,21 @@ Export([SCOPE],"html-css","<scratchpad>/verify.html")      // full-scale render;
 - Generated vector content (a `Generate`-SVG mark) can render blank in the
   `html-css` export while it is correct in Pencil. An unexpectedly empty spot
   → confirm with `TakeScreenshot` on that node before calling it a bug.
+- **Exports go stale silently.** Fresh or `Move`d nodes render the old tree in
+  the same and the next call: export, export again, then measure. A frame whose
+  container sits at a fractional canvas position exports one row too tall —
+  round the container's `x`/`y` to integers and re-export every frame. An
+  export pinned to the module file's hash still ages when an *imported* library
+  changes: re-export after any library change, or pin the library hash too.
+  `placeholder:true` renders blank; only a full tab close + reopen is
+  guaranteed to read the file from disk.
+- **Is the file on disk what the app shows?** Compare before building or
+  hashing — never assume which side is behind. `git status --short *.pen`,
+  then read one recently edited value through the MCP and against the file.
+  The app has been seen not flushing MCP edits for a session (2026-09-05) and
+  writing within seconds, new node ids included (2026-09-19). Converge by
+  writing the same value to the lagging side. Building against a stale file
+  costs half a session.
 
 ## Plain-JSON `.pen`
 

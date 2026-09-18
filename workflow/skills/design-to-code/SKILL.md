@@ -56,11 +56,23 @@ For each component the frame maps to, score against the design: **text** (every 
 
 For a `.pen` frame, start with a *structural sweep* via the MCP — scripts and parameters in [pencil-sweep.md](pencil-sweep.md): frames with ≥2 children and no explicit layout, real layout problems, masters left as loose copies, the same raw structure repeated on two or more screens (promote it first). Those are design defects to raise before scoring code against them. A plain-JSON `.pen` runs the same sweep as a script, as an audit, never as a commit gate.
 
-Bar: every component ≥ 90 unless the project's overlay sets another threshold. Below the bar → fix the code, re-score. The score goes up only by repairing code: never by loosening the threshold, widening exceptions, or editing the design. A suspected measurement error is reported with evidence, not silently overruled.
+Beyond structure, audit the design for what the code will need: every interactive element has its states drawn; every overlay the code opens (dialog, sheet, confirm, drawer — grep the code for them) has a frame; contrast and touch targets hold. A missing secondary screen is a blocker, not a note.
+
+Bar: every component ≥ 90 unless the project's overlay sets another threshold. Below the bar → fix the code, re-score. The score goes up only by repairing code: never by loosening the threshold, widening exceptions, or editing the design. A suspected measurement error is reported with evidence, not silently overruled; a *recurring* one becomes code in the project's check script, not a note in this skill.
+
+Who fixes what: drift and a below-bar score you fix yourself; a gap (a component or section with no frame or no map entry) and a contrast failure that needs a token change you propose — those are the user's decisions. Never write a design string from memory: read the node, then record it.
+
+Copy has its own traps, because a text gate compares literal substrings: a copy change lands in the frame *and* in the code in the same pass, identical string — frame first, but never frame only. Sample or placeholder text recorded in the project's map is a literal copy of the canvas: rename the placeholder, update the map, or the section's score drops. Text inside a master changes the master's hash, so every instance's check re-runs and an accept-with-reason is part of any copy pass, not an afterthought. For a copy pass the review surface is the design file's diff plus a change list — not a sibling frame per line.
 
 ### build — delegate to `designer`
 
 Per unit: source order is the project's own tokens and best existing components first, the project's design skill second, an installed design-intelligence skill (what to choose) or web-platform-guidance skill (how to build it with the platform) third for gaps only. Tokens never literals; reuse before creating; both themes; responsive; accessibility; interaction states including empty and error. `designer` returns a Design sources / Changed / States covered / Verified report — read it, then prove.
+
+Three rules two repos each learned the hard way:
+
+- **Spec table before the first line of code.** Extract the frame's exact values — sizes, tokens, copy, per instance — into a table and build from it; the same rows become the assertions in prove. A text dump is for copy; a screenshot is for nothing. Building from either is how a 22/800 heading ships as 17/600.
+- **Frame proposes, contract disposes.** Where the screen maps a backend resource, the frame decides which fields and in what order; the API contract (OpenAPI, SDK types) decides names and types. A field the frame shows and the contract lacks is a mock-only field plus an issue for the backend — never an invented column. Screens that map no resource are exempt.
+- **Rebuild means clean slate.** Replacing an existing screen: remove the old implementation first (keep routing, wiring, mocks), then build from the frame. Layering new on old carries every old assumption into the "1:1" result.
 
 ### prove — delegate to `verifier`
 
@@ -74,6 +86,8 @@ Claim: **"`<component or route>` matches design frame `<id>`."** The main thread
 
 **Shape of a multi-screen prove.** Read-only sweep agents (one per device, both densities) produce claims → `verifier` tests each claim before anyone edits (in a 30-claim run, two named the wrong field) → a fix batch that never commits → one committer lands one commit per finding. Never edit on an unverified sweep claim.
 
+**What a proof can and cannot say.** A golden or self-baseline compares the app with *itself*: it locks regressions and can never show app ≠ design — only a compare against the design export can. Colour is the leg that slips: assert it explicitly, and pick a component's variant by the node's colour token, never by its name or role. A test entry (a query param, a flag, a fixture switch) may swap data and state, never styling — a style that only exists behind the test entry proves the test URL, not production.
+
 Verdict CONFIRMED means done; REFUTED means the counter-evidence is the next fix; UNTESTABLE means say what could not be observed — never upgrade it to a pass.
 
 ## Modes
@@ -83,7 +97,7 @@ Verdict CONFIRMED means done; REFUTED means the counter-evidence is the next fix
 
 ## Definition of done
 
-Audit score at the bar for every component; prove CONFIRMED per unit; zero unresolved drift; user OK given. Then mark it on the canvas: a ✅ in the frame's label plus a node holding the source path — the canvas is what the next person opens, a status table drifts. Never claim "1:1" or "pixel-perfect" from a glance — cite the verdict and the render it was based on. The tie-break and cadence this skill assumes live in the [design-leads rule](../../../standards/rules/design-leads.mini.md).
+Audit score at the bar for every component; prove CONFIRMED per unit; zero unresolved drift; user OK given. Then mark it on the canvas: a ✅ in the frame's label plus a node holding the source path — the canvas is what the next person opens, a status table drifts. Done is derived, not declared: the code names its frame where a grep finds it (a `data-design-id`, a comment, a map entry), the check that passed is pinned to the hash of the frame it ran against, and an exemption carries a reason, an owner and an expiry (≤ 30 days) — a permanent exemption is a lie with a config key. Never claim "1:1" or "pixel-perfect" from a glance — cite the verdict and the render it was based on. The tie-break and cadence this skill assumes live in the [design-leads rule](../../../standards/rules/design-leads.mini.md).
 
 ## Usage logging (opt-in)
 
