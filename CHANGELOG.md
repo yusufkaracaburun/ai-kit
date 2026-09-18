@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.88.4 — 2026-09-18
+
+### Fixed
+- **`/ai:recommend-tools` sent the agent to `graphify . --wiki` — a flag graphify does not have.** (#175) On graphify 0.9.62 that runs a full semantic re-extraction (LLM tokens, minutes — planny paid $0.64 and got 20k nodes) and writes no wiki at all. The wiki is a subcommand: `graphify export wiki` renders `graphify-out/wiki/index.md` plus one article per node from the existing `graph.json` in seconds, no LLM. Phase 1 now probes `graphify --help` for `export wiki` before the tier is offered; Phase 3 step 5 states the cost split (`graphify <path>` = LLM run, `graphify update` = AST-only) and sends document corpora (`.docs/`, `raw/`, scraped Markdown) to `.graphifyignore` first — planny's 797 fresh CBR pages were what the LLM re-extracted. The unmeasured "faster than query for navigation" claim is gone; the catalog now says what the wiki is (one article per node, heading articles for documents) so the agent can judge. `companions.json` wiki tier, the graphify↔llm-wiki conflict warning and the llm-wiki README use the real command.
+
 ## 1.88.3 — 2026-09-18
 
 ### Fixed
