@@ -59,6 +59,20 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P2 — next up
 
+- **#178** `bug` — `dedupe` reported `total: 0` on 12 repos + personal scope that
+  held 200+ duplicates: it reads only `~/.claude/skills`, never `~/.agents/skills`
+  / `~/.cursor/skills` (84 plugin symlinks, 16 gsd remnants lived there), no
+  project `.claude/skills` / `.agents/skills` / `.claude/agents`, no hook-script
+  drift, no catalog cross-check for user-scope skills. Fixture: the pre-cleanup
+  snapshot in `~/.claude/.backups/20260919T004749/`.
+- **#179** `enhancement` — ship the hook scripts `hooks-patterns.json` only
+  names: `test-suite-stop-gate` (3 hand-written variants across emeq-hub /
+  naschool / emeq-app), `block-env-edits`, `block-lockfile-edits`,
+  `gitleaks-scan`, `docs-drift-check` (2 each), `large-diff-warn`,
+  `format-on-edit`; stack-scoped `flutter-analyze-check` (#176), pint / phpstan /
+  tsc. Same `bin/hooks/` + `apply-*-hook.sh` shape as the four that already ship;
+  doctor then reports "drifted from shipped".
+
 - **#140** `bug · primitive:plugin` — `/ai:upgrade` promises a release slice from
   `CHANGELOG.md` and never prints one, because the plugin cache ships no
   `CHANGELOG.md`. Either add it to the plugin payload or drop the promise from the
@@ -160,6 +174,9 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P3 — backlog
 
+- **#180** `enhancement` — `docs-sync`: naschool's 403-line project `docs-sync`
+  (the skill #26 promoted the plugin's from) has diverged and shadows the plugin
+  by name; diff, fold the generic part back, rename the local one to an overlay.
 - **#177** `enhancement` — `design-to-code`: ship a web design-fidelity script
   (texts 45 · tokens 30 · hex 15 · icons 10, per component ≥ 90) as the
   reference impl of the audit flow's four measurements. Source is theorieplek's
