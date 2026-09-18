@@ -494,6 +494,15 @@ scrapling · category=web-fetch · added 2026-09-14
                     universal like context7: fires when the project does
                     external research, API-doc ingestion, or reference-site
                     work, not for every repo.
+  CORRECTION:       2026-09-18 — the MARKETING-AUDIT line above under-counted
+                    the MCP surface: the bundled skill's mcp-server.md lists
+                    13 tools, not 10, and the plain-HTTP tool is named
+                    `make_request`, not `get`. The three missed are the
+                    session-based `open_request_session`, `session_fetch`,
+                    `session_make_request` (0.4.15 MCP rework, 2026-08-23 —
+                    before the audit date, so a counting error, not drift).
+                    Verdict unchanged; companions.json + glue corrected to
+                    the documented names.
 ```
 
 ## Relationship to `/should-i-use`

@@ -109,7 +109,7 @@ assert "AI_KIT_SESSION_ID identifies the session too" '[ "$OUT_ENV" = "$OUT_SHOW
 set +e
 "$CLAIM" --session own-1 set role=boss >/dev/null 2>&1; ROLE_RC=$?
 "$CLAIM" --session own-1 set colour=red >/dev/null 2>&1; KEY_RC=$?
-"$CLAIM" set role=lead >/dev/null 2>&1; NOSESSION_RC=$?
+env -u AI_KIT_SESSION_ID "$CLAIM" set role=lead >/dev/null 2>&1; NOSESSION_RC=$?
 set -e
 assert "unknown role rejected" '[ "$ROLE_RC" -ne 0 ]'
 assert "unknown key rejected" '[ "$KEY_RC" -ne 0 ]'
