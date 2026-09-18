@@ -26,9 +26,9 @@
         },
         {
           "name": "wiki",
-          "description": "Opt-in — `graphify . --wiki` generates graphify-out/wiki/index.md (AST-only, no LLM cost). Useful when the agent does many symbol-lookup grep'ing — wiki is faster than query for navigation.",
+          "description": "Opt-in — `graphify export wiki` writes graphify-out/wiki/index.md plus one Markdown article per node from the existing graph.json (no LLM, seconds). One article per node: keep document corpora in .graphifyignore first or the wiki fills with heading articles. Useful when the agent does many symbol-lookup grep'ing.",
           "wired_via": "workflow/skills/recommend-tools/SKILL.md Phase 3 graphify branch (tier-wiki opt-in)",
-          "post_run_nudge": "If graphify-out/ exists without graphify-out/wiki/, recommend re-running with --wiki when the agent's recent transcript shows >3 grep/find calls for symbol locations."
+          "post_run_nudge": "If graphify-out/ exists without graphify-out/wiki/, recommend `graphify export wiki` when the agent's recent transcript shows >3 grep/find calls for symbol locations."
         }
       ],
       "detection": {
@@ -40,7 +40,7 @@
         {
           "with": "llm-wiki",
           "check": "test -d wiki",
-          "warning": "graphify-out/wiki/ (AST-derived, opt-in via --wiki) and llm-wiki's wiki/ (curated from raw/ documents) are both called 'wiki'. When both are wired, emit the 'Two wikis present — disambiguation' block in AGENTS.md so the agent never guesses which wiki the user means. See issue #53."
+          "warning": "graphify-out/wiki/ (AST-derived, opt-in via `graphify export wiki`) and llm-wiki's wiki/ (curated from raw/ documents) are both called 'wiki'. When both are wired, emit the 'Two wikis present — disambiguation' block in AGENTS.md so the agent never guesses which wiki the user means. See issue #53."
         }
       ],
       "install": {

@@ -45,7 +45,7 @@ need is redundant.
 
 ### Two wikis — disambiguation
 
-If this project also scaffolds graphify with `graphify . --wiki`, both
+If this project also generates graphify's wiki with `graphify export wiki`, both
 companions produce a directory called `wiki`:
 
 | Name | Path | Source | Owner |
