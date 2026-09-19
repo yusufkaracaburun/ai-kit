@@ -184,6 +184,14 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
   `.pen` only, Astro-coupled page resolution, `design-map.json` as contract.
   Ships only behind a `tests/` fixture (tiny `.pen` + `dist/` + map) the suite
   scores deterministically. Deferred from the v1.89.0 harvest.
+- **#181** `enhancement` — `design-to-code`: promote planny-app-mobile's
+  `pencil-design-gate` (the mobile fase-gate wrapper: three-step verify on two
+  device densities + cumulative progress table in `.pencil/PLANNY_PROGRESS.md`,
+  plus `tool/design_wiring_score.py`) into the kit behind the mobile signal.
+  Method and contract already landed as `design-to-code` prove/batch and the
+  `design-leads` rule; the wrapper stays project-local — copied per worktree
+  today — until a second mobile app adopts ai-kit (Yusuf, 2026-09-19). Same
+  cluster as #176.
 - **#176** `enhancement` — `/ai:ship` Flutter branch: route to `/release-ios` +
   `/release-android`, refuse a store build without a review marker (the
   `pubspec.yaml` bump is the trigger, nothing checks it), opt-in changelog-line
