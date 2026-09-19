@@ -9,6 +9,7 @@ Thanks for your interest. ai-kit is a personal agent kit; contributions stay sma
 - [ ] `./tests/bin/run-all.sh` passes locally
 - [ ] If you touched any `workflow/skills/*/SKILL.md`: `./tests/bin/eval-structure.sh` passes
 - [ ] If you touched a SKILL.md with a paired subagent (a generated region in `workflow/agents/*/AGENT.md`): re-run `./bin/emit-agents.sh`
+- [ ] If you touched a universal always-on rule in `standards/rules/`: re-run `./bin/sync-plugin-rules.sh` (global payload in `workflow/rules/`)
 - [ ] CHANGELOG.md updated under the unreleased section
 - [ ] No secrets, no absolute user paths committed
 

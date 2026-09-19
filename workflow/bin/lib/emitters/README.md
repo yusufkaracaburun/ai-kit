@@ -45,9 +45,13 @@ in its frontmatter). The Claude Code emitter passes it through, and the host
 then loads the rule only when a matching file is touched — this is how the
 stack-scoped rules stay out of a docs-only session. Cursor ignores it today.
 
-`bin/hooks/session-rules-inject.sh` ships unwired and stays that way: the
-native loader made it moot (ADR-0011). `bin/ai-kit-context-lean.sh` counts the
-pathless rules as the always-on tax.
+Universal always-on rules also reach Claude Code without `emit-rules.sh`:
+`bin/sync-plugin-rules.sh` stamps them with `emit_claude_code_global` into
+`workflow/rules/`, and the plugin's SessionStart hook links that directory at
+`~/.claude/rules/ai-kit`, which the host loads in every project (ADR-0015).
+`emit-rules.sh` still emits them per project until ADR-0015's second release
+drops universals from the per-repo set. `bin/ai-kit-context-lean.sh` reports
+the global set as one note and a project's own pathless rules as its tax.
 
 **Consequence for rule authors:** `always-on` without `paths:` costs every
 session on both hosts. If a rule only matters for some files, give it

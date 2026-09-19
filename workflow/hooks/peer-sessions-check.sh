@@ -68,7 +68,7 @@ sid="${sid//[^A-Za-z0-9_-]/_}"
 cwd="$(read_field '.cwd')"
 [ -n "$cwd" ] || cwd="${CLAUDE_PROJECT_DIR:-$PWD}"
 
-# Two layouts, same fallback as session-rules-inject.sh: plugin
+# Two layouts, same fallback as global-rules-link.sh: plugin
 # (workflow/hooks/ + workflow/bin/ + workflow/standards/) or source
 # (bin/hooks/ + bin/ + standards/).
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd 2>/dev/null || true)"

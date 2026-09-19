@@ -48,14 +48,13 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 ## P1 — broken in the wild
 
 - **#171** `bug` — `/ai:setup` on a plugin-served repo still emits 29 rules ×2 hosts
-  (second report 2026-09-19, theorieplek: the opt-out is never recorded —
-  `write-setup-marker.sh` has no rules field, so a re-run re-emits; smallest
-  fix = `skip_rules` marker field read like `skip_skill_merge`, plus say that
-  a no-rules project gets zero SessionStart rule injection)
-  + docs scaffold with `--no-skills --no-agents --no-commands` (68 files in planny,
-  reverted by hand). Rules are agent behaviour → plugin channel, not per-repo
-  copies; `detect-tooling` then misclassifies them as custom. Grill first —
-  reshapes setup modes (ADR-0011/0012). Sibling of #149.
+  + docs scaffold (68 files in planny, reverted by hand; theorieplek again
+  2026-09-19). **Grilled 2026-09-19 → ADR-0015:** all 23 universal rules go
+  global via `~/.claude/rules/ai-kit` (plugin `rules/` + SessionStart symlink,
+  `paths:` verified to work at user level); per-repo emit = stack rules only;
+  docs scaffold = recorded setup choice; `/ai:upgrade` removes the generated
+  universal copies. Two releases: global channel first, then setup/bootstrap.
+  Closes #149 with it.
 
 ## P2 — next up
 

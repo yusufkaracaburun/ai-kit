@@ -105,6 +105,7 @@ echo ""
 EFFECTIVE_MODE="$MODE"
 SKIP_REASON=""
 HAS_PROJECT_MODE=false
+setup_mode=""
 if [ "$EFFECTIVE_MODE" = "auto" ] && [ -n "$TARGET" ] && [ -f "$TARGET/.ai-kit-setup" ]; then
   setup_mode="$(python3 -c "import json,sys; print(json.load(open('$TARGET/.ai-kit-setup')).get('branches',{}).get('setup_mode',''))" 2>/dev/null || echo "")"
   if [ -n "$setup_mode" ]; then
@@ -156,6 +157,37 @@ if [ -f "$PLUGIN_MANIFEST" ]; then
   fi
 else
   info "no plugin manifest at $PLUGIN_MANIFEST (plugin distribution skipped)"
+fi
+
+# Global rules (ADR-0015): ~/.claude/rules/ai-kit must point at the rules/
+# payload of whatever ai-kit this doctor runs from; the SessionStart hook
+# re-points it on the first session after a plugin update. Skipped only when
+# the project itself is project-only (no global channel, universal rules per
+# repo) — the machine-wide no-globals opt-out is about skill symlinks, the
+# hook ignores it, so the link is still reported under it.
+GLOBAL_RULES_LINK="$HOME/.claude/rules/ai-kit"
+GLOBAL_RULES_DIR="$(resolve_primitives_root "$AIKIT")/rules"
+if [ "$MODE" = "project-only" ] || [ "$setup_mode" = "project-only" ]; then
+  :
+elif ! global_channel_available; then
+  info "global rules: no global channel on this machine (plugin not installed) — universal rules come from the project's .claude/rules"
+elif [ -f "$HOME/.config/ai-kit/no-global-rules" ]; then
+  info "global rules opted out ($AIKIT/bin/ai-kit-no-global-rules.sh off to resume)"
+elif [ -e "$GLOBAL_RULES_LINK" ] && [ ! -L "$GLOBAL_RULES_LINK" ]; then
+  warn "global rules: $GLOBAL_RULES_LINK is a real directory, not ai-kit's link — move it aside so the SessionStart hook can link the plugin's rules/"
+elif [ -L "$GLOBAL_RULES_LINK" ]; then
+  GLOBAL_RULES_TARGET="$(readlink "$GLOBAL_RULES_LINK")"
+  if [ ! -d "$GLOBAL_RULES_TARGET" ]; then
+    warn "global rules: $GLOBAL_RULES_LINK dangles ($GLOBAL_RULES_TARGET gone) — the next session start re-points it"
+  elif [ "$GLOBAL_RULES_TARGET" != "$GLOBAL_RULES_DIR" ] && [[ "$GLOBAL_RULES_DIR" == */plugins/cache/* ]]; then
+    warn "global rules: $GLOBAL_RULES_LINK points at $GLOBAL_RULES_TARGET, not $GLOBAL_RULES_DIR — stale after a plugin update; the next session start re-points it"
+  else
+    # A dev-clone doctor accepts a link into the plugin cache: the hook owns
+    # the target, and only the plugin's own doctor knows the current version.
+    ok "global rules linked — $GLOBAL_RULES_LINK → $GLOBAL_RULES_TARGET ($(find "$GLOBAL_RULES_TARGET/" -name '*.md' | wc -l | tr -d ' ') rules load in every session)"
+  fi
+else
+  warn "global rules: $GLOBAL_RULES_LINK missing — start one Claude Code session with the plugin active (SessionStart hook links it), or: ln -sfn \"$GLOBAL_RULES_DIR\" \"$GLOBAL_RULES_LINK\""
 fi
 
 # Detect a marketplace-installed ai-kit plugin coexisting with the

@@ -30,3 +30,27 @@ emit_claude_code() {
   } > "$dest"
   echo "emit:claude-code  ${dest#$target/}"
 }
+
+# Global variant (ADR-0015): <dest_dir>/<name>.md for the plugin's rules/
+# payload. Description in the header so a subagent's `head -4` can pick what
+# applies; no version stamp, so the payload only changes when a rule does.
+emit_claude_code_global() {
+  local dest_dir="$1" rule_path="$2" rule_name="$3"
+  local dest="$dest_dir/${rule_name}.md"
+  local paths description
+  paths="$(_emitter_extract_meta "$rule_path" paths)"
+  description="$(_emitter_extract_meta "$rule_path" description)"
+
+  mkdir -p "$dest_dir"
+  {
+    if [ -n "$paths" ]; then
+      echo "---"
+      echo "paths: ${paths}"
+      echo "---"
+    fi
+    echo "<!-- ai-kit global rule (ADR-0015): ${description:-$rule_name} -->"
+    echo "<!-- Source: standards/${rule_path#*/standards/} — re-stamp with bin/sync-plugin-rules.sh -->"
+    echo ""
+    _emitter_body "$rule_path" md
+  } > "$dest"
+}

@@ -55,13 +55,23 @@ The YAML block between `---` lines at the top of a skill / agent / command file.
 - Subagent: `name`, `description`, `tools` (required)
 - Slash command: `description`, `argument-hint`, `allowed-tools`, `model` (all optional)
 
+### Global channel
+
+The machine-wide path through which ai-kit reaches every project without per-repo files: the Claude Code plugin (`ai@yusufkaracaburun`) or the legacy symlink-install. Recorded per project as `global_channel_available` in `.ai-kit-setup` (ADR-0012). Since ADR-0015 it also carries the *global rules*. Cursor has no global channel.
+
 ### Global install
 
 The machine-wide install path. `bin/install-global.sh` creates symlinks under `~/.claude/`, `~/.agents/`, `~/.cursor/`. Opt out per machine with `bin/ai-kit-no-globals.sh on`.
 
+### Global rules
+
+Every `universal: true` + `default_mode: always-on` rule, pre-emitted into the plugin's `rules/` and linked at `~/.claude/rules/ai-kit` by the plugin's SessionStart hook, so Claude Code loads them in every session on the machine (ADR-0015). Pathless ones load at start; `paths:`-scoped ones on touch. Opt-out: `~/.config/ai-kit/no-global-rules`. A project gets per-repo copies only when it has no global channel.
+
+**Not** the same as *stack rules*, which stay per repo.
+
 ### Hook
 
-A shell script registered in `.claude/settings.json` (or, for the plugin, `workflow/hooks/hooks.json`) that fires on host events. Plugin-shipped: a PostToolUse hook (`bin/hooks/post-skill-log.sh`) matching `^Skill$` for usage logging, and — shipped but unwired, since Claude Code loads pathless `.claude/rules/*.md` natively (#182, ADR-0011) — a SessionStart rule-injection hook (`bin/hooks/session-rules-inject.sh`). Also plugin-shipped: `peer-sessions-check.sh` (SessionStart — fires only when other Claude Code sessions are live on the machine; ADR-0014). Project-installed by `/ai:setup`: `search-delegation-check.sh` and `build-delegation-check.sh` (PreToolUse), `phase-check.sh` (UserPromptSubmit).
+A shell script registered in `.claude/settings.json` (or, for the plugin, `workflow/hooks/hooks.json`) that fires on host events. Plugin-shipped: a PostToolUse hook (`bin/hooks/post-skill-log.sh`) matching `^Skill$` for usage logging, and two SessionStart hooks — `peer-sessions-check.sh` (fires only when other Claude Code sessions are live on the machine; ADR-0014) and `global-rules-link.sh` (keeps `~/.claude/rules/ai-kit` pointing at the plugin's *global rules*; ADR-0015). Project-installed by `/ai:setup`: `search-delegation-check.sh` and `build-delegation-check.sh` (PreToolUse), `phase-check.sh` (UserPromptSubmit).
 
 Event types: `PreToolUse`, `PostToolUse`, `SessionStart`, `UserPromptSubmit`, `Notification`.
 
@@ -106,6 +116,10 @@ When the host sees a user intent matching a skill's `description`, it loads the 
 ### Slash command
 
 A prompt template invoked by `/<name>` in the host. File: `workflow/commands/<name>.md`. Difference from skill: a slash command is *user-invoked* with optional `$ARGUMENTS`, processed before the model sees it; a skill is *auto-discovered* by description match.
+
+### Stack rule
+
+A rule with `universal: false` and a `paths:` scope (laravel-conventions, flutter-conventions, tailwind, …). Chosen per project by `recommend-rules`, emitted into that repo's `.claude/rules/`; the only rules `/ai:setup` still writes into a plugin-served Claude Code repo (ADR-0015).
 
 ### Subagent
 

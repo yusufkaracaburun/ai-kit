@@ -91,10 +91,16 @@ Bundled (via `workflow/.claude-plugin/plugin.json`):
   ADR-0014). Fires only when other Claude Code sessions are live on the
   machine; resolves `${CLAUDE_PLUGIN_ROOT}/bin/ai-kit-claim.sh` and reads the
   protocol from `${CLAUDE_PLUGIN_ROOT}/standards/rules/session-coordination.mini.md`.
+- The SessionStart global-rules hook (`workflow/hooks/global-rules-link.sh`,
+  ADR-0015). Keeps `~/.claude/rules/ai-kit` pointing at
+  `${CLAUDE_PLUGIN_ROOT}/rules/` — every universal always-on rule, pre-emitted by
+  `bin/sync-plugin-rules.sh` — so Claude Code loads them natively in every
+  project on the machine. Re-points itself on the first session after a
+  `/plugin update`. Opt out machine-wide: `bin/ai-kit-no-global-rules.sh on`.
 
 **Not bundled** (intentionally):
 
-- Rules — emitted per-host at `/ai:setup` time (`bin/emit-rules.sh`); plugin context can't write into your project repo
+- Project rules — emitted into a project at `/ai:setup` time (`bin/emit-rules.sh`); plugin context can't write into your project repo. Until v1.95 that is still the full universal set plus stack rules; from v1.95 (ADR-0015 release 2) stack rules only.
 
 `bin/*.sh` (everything the slash-commands invoke) **is** bundled at `workflow/bin/`,
 synced from the canonical `bin/` via `bin/sync-plugin-bin.sh` (`--check` enforces no

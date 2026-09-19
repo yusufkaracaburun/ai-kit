@@ -2,8 +2,10 @@
 
 ## Status
 
-**Superseded in practice by the host** (#182, measured 2026-09-19 on Claude
-Code 2.1.278). Claude Code now loads every `.claude/rules/*.md` that has no
+**Superseded by ADR-0015** (2026-09-19): universal rules now ship through
+`~/.claude/rules/ai-kit`, and the injection hook is deleted. Earlier status,
+kept for the record: superseded in practice by the host (#182, measured
+2026-09-19 on Claude Code 2.1.278). Claude Code now loads every `.claude/rules/*.md` that has no
 `paths:` frontmatter at session start — all of them, no budget — and a file
 with `paths:` only when a matching file is touched. The premise of both #144
 ("always-on is inert on Claude Code") and the withheld injection hook (a 2k-word

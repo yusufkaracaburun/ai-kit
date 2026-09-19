@@ -101,6 +101,18 @@ if [ -d "$RULES_DIR" ]; then
   fi
 fi
 
+# Global rules (ADR-0015) load in every session on the machine; one line so
+# the always-on tax is visible, never scored against the project.
+GLOBAL_RULES="$HOME/.claude/rules/ai-kit"
+if [ -d "$GLOBAL_RULES" ]; then
+  g_count=0; g_words=0
+  while IFS= read -r f; do
+    sed -n '2,/^---$/p' "$f" | grep -q '^paths:' && continue
+    g_words=$((g_words + $(wc -w < "$f"))); g_count=$((g_count + 1))
+  done < <(find "$GLOBAL_RULES/" -name '*.md' -type f)
+  [ "$g_count" -gt 0 ] && echo "note: $g_count global ai-kit rule(s), $g_words words — loaded natively every session, every project ($GLOBAL_RULES)."
+fi
+
 if [ "$found" -eq 0 ]; then
   echo "context-lean: no root CLAUDE.md / AGENTS.md / pathless rules — skipped."
   exit 0

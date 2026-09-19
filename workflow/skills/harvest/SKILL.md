@@ -88,6 +88,7 @@ bash bin/emit-rules.sh <tmpdir> --rules <name>       # emits end to end
 bash bin/count-primitives.sh --check                 # rule total moved; fix every surface it names
 bash tests/bin/run-all.sh                            # full suite, including the --list count assertion
 bash bin/sync-plugin-standards.sh                    # mirror into workflow/standards/
+bash bin/sync-plugin-rules.sh                        # universal always-on → workflow/rules/ (global payload)
 ```
 
 The count guard will fire — that is expected. It names each file carrying a hardcoded total; update all of them plus the `--list` assertion in `tests/bin/cases/bootstrap-emit.sh`.
@@ -97,6 +98,7 @@ The count guard will fire — that is expected. It names each file carrying a ha
 ```bash
 bash tests/bin/run-all.sh                            # full suite
 bash bin/sync-plugin-standards.sh                    # mirror into workflow/standards/
+bash bin/sync-plugin-rules.sh                        # universal always-on → workflow/rules/ (global payload)
 ```
 
 The rule total did not move, so the count guard stays silent and the `--list` assertion is untouched — do not go looking for either. What still applies: the merged bullets carry the mechanism and the silent failure, not a summary of the source repo, and the host rule's scope must actually reach the repos that supplied the evidence. If it does not, the merge is wrong and it wants its own rule.
