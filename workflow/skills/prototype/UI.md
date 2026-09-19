@@ -50,6 +50,7 @@ Draft each variant. Hold each one to:
 - The page's purpose and the data it has access to.
 - The project's component library / styling system (TailwindCSS, shadcn, MUI, plain CSS, whatever).
 - A clear exported component name, e.g. `VariantA`, `VariantB`, `VariantC`.
+- A **name and an axis** stated before any code — "Quiet: minimal motion, borders over shadows", "Dense: everything above the fold", "Editorial: large type, generous whitespace". The name describes the direction, never "Option A/B/C"; the axis (layout, density, personality, motion, interaction model) is what the variant disagrees with the others about.
 
 Variants must be **structurally different** — different layout, different information hierarchy, different primary affordance, not just different colours. Three slightly-tweaked card grids isn't a UI prototype, it's wallpaper. If two drafts come out too similar, redo one with explicit "do not use a card grid" guidance.
 
@@ -79,7 +80,7 @@ For sub-shape B (new page): the throwaway route under `/ai:prototype/<name>` mou
 A small fixed-position bar at the bottom-centre of the screen with three pieces:
 
 - **Left arrow** — cycles to the previous variant (wraps around).
-- **Variant label** — shows the current variant key and, if the variant exports a name, that name too. e.g. `B — Sidebar layout`.
+- **Variant label** — shows the current variant key and its direction name, e.g. `B — Editorial`.
 - **Right arrow** — cycles forward (wraps around).
 
 Behaviour:
@@ -93,7 +94,16 @@ Put the switcher in a single shared component so both sub-shapes can reuse it. L
 
 ### 5. Hand it over
 
-Surface the URL (and the `?variant=` keys). The user will flip through whenever they get to it. The interesting feedback is usually **"I want the header from B with the sidebar from C"** — that's the actual design they want.
+Surface the URL (and the `?variant=` keys), then present the set as a tradeoff table:
+
+| # | Variant | Axis | When it's the right choice | Its cost |
+| --- | --- | --- | --- | --- |
+| A | Quiet | Minimal motion, borders over shadows | Daily-use tool | Least memorable |
+| B | Editorial | Large type, generous whitespace | The moment deserves weight | Eats vertical space |
+
+One honest line each on when it wins and what it costs; keep the table neutral, then give your own pick in one line below it, with the reason — so there is something to push against. The user will flip through whenever they get to it. The interesting feedback is usually **"I want the header from B with the sidebar from C"** — that's the actual design they want.
+
+(Named axes and the tradeoff handoff follow [emilkowalski/skills `prototype`](https://github.com/emilkowalski/skills/blob/main/skills/prototype/SKILL.md), MIT.)
 
 ### 6. Capture the answer and clean up
 

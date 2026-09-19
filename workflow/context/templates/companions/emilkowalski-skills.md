@@ -23,5 +23,5 @@ Two independently-gated tiers; a project can have one, both, or neither wired:
   none cover animation-specific taste.
 - Not installed silently: on yes, `npx skills@latest add emilkowalski/skills
   -a claude-code -y -s <skills for the tier(s) that fired>` — never the bare
-  `add emilkowalski/skills` (installs all 14, including Swift/Expo/prototype
+  `add emilkowalski/skills` (installs all 13, including Swift/Expo/prototype
   skills this project may not need).

@@ -373,11 +373,11 @@
       "install": {
         "upstream": "https://github.com/emilkowalski/skills",
         "npm_package": "skills",
-        "install_command": "npx skills@latest add emilkowalski/skills -a claude-code -y -s animate,review-animations,improve-animations,find-animation-opportunities,animation-vocabulary,ask-sonner",
+        "install_command": "npx skills@latest add emilkowalski/skills -a claude-code -y -s animate review-animations improve-animations find-animation-opportunities animation-vocabulary ask-sonner",
         "auto_install": false,
         "pinned_sha": "85e8e2363b713506e1d5b6e07a0eb2da66be1bc3",
         "vetted_at": "2026-09-15",
-        "notes": "The `-s` flag installs only the named skills — never pass `--all` or omit `-s`. The upstream repo also ships `emil-design-eng` (skip: duplicates animate + review-animations' content, same tables, heavier — 674 lines), `apple-design`/`mobile-native`/`pick-ui-library`/`prototype` (not wired: no confirmed downstream signal at audit time), and `write-swift`/`animate-expo` (not wired: no native Swift or React Native/Expo codebase found across the checked repos — planny-app-mobile is Flutter/Dart, confirmed by import statements, not just .swift file count, which is inflated by vendored CocoaPods/Flutter-runner boilerplate). `skills@latest add` is the same CLI (vercel-labs/skills) naschool already uses for `frontend-design`/`superdesign` via its `skills-lock.json`."
+        "notes": "The `-s` flag installs only the named skills, space-separated (`-s a b c`; a comma-joined list is read as one unknown name and installs nothing) — never pass `--all` or omit `-s`. The upstream repo also ships `emil-design-eng` (skip: duplicates animate + review-animations' content, same tables, heavier — 674 lines), `apple-design`/`mobile-native`/`pick-ui-library`/`prototype` (not wired: no confirmed downstream signal at audit time), and `write-swift`/`animate-expo` (not wired: no native Swift or React Native/Expo codebase found across the checked repos — planny-app-mobile is Flutter/Dart, confirmed by import statements, not just .swift file count, which is inflated by vendored CocoaPods/Flutter-runner boilerplate). `skills@latest add` is the same CLI (vercel-labs/skills) naschool already uses for `frontend-design`/`superdesign` via its `skills-lock.json`."
       },
       "license": "MIT"
     }
