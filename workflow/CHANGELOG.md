@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.90.2 — 2026-09-19
+
+### Fixed
+- **`verify-setup.sh` failed `domain.md` on every project that skipped domain docs.** The check ran unconditionally while `architecture.md` and `docker.md` were already gated on their marker branch, so `/ai:upgrade` ended with a red `--strict` verify (theorieplek: 15/16) and the only way to green was creating a file the user had chosen not to have. Only the `domain_docs` branch writes `docs/agents/domain.md` — bootstrap copies `workflow.md`, never `domain.md` — so a marker with `domain_docs: "skipped"` now skips the check; an older marker without the key keeps it. `workflow.md` stays unconditional (bootstrap-owned regardless of the workflow branch). Regression test `verify-setup-skipped-doc-branches.sh`.
+
 ## 1.90.1 — 2026-09-19
 
 ### Fixed
