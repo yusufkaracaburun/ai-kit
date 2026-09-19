@@ -7,6 +7,12 @@ source "$AIKIT/tests/bin/lib/harness.sh"
 source "$AIKIT/tests/bin/lib/fixtures.sh"
 
 
+echo "=== ai-kit-status on the kit itself ==="
+# section: ai-kit-status-kit-repo
+OUT_SELF="$(bash "$AIKIT/bin/ai-kit-status.sh" "$AIKIT" 2>&1)"
+assert "status recognises the kit source tree" 'grep -q "ai-kit source tree" <<<"$OUT_SELF"'
+assert "status does not tell the kit to bootstrap itself" '! grep -q "bootstrap-project.sh" <<<"$OUT_SELF"'
+
 echo "=== ai-kit-upgrade ==="
 # section: ai-kit-upgrade
 TMP_UP=$(mktemp -d)
