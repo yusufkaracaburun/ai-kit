@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.90.1 — 2026-09-19
+
+### Fixed
+- **`emilkowalski-skills` install command installed nothing.** `companions.json`, `recommend-tools` step 3 and the AGENTS.md glue told the agent to run `npx skills@latest add emilkowalski/skills … -s animate,review-animations,…` — the `skills` CLI reads a comma-joined list as one skill name, prints "No matching skills found" and exits without installing. Written 2026-09-15, never executed; found by running it during the 2026-09-19 re-check. The flag is space-separated (`-s animate review-animations …`); all three places now say so, and the glue's "installs all 14" is 13 (the upstream count). Both tiers are now actually installed in emeq-app (155 motion files, sonner) and the animation tier in emeq-hub (40).
+
+### Changed
+- **`prototype` UI branch: each variant gets a name and an axis, and the handoff is a tradeoff table.** Two mechanisms folded in from emilkowalski/skills `prototype` (MIT, credited in UI.md): variants are named for their direction ("Quiet", "Dense", "Editorial" — never Option A/B/C) with the axis they disagree on stated before code, and step 5 presents the set as `variant · axis · when it's right · its cost` and stops — never pre-picks. The rest of Emil's skill is a functional twin of the branch that already existed (N variants on one route, floating switcher, `?variant=`), plus a `/prototype` name clash with `/ai:prototype`, so it is not wired.
+- **`VETTING.md`:** the `emilkowalski-skills` entry gains a 2026-09-19 re-check — SHA unchanged upstream, counts corrected (13 skills / 22 `.md`), and each of the six unwired skills now carries a Confirmed objection against the current target repos (emeq-app, planny-app-mobile, planny, emeq/system, emeq-hub, theorieplek): `emil-design-eng` shares every cubic-bezier and every component topic with `animate`+`RECIPES.md`; `pick-ui-library`'s picks are already installed (9/18 in emeq-app) and React-shaped; `apple-design`'s physics lives inside `vaul`; `animate-expo` has no React Native target (Flutter lead confirmed, for good); `mobile-native` fills a real `modern-web-guidance` gap (0 guides for safe-area/viewport-fit/tap-highlight) but the only mobile-web repo declined it — its one concrete finding was a one-line `viewport-fit=cover`, fixed there.
+
 ## 1.90.0 — 2026-09-18
 
 ### Added
