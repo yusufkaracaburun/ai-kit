@@ -13,9 +13,9 @@ FAKE_ROOT=$(mktemp -d)
 trap 'rm -rf "$FAKE_ROOT"' EXIT
 
 # Mirror enough of the real ai-kit layout that ai-kit-doctor.sh runs.
-cp -R "$AIKIT/bin" "$FAKE_ROOT/bin"
-cp -R "$AIKIT/standards" "$FAKE_ROOT/standards"
-cp -R "$AIKIT/context" "$FAKE_ROOT/context"
+cp -R "$AIKIT/workflow/bin" "$FAKE_ROOT/bin"
+cp -R "$AIKIT/workflow/standards" "$FAKE_ROOT/standards"
+cp -R "$AIKIT/workflow/context" "$FAKE_ROOT/context"
 cp "$AIKIT/VERSION" "$FAKE_ROOT/VERSION"
 
 # Orphan layout: extension folder present, core audit-architecture/ MISSING.

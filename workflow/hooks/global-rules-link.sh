@@ -34,12 +34,12 @@ set -uo pipefail
 [ -t 0 ] || cat >/dev/null 2>&1 || true   # drain the session payload; unused
 [ -f "${HOME:-}/.config/ai-kit/no-global-rules" ] && exit 0
 
-# Two layouts: plugin (hooks/ + rules/ side by side) or source (bin/hooks/ +
-# workflow/rules/).
-HOOK_DIR="$(cd "$(dirname "$0")" && pwd 2>/dev/null || true)"
+# Two layouts: plugin (hooks/ + rules/ side by side) or source (workflow/bin/hooks/).
+# pwd -P: source reaches this file via the root bin symlink (ADR-0016); `[ -d ]` resolves `..` physically, `cd` logically.
+HOOK_DIR="$(cd "$(dirname "$0")" && pwd -P 2>/dev/null || true)"
 rules=""
-for cand in "$HOOK_DIR/../rules" "$HOOK_DIR/../../workflow/rules"; do
-  [ -d "$cand" ] && { rules="$(cd "$cand" && pwd)"; break; }
+for cand in "$HOOK_DIR/../rules" "$HOOK_DIR/../../rules"; do
+  [ -d "$cand" ] && { rules="$(cd "$cand" && pwd -P)"; break; }
 done
 [ -n "$rules" ] || exit 0
 

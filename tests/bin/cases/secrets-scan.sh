@@ -120,6 +120,5 @@ import json,sys
 d=json.load(open(\"$CAT\"))
 sys.exit(0 if any(r[\"name\"]==\"block-env-edits\" for r in d[\"recommendations\"]) else 1)
 "'
-assert "plugin standards mirror has no drift" 'bash "$AIKIT/bin/sync-plugin-standards.sh" --check >/dev/null 2>&1'
 
 print_summary_and_exit

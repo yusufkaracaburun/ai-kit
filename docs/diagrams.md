@@ -50,10 +50,10 @@ source layer updates every host at once — and **emitters** for anything that
 cannot be symlinked, either because each host wants a different format (rules)
 or because the artifact shares content with another one (agent ← skill).
 
-One exception the diagram flattens: `workflow/bin/` is a *copy* of `bin/`, not a
-symlink, because the plugin must be self-contained under `${CLAUDE_PLUGIN_ROOT}`.
-`bin/sync-plugin-bin.sh` keeps the two in step and CI fails on drift. Editing a
-script under `bin/` therefore means re-running that sync.
+One inversion the diagram flattens: `workflow/` is the canonical tree because the
+plugin must be self-contained under `${CLAUDE_PLUGIN_ROOT}`; the repo-root `bin/`,
+`standards/`, `context/`, `orchestration/` and `CHANGELOG.md` are symlinks into it
+(ADR-0016). Editing `bin/foo.sh` edits `workflow/bin/foo.sh`; nothing to sync.
 
 ## Runtime — what happens in one turn
 

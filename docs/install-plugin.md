@@ -102,9 +102,9 @@ Bundled (via `workflow/.claude-plugin/plugin.json`):
 
 - Project rules — emitted into a project at `/ai:setup` time (`bin/emit-rules.sh`); plugin context can't write into your project repo. Until v1.95 that is still the full universal set plus stack rules; from v1.95 (ADR-0015 release 2) stack rules only.
 
-`bin/*.sh` (everything the slash-commands invoke) **is** bundled at `workflow/bin/`,
-synced from the canonical `bin/` via `bin/sync-plugin-bin.sh` (`--check` enforces no
-drift in tests). Plugin commands resolve `${CLAUDE_PLUGIN_ROOT}/bin/<script>.sh`, so
+`bin/*.sh` (everything the slash-commands invoke) lives at `workflow/bin/`; the
+repo-root `bin/` (like `standards/`, `context/`, `orchestration/`, `CHANGELOG.md`) is a
+symlink into `workflow/`, so there is one copy and nothing to sync. Plugin commands resolve `${CLAUDE_PLUGIN_ROOT}/bin/<script>.sh`, so
 the global clone is not required — `/plugin install` alone is enough.
 
 ### Opt-in usage logging

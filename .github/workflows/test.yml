@@ -32,7 +32,7 @@ jobs:
         uses: ludeeus/action-shellcheck@master
         with:
           severity: warning
-          scandir: ./bin
+          scandir: ./workflow/bin
           additional_files: tests/bin/run-all.sh tests/bin/lib/harness.sh install.sh
       - name: yamllint workflows
         run: |

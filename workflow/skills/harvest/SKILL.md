@@ -87,7 +87,6 @@ bash bin/emit-rules.sh --list | grep <name>          # discoverable
 bash bin/emit-rules.sh <tmpdir> --rules <name>       # emits end to end
 bash bin/count-primitives.sh --check                 # rule total moved; fix every surface it names
 bash tests/bin/run-all.sh                            # full suite, including the --list count assertion
-bash bin/sync-plugin-standards.sh                    # mirror into workflow/standards/
 bash bin/sync-plugin-rules.sh                        # universal always-on → workflow/rules/ (global payload)
 ```
 
@@ -97,7 +96,6 @@ The count guard will fire — that is expected. It names each file carrying a ha
 
 ```bash
 bash tests/bin/run-all.sh                            # full suite
-bash bin/sync-plugin-standards.sh                    # mirror into workflow/standards/
 bash bin/sync-plugin-rules.sh                        # universal always-on → workflow/rules/ (global payload)
 ```
 
