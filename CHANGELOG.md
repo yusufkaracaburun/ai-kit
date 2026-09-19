@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.93.1 — 2026-09-19
+
+### Fixed
+- **`/ai:upgrade` left a removed rule's generated copy behind.** After v1.93.0 dropped `branch-cleanup-after-merge`, emeq-hub still carried the emitted file — pathless, so loaded every session, with no source to re-emit from. Upgrade now removes a generated `.claude/rules` file (ai-kit header) whose source is no longer in `standards/rules` and reports it as `removed:`; hand-written files are never touched.
+- **`context-lean` skipped symlinked rules.** `find -type f` ignored `.claude/rules/*.md` that are links into `.agents/rules/`, so the always-on count was short (emeq-hub: 3 files, 807 words). Symlinks count like files — the host loads them the same.
+
 ## 1.93.0 — 2026-09-19
 
 ### Changed
