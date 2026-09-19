@@ -20,6 +20,7 @@ needs an explicit decision.
 | Date | Score | Works | Structure | Catalog | Docs | Process | Basis |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 2026-09-19 | 63 | 24 | 11 | 12 | 8 | 8 | Four read-only audits (bin, skills, tests, docs) plus a suite run at v1.94.2. Open findings: committed `workflow/` mirror, 25 inline marker reads, 6 audit extensions in the skill index, README stale in 4 places, 62 releases in 30 days. |
+| 2026-09-19 (b) | 75 | 25 | 14 | 15 | 11 | 10 | After a085629 (detect bug), 30eca2f (11 zero-use skills + logging blocks gone), 5d3b44b (mirror collapsed, ADR-0016). Structure: 25 inline marker reads, wrapper families, detect-lib remain (#184, #188). Catalog: extensions in the index, grill/docs-sync/next doubles, setup 659 lines (#186). Works: release path untested (#189), gh failures read as absence (#187). Process: cadence rule written today, not yet observed. |
 
 Before 2026-09-19 a "94/100" circulated in session memory. It had no rubric
 in the repo and never moved across 65 releases; treat it as unmeasured.
