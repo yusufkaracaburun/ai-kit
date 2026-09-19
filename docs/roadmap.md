@@ -59,6 +59,16 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P2 — next up
 
+- **#182** `bug` — every emitted `.claude/rules/*.md` loads natively, always,
+  in the main thread (Claude Code 2.1 reads pathless rules at session start:
+  emeq-hub 32 files / 14.3k words ≈ 19k tokens per session, planny-app-mobile
+  27 / 12.6k) and none reach any subagent — builder/reviewer/verifier judge
+  with CLAUDE.md + AGENT.md only, no Skill tool either. Inverts #144/#148:
+  the withheld injection hook is moot under the native loader. Direction:
+  emit `paths:` from `applies_to` for non-universal rules so the host does
+  the selection, count pathless rules in `context-lean`, one AGENT.md line so
+  writing/judging agents read the rules whose `paths` cover their files.
+  Measured with a headless sentinel probe, 2026-09-19.
 - **#178** `bug` — `dedupe` reported `total: 0` on 12 repos + personal scope that
   held 200+ duplicates: it reads only `~/.claude/skills`, never `~/.agents/skills`
   / `~/.cursor/skills` (84 plugin symlinks, 16 gsd remnants lived there), no
