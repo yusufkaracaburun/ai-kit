@@ -10,50 +10,25 @@ default_mode: always-on
 weight: high
 repo_age_min_years: 0
 ---
-
 # Context discipline
 
-Token budget is a real cost. Agents that drown in context get measurably worse — vaguer answers, missed details, slower turns. Apply this rule always, not just when the window is "almost full."
-
-## Primary bias to correct
-
-Default behaviour of reading whole files, exploring broad swaths of code inline, and re-deriving knowledge each session. None of these are free.
+Token budget is a real cost: an agent drowning in context gives vaguer answers, misses details, turns slower. Apply this always, not only when the window is nearly full. The bias to correct: reading whole files, exploring broad swaths inline, re-deriving knowledge every session.
 
 ## Decision rules
 
-- **Search before read.** Use `grep` / `find` / `Glob` to locate; only `Read` the slices that matter. Never `cat` a whole file when 30 lines answer the question.
-- **Delegate wide exploration.** For "search the codebase for X" / "how does this module fit" / "find all callers of Y," spawn a sub-agent so the raw output stays in *its* context and only the conclusion comes back to yours. Reach for `Explore` or `ai:explore` by default; `cavecrew-investigator` (caveman) when it is installed, since it returns a compressed `file:line` table instead of prose. A `grep` scoped to a file you already named is fine — the rule is about *sweeps*, not about every search.
-- **Lean on cached truth.** `CONTEXT.md` (domain glossary) and `docs/adr/` (decisions) exist precisely so you don't re-derive. Read those before exploring code. If they contradict what you'd derive, trust the docs first — then verify only the conflict.
-- **Don't re-read what you read.** Once a file's relevant slice is in your context, don't `Read` it again unless something changed. The harness tracks edits.
-- **Skip the noise.** Never `Read` lockfiles (`package-lock.json`, `composer.lock`, `Cargo.lock`), `node_modules/`, `vendor/`, build artefacts, or generated code unless the user is asking about exactly that.
-- **Quote, don't paste.** When citing existing code in your reply, cite `file:line` — don't reproduce blocks the user can already see in their editor.
-- **Keep always-loaded files lean.** Root `CLAUDE.md` / `AGENTS.md` load at the start of every session — a fixed token tax before the first prompt. Target under 200 lines: only what every session needs (build commands, non-obvious conventions, absolute rules). Directory-specific notes belong in `<subdir>/CLAUDE.md`, stack conventions in path-scoped rules, procedures in skills — all load on demand. Curation beats compression: moved content costs zero tokens per session.
-- **Shrink context with the cheapest tool that fits.** Three situations, three different answers — reaching for the heaviest one every time is its own waste:
+- **Search before read.** `grep` / `find` / `Glob` to locate, `Read` only the slice that matters. Never `cat` a whole file when 30 lines answer the question.
+- **Delegate sweeps.** "Search the codebase for X", "how does this module fit", "find all callers of Y" → a sub-agent (`Explore` / `ai:explore`; `cavecrew-investigator` when caveman is installed — it returns a `file:line` table), so the raw output stays in *its* context and only the conclusion returns. A `grep` in a file you already named is not a sweep.
+- **Cached truth first.** `CONTEXT.md` (domain glossary) and `docs/adr/` exist so you do not re-derive. Read them before code; if they contradict what you would derive, trust the docs and verify only the conflict.
+- **Don't re-read.** Once a slice is in context, do not `Read` it again unless it changed — the harness tracks edits.
+- **Skip the noise.** Lockfiles, `node_modules/`, `vendor/`, build output, generated code, `.git/` — never, unless the user asks about exactly that.
+- **Quote `file:line`**, don't paste blocks the user can see in their editor.
+- **Keep always-loaded files lean.** Root `CLAUDE.md` / `AGENTS.md` (and pathless `.claude/rules/`) load every session: under 200 lines, only what every session needs. Directory notes → `<subdir>/CLAUDE.md`, stack conventions → path-scoped rules, procedures → skills. Moved content costs zero tokens per session.
+- **Shrink with the cheapest tool.** Mid-task, big context, work continues → `/compact <what to keep>` (the default). Context polluted with junk a summary would carry forward → `/ai:checkpoint --mid-session --skip-housekeeping` → `/clear` → `/ai:resume`. Session ending or switching topic → `/ai:checkpoint` → `/clear`, `--to tmp` for a handoff across machines or people. A checkpoint is a snapshot for a future reader, not a compaction tool — only `/compact` and `/clear` shrink context. Do not ride the limit; do not pay for checkpoint→clear→resume when `/compact` was the answer.
 
-  | Situation | Do this |
-  | --------- | ------- |
-  | Mid-task, context is big, the work continues | `/compact <what to keep>` — summarise in place. No checkpoint, no `/clear`, no resume. This is the default. |
-  | Context is polluted with junk a summary would carry forward (test dumps, dead ends, abandoned approaches) | `/ai:checkpoint --mid-session --skip-housekeeping` → `/clear` → `/ai:resume` |
-  | Session is ending, pausing, or switching topic | `/ai:checkpoint` → `/clear`. Next session: `/ai:resume`. Use `--to tmp` when the handoff crosses a machine or a teammate. |
+## Triggers
 
-  A checkpoint is a *state snapshot for a future reader*, not a compaction tool — `--mid-session` writes the memo but does not shrink your context; only `/compact` and `/clear` do that. Mid-task token-exhaustion still produces worse work than a deliberate restart, so do not ride the limit — just do not pay for a full checkpoint→clear→resume cycle when a `/compact` was the answer.
-
-## Trigger rules
-
-- **When the user pastes a stack trace, log, or huge diff** — summarise the salient lines and let the rest scroll out; don't quote it back.
-- **When mid-task and you've read >5 files** — pause, ask: "could a sub-agent finish this?" If yes, delegate.
-- **When the user asks "how does X work"** — try `CONTEXT.md`/ADRs/grep first; full file reads are the last step, not the first.
-- **When two answers conflict** — prefer the more recently *changed* source (use `git log` on the file), not the most recently read.
-
-## What NOT to do
-
-- Don't open a directory listing of a build output, dist folder, or `.git/` to "see what's there."
-- Don't `Read` a SKILL.md, ADR, or CONTEXT.md just because it might be relevant — open only the named section.
-- Don't re-explore the same module across sessions; the previous session's outcome already lives in code, commits, or `CONTEXT.md`.
-
-## Final checklist before a slow turn
-
-- Did I `grep` before `Read`?
-- Could a sub-agent have done this exploration?
-- Am I re-deriving something `CONTEXT.md` or an ADR already states?
-- If yes to any: stop, route, and continue.
+- Pasted stack trace, log or huge diff → summarise the salient lines, let the rest scroll out.
+- Mid-task and >5 files read → ask "could a sub-agent finish this?"; if yes, delegate.
+- "How does X work" → `CONTEXT.md` / ADRs / grep first; full reads last.
+- Two sources conflict → prefer the more recently *changed* (`git log` on the file), not the more recently read.
+- Never `Read` a SKILL.md, ADR or CONTEXT.md because it *might* be relevant — open the named section. Never re-explore a module across sessions; the outcome lives in code, commits or `CONTEXT.md`.

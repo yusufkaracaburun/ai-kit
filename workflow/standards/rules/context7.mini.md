@@ -10,42 +10,12 @@ default_mode: always-on
 weight: high
 repo_age_min_years: 0
 ---
-
 # context7
 
-Use the `ctx7` CLI to fetch current documentation whenever the user asks about a
-library, framework, SDK, API, CLI tool, or cloud service — even well-known ones
-like React, Next.js, Prisma, Express, Tailwind, Django, or Spring Boot. Covers
-API syntax, configuration, version migration, library-specific debugging, setup
-instructions, and CLI tool usage. Use even when you think you know the answer
-— training data may not reflect recent changes. Prefer this over web search for
-library docs.
+For any question about a library, framework, SDK, API, CLI tool or cloud service — even React, Next.js, Prisma, Tailwind, Django — fetch current docs with the `ctx7` CLI before answering (API syntax, configuration, version migration, setup, library-specific debugging, CLI usage); training data lags. Prefer it over web search for library docs. Not for refactoring, scripts from scratch, business-logic debugging, code review or general concepts.
 
-Do not use for: refactoring, writing scripts from scratch, debugging business
-logic, code review, or general programming concepts.
+1. `npx ctx7@latest library <name> "<user's full question>"` — official name with punctuation ("Next.js", "Customer.io"); pick by exact name, description, snippet count, source reputation (High/Medium preferred), benchmark score (higher is better); retry with an alternate name or rephrased question if nothing fits.
+2. `npx ctx7@latest docs <libraryId> "<user's full question>"` — ID is `/org/project`, `/org/project/version` for version-specific docs.
+3. Answer from the fetched docs.
 
-## Steps
-
-1. Resolve library: `npx ctx7@latest library <name> "<user's question>"` — use
-   the official library name with proper punctuation (e.g., "Next.js" not
-   "nextjs", "Customer.io" not "customerio", "Three.js" not "threejs").
-2. Pick the best match (ID format: `/org/project`) by: exact name match,
-   description relevance, code snippet count, source reputation (High/Medium
-   preferred), and benchmark score (higher is better). If results don't look
-   right, try alternate names or queries (e.g., "next.js" not "nextjs", or
-   rephrase the question).
-3. Fetch docs: `npx ctx7@latest docs <libraryId> "<user's question>"`.
-4. Answer using the fetched documentation.
-
-You MUST call `library` first to get a valid ID unless the user provides one
-directly in `/org/project` format. Use the user's full question as the query —
-specific and detailed queries return better results than vague single words. Do
-not run more than 3 commands per question. Do not include sensitive information
-(API keys, passwords, credentials) in queries.
-
-For version-specific docs, use `/org/project/version` from the `library` output
-(e.g., `/vercel/next.js/v14.3.0`).
-
-If a command fails with a quota error, inform the user and suggest
-`npx ctx7@latest login` or setting `CONTEXT7_API_KEY` env var for higher limits.
-Do not silently fall back to training data.
+Always `library` first unless the user gave an `/org/project` ID. Max 3 commands per question, no secrets in queries. On a quota error say so and suggest `npx ctx7@latest login` or `CONTEXT7_API_KEY` — never fall back silently to training data.

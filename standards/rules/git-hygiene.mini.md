@@ -10,134 +10,58 @@ default_mode: always-on
 weight: high
 repo_age_min_years: 0
 ---
-
 # Git hygiene
 
-Conventions every commit, branch, and PR in an ai-kit project should follow. Agent-readable so `/ai:ship`, `/ai:to-issues`, and `/ai:tdd` apply them without the user reminding them.
+Conventions for every commit, branch and PR. `/ai:ship`, `/ai:to-issues` and `/ai:tdd` apply them without being reminded.
 
-## Branch names
+## Branches
 
-- `feat/<area>-<short-desc>` for features
-- `fix/<area>-<short-desc>` for bugs
-- `chore/<area>-<short-desc>` for non-functional work (deps, CI, docs-only)
-- Avoid: PR titles in branch names, tickets-only without context, deep slashes (`feat/sub/sub/x`).
+`feat/<area>-<desc>`, `fix/<area>-<desc>`, `chore/<area>-<desc>` (deps, CI, docs-only). No PR titles or bare ticket numbers as names, no deep slashes.
 
-## Commit messages
+## Commits
 
-Conventional Commits with scope. One line subject, imperative, ≤72 chars:
+Conventional Commits, imperative subject ≤ 72 chars, scope recommended:
 
 ```
 <type>(<scope>): <subject>
 
-<body — what changed and why, wrapped at 80>
+<body — why, wrapped at 80; the diff already shows what>
 
 <footers — Fixes #123, BREAKING CHANGE:, Co-Authored-By:>
 ```
 
-- Types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `ci`, `perf`.
-- Scope is optional but recommended for repos with clear modules.
-- The body answers **why**, not what — diff already shows what.
-- Never `--no-verify` to bypass hooks. If a hook fails, fix the cause; if the hook itself is wrong, fix the hook in a separate commit.
+Types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `ci`, `perf`. Never `--no-verify`; a failing hook is fixed at its cause, a wrong hook in its own commit.
+
+**Stage by path — never `git commit -a` / `-am`.** `-a` sweeps in every modified tracked file, including work another session wrote; in a repo with more than one session open that is the normal state. Read `git diff --staged` before every commit: you commit what is staged, not what you remember changing.
+
+**Issue keywords.** `closes`/`fixes`/`resolves` (and `fix`, `fixed`, `close`, `closed`, `resolve`, `resolved`) before `#N` close that issue on merge — the parser reads keyword + number, not your sentence. "track entry-scan fix #120" and "does not fix #134" both closed an issue. To reference without closing use `refs #N` / `see #N`; to close, put it on its own line.
 
 ## Pull requests
 
-- Open against the project's main branch (default: `main` or `master` per repo convention) — **unless the work is part of an epic**, in which case the base is the `epic/<name>` integration branch. See [Epic branches](#epic-branches) below before opening the PR.
-- Use the project's PR template if present. If not, include: **Summary** (what + why), **Test plan** (how reviewer can verify), **Out of scope** (what this PR explicitly does not do).
-- Keep diff ≤ 400 lines where possible. Split big PRs into vertical slices (see `/ai:to-issues`).
-- Link issues with `Fixes #N` / `Closes #N` so they auto-close on merge.
-- Title follows the same Conventional Commits format as the squash-merge commit would.
+- Base: the project's main branch — or `epic/<name>` when the work is a slice of an epic (below).
+- Project PR template if present; otherwise **Summary** (what + why), **Test plan**, **Out of scope**.
+- Diff ≤ 400 lines where possible; split into vertical slices (`/ai:to-issues`). Link issues with `Fixes #N`.
+- Title in the Conventional Commits form the squash commit will carry.
 
 ## Epic branches
 
-Most work goes straight to main as a `feat/`/`fix/`/`chore/` branch. An epic is
-the exception: several slices that only make sense reviewed together, or that
-must not reach main one at a time.
+The exception to straight-to-main: slices that only make sense reviewed together, or must not reach main one at a time. `epic/<name>` is cut from main once; slice branches keep their normal prefix and target it (`gh pr create --base epic/<name>`); the epic lands on main as one PR at the end. `/ai:to-issues` asks which model applies before publishing and writes the base into each issue — there is no safe default.
 
-- `epic/<name>` for the integration branch, cut from main once at the start.
-- Slice branches keep their normal prefix and **target the epic branch**, not
-  main: `gh pr create --base epic/<name>`.
-- The epic reaches main as a single PR at the end, once every slice has merged
-  into it.
-- `/ai:to-issues` asks which of the two models applies before it publishes, and
-  writes the base into each issue. The question is not optional: there is no
-  base that is safe to assume, and the answer is only cheap to change while the
-  slices are still on paper.
+**Never merge a slice into the epic branch locally.** Once its commits are in the base, GitHub refuses to open the PR (`422 There are no new commits between base branch and head branch`) and the slice lands with no PR and no merge record. Push, open the PR against `epic/<name>`, merge there.
 
-**Never merge a slice into the epic branch locally.** Once the slice's commits
-are already in the base, GitHub refuses to *open* the PR at all — `422 There are
-no new commits between base branch and head branch`. An existing PR's base can
-be edited afterwards; a PR that was never opened cannot, so the slice lands with
-no PR and no merge record. Push the slice, open the PR against `epic/<name>`,
-merge it there.
-
-Review an epic locally with a worktree rather than a second clone:
-
-```bash
-git worktree add .agents/worktrees/<name> epic/<name>
-```
-
-A worktree shares only tracked files — no `vendor/`, no `node_modules/`.
-Symlinking them back is not enough: Composer's generated autoload paths resolve
-against the checkout they were built in, so the suite often boots and tests the
-*origin* tree rather than failing outright — a green run that proves nothing
-about the branch you are reviewing. A worktree you intend to run tests in needs
-a real `composer install` / `npm install`.
+Review an epic in a worktree (`git worktree add .agents/worktrees/<name> epic/<name>`), and run a real `composer install` / `npm install` in it: a worktree shares only tracked files, and symlinked `vendor/` resolves Composer's autoload paths against the checkout they were built in — the suite then tests the *origin* tree and passes for the wrong reason.
 
 ## Merge strategy
 
-Default: **squash + merge** for feature/fix branches → single conventional-commit on `main`/`master`. Use `rebase + merge` only when the branch's individual commits are themselves clean and intentional. Avoid plain `merge` commits unless the project explicitly chooses them.
+Squash + merge by default → one conventional commit on main. `rebase + merge` only when the branch's commits are individually clean and intentional. Plain merge commits only if the project chose them.
 
-## Things that warrant user confirmation
+## Ask first
 
-- Force-push (`git push --force[-with-lease]`), even on your own branch — paste the command, wait for approval.
-- Pushing to `main`/`master` directly — confirm the branch is meant to bypass PR review.
-- `git reset --hard`, `git clean -fd`, `git checkout --` against uncommitted work — explain what's lost.
-- Amending a published commit — the rewrite affects everyone who pulled it.
+Force-push (even your own branch — paste the command, wait), pushing straight to main, `git reset --hard` / `git clean -fd` / `git checkout --` over uncommitted work (say what is lost), amending a published commit.
 
-## Staging
+## Before commit
 
-Stage by path. Never `git commit -a` or `-am`.
-
-`-a` sweeps in every modified tracked file, including work you did not write
-and did not read. In a repo where more than one session is open, that is not a
-rare edge case: it is the normal state. The commit message then describes one
-change and the commit carries two, and nobody notices until someone reads the
-history later.
-
-Read `git diff --staged` before every commit. You are committing what is
-staged, not what you remember changing. If the diff surprises you, that is the
-check working.
-
-## Issue references
-
-`closes`, `fixes` and `resolves` before a `#number` close that issue on merge.
-So do their variants — `fix`, `fixed`, `close`, `closed`, `resolve`, `resolved`.
-Use one only when you mean it.
-
-The parser reads the keyword and the number, and nothing around them. It does
-not read your sentence. Both of these closed an issue that was not finished:
-
-    chore(catalog): ledger kakashi as Ignore; track entry-scan fix #120
-    It does not fix #134's flake.
-
-The first meant "the entry-scan fix, tracked as #120". The second says the
-opposite of what GitHub did. Both landed on a push and both needed reopening
-with a comment explaining why the issue was not actually done — noise in the
-record of a decision nobody made.
-
-When you mean to reference without closing, say `refs #120` or `see #120`, or
-put the number somewhere no keyword precedes it. When you mean to close, put
-it on its own line so it is visible while you write the message rather than
-discovered afterwards.
-
-## Quick checklist before commit
-
-- [ ] Staged by path, no `-a` / `-am`
-- [ ] `git diff --staged` read, and it contains only your change
-- [ ] Branch name follows convention
-- [ ] Commit subject is imperative + scoped
-- [ ] Body explains why
-- [ ] No `--no-verify`
-- [ ] No accidental `fix`/`close`/`resolve` before a `#number`
-- [ ] No secrets, no absolute user paths
-- [ ] Tests pass locally
+- [ ] Staged by path; `git diff --staged` read and contains only your change
+- [ ] Branch name and commit subject follow the convention; body says why
+- [ ] No `--no-verify`, no stray `fix`/`close`/`resolve` before a `#N`
+- [ ] No secrets, no absolute user paths; tests pass locally

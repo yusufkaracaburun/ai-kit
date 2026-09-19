@@ -10,65 +10,27 @@ default_mode: always-on
 weight: high
 repo_age_min_years: 0
 ---
-
 # Pre-write discipline
 
-Prevention beats cure. These four gates run *before* the first `Edit` / `Write` of a non-trivial change — not as a refactor pass afterwards, when the speculative abstraction is already merged and someone has to argue it back out.
-
-Applies to any change ≥ 10 LOC or any new file.
-
-## Primary bias to correct
-
-Agents produce more than they were asked for. Extra flags "for flexibility," an abstraction for the second caller that never arrives, error handling for states the type system already excludes, a drive-by cleanup of the function next door. Each addition looks harmless and locally defensible; the sum is a diff the user did not ask for and now has to review.
+Four gates before the first `Edit` / `Write` of any change ≥ 10 LOC or any new file — not a refactor pass afterwards, when the speculative abstraction is merged and someone has to argue it back out. The bias to correct: agents produce more than asked — a flag "for flexibility", an abstraction for a second caller that never arrives, error handling for states the types already exclude, a drive-by cleanup next door. Each looks harmless; the sum is a diff the user did not ask for and now has to review.
 
 ## The four gates
 
-1. **State assumptions.** Write down what you are assuming. If the request admits more than one reading, surface both — do not silently pick. If it is genuinely unclear, stop and ask; a question costs one turn, a wrong build costs the session.
-2. **Minimum diff.** What is the smallest change that solves the problem *as asked*? Cut every flag, abstraction, helper, and branch that was not requested. Ask: "would a senior engineer call this overcomplicated?" If yes, cut more.
-3. **Surgical scope.** Every changed line traces back to the request. No drive-by formatting, no adjacent "while I'm here" improvements, no refactoring code you merely happened to read.
-4. **Verifiable goal.** State success as something you can *check* — a test passes, a command exits 0, a file contains a string. Then loop until it is verified. "Make it work" is not a goal; it guarantees another round of clarification.
+1. **State assumptions.** Write down what you are assuming. More than one reading → surface both, never pick silently. Genuinely unclear → ask; a question costs one turn, a wrong build costs the session.
+2. **Minimum diff.** The smallest change that solves the problem *as asked*. Cut every flag, abstraction, helper and branch not requested. "Would a senior engineer call this overcomplicated?" — if yes, cut more.
+3. **Surgical scope.** Every changed line traces to the request. No drive-by formatting, no "while I'm here", no refactoring code you merely read.
+4. **Verifiable goal.** Success is something you can *check* — a test passes, a command exits 0, a file contains a string — then loop until verified. "Make it work" guarantees another round of clarification.
 
 ## Anti-patterns
 
-- Adding a `--foo` flag nobody asked for, justified as "future flexibility."
-- Introducing an interface, factory, or strategy for a single implementation.
-- Multi-category output buckets where a flat list answers the question.
-- Error handling for impossible states — trust internal callers and framework guarantees.
-- Comments restating what well-named code already says.
-- "Improving" code adjacent to the change because you noticed it.
-- Reporting a change as done without running the check that would prove it.
+A `--foo` flag nobody asked for · an interface/factory/strategy with one implementation (name the second caller or don't add it) · multi-category output where a flat list answers · error handling for impossible states · comments restating well-named code · "improving" adjacent code · reporting done without running the check that proves it.
 
-## Trigger rules
+## Triggers
 
-- **Before the first `Edit` / `Write` of a non-trivial change** — say in one line which gates the change passes. If a gate cannot be justified, fix the design before writing.
-- **When the diff grows past what was asked** — stop and cut back, do not rationalise forward.
-- **When you are about to add an abstraction** — name its second caller. If you cannot, do not add it.
-- **When the task is trivial** (typo, one-liner, mechanical rename) — skip the ceremony. These gates guard against drift, not against typing.
+- Before the first `Edit` / `Write` of a non-trivial change: one line naming which gates it passes. A gate you cannot justify → fix the design first.
+- The diff grows past what was asked → stop and cut back, do not rationalise forward.
+- Trivial task (typo, one-liner, mechanical rename) → skip the ceremony; the gates guard against drift, not typing.
 
-## Trade-off
+Biases toward caution over speed, deliberately: an unrequested abstraction outlives a slow turn.
 
-This biases toward caution over speed. That is deliberate: an unrequested abstraction survives far longer than a slow turn.
-
-## Final checklist before the first write
-
-- Assumptions stated?
-- Is this the smallest diff that solves the asked problem?
-- Does every changed line trace to the request?
-- Can I name the command or test that proves it done?
-
-## See also
-
-- `context-discipline.mini.md` — the same discipline applied to *reading* rather than writing.
-- `pragmatic.nano.md` — reversible choices, thin slices, one authoritative source.
-- **`ponytail`** (companion, `standards/external/companions.json`) — the enforced version of
-  this rule **on Claude Code**, where `always-on` buys nothing: Claude Code has no rules
-  primitive, so `bin/lib/emitters/claude-code.sh` writes this file to `.claude/rules/` to be
-  read on demand. ponytail injects a YAGNI ladder at `SessionStart` and `SubagentStart`, which
-  a rule file there cannot do.
-
-  This rule stays `always-on` regardless, because on **Cursor** the mode is load-bearing:
-  `bin/lib/emitters/cursor.sh` maps `always-on` to `alwaysApply: true` in the emitted `.mdc`,
-  and ai-kit's ponytail wiring is Claude-Code-only. Dropping the mode would strip the
-  discipline from Cursor projects with nothing replacing it.
-
-Adapted from the four rules in [andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills), derived from Andrej Karpathy's observations on LLM coding pitfalls.
+See `context-discipline.mini.md` (the same discipline for reading) and the `ponytail` companion (the YAGNI ladder, injected at session and subagent start on Claude Code). Adapted from [andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills), after Andrej Karpathy's observations on LLM coding pitfalls.

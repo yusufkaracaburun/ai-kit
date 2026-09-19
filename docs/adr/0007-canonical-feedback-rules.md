@@ -70,7 +70,7 @@ out to be framework-specific, flip its `universal` flag and let
 | Rule | Weight | Type |
 |---|---|---|
 | `phase-scope-discipline` | high | workflow |
-| `branch-cleanup-after-merge` | medium | workflow |
+| ~~`branch-cleanup-after-merge`~~ | medium | workflow — removed v1.93.0 (#183): `docs-sync` does the sweep and carries the `release/*` / `epic/*` exemptions |
 | `deployment-on-demand` | high | workflow |
 | `minimal-comments` | medium | style |
 | `latest-stable-deps` | medium | style (phase-aware) |
