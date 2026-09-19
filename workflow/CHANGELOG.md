@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.92.0 — 2026-09-19
+
+### Changed
+- **The universal always-on set drops from 24 rules / 9,678 words to 17 / 7,488 — nothing removed, seven rules now load only when their subject is on the table (#183).** With the host loading every pathless rule at session start (v1.91.0), the kit's own universal set had become ≈ 14k tokens before the first prompt in every consuming project. Six universal rules whose subject is file-bound now carry `paths:` and load on touch, verified with a headless probe (a `src/**` rule was absent before `Read src/a.ts` and present after; a `docs/**` sibling stayed out): `domain-model-first` → `**/Models/**, **/domain/**, **/migrations/**, **/entities/**, **/schema*, **/content.config.*, CONTEXT.md`; `latest-stable-deps` → manifests and lockfiles (its body now says that a Bash `npm install foo@^2` never touches one — read the manifest first); `semver` → `**/CHANGELOG*, VERSION, package.json, pubspec.yaml, composer.json`; `gitignore-public-assets-trap` → `**/.gitignore`; `observability` → `**/Http/**, **/controllers/**, **/*services/**, **/jobs/**, **/middleware/**, **/api/**, **/pages/**, worker/**, **/logging*` (checked against all six target repos, including theorieplek's `worker/*.ts` and planny-app-mobile's `lib/network_services/`); `testing-pyramid` → `**/tests/**, **/test/**, **/__tests__/**, **/*.test.*, **/*.spec.*, **/*_test.*` (root-anchored `tests/**` would have missed emeq-hub's `packages/*/tests`). `branch-cleanup-after-merge` becomes `on-demand` — `docs-sync` already does the sweep, and now also skips `release/*` / `epic/*`, the two exemptions that rule encoded. `writing-style` stays pathless on purpose: commit bodies, PR text and chat answers have no file trigger. The seventeen that stay always-on are the behavioural guards a session cannot know it needs in advance; shortening the nine longest of them (git-hygiene 1,028 w down to bsd-sed-word-boundary 275) is the second half of #183. Downstream: `/ai:upgrade` re-emits.
+
 ## 1.91.0 — 2026-09-19
 
 ### Changed
