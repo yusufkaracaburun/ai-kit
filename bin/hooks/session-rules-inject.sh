@@ -142,14 +142,16 @@ words=()
 bodies=()
 for f in "$rules_dir"/*.md; do
   [ -f "$f" ] || continue
-  head -2 "$f" 2>/dev/null | grep -q "Mode: always-on" || continue
+  head -5 "$f" 2>/dev/null | grep -q "Mode: always-on" || continue
 
   name="$(basename "$f" .md)"
   src="$(resolve_source "$name")" || continue
   [ -n "$src" ] || continue
   [ "$(extract_weight "$src")" = "high" ] || continue
 
-  body="$(tail -n +4 "$f" 2>/dev/null)"
+  # Body = everything after an optional leading frontmatter block and the
+  # generated header comments (frontmatter shifts the header, so no offset).
+  body="$(awk 'NR==1 && /^---[[:space:]]*$/ {fm=1; next} fm && /^---[[:space:]]*$/ {fm=0; next} fm {next} !started && /^<!--/ {next} !started && /^[[:space:]]*$/ {next} {started=1; print}' "$f" 2>/dev/null)"
   [ -n "$body" ] || continue
 
   names+=("$name")

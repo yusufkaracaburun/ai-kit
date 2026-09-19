@@ -88,25 +88,32 @@ assert "hygiene scores 100 when context-lean skipped" 'echo "$OUT_SKIP" | grep -
 
 
 echo ""
-echo "=== ai-kit-context-lean: SessionStart rule injection budget (#144) ==="
-# section: ai-kit-context-lean-session-rules
-# The hook (bin/hooks/session-rules-inject.sh) is its own always-loaded
-# token tax, same as CLAUDE.md/AGENTS.md — this reconciles the two instead
-# of leaving the injection invisible to /ai:hygiene.
-mkdir -p "$TMP/inject-ok"
-"$AIKIT/bin/emit-rules.sh" "$TMP/inject-ok" --rules secrets-hygiene --agents claude-code >/dev/null
-OUT_INJECT_OK="$("$LEAN" "$TMP/inject-ok" 2>&1)"; RC_INJECT_OK=$?
-assert "context-lean exits 0 on an in-budget injection" '[ "$RC_INJECT_OK" -eq 0 ]'
-assert "context-lean reports the injected rule count/words" \
-  'echo "$OUT_INJECT_OK" | grep -q "^ok: SessionStart rule injection — 1 rule(s)"'
+echo "=== ai-kit-context-lean: pathless .claude/rules are a native always-on tax (#182) ==="
+# section: ai-kit-context-lean-native-rules
+# Claude Code loads every pathless .claude/rules/*.md at session start; a
+# rule with paths: loads on touch. This reconciles that with the CLAUDE.md
+# ceiling instead of leaving it invisible to /ai:hygiene.
+mkdir -p "$TMP/rules-ok"
+"$AIKIT/bin/emit-rules.sh" "$TMP/rules-ok" --rules secrets-hygiene,laravel-conventions --agents claude-code >/dev/null
+OUT_RULES_OK="$("$LEAN" "$TMP/rules-ok" 2>&1)"; RC_RULES_OK=$?
+assert "context-lean exits 0 on an in-budget rule set" '[ "$RC_RULES_OK" -eq 0 ]'
+assert "context-lean reports the universal pathless rule as a note, not a score" \
+  'echo "$OUT_RULES_OK" | grep -q "^note: 1 universal ai-kit rule(s)"'
+assert "context-lean does not count the scoped rule" \
+  '! echo "$OUT_RULES_OK" | grep -q "laravel-conventions"'
 
-mkdir -p "$TMP/inject-over"
-"$AIKIT/bin/emit-rules.sh" "$TMP/inject-over" --agents claude-code >/dev/null
-OUT_INJECT_OVER="$(AI_KIT_SESSION_RULES_MAX_WORDS=5000 "$LEAN" "$TMP/inject-over" 2>&1)" && RC_INJECT_OVER=0 || RC_INJECT_OVER=$?
-assert "context-lean exits 1 when injection exceeds its budget" '[ "$RC_INJECT_OVER" -eq 1 ]'
-assert "context-lean warns with the injected word count" \
-  'echo "$OUT_INJECT_OVER" | grep -q "^WARN: SessionStart rule injection is"'
-assert "context-lean fix-hint mentions the opt-out" \
-  'echo "$OUT_INJECT_OVER" | grep -q "ai-kit-no-rule-injection.sh on"'
+mkdir -p "$TMP/rules-default"
+"$AIKIT/bin/emit-rules.sh" "$TMP/rules-default" --agents claude-code >/dev/null
+OUT_RULES_DEFAULT="$("$LEAN" "$TMP/rules-default" 2>&1)"; RC_RULES_DEFAULT=$?
+assert "context-lean exits 0 on the kit's own default universal set" '[ "$RC_RULES_DEFAULT" -eq 0 ]'
+
+mkdir -p "$TMP/rules-over/.claude/rules"
+for i in 1 2 3 4 5 6; do printf '# Local rule %s\n\n%s\n' "$i" "$(yes word | head -400 | tr '\n' ' ')" > "$TMP/rules-over/.claude/rules/local-$i.md"; done
+OUT_RULES_OVER="$("$LEAN" "$TMP/rules-over" 2>&1)" && RC_RULES_OVER=0 || RC_RULES_OVER=$?
+assert "context-lean exits 1 when pathless non-universal rules exceed the budget" '[ "$RC_RULES_OVER" -eq 1 ]'
+assert "context-lean warns with the pathless word count" \
+  'echo "$OUT_RULES_OVER" | grep -q "^WARN: 6 pathless non-universal rule(s) in .claude/rules"'
+assert "context-lean fix-hint names paths:" \
+  'echo "$OUT_RULES_OVER" | grep -q "give the rule \`paths:\`"'
 
 print_summary_and_exit

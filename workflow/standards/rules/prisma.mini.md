@@ -7,6 +7,7 @@ applies_to:
   architectures: ["backend"]
 universal: false
 default_mode: always-on
+paths: ["prisma/**", "**/*.prisma"]
 weight: medium
 repo_age_min_years: 0
 ---

@@ -2,25 +2,38 @@
 
 ## Status
 
-Accepted, **not yet wired** (issue #144). The hook, its opt-out and its tests
-ship in v1.61.0; the `SessionStart` registration in `workflow/hooks/hooks.json`
-is deliberately withheld.
+**Superseded in practice by the host** (#182, measured 2026-09-19 on Claude
+Code 2.1.278). Claude Code now loads every `.claude/rules/*.md` that has no
+`paths:` frontmatter at session start — all of them, no budget — and a file
+with `paths:` only when a matching file is touched. The premise of both #144
+("always-on is inert on Claude Code") and the withheld injection hook (a 2k-word
+budget with weight-then-length selection) no longer holds: the native loader
+was already spending 7× that budget in emeq-hub (32 files, 14,288 words) with
+no selection at all.
 
-Why: measured against emeq-hub, the selection picks `error-handling`,
-`context7`, `project-lifecycle`, `secrets-hygiene` and `grill-first`, while
-`context-discipline` (512 words) and `domain-model-first` (726) are dropped —
-not on merit, but because the budget is filled smallest-first and they are
-long. Length became an inverse proxy for importance. Turning that on would
-add ~1,679 words (≈2.2–2.8k tokens) per session on top of the ~6,000–7,500 a
-project already carries, and buy the wrong five rules.
+What the emitter does since v1.91.0, `bin/lib/emitters/claude-code.sh`:
 
-Also surfaced by that measurement: `pre-write-discipline` — the rule this
-whole thread started from — is not emitted in emeq-hub at all, so the hook
-would never inject it there. Whether a `universal: true`, `weight: high` rule
-should be missing from an ordinary project's `.claude/rules/` is its own
-question.
+- `default_mode: always-on`, no `paths:` in the source → emitted pathless →
+  loaded every session. That is the host's enforcement; `weight` plays no part.
+- a rule whose source declares `paths:` → emitted with that frontmatter →
+  loaded on touch. All 26 stack-scoped rules carry one.
+- `default_mode: on-demand`, no `paths:` → emitted with `paths: [".on-demand/**"]`,
+  a glob nothing matches → never auto-loaded; skills read it by path.
 
-Both are tracked in **#148**. Re-add the `SessionStart` entry when that lands.
+`bin/hooks/session-rules-inject.sh`, its opt-out and its tests stay in the tree
+unwired; they are the fallback if a host ever stops loading `.claude/rules/`
+natively. `bin/ai-kit-context-lean.sh` now counts pathless rule words as the
+always-on tax instead of the hook's would-be budget.
+
+Subagents are a separate gap: none of this reaches them (they get CLAUDE.md,
+memory and their AGENT.md only). `builder`, `designer`, `reviewer` and
+`verifier` therefore read the matching rules themselves before the first
+edit or verdict — see their AGENT.md.
+
+Original status text, kept for the record: accepted, not yet wired (#144);
+the hook shipped in v1.61.0 with the `SessionStart` registration withheld
+after an emeq-hub measurement showed length deciding which five rules
+survived (#148).
 
 This ADR was originally proposed as "split `default_mode` per host"
 (kept below as option 3, and as the original recommendation). On

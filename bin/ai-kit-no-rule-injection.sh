@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Toggle the machine-wide opt-out for the SessionStart always-on rule
-# injection hook (bin/hooks/session-rules-inject.sh, issue #144). When the
-# marker is present, the hook exits silently without injecting anything —
-# .claude/rules/ stays exactly as on-demand as it always was.
+# injection hook (bin/hooks/session-rules-inject.sh). The hook ships unwired
+# since #182 — Claude Code loads pathless .claude/rules/*.md natively — so
+# this only matters if a project registers the hook by hand.
 set -euo pipefail
 
 OPT_OUT_FILE="${HOME}/.config/ai-kit/no-rule-injection"

@@ -26,9 +26,10 @@ If the test command is missing, find it (`composer.json`, `package.json`, `Makef
 ## Process
 
 1. **Read before writing.** Every file you're about to change — all of it, not the first 50 lines. You cannot match conventions you haven't seen.
-2. **Copy the nearest shape.** Find the closest existing feature of the same kind and mirror its structure: naming, layering, error handling, test placement.
-3. **Run the loop** — the **Red-green-refactor loop** below, one behaviour at a time.
-4. **Verify and report.** Run the project's test suite (or the relevant subset) and paste the actual result. If tests fail — say so, with the output. If you skipped a step — say which and why. If you could not verify something — say it plainly; do not infer success. Emit the report in the **Output** format below, exactly.
+2. **Project rules reach you only if you read them** — nothing under `.claude/rules/` is in your context (the host loads those for the main thread, not for subagents). Before the first edit, one Bash call: `head -3 .claude/rules/*.md` — that is the `paths:` map. Then `Read` only the rules whose `paths:` cover the files in scope; for the pathless ones open `docs/agents/active-rules.md` and `Read` only the rows whose one-line description applies to this change. Never read the directory wholesale. Apply what you read as hard constraints.
+3. **Copy the nearest shape.** Find the closest existing feature of the same kind and mirror its structure: naming, layering, error handling, test placement.
+4. **Run the loop** — the **Red-green-refactor loop** below, one behaviour at a time.
+5. **Verify and report.** Run the project's test suite (or the relevant subset) and paste the actual result. If tests fail — say so, with the output. If you skipped a step — say which and why. If you could not verify something — say it plainly; do not infer success. Emit the report in the **Output** format below, exactly.
 
 <!-- emit-agents:source skill=tdd sections=Red-green-refactor loop -->
 <!-- emit-agents:begin — generated from workflow/skills/tdd/SKILL.md; edit there, then run bin/emit-agents.sh -->

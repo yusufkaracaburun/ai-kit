@@ -7,6 +7,7 @@ applies_to:
   architectures: ["frontend"]
 universal: false
 default_mode: always-on
+paths: ["tailwind.config.*", "**/*.css", "**/*.tsx", "**/*.jsx", "**/*.vue", "**/*.astro", "**/*.svelte", "**/*.blade.php"]
 weight: medium
 repo_age_min_years: 0
 ---

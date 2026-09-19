@@ -37,22 +37,21 @@ frontmatter cannot tell which host they're actually configuring:
 
 | `default_mode` | Cursor (`cursor.sh`) | Claude Code (`claude-code.sh`) |
 | --- | --- | --- |
-| `always-on` | `alwaysApply: true` — the rule is injected into **every** prompt. Real enforcement. | Written into the file header (`<!-- Mode: always-on -->`). **Currently inert** — nothing reads it back. `bin/hooks/session-rules-inject.sh` would, but it is not registered in `workflow/hooks/hooks.json` yet (see below). |
-| `on-demand` | `alwaysApply: false` — Cursor loads it only when its `description`/globs match. | Same header note (`<!-- Mode: on-demand -->`). Inert — the injection hook only ever looks at rules whose emitted header says `always-on`. |
+| `always-on` | `alwaysApply: true` — the rule is injected into **every** prompt. Real enforcement. | Emitted **pathless** — Claude Code loads every pathless `.claude/rules/*.md` at session start (#182). Real enforcement, every session, regardless of `weight`. |
+| `on-demand` | `alwaysApply: false` — Cursor loads it only when its `description`/globs match. | Emitted with `paths: [".on-demand/**"]`, a glob nothing matches — never auto-loaded; a skill reads it by path. |
 
-Claude Code has no rule-injection primitive in effect today.
-`bin/hooks/session-rules-inject.sh` ships and is tested, but its `SessionStart`
-registration is deliberately withheld: the hook fills its word budget
-smallest-first, so the heaviest rules are dropped for being long rather than
-for being unimportant (issue #148, ADR-0011). Until that lands, `always-on`
-changes Cursor's behaviour and changes nothing on Claude Code except a header
-comment.
+A source rule may also declare `paths: ["app/**", …]` (single-line flow list
+in its frontmatter). The Claude Code emitter passes it through, and the host
+then loads the rule only when a matching file is touched — this is how the
+stack-scoped rules stay out of a docs-only session. Cursor ignores it today.
 
-**Consequence for rule authors:** `always-on` is real enforcement on Cursor
-regardless of weight. On Claude Code it is real enforcement **only** for
-`weight: high` rules that fit the session budget — `weight: medium`/`low`
-is still a no-op there. Do not read "always-on" alone as "enforced
-everywhere"; check `weight` too.
+`bin/hooks/session-rules-inject.sh` ships unwired and stays that way: the
+native loader made it moot (ADR-0011). `bin/ai-kit-context-lean.sh` counts the
+pathless rules as the always-on tax.
+
+**Consequence for rule authors:** `always-on` without `paths:` costs every
+session on both hosts. If a rule only matters for some files, give it
+`paths:`; if it only matters inside a skill, make it `on-demand`.
 
 ## Adding a new emitter
 

@@ -282,11 +282,11 @@ whole gate for a typo, lint fix or version bump.
 
 **Why this one does not ask.** It closes the same gap as Branch 2d, one layer
 earlier: [`grill-first`](../../../standards/rules/grill-first.mini.md) step 4
-already carries the phase table, but on Claude Code `.claude/rules/*.md` is
-read on demand — `always-on` is real on Cursor and inert here until
-`session-rules-inject.sh` is registered (issue #148). The rule is the content,
-this hook is what puts it in front of the agent. Fixed string, so it needs
-none of #148's ranking or budget machinery. Advisory
+already carries the phase table, but a rule loaded at session start is
+buried by the time the feature request arrives, and a plugin-served repo may
+have emitted no rules at all. The rule is the content, this hook is what puts
+it in front of the agent on every prompt. Fixed string, so it needs no
+ranking or budget machinery. Advisory
 `additionalContext` only (it can never block), blast radius stops at the
 project. Record `--phase-check-hook=wired`.
 

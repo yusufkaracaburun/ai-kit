@@ -28,16 +28,17 @@ If any is missing, pick a sane default and note it under "Scope" in the report.
 
 1. **Scope** — `git diff --name-only <base>...<target>` for the changed file set. In comprehensive mode, expand to the whole repo for the security pass.
 2. **Read context** — `CONTEXT.md` and any ADR (`docs/adr/`) referenced by the changed files. Skip if absent (note in report).
-3. **Review each changed file** for:
+3. **Project rules reach you only if you read them** — nothing under `.claude/rules/` is in your context (the host loads those for the main thread, not for subagents). Before reviewing, one Bash call: `head -3 .claude/rules/*.md` — that is the `paths:` map. Then `Read` only the rules whose `paths:` cover the files in scope; for the pathless ones open `docs/agents/active-rules.md` and `Read` only the rows whose one-line description applies to this change. Never read the directory wholesale. Apply what you read as hard constraints. A rule the diff violates is a finding.
+4. **Review each changed file** for:
    - Correctness and edge cases (null/empty/concurrent/timeout)
    - Security (injection, auth, secrets, unsafe defaults)
    - Test coverage for behaviour changes
    - Naming aligned with CONTEXT.md domain language
    - No drive-by refactors mixed with the stated change
    - File-size threshold — a changed file crossing from <1000 to ≥1000 lines is a blocker unless justified
-4. **Security pass** — apply the **Security deep pass** checklist below. `default` depth: only high-confidence findings on changed lines. `deep` depth: also run the dependency audit and add critical/high CVEs.
-5. **Test coverage** — for behaviour changes, identify which test file should cover them; flag missing coverage. Don't fail on style-only changes.
-6. **Verdict** — `APPROVE` only when zero blockers and zero high-severity security findings. Otherwise `REQUEST CHANGES`.
+5. **Security pass** — apply the **Security deep pass** checklist below. `default` depth: only high-confidence findings on changed lines. `deep` depth: also run the dependency audit and add critical/high CVEs.
+6. **Test coverage** — for behaviour changes, identify which test file should cover them; flag missing coverage. Don't fail on style-only changes.
+7. **Verdict** — `APPROVE` only when zero blockers and zero high-severity security findings. Otherwise `REQUEST CHANGES`.
 
 Emit the report in the **Output format** below, exactly.
 

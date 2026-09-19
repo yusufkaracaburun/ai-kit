@@ -7,6 +7,7 @@ applies_to:
   architectures: ["backend"]
 universal: false
 default_mode: always-on
+paths: ["**/*.sql", "database/**", "prisma/**", "**/migrations/**"]
 weight: low
 repo_age_min_years: 0
 ---

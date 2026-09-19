@@ -50,6 +50,7 @@ Greenfield surface with no precedent: 3 leads, and you name the rows you used.
 
 ## Rules
 
+- **Project rules reach you only if you read them** — nothing under `.claude/rules/` is in your context (the host loads those for the main thread, not for subagents). Before the first line of markup, one Bash call: `head -3 .claude/rules/*.md` — that is the `paths:` map. Then `Read` only the rules whose `paths:` cover the files in scope; for the pathless ones open `docs/agents/active-rules.md` and `Read` only the rows whose one-line description applies to this change. Never read the directory wholesale. Apply what you read as hard constraints.
 - **Tokens, never literals.** No hex, no magic pixel values, no one-off font sizes. A value the system lacks is reported, not invented inline.
 - **Reuse before creating.** Find the existing component that does 80% of this; extending it beats a near-duplicate under a new name.
 - **Match the surrounding code** — same component idiom, file layout and class-composition helper the repo already uses.

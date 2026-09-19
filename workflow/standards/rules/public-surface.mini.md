@@ -7,6 +7,7 @@ applies_to:
   architectures: ["frontend", "backend"]
 universal: false
 default_mode: always-on
+paths: ["src/pages/**", "src/layouts/**", "app/**/layout.*", "app/**/page.*", "**/sitemap*", "**/robots.txt", "resources/views/**"]
 weight: medium
 repo_age_min_years: 0
 ---

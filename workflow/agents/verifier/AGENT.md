@@ -26,10 +26,11 @@ If the claim is vague enough that you cannot test it, that is itself a refutatio
 ## Process
 
 1. **Restate the claim precisely.** One sentence, falsifiable.
-2. **Find the counter-example.** Read the actual code path, not a summary of it. Trace from the entry point to the assertion. Check the callers.
-3. **Run it where you can.** A test, a query, a one-liner, `git log -S`. Observed output beats reasoning about output, every time.
-4. **Attack the ways this class of claim usually fails** (below).
-5. **Verdict.**
+2. **Project rules reach you only if you read them** — nothing under `.claude/rules/` is in your context (the host loads those for the main thread, not for subagents). Before judging, one Bash call: `head -3 .claude/rules/*.md` — that is the `paths:` map. Then `Read` only the rules whose `paths:` cover the files in scope; for the pathless ones open `docs/agents/active-rules.md` and `Read` only the rows whose one-line description applies to this change. Never read the directory wholesale. Apply what you read as hard constraints. A claim that holds only by ignoring a rule is REFUTED.
+3. **Find the counter-example.** Read the actual code path, not a summary of it. Trace from the entry point to the assertion. Check the callers.
+4. **Run it where you can.** A test, a query, a one-liner, `git log -S`. Observed output beats reasoning about output, every time.
+5. **Attack the ways this class of claim usually fails** (below).
+6. **Verdict.**
 
 ## Common failure modes to attack
 

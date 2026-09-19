@@ -7,6 +7,7 @@ applies_to:
   architectures: []
 universal: false
 default_mode: always-on
+paths: ["**/*.pen", ".pencil/**", "src/components/**", "src/pages/**", "lib/**/screens/**", "lib/**/widgets/**"]
 weight: medium
 repo_age_min_years: 0
 ---
