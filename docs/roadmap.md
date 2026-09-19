@@ -59,13 +59,6 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
 
 ## P2 — next up
 
-- **#183** `enhancement` — the universal always-on rule set is ~11k words
-  (≈ 14–15k tokens) before the first prompt in every consuming project
-  (emeq-hub 25 rules / 10,993 w, planny-app-mobile 25 / 11,541). Shipped in
-  v1.91.0 as a `context-lean` note, not a score. Decide per rule: trim to
-  on-demand/`paths:` (writing-style, semver, observability, testing-pyramid,
-  domain-model-first, context7 are the candidates), shorten to `.nano`, then
-  score the ceiling. Follow-up of #182; the emitted *set* is #171.
 - **#182** `bug` — ✅ shipped v1.91.0 (native loading honoured, subagents read rules); open: resolver dedupe. Every emitted `.claude/rules/*.md` loads natively, always,
   in the main thread (Claude Code 2.1 reads pathless rules at session start:
   emeq-hub 32 files / 14.3k words ≈ 19k tokens per session, planny-app-mobile
