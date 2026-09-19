@@ -92,11 +92,13 @@ import json, sys
 d = json.load(sys.stdin)
 print(d.get('branches', {}).get('domain_docs', ''))
 " <<<"$SETUP_JSON" 2>/dev/null || echo "")"
+  # skip_skill_merge=true is the v1.79 retrofit of project_skills_merged=false
+  # (ADR-0012); a marker written between the two carries only the old field.
   PROJECT_SKILLS_MERGED_RAW="$(python3 -c "
 import json, sys
 d = json.load(sys.stdin)
 b = d.get('branches', {})
-print(('true' if b['project_skills_merged'] else 'false') if 'project_skills_merged' in b else '')
+print(('true' if b['project_skills_merged'] else 'false') if 'project_skills_merged' in b else ('false' if b.get('skip_skill_merge') else ''))
 " <<<"$SETUP_JSON" 2>/dev/null || echo "")"
 fi
 

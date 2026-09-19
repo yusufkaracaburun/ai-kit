@@ -35,4 +35,12 @@ assert "derives skipped from legacy solo-global, unchanged behavior" \
   '! grep -q "FAIL: .claude/skills present" <<<"$OUT3"'
 rm -rf "$TMP3"
 
+echo "=== retrofit marker: skip_skill_merge=true without project_skills_merged ==="
+TMP4=$(mktemp -d)
+printf '{\n  "ai_kit_version": "1.0.0",\n  "completed_at": "2026-01-01T00:00:00Z",\n  "branches": {"setup_mode": "solo-both", "skip_skill_merge": true}\n}\n' > "$TMP4/.ai-kit-setup"
+OUT4="$(bash "$AIKIT/bin/verify-setup.sh" "$TMP4" --strict 2>&1 || true)"
+assert "skip_skill_merge=true skips the project skills dirs" \
+  '! grep -q "FAIL: .cursor/skills present" <<<"$OUT4"'
+rm -rf "$TMP4"
+
 print_summary_and_exit
