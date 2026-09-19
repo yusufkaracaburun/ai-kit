@@ -55,6 +55,7 @@ SETUP_TIER=""
 ARCH_BRANCH="skipped"
 DOCKER_BRANCH=""
 SECRETS_SCAN_BRANCH=""
+DOMAIN_DOCS_BRANCH=""
 PROJECT_SKILLS_MERGED_RAW=""
 SETUP_JSON=""
 
@@ -85,6 +86,11 @@ print(d.get('branches', {}).get('docker', 'skipped'))
 import json, sys
 d = json.load(sys.stdin)
 print(d.get('branches', {}).get('secrets_scan', ''))
+" <<<"$SETUP_JSON" 2>/dev/null || echo "")"
+  DOMAIN_DOCS_BRANCH="$(python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+print(d.get('branches', {}).get('domain_docs', ''))
 " <<<"$SETUP_JSON" 2>/dev/null || echo "")"
   PROJECT_SKILLS_MERGED_RAW="$(python3 -c "
 import json, sys
@@ -190,7 +196,12 @@ if [ "$MINIMAL_TIER" = false ]; then
 
   check "issue-tracker.md" "$(bool [ -f "$TARGET/docs/agents/issue-tracker.md" ])"
   check "triage-labels.md" "$(bool [ -f "$TARGET/docs/agents/triage-labels.md" ])"
-  check "domain.md" "$(bool [ -f "$TARGET/docs/agents/domain.md" ])"
+  # domain.md is written only by the domain_docs branch (bootstrap copies
+  # workflow.md, never domain.md), so a skipped branch owes no file; an older
+  # marker without the key keeps the unconditional check.
+  if [ "$DOMAIN_DOCS_BRANCH" != "skipped" ]; then
+    check "domain.md" "$(bool [ -f "$TARGET/docs/agents/domain.md" ])"
+  fi
   check "workflow.md" "$(bool [ -f "$TARGET/docs/agents/workflow.md" ])"
 
   if [ "$ARCH_BRANCH" != "skipped" ]; then
