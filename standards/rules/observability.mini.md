@@ -7,6 +7,7 @@ applies_to:
   architectures: []
 universal: true
 default_mode: always-on
+paths: ["**/Http/**", "**/controllers/**", "**/Controllers/**", "**/*services/**", "**/*Services/**", "**/jobs/**", "**/Jobs/**", "**/middleware/**", "**/Middleware/**", "**/middleware.*", "**/api/**", "**/pages/**", "worker/**", "**/logging*"]
 weight: medium
 repo_age_min_years: 0
 ---

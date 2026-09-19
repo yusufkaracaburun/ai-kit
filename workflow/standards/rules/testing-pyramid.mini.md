@@ -7,6 +7,7 @@ applies_to:
   architectures: []
 universal: true
 default_mode: always-on
+paths: ["**/tests/**", "**/test/**", "**/__tests__/**", "**/*.test.*", "**/*.spec.*", "**/*_test.*"]
 weight: medium
 repo_age_min_years: 0
 ---

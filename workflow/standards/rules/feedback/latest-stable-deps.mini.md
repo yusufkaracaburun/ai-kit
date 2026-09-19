@@ -7,6 +7,7 @@ applies_to:
   architectures: []
 universal: true
 default_mode: always-on
+paths: ["**/package.json", "**/composer.json", "**/pubspec.yaml", "**/requirements*.txt", "**/pyproject.toml", "**/Gemfile", "**/go.mod", "**/Cargo.toml", "**/*.lock", "**/pnpm-lock.yaml", "**/package-lock.json"]
 weight: medium
 repo_age_min_years: 0
 ---
@@ -38,6 +39,8 @@ explicit window — not in a drive-by commit. The phase is set in
 matrix.
 
 ## How to apply
+
+This rule loads when a manifest or lockfile is touched. An install run straight from Bash (`npm install foo@^2`, `composer require foo:^1`) never touches one first — read the manifest before choosing a version, so the rule is in front of you.
 
 1. **Before declaring a version, check the registry.**
    - npm: `npm view <pkg> version`

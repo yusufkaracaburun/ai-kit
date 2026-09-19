@@ -7,6 +7,7 @@ applies_to:
   architectures: []
 universal: true
 default_mode: always-on
+paths: ["**/CHANGELOG*", "VERSION", "package.json", "pubspec.yaml", "composer.json"]
 weight: low
 repo_age_min_years: 0
 ---

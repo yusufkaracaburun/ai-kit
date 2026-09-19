@@ -6,7 +6,7 @@ applies_to:
   languages: []
   architectures: []
 universal: true
-default_mode: always-on
+default_mode: on-demand
 weight: medium
 repo_age_min_years: 0
 ---

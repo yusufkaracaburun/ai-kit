@@ -7,6 +7,7 @@ applies_to:
   architectures: []
 universal: true
 default_mode: always-on
+paths: ["**/.gitignore"]
 weight: medium
 repo_age_min_years: 0
 ---

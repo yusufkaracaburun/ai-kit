@@ -7,6 +7,7 @@ applies_to:
   architectures: []
 universal: true
 default_mode: always-on
+paths: ["**/Models/**", "**/models/**", "**/domain/**", "**/Domain/**", "**/migrations/**", "**/entities/**", "**/schema*", "**/content.config.*", "**/*.prisma", "CONTEXT.md"]
 weight: high
 repo_age_min_years: 0
 ---

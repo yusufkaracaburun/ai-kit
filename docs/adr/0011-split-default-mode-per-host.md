@@ -16,7 +16,10 @@ What the emitter does since v1.91.0, `bin/lib/emitters/claude-code.sh`:
 - `default_mode: always-on`, no `paths:` in the source → emitted pathless →
   loaded every session. That is the host's enforcement; `weight` plays no part.
 - a rule whose source declares `paths:` → emitted with that frontmatter →
-  loaded on touch. All 26 stack-scoped rules carry one.
+  loaded on touch. 15 always-on stack rules carry one (v1.91.0), and since
+  v1.92.0 (#183) so do 6 universal rules whose subject is file-bound —
+  domain-model-first, latest-stable-deps, semver,
+  gitignore-public-assets-trap, observability, testing-pyramid.
 - `default_mode: on-demand`, no `paths:` → emitted with `paths: [".on-demand/**"]`,
   a glob nothing matches → never auto-loaded; skills read it by path.
 
