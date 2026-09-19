@@ -76,6 +76,9 @@ assert "doctor: still reported under the no-globals opt-out" 'doctor_line | grep
 rm -f "$TMP_H/.config/ai-kit/no-globals"
 DOCTOR_PO="$(AI_KIT_ROOT="$AIKIT" bash "$DOCTOR" "$P" --project-only 2>&1 | grep -ci "global rules" || true)"
 assert "doctor: --project-only skips the check" '[ "$DOCTOR_PO" = "0" ]'
+printf '{"ai_kit_version":"1.94.0","branches":{"setup_mode":"project-only"}}\n' > "$P/.ai-kit-setup"
+assert "doctor: a legacy project-only marker does not hide it (host loads the rules there too)" 'doctor_line | grep -q "^  warn .*missing"'
+rm -f "$P/.ai-kit-setup"
 bash "$TOGGLE" on >/dev/null
 assert "doctor: opt-out marker → info" 'doctor_line | grep -q "^  info .*opted out"'
 bash "$TOGGLE" off >/dev/null

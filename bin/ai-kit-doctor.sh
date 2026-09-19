@@ -105,7 +105,6 @@ echo ""
 EFFECTIVE_MODE="$MODE"
 SKIP_REASON=""
 HAS_PROJECT_MODE=false
-setup_mode=""
 if [ "$EFFECTIVE_MODE" = "auto" ] && [ -n "$TARGET" ] && [ -f "$TARGET/.ai-kit-setup" ]; then
   setup_mode="$(python3 -c "import json,sys; print(json.load(open('$TARGET/.ai-kit-setup')).get('branches',{}).get('setup_mode',''))" 2>/dev/null || echo "")"
   if [ -n "$setup_mode" ]; then
@@ -161,13 +160,14 @@ fi
 
 # Global rules (ADR-0015): ~/.claude/rules/ai-kit must point at the rules/
 # payload of whatever ai-kit this doctor runs from; the SessionStart hook
-# re-points it on the first session after a plugin update. Skipped only when
-# the project itself is project-only (no global channel, universal rules per
-# repo) — the machine-wide no-globals opt-out is about skill symlinks, the
-# hook ignores it, so the link is still reported under it.
+# re-points it on the first session after a plugin update. The host loads
+# ~/.claude/rules whatever a project's legacy setup_mode says (ADR-0012), so
+# only the explicit --project-only flag skips this; the machine-wide
+# no-globals opt-out is about skill symlinks, the hook ignores it, so the
+# link is still reported under it.
 GLOBAL_RULES_LINK="$HOME/.claude/rules/ai-kit"
 GLOBAL_RULES_DIR="$(resolve_primitives_root "$AIKIT")/rules"
-if [ "$MODE" = "project-only" ] || [ "$setup_mode" = "project-only" ]; then
+if [ "$MODE" = "project-only" ]; then
   :
 elif ! global_channel_available; then
   info "global rules: no global channel on this machine (plugin not installed) — universal rules come from the project's .claude/rules"
