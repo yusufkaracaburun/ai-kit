@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.93.2 — 2026-09-19
+
+### Fixed
+- **`/ai:status` inside the ai-kit repo told the kit to bootstrap itself.** "Marker: absent → run /ai:setup" and "Bootstrap: partial — missing .claude/skills" are wrong for the source tree: the kit is not a consumer, never carries a marker, and running setup there would emit its own rules into itself. The script now recognises the source tree (`bin/emit-rules.sh` + `standards/rules/` + `workflow/skills/`) and says to run it from a consuming project.
+
 ## 1.93.1 — 2026-09-19
 
 ### Fixed
