@@ -10,7 +10,7 @@ runtime daemon, no network calls, no telemetry.
 
 | Primitive | Count | Reaches |
 | --------- | -----:| ------- |
-| Skills | 44 | Claude Code · Cursor |
+| Skills | 33 | Claude Code · Cursor |
 | Subagents | 6 | Claude Code |
 | Slash commands | 11 | Claude Code · Cursor |
 | Hooks | 2 | Claude Code |
@@ -66,18 +66,18 @@ First moves:
 
 ## The agile lifecycle
 
-44 skills covering one loop — idea to retro:
+33 skills covering one loop — idea to retro:
 
 | Phase | Skills |
 | ----- | ------ |
-| Ideation | `grill-me` · `grill-with-docs` · `to-prd` · `prototype` · `design-direction` · `zoom-out` · `show-me` · `should-i-use` |
+| Ideation | `grill-me` · `grill-with-docs` · `to-prd` · `should-i-use` |
 | Development | `to-issues` → `triage` → `tdd` · `design-to-code` |
 | Testing | `review` · `qa` · `diagnose` |
-| Deployment | `ship` |
-| Ops & review | `retro` · `feedback` · `contribute-eval` |
-| Session continuity | `checkpoint` ↔ `resume` · `onboard` |
-| Cross-cutting | `setup` · `setup-gh-workflow` · `recommend-rules` · `recommend-tools` · `improve-codebase-architecture` · `audit-architecture` |
-| Automation | `autonomous` (AFK queue drainer — wraps `tdd` → `review` → `ship`) |
+| Deployment | project release procedure (see `deployment-on-demand` rule) |
+| Ops & review | `retro` · `feedback` |
+| Session continuity | `checkpoint` ↔ `resume` |
+| Cross-cutting | `setup` · `setup-gh-workflow` · `recommend-rules` · `recommend-tools` · `audit-architecture` |
+| Automation | `autonomous` (AFK queue drainer — wraps `tdd` → `review` → PR) |
 
 11 slash commands: `/ai:setup` · `/ai:doctor` · `/ai:dedupe` · `/ai:status` · `/ai:which` · `/ai:next` · `/ai:upgrade` · `/ai:no-globals` · `/ai:prefer-plugin` · `/ai:hygiene` · `/ai:docs-sync`.
 
@@ -118,17 +118,14 @@ repo baseline files in [context/templates/repo/](context/templates/repo/).
 ## Feedback loop
 
 ai-kit at < 50 users has no telemetry pipeline. Real friction surfaces via
-two paired skills:
+one skill:
 
 - **`/ai:feedback`** — guided capture of one piece of feedback (friction,
   surprise, clarity, gap, win). Redacts paths + secrets, opens a GitHub
   issue against the ai-kit repo. Never publishes without preview.
-- **`/ai:contribute-eval`** — turns a skill failure into a regression test
-  (prompt fixture + golden rubric), opens a PR adding both files. Every
-  contributed case becomes a regression the next release must pass.
 
 The loop: `/ai:feedback` → `/ai:triage` → strong themes become `/ai:to-prd`
-PRDs; specific failures become `/ai:contribute-eval` PRs → CI gate.
+PRDs; specific failures become eval cases under `tests/eval/` → CI gate.
 
 ## How it's wired
 

@@ -120,11 +120,11 @@ export AI_KIT_ROOT="$AIKIT"
 OUT_WHICH_LIST="$("$AIKIT/bin/ai-kit-which.sh" --list)"
 assert "which --list has header" 'echo "$OUT_WHICH_LIST" | head -1 | grep -q "SKILL"'
 WHICH_LIST_ROWS="$(echo "$OUT_WHICH_LIST" | tail -n +3 | wc -l | tr -d ' ')"
-assert "which --list shows all 44 skills" '[ "$WHICH_LIST_ROWS" -eq 44 ]'
+assert "which --list shows all 33 skills" '[ "$WHICH_LIST_ROWS" -eq 33 ]'
 
 # --explain dumps the SKILL.md.
-OUT_WHICH_EXP="$("$AIKIT/bin/ai-kit-which.sh" --explain ship)"
-assert "which --explain ship shows frontmatter" 'echo "$OUT_WHICH_EXP" | grep -q "^name: ship$"'
+OUT_WHICH_EXP="$("$AIKIT/bin/ai-kit-which.sh" --explain tdd)"
+assert "which --explain tdd shows frontmatter" 'echo "$OUT_WHICH_EXP" | grep -q "^name: tdd$"'
 
 set +e
 "$AIKIT/bin/ai-kit-which.sh" --explain nonexistent-skill >/dev/null 2>&1
@@ -138,9 +138,6 @@ assert "which: PRD intent -> to-prd at rank 1" 'echo "$OUT_WHICH_PRD" | grep -q 
 
 OUT_WHICH_TDD="$("$AIKIT/bin/ai-kit-which.sh" "I want to write tests first using red-green-refactor")"
 assert "which: TDD intent -> tdd at rank 1" 'echo "$OUT_WHICH_TDD" | grep -q "^1\. /ai:tdd"'
-
-OUT_WHICH_SHIP="$("$AIKIT/bin/ai-kit-which.sh" "deploy to production and write release notes")"
-assert "which: ship intent -> ship at rank 1" 'echo "$OUT_WHICH_SHIP" | grep -q "^1\. /ai:ship"'
 
 OUT_WHICH_REVIEW="$("$AIKIT/bin/ai-kit-which.sh" "review my code before merging")"
 assert "which: review intent -> review at rank 1" 'echo "$OUT_WHICH_REVIEW" | grep -q "^1\. /ai:review"'

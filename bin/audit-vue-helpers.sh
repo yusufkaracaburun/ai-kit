@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# audit-architecture-vue helper-script.
+# Vue audit helper-script (evidence for standards/rules/code-audit-vue.mini.md).
 #
 # Sub-commands:
 #   run_tools   <project-path>  -> one-line "Tools ingested: ..." header; caches raw output

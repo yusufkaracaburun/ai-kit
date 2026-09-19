@@ -106,12 +106,12 @@ assert "nudge runs in < 500ms (allow CI noise; target <50ms per call)" \
   '[ "$ELAPSED_MS" -lt 500 ]'
 
 echo "=== skill-wiring ==="
-for skill in checkpoint ship triage; do
+for skill in checkpoint triage; do
   assert "$skill SKILL.md references ai-kit-docs-sync-nudge.sh" \
     'grep -q "ai-kit-docs-sync-nudge.sh" "$AIKIT/workflow/skills/'"$skill"'/SKILL.md"'
 done
 # Negative: no skill should re-implement the applicability logic.
-for skill in checkpoint ship triage; do
+for skill in checkpoint triage; do
   assert "$skill SKILL.md does NOT reinvent is_docs_sync_applicable" \
     '! grep -q "is_docs_sync_applicable()" "$AIKIT/workflow/skills/'"$skill"'/SKILL.md"'
 done

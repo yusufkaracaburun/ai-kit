@@ -14,6 +14,8 @@
 #     extra helper-mode-detect section with no react/typescript equivalent.
 #   - react + typescript (not laravel): the shared #79 overlap fixture, each
 #     asserting its own marker family is present.
+#   - vue: the extension skill was removed (#186); the rule, helper and
+#     fixture stay, so SKILL is empty and the skill-bound sections are skipped.
 set -euo pipefail
 AIKIT="$(cd "$(dirname "$0")/../../.." && pwd)"
 # shellcheck source=../lib/harness.sh
@@ -73,7 +75,7 @@ for KEY in react typescript laravel vue; do
       TOOL_GATE_CHECKS=("Larastan ✗")
       ;;
     vue)
-      SKILL="$AIKIT/workflow/skills/audit-architecture-vue/SKILL.md"
+      SKILL=""
       RULE="$AIKIT/standards/rules/code-audit-vue.mini.md"
       HELPER="$AIKIT/bin/audit-vue-helpers.sh"
       MARKER=V
@@ -86,31 +88,36 @@ for KEY in react typescript laravel vue; do
       TOOL_GATE_CHECKS=("ESLint ✗" "vue-tsc ✗")
       ;;
   esac
-  EXT_NAME="$(basename "$(dirname "$SKILL")")"
-
   echo "--- artifacts-exist ---"
-  assert "$KEY: SKILL.md exists" '[ -f "$SKILL" ]'
+  if [ -n "$SKILL" ]; then
+    assert "$KEY: SKILL.md exists" '[ -f "$SKILL" ]'
+  fi
   assert "$KEY: rule file exists" '[ -f "$RULE" ]'
   assert "$KEY: helper-script exists + executable" '[ -x "$HELPER" ]'
 
   echo "--- frontmatter ---"
-  PARSED="$(python3 "$PARSER" "$SKILL" 2>/dev/null || true)"
-  assert "$KEY: frontmatter parses" '[ -n "$PARSED" ]'
-  assert "$KEY: extends: audit-architecture" 'echo "$PARSED" | grep -q "^EXTENDS=audit-architecture$"'
-  for v in "${APPLIES_VALUES[@]}"; do
-    assert "$KEY: applies_to.$APPLIES_KEY contains $v" \
-      'echo "$PARSED" | grep -q "^$APPLIES_KEY=.*$v"'
-  done
+  if [ -n "$SKILL" ]; then
+    PARSED="$(python3 "$PARSER" "$SKILL" 2>/dev/null || true)"
+    assert "$KEY: frontmatter parses" '[ -n "$PARSED" ]'
+    assert "$KEY: extends: audit-architecture" 'echo "$PARSED" | grep -q "^EXTENDS=audit-architecture$"'
+    for v in "${APPLIES_VALUES[@]}"; do
+      assert "$KEY: applies_to.$APPLIES_KEY contains $v" \
+        'echo "$PARSED" | grep -q "^$APPLIES_KEY=.*$v"'
+    done
+  fi
   assert "$KEY: rule frontmatter has applies_to.$APPLIES_KEY: $RULE_VALUE" \
     'grep $RULE_CONTEXT "applies_to:" "$RULE" | grep -q "$RULE_VALUE"'
 
-  echo "--- loader-match ---"
   TARGET=$(mktemp -d)
   CLEANUP_DIRS+=("$TARGET")
   printf '%s\n' "$TARGET_CONTENT" > "$TARGET/$TARGET_FILE"
-  OUTPUT=$("$LOADER" "$TARGET" 2>/dev/null || true)
-  assert "$KEY: loader matches $EXT_NAME on $TARGET_FILE target" \
-    'echo "$OUTPUT" | grep -q "$EXT_NAME/SKILL.md$"'
+  if [ -n "$SKILL" ]; then
+    echo "--- loader-match ---"
+    EXT_NAME="$(basename "$(dirname "$SKILL")")"
+    OUTPUT=$("$LOADER" "$TARGET" 2>/dev/null || true)
+    assert "$KEY: loader matches $EXT_NAME on $TARGET_FILE target" \
+      'echo "$OUTPUT" | grep -q "$EXT_NAME/SKILL.md$"'
+  fi
 
   echo "--- helper-tool-gate ---"
   STATUS=$(PATH=/usr/bin:/bin "$HELPER" run_tools "$TARGET" 2>/dev/null || true)

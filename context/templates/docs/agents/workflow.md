@@ -18,7 +18,7 @@ ai-kit issue #52.
 
 - Sprint length: <!-- e.g. 2 weeks -->
 - Planning: `to-issues` → `triage` → `ready-for-agent`
-- Close increment: `/ai:ship`
+- Close increment: open the PR; deploy via the project's release procedure
 - Retrospective: `/ai:retro`
 
 ## Kanban

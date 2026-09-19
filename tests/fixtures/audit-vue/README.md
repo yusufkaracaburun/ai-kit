@@ -10,5 +10,5 @@ snippets aren't runnable — they exist to assert fixture shape, not to compile.
 Two feature roots (`src/features/orders`, `src/features/customers`) exist so V6
 (cross-feature reach-through import) has a real boundary to cross.
 
-When the `audit-architecture-vue` extension runs against this fixture, it should
+When the Vue audit heuristics (`code-audit-vue.mini.md`) run against this fixture, they should
 surface all 8 findings under their respective dimensions.

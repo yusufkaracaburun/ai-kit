@@ -130,14 +130,6 @@ This skill does not consult the hook state at runtime; it acts on whatever `<old
 - **Never write outside the detector universe.** No edits to `.git/`, no edits to binary files.
 - **Always preview before write.** Even with `--yes` (not supported).
 
-## Usage logging (opt-in)
-
-```bash
-[ "${AI_KIT_USAGE:-}" = "1" ] && bash "$AI_KIT_ROOT/bin/log-skill.sh" rename-housekeeping start
-# … work …
-[ "${AI_KIT_USAGE:-}" = "1" ] && bash "$AI_KIT_ROOT/bin/log-skill.sh" rename-housekeeping done
-```
-
 ## Related
 
 - Core: `bin/rename-housekeeping-core.sh` — scan/apply engine (tested directly)

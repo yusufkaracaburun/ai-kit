@@ -11,7 +11,7 @@ Harvesting is not authoring. The material must already exist, already ship, and 
 
 ## Not this skill
 
-- **An ai-kit skill produced a bad output** — that is [`contribute-eval`](../contribute-eval/SKILL.md). Harvest promotes what an *app* got right; contribute-eval captures what the *kit* got wrong.
+- **An ai-kit skill produced a bad output** — that is a regression case under `tests/eval/` (see `docs/eval.md`). Harvest promotes what an *app* got right; an eval case captures what the *kit* got wrong.
 - **A tool, library or repo someone linked** — that is [`should-i-use`](../should-i-use/SKILL.md), and community rules go through [`recommend-rules`](../recommend-rules/SKILL.md) under the two-source promotion quorum. External material has a different evidence bar than your own shipped code.
 - **A fix that only makes sense in this repo** — a workaround for one vendor's API, a migration for one schema. Real, valuable, not a rule.
 - **Something you just wrote and have not shipped** — come back when it has survived contact with production.
@@ -116,13 +116,13 @@ The rule total did not move, so the count guard stays silent and the `--list` as
 
 ## Why this exists
 
-Every other path in this kit runs kit → app. `contribute-eval` is the only backflow and it captures only the kit's own failures, never an app's wins. So an app can solve something better than the kit knows how, and the next app still starts from zero.
+Every other path in this kit runs kit → app. The eval layer (`tests/eval/`) is the only backflow and it captures only the kit's own failures, never an app's wins. So an app can solve something better than the kit knows how, and the next app still starts from zero.
 
 That is not hypothetical. `public-surface.mini.md` was harvested from an app that had independently built a server-side metadata layer, a route-derived sitemap and a CI-gated regression suite, none of which any rule covered — while a sibling repo solved the same problem separately, and a stack-scoped rule already carried half the answer without ever crossing the stack boundary. Two apps, one problem, three partial solutions, zero transfer. This skill exists so the second app pays for the first one's learning instead of repeating it.
 
 ## See also
 
-- [`contribute-eval`](../contribute-eval/SKILL.md) — the other half of the loop: the kit's failures, not the app's wins.
+- [`docs/eval.md`](../../../docs/eval.md) — the other half of the loop: the kit's failures, not the app's wins.
 - [`recommend-rules`](../recommend-rules/SKILL.md) — where harvested rules reach the next project.
 - [`should-i-use`](../should-i-use/SKILL.md) — the external-material path, with a different evidence bar.
 - `standards/promotion-quorum.md` — the two-source bar this skill deliberately does not use.

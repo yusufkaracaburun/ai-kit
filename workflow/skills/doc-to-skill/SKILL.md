@@ -116,15 +116,3 @@ Pattern adapted from
 (wiki / summaries writes, commit hooks, eod / integrations) are
 intentionally dropped. The provenance line is also stamped into every
 generated scaffold so consumer skills carry the credit forward.
-
-## Usage logging (opt-in)
-
-When `AI_KIT_USAGE=1` is set, log the invocation so `retro` can spot
-patterns:
-
-```bash
-bash "$AI_KIT_ROOT/bin/log-skill.sh" doc-to-skill start
-bash "$AI_KIT_ROOT/bin/log-skill.sh" doc-to-skill done   # or `abort` if you bail
-```
-
-Silent no-op when the env var is unset. See [SECURITY.md](../../../SECURITY.md) for what is logged and where.

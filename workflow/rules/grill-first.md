@@ -18,10 +18,10 @@ Any of: an issue number / URL / spec path is passed · "implement this", "pak je
 
    | Phase | Skill |
    | ----- | ----- |
-   | Ideation — scope, requirements | `grill-with-docs`, `to-prd`, `prototype` |
+   | Ideation — scope, requirements | `grill-with-docs`, `to-prd` |
    | Development — backlog → build | `to-issues` → `triage` → `tdd` |
    | Testing — test & fix | `tdd`, `review`, `qa`, `diagnose` |
-   | Deployment — release | `ship` |
+   | Deployment — release | the project's release procedure (deployment-on-demand rule) |
    | Ops — feedback, retrospective | `retro` |
 
    Check `/ai:next` before opening a new issue; `/ai:which` when unsure of the skill.

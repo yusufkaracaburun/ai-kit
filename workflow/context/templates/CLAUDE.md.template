@@ -6,7 +6,7 @@
 - Legacy: `.agents/skills/` and `~/.agents/skills/` still symlinked for older tooling that reads them.
 - Use `grill-with-docs` before significant features.
 - Use `tdd` for implementation; `diagnose` for hard bugs.
-- Use `ship` to deploy; `retro` at cycle end.
+- Deploy via the project's release procedure; `retro` at cycle end.
 - Prefer project docs (`CONTEXT.md`, `docs/agents/`) over auto memory for team facts.
 - Setup status: `.ai-kit-setup`
 

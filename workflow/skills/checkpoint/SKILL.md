@@ -339,8 +339,7 @@ You can run /clear (or /compact) now.
 ```
 Handoff briefing saved → <path>
 Redacted: secrets, absolute home paths, PII.
-Next session on the receiving end: read that file + run /ai:onboard if
-the agent is new to the project.
+Next session on the receiving end: read that file + run /ai:resume.
 
 You can run /clear now (or copy the file off the machine first).
 ```

@@ -9,7 +9,6 @@ Whole-codebase audit against 9 dimensions of architecture-quality. Output: a sev
 
 Not to be confused with:
 - `/ai:review` — pre-merge **diff** review against the base branch.
-- `/ai:improve-codebase-architecture` — deepening opportunities (shallow→deep refactors).
 - `/ai:diagnose` — runtime / failure-mode investigation.
 
 This skill is the **audit**, not the **fix**. Same discipline as a security audit: surface, triage, hand off.
@@ -73,7 +72,7 @@ Run `bash "$AI_KIT_ROOT/bin/detect-tooling.sh" <project-path> --json` to capture
 - Skip dimensions that don't apply (e.g. "design patterns" on a 200-LOC shell-script repo).
 - Decide whether per-stack extensions should fire.
 
-Then run `bash "$AI_KIT_ROOT/bin/audit-extension-loader.sh" <project-path>` to discover bundled per-stack extensions (`audit-architecture-laravel`, `audit-architecture-react`, `audit-architecture-vue`, `audit-architecture-nextjs`, `audit-architecture-shadcn`, `audit-architecture-typescript`, `audit-architecture-flutter`, …). The loader returns the SKILL.md paths of every matching extension in stable filename-sorted order. Honours `AI_KIT_AUDIT_NO_EXTEND=1` as an opt-out (returns empty → vanilla baseline audit). See [`standards/contracts/audit-architecture-extension.contract.md`](../../../standards/contracts/audit-architecture-extension.contract.md) for the contract every extension must satisfy.
+Then run `bash "$AI_KIT_ROOT/bin/audit-extension-loader.sh" <project-path>` to discover bundled per-stack extensions (`audit-architecture-laravel`, `audit-architecture-react`, `audit-architecture-shadcn`, `audit-architecture-typescript`, …). The loader returns the SKILL.md paths of every matching extension in stable filename-sorted order. Honours `AI_KIT_AUDIT_NO_EXTEND=1` as an opt-out (returns empty → vanilla baseline audit). See [`standards/contracts/audit-architecture-extension.contract.md`](../../../standards/contracts/audit-architecture-extension.contract.md) for the contract every extension must satisfy.
 
 ### 4. Walk per dimension (+ invoke each matched extension via the Skill tool)
 
@@ -153,21 +152,9 @@ After writing the report, **stop**. Don't fix. Tell the user:
 - **Replicating diff-review.** If the user wants a diff review, use `/ai:review`. This skill is for code that already landed.
 - **Auditing the wrong scope.** A 200-file repo + "audit everything" + 30-minute session = pedantry. Pick a context first.
 
-## Usage logging (opt-in)
-
-When `AI_KIT_USAGE=1` is set, log the invocation so `retro` can spot patterns:
-
-```bash
-bash "$AI_KIT_ROOT/bin/log-skill.sh" audit-architecture start
-bash "$AI_KIT_ROOT/bin/log-skill.sh" audit-architecture done
-```
-
-Silent no-op when the env var is unset. See [SECURITY.md](../../../SECURITY.md) for what is logged and where.
-
 ## Related
 
 - [`standards/rules/code-audit.mini.md`](../../../standards/rules/code-audit.mini.md) — canonical 8-dimension catalog.
-- [`improve-codebase-architecture`](../improve-codebase-architecture/SKILL.md) — deepening / refactor candidates (different scope).
 - [`review`](../review/SKILL.md) — pre-merge diff review (different scope).
 - [`diagnose`](../diagnose/SKILL.md) — runtime / failure-mode investigation.
 - [`to-issues`](../to-issues/SKILL.md) — turn the tech-debt rolling table into GH issues.

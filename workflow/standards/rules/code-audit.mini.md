@@ -17,7 +17,7 @@ repo_age_min_years: 0
 
 Use when scanning an existing codebase (not a diff) for architecture-quality issues — invoked by `/ai:audit-architecture`, or directly when the user asks "review the whole codebase", "find tech-debt", "where are the smells", "audit for SOLID/DRY violations". Stack-agnostic. Per-stack tuning layered on top.
 
-Not for: pre-merge diff review (use `/ai:review`), deepening-opportunity hunts (use `/ai:improve-codebase-architecture`), or fixing — this rule is the **dimensions catalog**, fixing is a separate step.
+Not for: pre-merge diff review (use `/ai:review`), deepening-opportunity hunts, or fixing — this rule is the **dimensions catalog**, fixing is a separate step.
 
 ## Primary bias to correct
 
@@ -32,7 +32,6 @@ Every finding belongs to exactly one dimension. If a finding doesn't fit, it isn
 - Security → use `/ai:review` security-deep-pass or `/security-review`.
 - Performance / runtime profiling → separate audit discipline; out of this skill's scope.
 - Pre-merge diff review → use `/ai:review`.
-- Deepening / refactor-candidate hunts → use `/ai:improve-codebase-architecture`.
 
 **Testability** is a cross-cutting lens, not a dimension — testability problems surface as SOLID-DIP violations (#2), coupling smells (#6), or hidden temporal coupling (#6). Don't add a 10th bucket; tag the underlying dimension.
 

@@ -75,7 +75,7 @@ Run locally:
 
 ## Which skills are covered
 
-v1.1.0 ships fixtures for `diagnose`, `tdd`, `ship`, `retro`, and `to-prd` — the five with the most procedural content and the highest blast radius if they regress. Open-ended skills like `grill-me` and `zoom-out` are intentionally left without fixtures (their value is shape, not output).
+v1.1.0 ships fixtures for `diagnose`, `tdd`, `retro`, and `to-prd` — the ones with the most procedural content and the highest blast radius if they regress. Open-ended skills like `grill-me` are intentionally left without fixtures (their value is shape, not output).
 
 ## Out of scope (today)
 

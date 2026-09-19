@@ -52,7 +52,7 @@ Start: "I want to add X to ai-kit"
 │  │  │
 │  │  └─ NO → SKILL
 │  │         Source: workflow/skills/<name>/SKILL.md
-│  │         Example: ship, tdd, retro
+│  │         Example: tdd, retro
 │  │
 │  └─ (continued from above) just a workflow → SKILL
 │

@@ -23,7 +23,7 @@ Out of scope: pre-merge diff review (`/ai:review`), runtime / performance profil
 
 ## Strictness
 
-Default — per-finding severity, no floor. Surfaced in the report header: `**Extensions loaded:** audit-architecture-vue`.
+Default — per-finding severity, no floor.
 
 ## Ownership boundary
 

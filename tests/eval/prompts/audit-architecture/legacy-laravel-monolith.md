@@ -8,7 +8,7 @@ expects:
   - writes the report to docs/reviews/<YYYY-MM-DD>-<scope>-architecture-audit.md
   - includes a tech-debt rolling table at the bottom of the report
   - does NOT write code fixes — read-only audit only
-  - cross-refs /ai:review for security and /ai:improve-codebase-architecture for deepening
+  - cross-refs /ai:review for security
 ---
 
 # Prompt

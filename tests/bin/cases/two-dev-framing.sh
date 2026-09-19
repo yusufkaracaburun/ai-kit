@@ -30,7 +30,6 @@ TEMPLATES=(
   "$AIKIT/context/templates/companions"
 )
 SETUP="$AIKIT/workflow/skills/setup/SKILL.md"
-ONBOARD="$AIKIT/workflow/skills/onboard/SKILL.md"
 
 # Build a single grep target list (only existing dirs).
 TARGETS=()
@@ -48,12 +47,12 @@ assert "no first-person singular 'my' / 'me' / 'myself' in templates" \
   '! grep -rniE "\b(my|me|mine|myself)\b" "${TARGETS[@]}" 2>/dev/null | grep .'
 
 # 2. No team-size "solo" / "single dev" connotation — widened to also cover
-#    the setup/onboard skills (formerly setup-onboard-no-solo.sh), which
+#    the setup skill (formerly setup-onboard-no-solo.sh), which
 #    assert the identical invariant over a different scope.
 #    Whitelist: `setup_mode=solo-*` install-layout vocabulary (grill Branch 1).
 #    Match lines containing solo/single-dev token AND NOT containing setup_mode.
-WIDENED_TARGETS=("${TARGETS[@]}" "$SETUP" "$ONBOARD")
-assert "no team-size 'solo' / 'single dev' string outside setup_mode= context (templates + setup/onboard skills)" \
+WIDENED_TARGETS=("${TARGETS[@]}" "$SETUP")
+assert "no team-size 'solo' / 'single dev' string outside setup_mode= context (templates + setup skill)" \
   '! grep -rniE "\b(solo|single[ -]dev|single[ -]developer|single user)\b" "${WIDENED_TARGETS[@]}" 2>/dev/null | grep -viE "setup_mode|solo-(both|global)|\[solo-|solo-both\\|solo-global|\"setup_mode\"" | grep .'
 
 # 3. Positive: at least one template should carry the 2-dev pronoun convention
@@ -63,12 +62,11 @@ assert "no team-size 'solo' / 'single dev' string outside setup_mode= context (t
 assert "2-dev pronoun convention documented in templates" \
   'grep -rqiE "(we (default|use|write)|two[- ]dev|2[- ]dev|second (dev|reviewer))" "${TARGETS[@]}" 2>/dev/null'
 
-echo "=== two-dev-framing: setup/onboard skill regressions ==="
+echo "=== two-dev-framing: setup skill regressions ==="
 # ai-kit issue #62 (parent #52). Install-layout `setup_mode=solo-both|solo-global`
 # is a different vocab axis (parent grill Branch 1) and must remain untouched.
 
 assert "setup SKILL.md exists" '[ -f "$SETUP" ]'
-assert "onboard SKILL.md exists" '[ -f "$ONBOARD" ]'
 
 # Positive: install-layout vocabulary preserved (regression guard).
 # ADR-0012 moved the literal solo-both/solo-global/project-only/brownfield
@@ -86,17 +84,15 @@ assert "setup_mode=solo-global still documented (install layout preserved)" \
 assert "setup SKILL.md: 2-dev framing present where the 'informal solo' row was" \
   'grep -qiE "2[- ]dev|two[- ]dev|reviewer" "$SETUP"'
 
-echo "=== two-dev-framing: tdd + ship review required ==="
-# ai-kit issue #63 (parent #52). tdd + ship SKILL.md must label review as
+echo "=== two-dev-framing: tdd review required ==="
+# ai-kit issue #63 (parent #52). tdd SKILL.md must label review as
 # a non-optional phase, with explicit clause that the rule applies even
 # when the project has one human contributor. No surviving language may
 # imply review is optional.
 
 TDD="$AIKIT/workflow/skills/tdd/SKILL.md"
-SHIP="$AIKIT/workflow/skills/ship/SKILL.md"
 
 assert "tdd SKILL.md exists" '[ -f "$TDD" ]'
-assert "ship SKILL.md exists" '[ -f "$SHIP" ]'
 
 assert "tdd SKILL.md has explicit Review (required) phase" \
   'grep -qE "Review \(required\)|Review — required|required Review" "$TDD"'
@@ -104,14 +100,9 @@ assert "tdd SKILL.md has explicit Review (required) phase" \
 assert "tdd SKILL.md states the rule applies to single-human projects too" \
   'grep -qiE "one human contributor|single human|solo[- ]human" "$TDD"'
 
-assert "ship SKILL.md frames review-before-merge as precondition" \
-  'grep -qiE "review.*precondition|precondition.*review|review must pass before|review must complete before" "$SHIP"'
-
 # Negative: no surviving "review is optional" phrasing.
 assert "tdd SKILL.md does not call review optional" \
   '! grep -qiE "review[^.]{0,60}(optional|recommended|if reviewers)" "$TDD"'
-assert "ship SKILL.md does not call review optional" \
-  '! grep -qiE "review[^.]{0,60}(optional|recommended|if reviewers)" "$SHIP"'
 
 echo "=== two-dev-framing: cold-pickup rule ==="
 # ai-kit issue #65 (parent #52). triage + to-issues must state the

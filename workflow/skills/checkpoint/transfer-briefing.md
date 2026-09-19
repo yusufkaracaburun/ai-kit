@@ -96,8 +96,8 @@ Show the user the full path so they can copy or move it:
 
 ```
 Handoff briefing saved → /var/folders/.../handoff-AbC123.md
-Suggested next skill on the receiving end: /ai:onboard (project shape) or
-re-load this file's "Suggested skills" line.
+Suggested next skill on the receiving end: /ai:resume, or re-load this
+file's "Suggested skills" line.
 ```
 
 In `--mid-session` mode: same briefing, same path. Add "Continue in this

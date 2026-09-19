@@ -1,14 +1,13 @@
 # Mental model
 
-How the 44 skills fit together, plus the 6 subagents and 11 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
+How the 33 skills fit together, plus the 6 subagents and 11 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
 
 For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossary.md). For "I want to add X — which primitive?" see [primitives.md](primitives.md).
 
 ## The lifecycle loop
 
 ```
-   ┌─→ IDEATION      grill-me · grill-with-docs · zoom-out ·
-   │                 to-prd · prototype · design-direction · show-me
+   ┌─→ IDEATION      grill-me · grill-with-docs · to-prd
    │      │
    │      ▼
    │   DEVELOPMENT   to-issues → triage → tdd
@@ -17,15 +16,14 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
    │   TESTING       review · qa · diagnose
    │      │
    │      ▼
-   │   DEPLOYMENT    ship
+   │   DEPLOYMENT    (project release procedure)
    │      │
    │      ▼
    │   OPS & REVIEW  retro · checkpoint
    │      │
    └──────┘
 
-   Cross-cutting:   setup · recommend-rules · recommend-tools ·
-                    improve-codebase-architecture
+   Cross-cutting:   setup · recommend-rules · recommend-tools
 ```
 
 ## Which skill, when
@@ -34,11 +32,7 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
 | ------------------ | -------------- |
 | Stress-test an idea by being interviewed | `grill-me` |
 | Read external docs deeply and apply them | `grill-with-docs` |
-| Understand unfamiliar code at a layer up | `zoom-out` |
-| Answer with a picture instead of a paragraph | `show-me` |
 | Turn a vague idea into a PRD | `to-prd` |
-| Throw a quick prototype together | `prototype` |
-| Research, compare, or review a visual direction before implementation | `design-direction` |
 | Shatter a plan / PRD into N independently-grabbable tracer-bullet issues | `to-issues` |
 | Pick the next ticket to work on | `triage` |
 | Build a feature via red-green-refactor | `tdd` |
@@ -46,11 +40,9 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
 | Get a second pass on a diff before PR | `review` |
 | Smoke-test a running web app | `qa` |
 | Hunt a hard bug or perf regression | `diagnose` |
-| Open the PR and prepare to merge | `ship` |
 | Close a sprint or cycle | `retro` |
 | Transfer briefing to another machine / agent / teammate | `checkpoint --to tmp` |
 | Configure ai-kit in a new repo | `setup` |
-| Reshape the codebase architecture | `improve-codebase-architecture` |
 | Save session state for `/clear`, resume later | `checkpoint` ↔ `resume` |
 | Context is big and you want to keep working | `/compact` — not `checkpoint`, which writes a memo without shrinking context |
 | Recommend canonical rules for the detected stack | `recommend-rules` |
@@ -67,7 +59,7 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
 | A blocker from `review`, or the "acceptance criteria met" claim before `autonomous` ships | `verifier` (adversarial check of one claim — REFUTED / CONFIRMED / UNTESTABLE, verdict only) |
 | `tdd` skill on Claude Code, change spans ≥3 files; `autonomous` per issue | `builder` (whole red→green→refactor pass against the acceptance criteria; returns a Changed/Tests report, never commits) |
 | `design-to-code` build flow, one per frame | `designer` (UI from a design frame against the project's own tokens and components; Design sources / Changed / States / Verified report, never commits) |
-| Codebase walk from `diagnose`, `to-issues`, `improve-codebase-architecture` | `explore` (read-only sweeps, ≤300 lines, structured return) |
+| Codebase walk from `diagnose`, `to-issues` | `explore` (read-only sweeps, ≤300 lines, structured return) |
 | Cross-file impact analysis from any other skill | `explore` |
 
 Subagents are Claude Code-only. Cursor and other hosts fall back to the inline checklist inside the calling skill — single source of truth.
@@ -89,7 +81,6 @@ Slash commands wrap `bin/ai-kit-*.sh` scripts. They're optional — you can alwa
 
 - `tdd` reads ADRs in the area you're touching (uses domain glossary from `CONTEXT.md`).
 - `review` checks alignment with `CONTEXT.md` and recent ADRs — it expects them to exist.
-- `ship` runs after `review` is clean.
 - `retro` reads usage-stats (opt-in) from `bin/usage-stats.sh` to ground questions in observed behaviour.
 - `diagnose` builds its feedback loop *first*; everything else is mechanical.
 

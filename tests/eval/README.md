@@ -16,7 +16,7 @@ Fixtures live at `tests/eval/prompts/<skill>/<scenario>.md` and define:
 
 ## Layer 2 — golden-output rubric (high-stakes skills)
 
-For the skills where output quality matters most (`to-prd`, `tdd`, `ship`),
+For the skills where output quality matters most (`to-prd`, `tdd`),
 we also keep a *golden output*: a hand-written response that demonstrates
 what "good" looks like. Each golden carries a structured rubric in its
 frontmatter that can be checked deterministically (no API calls, no LLM).

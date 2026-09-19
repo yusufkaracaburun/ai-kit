@@ -126,7 +126,7 @@ For brownfield setup-mode the default flips to `production`.
 
 Record via `--lifecycle=development|production`. Re-runs follow the
 keep/change/skip pattern — show the current value, ask only if the user picks
-`change`. Flip later without re-running setup via [`/ai:phase`](../phase/SKILL.md).
+`change`. Flip later without re-running setup via [`/ai:phase`](../../commands/phase.md).
 
 ### Branch 2c — Universal MCPs (auto-prompt)
 
@@ -397,7 +397,7 @@ no domain signal → `skipped`. Record the choice in the marker
 
 `bootstrap-project.sh` already wrote `docs/agents/workflow.md` with an unfilled
 Framework section. This branch fills it — the file is what every later skill
-(`triage`, `to-issues`, `next`, `retro`, `ship`) reads to know the cadence.
+(`triage`, `to-issues`, `next`, `retro`) reads to know the cadence.
 
 **Explore.** Read `docs/agents/workflow.md`. Count contributors:
 `git shortlog -sne --since="6 months ago" | wc -l`.
@@ -438,7 +438,7 @@ Surface, don't run. ai-kit installs noch invokeert de recommender. Stel één ke
 > [2] Later, remind me        → `deferred`
 > [3] No thanks               → `skipped`
 
-Defaults: brownfield → `skipped`, greenfield → `deferred`. Schrijf de keuze naar `branches.automation_recommender`; roep nooit de externe skill aan. Pattern follows `diagnose` → `/ai:improve-codebase-architecture` handoff.
+Defaults: brownfield → `skipped`, greenfield → `deferred`. Schrijf de keuze naar `branches.automation_recommender`; roep nooit de externe skill aan.
 
 ### Branch 11 — Context-drift hook (optional)
 
@@ -645,15 +645,3 @@ new `universal: true` entry to `mcp-servers.json` or `companions.json` is
 picked up automatically on the next `/ai:setup`; no skill-body edit needed.
 
 Summarise what was configured. Re-run `/ai:setup` to extend Tier A → Tier B later.
-
-## Usage logging (opt-in)
-
-When `AI_KIT_USAGE=1` is set, log the invocation so `retro` can spot patterns:
-
-```bash
-bash "$AI_KIT_ROOT/bin/log-skill.sh" setup start  # at the start
-bash "$AI_KIT_ROOT/bin/log-skill.sh" setup done   # at the end (or `abort` if you bail)
-```
-
-Silent no-op when the env var is unset. See [SECURITY.md](../../../SECURITY.md) for what is logged and where.
-

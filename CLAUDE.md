@@ -11,7 +11,7 @@
 - `workflow/skills/<name>/SKILL.md` — skill sources, emitted to the plugin
 - `workflow/agents/<name>/AGENT.md` — paired subagents (generated region; re-run `bin/emit-agents.sh` after editing a SKILL.md with one)
 - `tests/bin/` — test harness (`cases/`, `fixtures/`, `lib/`)
-- `standards/rules/` — canonical rules (e.g. `git-hygiene.mini.md`, source of truth for `/ai:ship`, `/ai:to-issues`)
+- `standards/rules/` — canonical rules (e.g. `git-hygiene.mini.md`, source of truth for `/ai:to-issues`)
 - `docs/` — architecture docs, ADRs
 
 ## graphify

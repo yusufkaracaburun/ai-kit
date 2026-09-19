@@ -8,13 +8,13 @@ This project uses the ai-kit workflow (Claude Code + Cursor).
 
 | Fase | Doel | Skills |
 | ---- | ---- | ------ |
-| **Ideation** | Scope, requirements, alignment | `grill-me`, `grill-with-docs`, `to-prd`, `prototype`, `zoom-out` |
+| **Ideation** | Scope, requirements, alignment | `grill-me`, `grill-with-docs`, `to-prd` |
 | **Development** | Backlog → incrementeel bouwen | `to-issues` → `triage` → `tdd` (+ Sandcastle voor AFK) |
 | **Testing** | Continuous test & fix | `tdd`, `review`, `qa`, `diagnose` |
-| **Deployment** | Release naar productie | `ship` |
+| **Deployment** | Release naar productie | project release procedure (`deployment-on-demand` rule) |
 | **Ops & Review** | Feedback, retrospective | `retro` |
 
-One-off: `setup` (onboarding), `checkpoint` (session continuation; `--to tmp` voor transfer naar andere agent/machine), `improve-codebase-architecture` (brownfield).
+One-off: `setup` (onboarding), `checkpoint` (session continuation; `--to tmp` voor transfer naar andere agent/machine).
 
 Framework (Scrum/Kanban): see `docs/agents/workflow.md`.
 

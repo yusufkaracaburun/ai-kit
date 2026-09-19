@@ -56,7 +56,7 @@ Choices map to `.ai-kit-setup.branches.architecture`:
 
 1. Copy template from `$AI_KIT_ROOT/context/templates/docs/agents/architecture.md` when not skipping.
 2. Fill **Approach**, **Layout**, **Conventions** from detection + user answers — no generic Clean/Hexagonal essays.
-3. Cross-cutting: monorepo boundaries, where new features go, pointer to `improve-codebase-architecture` and `grill-with-docs`.
+3. Cross-cutting: monorepo boundaries, where new features go, pointer to `grill-with-docs`.
 
 ```bash
 $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" --architecture=documented

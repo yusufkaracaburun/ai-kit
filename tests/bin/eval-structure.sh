@@ -163,7 +163,7 @@ EOF_FIELDS
   fi
 
   # 8: skill has at least one ## heading describing its procedure,
-  # unless it's deliberately short (<20 lines — e.g. zoom-out).
+  # unless it's deliberately short (<20 lines).
   line_count="$(wc -l < "$skill_file" | tr -d ' ')"
   if [ "$line_count" -lt 20 ]; then
     ok "[$name] short skill — process heading not required"

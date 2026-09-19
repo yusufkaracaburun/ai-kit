@@ -34,7 +34,7 @@ Plan (run in order; stop on the first failure and report it):
    3b. (Cursor, or Claude Code if the user prefers symlinks) Install via the
        installer (clones the repo + symlinks skills/commands/agents into
        ~/.claude and ~/.cursor). Primitives surface WITHOUT a /ai: prefix
-       (`/setup`, `/ship`, `/grill-me`, …) — substitute `/ai:foo` → `/foo`
+       (`/setup`, `/tdd`, `/grill-me`, …) — substitute `/ai:foo` → `/foo`
        in steps 5, 6, 7.
 
            curl -fsSL https://raw.githubusercontent.com/yusufkaracaburun/ai-kit/master/install.sh | bash
@@ -59,8 +59,8 @@ Plan (run in order; stop on the first failure and report it):
          PLUGIN_PRESENT=true
 
    - If PLUGIN_PRESENT=true OR `~/.claude/commands/ai:*` exists → use
-     `/ai:setup`, `/ai:ship`, `/ai:grill-me`, `/ai:which`, `/ai:status`.
-   - Else (symlink/legacy install) → use `/setup`, `/ship`, `/grill-me`,
+     `/ai:setup`, `/ai:tdd`, `/ai:grill-me`, `/ai:which`, `/ai:status`.
+   - Else (symlink/legacy install) → use `/setup`, `/tdd`, `/grill-me`,
      `/which`, `/status` (no prefix).
 
 6. Bootstrap the current project. From the project root, invoke the
@@ -76,7 +76,6 @@ Plan (run in order; stop on the first failure and report it):
 
 8. Suggest two next moves, picked from the human's intent (using the
    right prefix variant from step 5):
-   - If they want to ship: the `ship` flow.
    - If they want to plan: `grill-me` to stress-test the plan first.
    - If they are unsure: `which "<one-line intent>"` to pick a skill.
 

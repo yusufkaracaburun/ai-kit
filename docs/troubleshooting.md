@@ -156,7 +156,7 @@ brew install bash
 
 Read the failure message — each check is named (`description missing trigger phrase`, `missing ## Process or ## Phase heading`, …). The most common new-skill failure is a description that lacks a trigger phrase like "Use when …". Add one.
 
-For skills under 20 lines (`zoom-out`-style), the `## Process` check is skipped automatically.
+For skills under 20 lines, the `## Process` check is skipped automatically.
 
 ## Usage logging
 
@@ -172,7 +172,7 @@ Open a new shell, run a skill, then re-check.
 
 ### I want to log when invoking a skill manually
 
-Each SKILL.md has a `## Usage logging (opt-in)` appendix with the exact command, e.g.:
+The plugin's PostToolUse hook (`workflow/hooks/hooks.json` → `post-skill-log.sh`) logs every Skill call. When running a skill by hand, call the logger yourself:
 
 ```bash
 bash "$AI_KIT_ROOT/bin/log-skill.sh" diagnose start

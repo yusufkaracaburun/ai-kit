@@ -16,8 +16,6 @@ Not to be confused with:
 - `/ai:tdd` — red-green-refactor for **new behaviour**. Audit-fix is
   structural cleanup with behaviour preservation.
 - `/ai:review` — pre-merge **diff** review.
-- `/ai:improve-codebase-architecture` — deepening-opportunity hunting,
-  not catalogued audit-finding remediation.
 
 ## When to invoke
 
@@ -169,15 +167,3 @@ verification passed if the post-fix test/lint/typecheck command errored.
 - **Behaviour-preservation.** The skill never widens scope from
   structural cleanup to functional change. When the fix can't be done
   without behaviour change, route to `/ai:tdd`.
-
-## Usage logging (opt-in)
-
-When `AI_KIT_USAGE=1` is set, log the invocation so `retro` can spot
-patterns:
-
-```bash
-bash "$AI_KIT_ROOT/bin/log-skill.sh" audit-fix start
-bash "$AI_KIT_ROOT/bin/log-skill.sh" audit-fix done   # or `abort` if you bail
-```
-
-Silent no-op when the env var is unset. See [SECURITY.md](../../../SECURITY.md) for what is logged and where.

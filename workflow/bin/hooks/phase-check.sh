@@ -72,7 +72,7 @@ PHRASES='voeg( .*)? toe|pak( .*)? op|los( .*)? op|start (met|on)|begin met|werk 
 printf '%s' "$prompt" \
   | grep -Eiq "(^|[^[:alnum:]])(${VERBS}|${PHRASES})([^[:alnum:]]|\$)" || exit 0
 
-msg="ai-kit phase check: name the phase and the skill before you build — Ideation \`grill-with-docs\`, \`to-prd\`, \`prototype\` · Development \`to-issues\` → \`triage\` → \`tdd\` · Testing \`review\`, \`qa\`, \`diagnose\` · Deployment \`ship\` · Ops \`retro\`. Check \`/ai:next\` for an existing issue first. Unsure which skill → \`/ai:which\`. Skip for a typo, lint fix or version bump."
+msg="ai-kit phase check: name the phase and the skill before you build — Ideation \`grill-with-docs\`, \`to-prd\` · Development \`to-issues\` → \`triage\` → \`tdd\` · Testing \`review\`, \`qa\`, \`diagnose\` · Deployment: the project's release procedure (deployment-on-demand rule) · Ops \`retro\`. Check \`/ai:next\` for an existing issue first. Unsure which skill → \`/ai:which\`. Skip for a typo, lint fix or version bump."
 
 if command -v jq >/dev/null 2>&1; then
   jq -n --arg ctx "$msg" \

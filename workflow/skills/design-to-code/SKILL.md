@@ -1,6 +1,6 @@
 ---
 name: design-to-code
-description: Turn a design file into code and prove the code still matches it — design → audit → build → prove against a `.pen` (Pencil) or other MCP-readable design source. Use when the user says "design naar code", "bouw dit scherm uit het design", "klopt de code met het design", "design sync", "parity check", after a `.pen` change, or via /ai:design-to-code. Not for choosing a visual direction (that is design-direction).
+description: Turn a design file into code and prove the code still matches it — design → audit → build → prove against a `.pen` (Pencil) or other MCP-readable design source. Use when the user says "design naar code", "bouw dit scherm uit het design", "klopt de code met het design", "design sync", "parity check", after a `.pen` change, or via /ai:design-to-code. Not for choosing a visual direction.
 ---
 
 # Design to code
@@ -11,7 +11,7 @@ Stack-agnostic: this skill carries the procedure, the bar, and the delegation sh
 
 ## Step 0 — precondition and ownership
 
-1. **Design source present?** A `.pen` file plus the Pencil MCP (`pencil` / `pencil-cursor`) reachable, or another design-file MCP the host exposes. Nothing → stop. Point at [design-direction](../design-direction/SKILL.md) when the question is *which* direction, or do the UI work inline; do not invent a design and call it parity.
+1. **Design source present?** A `.pen` file plus the Pencil MCP (`pencil` / `pencil-cursor`) reachable, or another design-file MCP the host exposes. Nothing → stop. When the question is *which* direction, do the UI work inline; do not invent a design and call it parity.
 2. **Repo already owns this job?** `ls .claude/skills/ .agents/skills/ 2>/dev/null` — a project-local design/pencil skill outranks this one. Load it, follow it, say so in the report. Only continue below when none exists.
 
 ### The project overlay
@@ -98,14 +98,3 @@ Verdict CONFIRMED means done; REFUTED means the counter-evidence is the next fix
 ## Definition of done
 
 Audit score at the bar for every component; prove CONFIRMED per unit; zero unresolved drift; user OK given. Then mark it on the canvas: a ✅ in the frame's label plus a node holding the source path — the canvas is what the next person opens, a status table drifts. Done is derived, not declared: the code names its frame where a grep finds it (a `data-design-id`, a comment, a map entry), the check that passed is pinned to the hash of the frame it ran against, and an exemption carries a reason, an owner and an expiry (≤ 30 days) — a permanent exemption is a lie with a config key. Never claim "1:1" or "pixel-perfect" from a glance — cite the verdict and the render it was based on. The tie-break and cadence this skill assumes live in the [design-leads rule](../../../standards/rules/design-leads.mini.md).
-
-## Usage logging (opt-in)
-
-When `AI_KIT_USAGE=1` is set, log the invocation so `retro` can spot patterns:
-
-```bash
-bash "$AI_KIT_ROOT/bin/log-skill.sh" design-to-code start  # at the start
-bash "$AI_KIT_ROOT/bin/log-skill.sh" design-to-code done   # at the end (or `abort` if you bail)
-```
-
-Silent no-op when the env var is unset. See [SECURITY.md](../../../SECURITY.md) for what is logged and where.

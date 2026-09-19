@@ -1,6 +1,6 @@
 ---
 name: autonomous
-description: Autonomous backlog grinder — drains issues labeled `ready-for-agent` one at a time, fresh agent context per issue, persistent progress log. Wraps tdd → review → ship. Use when the user wants an AFK queue-drain run, references "Ralph pattern", or invokes `/ai:autonomous`.
+description: Autonomous backlog grinder — drains issues labeled `ready-for-agent` one at a time, fresh agent context per issue, persistent progress log. Wraps tdd → review → PR. Use when the user wants an AFK queue-drain run, references "Ralph pattern", or invokes `/ai:autonomous`.
 ---
 
 # Autonomous backlog grinder
@@ -11,7 +11,7 @@ description: Autonomous backlog grinder — drains issues labeled `ready-for-age
 > Tracks [#17](https://github.com/yusufkaracaburun/ai-kit/issues/17).
 
 Drains a `ready-for-agent` queue by running ai-kit's existing
-TDD → review → ship loop, one issue at a time, with cold-start
+TDD → review → PR loop, one issue at a time, with cold-start
 context per iteration. Pattern is adapted from Geoffrey Huntley's
 "Ralph" and `snarktank/ralph` — fresh-instance-per-story, persistent
 `progress.txt`, git-log-as-memory.
@@ -23,7 +23,7 @@ context per iteration. Pattern is adapted from Geoffrey Huntley's
 | `triage` | Produces the queue (`ready-for-agent` label) |
 | `tdd` | Inner loop per issue |
 | `review` | Pre-merge verification per issue |
-| `ship` | PR open + (project-policy) merge |
+| `gh pr create` | PR open + (project-policy) merge |
 | `autonomous` | **This skill** — orchestrates the above across N issues |
 
 ## Relationship to `/loop`
@@ -171,7 +171,7 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
     this branch"; pass the brief and `git diff <default-branch>...HEAD`.
     REFUTED → `exit-gate verify-refuted <counter-evidence line>`, leave
     branch for human. CONFIRMED or UNTESTABLE → `verify-pass`, continue.
-7. **Ship.** Invoke `ship` to open a PR. **Never auto-merge.**
+7. **Ship.** Open a PR with `gh pr create` (title in Conventional Commits form, body: summary + test plan). **Never auto-merge.**
    The project's merge policy (CI, approval, branch protection) is
    the safety net.
 8. **Log.** Append `ship-ok` line to `progress.txt`. Loop continues
@@ -333,19 +333,6 @@ The next iteration reads this cold — no in-context memory required.
 - Not yet wired into `setup`. Hand-install only.
 - Not yet validated on a real `ready-for-agent` issue. First production
   drain unblocks promotion from spike → released.
-
-## Usage logging (opt-in)
-
-When `AI_KIT_USAGE=1` is set, log the invocation so `retro` can
-spot patterns:
-
-```bash
-bash "$AI_KIT_ROOT/bin/log-skill.sh" autonomous start
-bash "$AI_KIT_ROOT/bin/log-skill.sh" autonomous done   # or `abort` if you bail
-```
-
-Silent no-op when the env var is unset. See
-[SECURITY.md](../../../SECURITY.md) for what is logged and where.
 
 ## Usage guard (opt-in)
 

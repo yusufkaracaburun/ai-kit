@@ -12,7 +12,7 @@ repo_age_min_years: 0
 ---
 # Git hygiene
 
-Conventions for every commit, branch and PR. `/ai:ship`, `/ai:to-issues` and `/ai:tdd` apply them without being reminded.
+Conventions for every commit, branch and PR. `/ai:to-issues` and `/ai:tdd` apply them without being reminded.
 
 ## Branches
 

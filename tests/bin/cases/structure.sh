@@ -8,12 +8,11 @@ source "$AIKIT/tests/bin/lib/harness.sh"
 echo "=== skills-count ==="
 # section: skills-count
 SKILL_COUNT=$(find "$AIKIT/workflow/skills" -name SKILL.md | wc -l | tr -d ' ')
-assert "44 skills" '[ "$SKILL_COUNT" -eq 44 ]'
+assert "33 skills" '[ "$SKILL_COUNT" -eq 33 ]'
 assert "plugin payload carries the changelog" '[ -f "$AIKIT/workflow/CHANGELOG.md" ]'
 assert "plugin changelog matches root" 'cmp -s "$AIKIT/CHANGELOG.md" "$AIKIT/workflow/CHANGELOG.md"'
 assert "checkpoint skill exists" '[ -f "$AIKIT/workflow/skills/checkpoint/SKILL.md" ]'
 assert "resume skill exists" '[ -f "$AIKIT/workflow/skills/resume/SKILL.md" ]'
-assert "onboard skill exists" '[ -f "$AIKIT/workflow/skills/onboard/SKILL.md" ]'
 assert "rename-housekeeping skill exists" '[ -f "$AIKIT/workflow/skills/rename-housekeeping/SKILL.md" ]'
 
 
@@ -57,8 +56,8 @@ echo "=== review-skill-delegation ==="
 # section: review-skill-delegation
 assert "review skill mentions reviewer" 'grep -q "reviewer" "$AIKIT/workflow/skills/review/SKILL.md"'
 assert "review skill mentions inline fallback" 'grep -q "Cursor / hosts without subagents" "$AIKIT/workflow/skills/review/SKILL.md"'
-# The four migrated skills (#3) each carry a Run mode block + name their subagent.
-for s in qa diagnose to-issues improve-codebase-architecture; do
+# The migrated skills (#3) each carry a Run mode block + name their subagent.
+for s in qa diagnose to-issues; do
   assert "$s skill has a Run mode block" 'grep -q "^## Run mode" "$AIKIT/workflow/skills/'"$s"'/SKILL.md"'
 done
 assert "qa skill delegates to qa-runner" 'grep -q "qa-runner" "$AIKIT/workflow/skills/qa/SKILL.md"'
@@ -67,8 +66,6 @@ assert "autonomous skill spawns verifier" 'grep -q "subagent_type=verifier" "$AI
 assert "autonomous stop conditions list verify-refuted" 'grep -q "exit-gate verify-refuted" "$AIKIT/workflow/skills/autonomous/SKILL.md"'
 assert "diagnose skill delegates to explore" 'grep -q "explore" "$AIKIT/workflow/skills/diagnose/SKILL.md"'
 assert "to-issues skill delegates to explore" 'grep -q "explore" "$AIKIT/workflow/skills/to-issues/SKILL.md"'
-assert "improve-arch skill delegates to explore" 'grep -q "explore" "$AIKIT/workflow/skills/improve-codebase-architecture/SKILL.md"'
-assert "improve-arch skill dropped the generic Explore subagent" '! grep -q "subagent_type=Explore" "$AIKIT/workflow/skills/improve-codebase-architecture/SKILL.md"'
 assert "tdd skill has a Run mode block" 'grep -q "^## Run mode" "$AIKIT/workflow/skills/tdd/SKILL.md"'
 assert "tdd skill delegates to builder" 'grep -q "subagent_type=builder" "$AIKIT/workflow/skills/tdd/SKILL.md"'
 assert "autonomous skill names builder as the per-issue worker" 'grep -q "subagent_type=builder" "$AIKIT/workflow/skills/autonomous/SKILL.md"'
@@ -245,8 +242,8 @@ assert "bad response fails (exit 1)" '[ "$BAD_EXIT" -eq 1 ]'
 assert "bad response reports failed checks" 'grep -q "FAIL" /tmp/eval-golden-bad.out'
 rm -f "$TMP_BAD_RESP"
 
-# Coverage: each priority skill (to-prd, tdd, ship) has a golden.
-for prio in to-prd tdd ship; do
+# Coverage: each priority skill (to-prd, tdd) has a golden.
+for prio in to-prd tdd; do
   assert "golden exists: $prio" '[ -f "$AIKIT/tests/eval/goldens/$prio"/*.md ] || ls "$AIKIT/tests/eval/goldens/$prio"/*.md >/dev/null 2>&1'
 done
 
