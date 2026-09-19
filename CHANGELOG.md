@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.93.0 — 2026-09-19
+
+### Changed
+- **Ten always-on rules rewritten shorter — 4,867 → 2,937 words, no instruction dropped (#183 step 2).** With the host loading every pathless rule at session start, the length of the universal set is the kit's own tax on every consumer. `git-hygiene` 1,028 → 589 (the epic-branch 422 lesson, the worktree + `composer install` lesson, the issue-keyword parser lesson and the by-path staging rule all survive at full specificity; the prose around them does not), `context-discipline` 742 → 461, `pre-write-discipline` 649 → 392 (its ponytail paragraph claimed "Claude Code has no rules primitive" — wrong since #182, gone), `grill-first` 535 → 392 (the phase → skill table stays: Cursor has no `phase-check` hook to carry it; `prototype` added to the table and to the hook line), `parallelize-independent-work` 459 → 335, `mark-recommended-option` 341 → 149, `minimal-comments` 309 → 200, `context7` 288 → 171, `bsd-sed-word-boundary` 275 → 91, `deployment-on-demand` 241 → 127. A reviewer diffed every old body against its rewrite for lost operative instructions and found three — the phase table, the `"no questions"` skip phrase, the build-artifact hatch — all restored before release. Default universal emit: 17 pathless / 5,528 words, from 24 / 9,678 before #183 (−43%).
+
+### Removed
+- **`branch-cleanup-after-merge`** (feedback rule): no skill read it, and `docs-sync` already does the sweep — it now also skips `release/*` / `epic/*`, the two exemptions the rule encoded. ADR-0007 marks it removed. Feedback rules sit outside the canonical rule count, so the 45 stays 45.
+
 ## 1.92.0 — 2026-09-19
 
 ### Changed
