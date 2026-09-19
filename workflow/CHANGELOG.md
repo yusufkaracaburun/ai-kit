@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.94.1 — 2026-09-19
+
+### Fixed
+- **`/ai:doctor` hid the global-rules link behind a legacy `setup_mode=project-only` marker.** emeq-hub carries that value (ADR-0012's enum, not a fact about the machine) and got no `global rules` line at all in v1.94.0 — yet the host loads `~/.claude/rules` there like in every other project. The check now skips only on the explicit `--project-only` flag; verified live in emeq-hub and planny (`ok global rules linked … 23 rules load in every session`).
+
 ## 1.94.0 — 2026-09-19
 
 ### Changed
