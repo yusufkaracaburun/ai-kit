@@ -85,7 +85,7 @@ if [ -d "$RULES_DIR" ]; then
     else
       other_words=$((other_words + w)); other_count=$((other_count + 1))
     fi
-  done < <(find "$RULES_DIR" -name '*.md' -type f)
+  done < <(find "$RULES_DIR" -name '*.md' \( -type f -o -type l \))   # symlinked rules load too
   if [ "$uni_count" -gt 0 ]; then
     found=1
     echo "note: $uni_count universal ai-kit rule(s), $uni_words words — loaded natively every session (kit default, not scored here)."

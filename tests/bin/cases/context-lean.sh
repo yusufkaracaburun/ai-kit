@@ -108,7 +108,10 @@ OUT_RULES_DEFAULT="$("$LEAN" "$TMP/rules-default" 2>&1)"; RC_RULES_DEFAULT=$?
 assert "context-lean exits 0 on the kit's own default universal set" '[ "$RC_RULES_DEFAULT" -eq 0 ]'
 
 mkdir -p "$TMP/rules-over/.claude/rules"
-for i in 1 2 3 4 5 6; do printf '# Local rule %s\n\n%s\n' "$i" "$(yes word | head -400 | tr '\n' ' ')" > "$TMP/rules-over/.claude/rules/local-$i.md"; done
+for i in 1 2 3 4 5; do printf '# Local rule %s\n\n%s\n' "$i" "$(yes word | head -400 | tr '\n' ' ')" > "$TMP/rules-over/.claude/rules/local-$i.md"; done
+mkdir -p "$TMP/rules-over/.agents/rules"
+printf '# Linked rule\n\n%s\n' "$(yes word | head -400 | tr '\n' ' ')" > "$TMP/rules-over/.agents/rules/linked.md"
+ln -s ../../.agents/rules/linked.md "$TMP/rules-over/.claude/rules/linked.md"   # a symlinked rule loads like any other
 OUT_RULES_OVER="$("$LEAN" "$TMP/rules-over" 2>&1)" && RC_RULES_OVER=0 || RC_RULES_OVER=$?
 assert "context-lean exits 1 when pathless non-universal rules exceed the budget" '[ "$RC_RULES_OVER" -eq 1 ]'
 assert "context-lean warns with the pathless word count" \
