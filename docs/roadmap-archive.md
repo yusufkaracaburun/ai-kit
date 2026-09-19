@@ -784,3 +784,45 @@ priorities. No P0; #105 is the only real bug.
     P3 · needs-info. Older inbox item, previously unlisted; structured
     per-claim validation as a cheap tech-debt surfacer. Stays needs-info
     until scoped.
+
+## Reconciliation notes
+
+Moved out of roadmap.md on 2026-09-19; the roadmap keeps a one-line stamp.
+
+_Last reconciled: 2026-08-20 against 22 open issues, after a long session. In order:
+
+`/ai:should-i-use` on kakashi returned Ignore and prompted a `gitleaks` sweep over six real
+projects, which surfaced #120 — the catalogued `gitleaks-scan` recipe guards the wrong moment.
+Design settled via `/ai:grill-me`, split into #121-#124 via `/ai:to-issues`. #121 and #122 shipped
+in v1.54.0 via `/ai:autonomous`; each run's review caught a blocker, which is the writer/reviewer
+split doing real work rather than ceremony. #123 shipped in PR #130 and also corrected #122's
+template. #124 remains, human-driven. Remediation for the one repo with real findings is
+`emeq-system#209`, and its key has been rotated.
+
+Four bugs in the kit itself came out of the friction: #127 (`to-issues` labels but emits no brief,
+so `autonomous` rejects everything it produces), #128 (drain re-picks a shipped issue), #129 (a
+printed recipe that no-ops under an interactive `mv -i` shell — which is how v1.53.1 reached a
+pushed tag while the catalog still resolved v1.53.0), and #134 (doctor exits non-zero
+intermittently on ubuntu, and a failed exit-code assert shows nothing to diagnose it with).
+
+#131 was filed and closed the same day: the `test` workflow had been red on every master commit
+checked, across four release tags, and nobody looked — two deterministic causes plus seven
+shellcheck warnings failing lint separately. A SIGPIPE flake in the harness was fixed after that,
+centrally rather than at 262 call sites. #134 is the one flake still open, so a single green run is
+still not proof.
+
+Two process notes worth keeping: #120 was auto-closed and reopened because a commit subject carried
+the literal string `fix #120`, which GitHub reads as a closing keyword. And two releases were tagged
+and pushed that day without anyone checking CI, which #131's last criterion addresses. Prior:
+2026-07-26 against 17 open issues (#119 opened + closed same session — spike:
+measure `pre-write-discipline` effectiveness, surfaced by `/ai:should-i-use` on ponytail (Ignore — reversed 2026-08-26, #144);
+declined — measuring a behavioural rule needs A/B agent runs that reverse ADR-0002, whose Revisited
+note now records the decision). Prior:
+2026-07-11 against 17 open issues (#118 added — `graph-fresh` cannot check umbrella
+repos like emeq, whose root is not a git repo; #117 added — surface `graph-fresh` in the
+search-delegation hook, where a stale graph actually misleads the agent. Both deferred from the
+v1.47.0/v1.47.1 `graph-fresh` session.) Prior: 2026-07-09 against 15 open issues (#116 added — plugin skill shadows same-named
+project skill, shares bootstrap root with #114; #115 opened + closed same day — GitHub Copilot
+rejected as a third host, ADR-0010 kept as Rejected; #114 added — bootstrap pins the versioned
+plugin-cache path, bricked emeq's 114 skill symlinks, naschool primed to follow; #113 added — marker ↔ hook-wiring
+cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore for catalog, spike on whether `to-issues` should emit an in-repo spec-delta; #108 was untracked + unlabelled, now P2; #111 SkillSpector skill-security scanner spike; #110 headroom tool-output-compression companion spike; #109 codebase-memory-mcp graphify-replacement spike; #101/#102/#103/#107 shipped in v1.42.0; #105 in v1.41.1)._

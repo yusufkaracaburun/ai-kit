@@ -40,7 +40,7 @@ curl -fsSL https://raw.githubusercontent.com/yusufkaracaburun/ai-kit/master/inst
 ```
 
 - **Project-only** (no machine-wide symlinks): append `-s -- --no-global` to `bash`.
-- **Pin a release**: `… | AI_KIT_REF=v1.10.0 bash` (latest at time of writing).
+- **Pin a release**: `… | AI_KIT_REF=v1.94.2 bash` (see [tags](https://github.com/yusufkaracaburun/ai-kit/tags) for the current one).
 - **Update later**: `~/.local/share/ai-kit/install.sh --update`.
 
 **Are you an AI agent doing the install?** Follow [docs/install-for-agents.md](docs/install-for-agents.md) — a self-contained prompt with detection, verification, and reporting steps.
@@ -75,7 +75,7 @@ First moves:
 | Testing | `review` · `qa` · `diagnose` |
 | Deployment | `ship` |
 | Ops & review | `retro` · `feedback` · `contribute-eval` |
-| Session continuity | `checkpoint` ↔ `resume` · `handoff` · `onboard` |
+| Session continuity | `checkpoint` ↔ `resume` · `onboard` |
 | Cross-cutting | `setup` · `setup-gh-workflow` · `recommend-rules` · `recommend-tools` · `improve-codebase-architecture` · `audit-architecture` |
 | Automation | `autonomous` (AFK queue drainer — wraps `tdd` → `review` → `ship`) |
 
@@ -99,14 +99,14 @@ scaffold):
 **Recommend-only** (deterministic scorer reads vendored `standards/external/*.json`
 tables; user runs the install command):
 
-- **21 MCP servers** — context7, playwright, github, supabase, postgresql,
+- **24 MCP servers** — context7, playwright, github, supabase, postgresql,
   stripe, redis, mysql, obsidian, firecrawl, exa, … (full list:
   [`standards/external/mcp-servers.json`](standards/external/mcp-servers.json))
-- **25 hook recipes** — prettier-format, eslint-fix, black-isort, ruff, gofmt,
+- **28 hook recipes** — prettier-format, eslint-fix, black-isort, ruff, gofmt,
   rustfmt, laravel-pint, phpstan, cargo-clippy, gitleaks-scan, commitlint,
   branch-guard, large-diff-warn, … (full list:
   [`standards/external/hooks-patterns.json`](standards/external/hooks-patterns.json))
-- **12 Claude Code plugins** — claude-mem, tdd-guard,
+- **23 Claude Code plugins** — claude-mem, tdd-guard,
   ask-questions-if-underspecified, claude-md-management, skill-creator,
   github, laravel-boost, frontend-design, lazyweb, chrome-devtools-mcp,
   typescript-lsp, php-lsp (full list:

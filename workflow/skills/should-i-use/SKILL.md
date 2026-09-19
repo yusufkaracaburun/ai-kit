@@ -247,7 +247,7 @@ inventing a file nobody will read.
 
 **Track A verdicts are recorded in ai-kit's repo, not the current one.** If you
 were invoked from a different project, default to queuing it — the same
-`/ai:followup --label catalog-candidate` path `recommend-tools` already uses
+`/ai:to-prd` Defer-mode path (label `catalog-candidate`) `recommend-tools` already uses
 for an ADOPT-shaped finding — rather than editing `VETTING.md` /
 `plugins-excluded.json` directly. Only edit `$AI_KIT_ROOT` in place when the
 user explicitly asks for it done now, `$AI_KIT_ROOT` resolved to a real git

@@ -10,7 +10,7 @@ Thanks for your interest. ai-kit is a personal agent kit; contributions stay sma
 - [ ] If you touched any `workflow/skills/*/SKILL.md`: `./tests/bin/eval-structure.sh` passes
 - [ ] If you touched a SKILL.md with a paired subagent (a generated region in `workflow/agents/*/AGENT.md`): re-run `./bin/emit-agents.sh`
 - [ ] If you touched a universal always-on rule in `standards/rules/`: re-run `./bin/sync-plugin-rules.sh` (global payload in `workflow/rules/`)
-- [ ] CHANGELOG.md updated under the unreleased section
+- [ ] CHANGELOG.md entry drafted (`bin/release.sh` prepends it per release; there is no unreleased section)
 - [ ] No secrets, no absolute user paths committed
 
 ## Local workflow
@@ -56,4 +56,8 @@ The full set of branch/commit/PR conventions lives in [`standards/rules/git-hygi
 
 ## Releases
 
-Maintainers only. `VERSION` + tag + GitHub release in one commit; CHANGELOG.md follows Keep a Changelog conventions.
+Maintainers only, via `bin/release.sh`: `VERSION` + tag + GitHub release in one commit; CHANGELOG.md follows Keep a Changelog conventions.
+
+Cadence: at most one release per working day. Commits stack on master; one `chore(release)` at the end of the day. A patch release ships only after one consumer repo has run the minor it patches (1.94.0 → .1 → .2 within hours is the failure mode this rule prevents).
+
+Quality score: [docs/score.md](docs/score.md) holds the rubric and the last measured score. A ship summary reports a score only when it comes from that rubric.

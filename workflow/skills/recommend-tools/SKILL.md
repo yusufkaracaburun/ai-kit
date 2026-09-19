@@ -44,7 +44,7 @@ Read the `findings` array and apply per verdict:
 
 - **`OWNED`** — already in an ai-kit catalog and present on the host. Do not re-recommend; note "already wired" inline when the user asks about that companion.
 - **`KEEP-EXTERNAL`** — present but explicitly out of ai-kit scope. Same treatment as OWNED.
-- **`ADOPT`** — present, useful, not in any catalog. File `/ai:followup` with label `catalog-candidate` to queue it for VETTING.md review. Mention to the user that this is a promotion candidate, not a current recommendation.
+- **`ADOPT`** — present, useful, not in any catalog. File it via `/ai:to-prd` Defer mode with label `catalog-candidate` to queue it for VETTING.md review. Mention to the user that this is a promotion candidate, not a current recommendation.
 - **`REBIND`** — scope mismatch (project-scoped where user-scope makes sense) or duplicate marketplace install. Surface the convergence command (`/plugin uninstall X && /plugin install X --scope user`) from `ai-kit-audit-ecosystem.sh --converge` and ask the user to run it before Phase 3 wiring.
 - **`REPLACE`** — user-scope skill/agent shadows the ai-kit plugin version. Surface the `rm` command and ask the user before Phase 3.
 - **`DROP-STALE`** — references a path that no longer exists. Surface the uninstall command unconditionally.

@@ -7,43 +7,7 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-08-20 against 22 open issues, after a long session. In order:
-
-`/ai:should-i-use` on kakashi returned Ignore and prompted a `gitleaks` sweep over six real
-projects, which surfaced #120 — the catalogued `gitleaks-scan` recipe guards the wrong moment.
-Design settled via `/ai:grill-me`, split into #121-#124 via `/ai:to-issues`. #121 and #122 shipped
-in v1.54.0 via `/ai:autonomous`; each run's review caught a blocker, which is the writer/reviewer
-split doing real work rather than ceremony. #123 shipped in PR #130 and also corrected #122's
-template. #124 remains, human-driven. Remediation for the one repo with real findings is
-`emeq-system#209`, and its key has been rotated.
-
-Four bugs in the kit itself came out of the friction: #127 (`to-issues` labels but emits no brief,
-so `autonomous` rejects everything it produces), #128 (drain re-picks a shipped issue), #129 (a
-printed recipe that no-ops under an interactive `mv -i` shell — which is how v1.53.1 reached a
-pushed tag while the catalog still resolved v1.53.0), and #134 (doctor exits non-zero
-intermittently on ubuntu, and a failed exit-code assert shows nothing to diagnose it with).
-
-#131 was filed and closed the same day: the `test` workflow had been red on every master commit
-checked, across four release tags, and nobody looked — two deterministic causes plus seven
-shellcheck warnings failing lint separately. A SIGPIPE flake in the harness was fixed after that,
-centrally rather than at 262 call sites. #134 is the one flake still open, so a single green run is
-still not proof.
-
-Two process notes worth keeping: #120 was auto-closed and reopened because a commit subject carried
-the literal string `fix #120`, which GitHub reads as a closing keyword. And two releases were tagged
-and pushed that day without anyone checking CI, which #131's last criterion addresses. Prior:
-2026-07-26 against 17 open issues (#119 opened + closed same session — spike:
-measure `pre-write-discipline` effectiveness, surfaced by `/ai:should-i-use` on ponytail (Ignore — reversed 2026-08-26, #144);
-declined — measuring a behavioural rule needs A/B agent runs that reverse ADR-0002, whose Revisited
-note now records the decision). Prior:
-2026-07-11 against 17 open issues (#118 added — `graph-fresh` cannot check umbrella
-repos like emeq, whose root is not a git repo; #117 added — surface `graph-fresh` in the
-search-delegation hook, where a stale graph actually misleads the agent. Both deferred from the
-v1.47.0/v1.47.1 `graph-fresh` session.) Prior: 2026-07-09 against 15 open issues (#116 added — plugin skill shadows same-named
-project skill, shares bootstrap root with #114; #115 opened + closed same day — GitHub Copilot
-rejected as a third host, ADR-0010 kept as Rejected; #114 added — bootstrap pins the versioned
-plugin-cache path, bricked emeq's 114 skill symlinks, naschool primed to follow; #113 added — marker ↔ hook-wiring
-cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore for catalog, spike on whether `to-issues` should emit an in-repo spec-delta; #108 was untracked + unlabelled, now P2; #111 SkillSpector skill-security scanner spike; #110 headroom tool-output-compression companion spike; #109 codebase-memory-mcp graphify-replacement spike; #101/#102/#103/#107 shipped in v1.42.0; #105 in v1.41.1)._
+_Last reconciled: 2026-09-19 against 49 open issues (audit session: 4 closed, 10 labelled, 6 opened; earlier reconciliation notes live in [roadmap-archive.md](roadmap-archive.md#reconciliation-notes))._
 
 ## P1 — broken in the wild
 
@@ -57,6 +21,17 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
   Closes #149 with it.
 
 ## P2 — next up
+
+- **#174** `bug` — hygiene `test-ci` does not recognise Dart/Flutter projects as having a
+  test runner; planny-app-mobile reports "no test runner" with a full Patrol suite. Labelled
+  P2 on 2026-09-19.
+- **#184** `enhancement` — `lib/setup-marker.sh`: one marker reader that fails loud on bad
+  JSON, replacing 25 inline `python3 -c` reads; three of them (`doctor:109,151`,
+  `upgrade:59`) turn a corrupt marker into "auto mode" / "merge anyway". Audit 2026-09-19.
+- **#185** `enhancement · primitive:plugin` — collapse the `workflow/` mirror: root `bin/`,
+  `standards/`, `context/`, `orchestration/`, `CHANGELOG.md` become symlinks into
+  `workflow/`; 4 sync scripts, `sync-mirror.sh`, 13 structure asserts and 1.84 MB of tracked
+  copies go. Decided 2026-09-19 (symlink over generate-on-tag). Closes #140 with it.
 
 - **#182** `bug` — ✅ shipped v1.91.0 (native loading honoured, subagents read rules); open: resolver dedupe. Every emitted `.claude/rules/*.md` loads natively, always,
   in the main thread (Claude Code 2.1 reads pathless rules at session start:
@@ -182,6 +157,19 @@ cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore f
   decompose via `/ai:to-issues` before scheduling.
 
 ## P3 — backlog
+
+- **#186** `enhancement` — catalog prune: `audit-architecture-*` out of the skill index,
+  23 logging blocks stripped, `zoom-out` deleted, `grill-with-docs` into `grill-me`,
+  skill+command doubles collapsed, `setup` 2c/2e by reference. Audit 2026-09-19.
+- **#187** `bug` — `gh` auth/network failures read as "no board" / "protection off" in
+  `setup-gh-workflow.sh:216,250` and `doctor:490`; `bootstrap-project.sh:113` copies
+  templates from an unchecked `TPL`. Audit 2026-09-19.
+- **#188** `enhancement` — dead scripts (`autonomous-queue`, `ai-kit-auto-release`,
+  `eval-skill`, `ai-kit-root`) and wrapper families (`apply-*-hook` ×4, `no-globals` ×2);
+  `detect-lib.sh` split. ~450 LOC, no behaviour change. Audit 2026-09-19.
+- **#189** `enhancement` — test gaps: `release.sh` non-dry-run and `emit-agents.sh` write
+  path never run, CI shellcheck skips the 68 case files, three asserts pass on a crash,
+  six cases read the real `$HOME`. bats-core decision. Audit 2026-09-19.
 
 - **#180** `enhancement` — `docs-sync`: naschool's 403-line project `docs-sync`
   (the skill #26 promoted the plugin's from) has diverged and shadows the plugin
