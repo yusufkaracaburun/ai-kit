@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.0.2 — 2026-09-21
+
+### Changed
+- **The always-on rules payload is 24% smaller.** Measured on the installed set: 7,533 words → 5,183, of which the pathless always-on subset is now 3,934. Two universals dropped from the global channel (`context7`, `parallelize-independent-work` — `universal: false`, still emitted to consumers on request), three rules gained `paths:` scopes so they load only when a matching file is touched (`content-honesty`, and the two feedback shell rules), and the remaining prose was tightened. The four `default_mode: on-demand` universals are untouched. Every session in every project pays this; the cut is permanent.
+- **`/ai:checkpoint` runs no hygiene report by default.** The full `ai-kit-hygiene.sh` report costs ~5,700 tokens and a checkpoint is a snapshot, not an audit. `--also-housekeeping` still runs it and auto-applies the safe fixes; `--skip-housekeeping` is now the explicit form of the default. The stale-entry scan in §5 batches into one `git for-each-ref` instead of one `git branch --show-current` per index line.
+
+### Added
+- **`/ai:upgrade` caps the CHANGELOG slice it prints.** A marker several releases behind printed the whole backlog into the session for what is usually a one-field bump. The slice now stops at 80 lines and points at `CHANGELOG.md` for the rest.
+
+### Fixed
+- Two slash-command descriptions (`/ai:docs-sync`, `/ai:hygiene`) shrunk to one line each — they are read in the skill index of every session.
+
 ## 2.0.1 — 2026-09-21
 
 ### Fixed
