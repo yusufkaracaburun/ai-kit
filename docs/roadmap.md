@@ -7,7 +7,7 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-09-19 against 49 open issues (audit session: 4 closed, 10 labelled, 6 opened; earlier reconciliation notes live in [roadmap-archive.md](roadmap-archive.md#reconciliation-notes))._
+_Last reconciled: 2026-09-21 against 47 open issues (#140, #184, #185 closed; earlier reconciliation notes live in [roadmap-archive.md](roadmap-archive.md#reconciliation-notes))._
 
 ## P1 — broken in the wild
 
@@ -25,14 +25,6 @@ _Last reconciled: 2026-09-19 against 49 open issues (audit session: 4 closed, 10
 - **#174** `bug` — hygiene `test-ci` does not recognise Dart/Flutter projects as having a
   test runner; planny-app-mobile reports "no test runner" with a full Patrol suite. Labelled
   P2 on 2026-09-19.
-- **#184** `enhancement` — `lib/setup-marker.sh`: one marker reader that fails loud on bad
-  JSON, replacing 25 inline `python3 -c` reads; three of them (`doctor:109,151`,
-  `upgrade:59`) turn a corrupt marker into "auto mode" / "merge anyway". Audit 2026-09-19.
-- **#185** `enhancement · primitive:plugin` — collapse the `workflow/` mirror: root `bin/`,
-  `standards/`, `context/`, `orchestration/`, `CHANGELOG.md` become symlinks into
-  `workflow/`; 4 sync scripts, `sync-mirror.sh`, 13 structure asserts and 1.84 MB of tracked
-  copies go. Decided 2026-09-19 (symlink over generate-on-tag). Closes #140 with it.
-
 - **#182** `bug` — ✅ shipped v1.91.0 (native loading honoured, subagents read rules); open: resolver dedupe. Every emitted `.claude/rules/*.md` loads natively, always,
   in the main thread (Claude Code 2.1 reads pathless rules at session start:
   emeq-hub 32 files / 14.3k words ≈ 19k tokens per session, planny-app-mobile
@@ -57,10 +49,6 @@ _Last reconciled: 2026-09-19 against 49 open issues (audit session: 4 closed, 10
   tsc. Same `bin/hooks/` + `apply-*-hook.sh` shape as the four that already ship;
   doctor then reports "drifted from shipped".
 
-- **#140** `bug · primitive:plugin` — `/ai:upgrade` promises a release slice from
-  `CHANGELOG.md` and never prints one, because the plugin cache ships no
-  `CHANGELOG.md`. Either add it to the plugin payload or drop the promise from the
-  skill; a documented behaviour that silently no-ops is worse than neither.
 - **#148** `bug` — rule injection gates on `weight: high` and then fills
   smallest-first, so length decides what survives. Rediagnosed 2026-08-27: the
   cause is in the rule metadata, not the sort order — `weight` is too coarse a
