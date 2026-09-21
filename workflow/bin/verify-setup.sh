@@ -5,6 +5,8 @@ set -euo pipefail
 SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck source=lib/ai-kit-root.sh
 source "$SCRIPT_BIN/lib/ai-kit-root.sh"
+# shellcheck source=lib/setup-marker.sh
+source "$SCRIPT_BIN/lib/setup-marker.sh"
 AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
 EXPECTED_VERSION="$(resolve_ai_kit_version "$AIKIT")"
 
@@ -57,49 +59,25 @@ DOCKER_BRANCH=""
 SECRETS_SCAN_BRANCH=""
 DOMAIN_DOCS_BRANCH=""
 PROJECT_SKILLS_MERGED_RAW=""
-SETUP_JSON=""
+SETUP_VALID=false
+MARKER_VERSION=""
 
-if [ -f "$SETUP_FILE" ]; then
-  SETUP_JSON="$(cat "$SETUP_FILE")"
-  SETUP_MODE="$(python3 -c "
-import json, sys
-d = json.load(sys.stdin)
-b = d.get('branches', {})
-print(b.get('setup_mode') or b.get('agent_stack') or '')
-" <<<"$SETUP_JSON" 2>/dev/null || echo "")"
-  SETUP_TIER="$(python3 -c "
-import json, sys
-d = json.load(sys.stdin)
-print(d.get('branches', {}).get('setup_tier', ''))
-" <<<"$SETUP_JSON" 2>/dev/null || echo "")"
-  ARCH_BRANCH="$(python3 -c "
-import json, sys
-d = json.load(sys.stdin)
-print(d.get('branches', {}).get('architecture', 'skipped'))
-" <<<"$SETUP_JSON" 2>/dev/null || echo skipped)"
-  DOCKER_BRANCH="$(python3 -c "
-import json, sys
-d = json.load(sys.stdin)
-print(d.get('branches', {}).get('docker', 'skipped'))
-" <<<"$SETUP_JSON" 2>/dev/null || echo skipped)"
-  SECRETS_SCAN_BRANCH="$(python3 -c "
-import json, sys
-d = json.load(sys.stdin)
-print(d.get('branches', {}).get('secrets_scan', ''))
-" <<<"$SETUP_JSON" 2>/dev/null || echo "")"
-  DOMAIN_DOCS_BRANCH="$(python3 -c "
-import json, sys
-d = json.load(sys.stdin)
-print(d.get('branches', {}).get('domain_docs', ''))
-" <<<"$SETUP_JSON" 2>/dev/null || echo "")"
+# A corrupt marker prints its parse error here and fails the checks below.
+if [ -f "$SETUP_FILE" ] && MARKER_VERSION="$(marker_get "$SETUP_FILE" ai_kit_version)"; then
+  SETUP_VALID=true
+  SETUP_MODE="$(marker_get "$SETUP_FILE" branches.setup_mode)"
+  [ -n "$SETUP_MODE" ] || SETUP_MODE="$(marker_get "$SETUP_FILE" branches.agent_stack)"
+  SETUP_TIER="$(marker_get "$SETUP_FILE" branches.setup_tier)"
+  ARCH_BRANCH="$(marker_get "$SETUP_FILE" branches.architecture skipped)"
+  DOCKER_BRANCH="$(marker_get "$SETUP_FILE" branches.docker skipped)"
+  SECRETS_SCAN_BRANCH="$(marker_get "$SETUP_FILE" branches.secrets_scan)"
+  DOMAIN_DOCS_BRANCH="$(marker_get "$SETUP_FILE" branches.domain_docs)"
   # skip_skill_merge=true is the v1.79 retrofit of project_skills_merged=false
   # (ADR-0012); a marker written between the two carries only the old field.
-  PROJECT_SKILLS_MERGED_RAW="$(python3 -c "
-import json, sys
-d = json.load(sys.stdin)
-b = d.get('branches', {})
-print(('true' if b['project_skills_merged'] else 'false') if 'project_skills_merged' in b else ('false' if b.get('skip_skill_merge') else ''))
-" <<<"$SETUP_JSON" 2>/dev/null || echo "")"
+  PROJECT_SKILLS_MERGED_RAW="$(marker_get "$SETUP_FILE" branches.project_skills_merged)"
+  if [ -z "$PROJECT_SKILLS_MERGED_RAW" ] && [ "$(marker_get "$SETUP_FILE" branches.skip_skill_merge)" = true ]; then
+    PROJECT_SKILLS_MERGED_RAW=false
+  fi
 fi
 
 # Legacy mode aliases
@@ -163,15 +141,9 @@ fi
 check ".ai-kit-setup exists" "$(bool [ -f "$SETUP_FILE" ])"
 
 if [ -f "$SETUP_FILE" ]; then
-  check ".ai-kit-setup valid JSON" \
-    "$(python3 -c "import json,sys; json.load(sys.stdin)" <<<"$SETUP_JSON" 2>/dev/null && echo true || echo false)"
+  check ".ai-kit-setup valid JSON" "$SETUP_VALID"
 
-  VERSION_OK="$(python3 -c "
-import json, sys
-d = json.load(sys.stdin)
-print('true' if d.get('ai_kit_version') == '$EXPECTED_VERSION' else 'false')
-" <<<"$SETUP_JSON" 2>/dev/null || echo false)"
-  if [ "$VERSION_OK" = true ]; then
+  if [ "$SETUP_VALID" = true ] && [ "$MARKER_VERSION" = "$EXPECTED_VERSION" ]; then
     check ".ai-kit-setup version matches ai-kit" true
   else
     check ".ai-kit-setup version matches ai-kit" false

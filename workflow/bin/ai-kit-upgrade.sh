@@ -8,6 +8,8 @@ SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_BIN/lib/ai-kit-root.sh"
 # shellcheck source=lib/link-primitives.sh
 source "$SCRIPT_BIN/lib/link-primitives.sh"
+# shellcheck source=lib/setup-marker.sh
+source "$SCRIPT_BIN/lib/setup-marker.sh"
 AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
 VERSION="$(resolve_ai_kit_version "$AIKIT")"
 PRIMITIVES="$(resolve_primitives_root "$AIKIT")"
@@ -56,7 +58,7 @@ fi
 if [ -n "$SKIP_SKILL_MERGE_ARG" ]; then
   "$SCRIPT_BIN/write-setup-marker.sh" "$TARGET" "--skip-skill-merge=$SKIP_SKILL_MERGE_ARG"
 fi
-SKIP_SKILL_MERGE="$(python3 -c "import json; print(json.load(open('$MARKER')).get('branches',{}).get('skip_skill_merge', False))" 2>/dev/null || echo False)"
+SKIP_SKILL_MERGE="$(marker_get "$MARKER" branches.skip_skill_merge false)"
 
 COMPLETED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 CHANGELOG="$AIKIT/CHANGELOG.md"
@@ -141,7 +143,7 @@ repair_links() {
     skills)
       if [ -L "$dir" ]; then
         link_skills_all "$dest_parent" "$label" "$PRIMITIVES"
-      elif [ "$SKIP_SKILL_MERGE" = "True" ]; then
+      elif [ "$SKIP_SKILL_MERGE" = true ]; then
         echo "Skipping ai-kit skill merge into $label (skip_skill_merge=true)"
       elif ! has_aikit_links "$dir"; then
         echo "No ai-kit skill links in $label — nothing to repair (plugin serves them)"

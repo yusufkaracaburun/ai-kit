@@ -7,6 +7,8 @@ SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_BIN/lib/ai-kit-root.sh"
 # shellcheck source=lib/detect-lib.sh
 source "$SCRIPT_BIN/lib/detect-lib.sh"
+# shellcheck source=lib/setup-marker.sh
+source "$SCRIPT_BIN/lib/setup-marker.sh"
 AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
 KIT_VERSION="$(resolve_ai_kit_version "$AIKIT")"
 
@@ -42,8 +44,8 @@ if [ ! -f "$MARKER" ]; then
   echo "          → run /ai:setup (or $AIKIT/bin/bootstrap-project.sh $TARGET first)"
   echo ""
 else
-  marker_version="$(python3 -c "import json; print(json.load(open('$MARKER')).get('ai_kit_version','?'))")"
-  marker_completed="$(python3 -c "import json; print(json.load(open('$MARKER')).get('completed_at','?'))")"
+  marker_version="$(marker_get "$MARKER" ai_kit_version '?')"
+  marker_completed="$(marker_get "$MARKER" completed_at '?')"
   echo "Marker:   $marker_version (stamped $marker_completed)"
   if [ "$marker_version" != "$KIT_VERSION" ]; then
     echo "          → drift vs ai-kit v$KIT_VERSION — run: ai-kit-upgrade.sh $TARGET"

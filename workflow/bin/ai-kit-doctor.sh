@@ -11,6 +11,8 @@ set -uo pipefail
 SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck source=lib/ai-kit-root.sh
 source "$SCRIPT_BIN/lib/ai-kit-root.sh"
+# shellcheck source=lib/setup-marker.sh
+source "$SCRIPT_BIN/lib/setup-marker.sh"
 AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
 KIT_VERSION="$(resolve_ai_kit_version "$AIKIT")"
 
@@ -106,7 +108,7 @@ EFFECTIVE_MODE="$MODE"
 SKIP_REASON=""
 HAS_PROJECT_MODE=false
 if [ "$EFFECTIVE_MODE" = "auto" ] && [ -n "$TARGET" ] && [ -f "$TARGET/.ai-kit-setup" ]; then
-  setup_mode="$(python3 -c "import json,sys; print(json.load(open('$TARGET/.ai-kit-setup')).get('branches',{}).get('setup_mode',''))" 2>/dev/null || echo "")"
+  setup_mode="$(marker_get "$TARGET/.ai-kit-setup" branches.setup_mode)" || exit 1
   if [ -n "$setup_mode" ]; then
     HAS_PROJECT_MODE=true
     if [ "$setup_mode" = "project-only" ]; then
@@ -388,7 +390,7 @@ if [ -n "$TARGET" ]; then
     fi
 
     if [ -f "$TARGET/.ai-kit-setup" ]; then
-      mver="$(python3 -c "import json; print(json.load(open('$TARGET/.ai-kit-setup')).get('ai_kit_version','?'))")"
+      mver="$(marker_get "$TARGET/.ai-kit-setup" ai_kit_version '?')" || exit 1
       if [ "$mver" = "$KIT_VERSION" ]; then
         ok ".ai-kit-setup version matches ($mver)"
       else
