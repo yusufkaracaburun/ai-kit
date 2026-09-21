@@ -113,6 +113,12 @@ snippet = text[start:end].rstrip()
 if not snippet:
     sys.exit(0)
 
+# A marker several releases behind prints the whole backlog into the session
+# for what is usually a one-field bump. Cap the slice and point at the file.
+lines = snippet.splitlines()
+if len(lines) > 80:
+    snippet = "\n".join(lines[:80]) + f"\n\n... {len(lines) - 80} more lines in {p.name}"
+
 print()
 print(f"Changes since v{old_version}:")
 print("-" * 60)
