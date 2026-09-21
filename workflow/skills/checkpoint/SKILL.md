@@ -49,8 +49,8 @@ Parse the slash arguments before anything else:
   does **not** shrink the context. If the user's actual goal was a smaller
   context, tell them to run `/compact` after this.
 - `--also-housekeeping` — after writing the memo, also **auto-apply** the safe,
-  idempotent fixes surfaced by the §7 housekeeping run. Off by default (the run
-  is report-only).
+  idempotent fixes surfaced by the §7 housekeeping run. Off by default (the
+  default is no run at all).
 - `--skip-housekeeping` — skip the §7 housekeeping run entirely; fall back to the
   cheap "Before clear, consider:" nudge. Use for trivial or cost-sensitive
   sessions. Mutually exclusive with `--also-housekeeping`.
@@ -162,7 +162,7 @@ verified or still ambiguous.>
 - Score: <N>/100
 - hygiene: <one-line summary or "clean">
 - docs-sync: <one-line summary or "clean">
-- Applied: <fixes auto-applied with --also-housekeeping, else "none (report-only)">
+- Applied: <fixes auto-applied with --also-housekeeping, else "none (no run)">
 - Needs approval: <items left for the user, or "none">
 ```
 
@@ -179,15 +179,18 @@ if it doesn't exist either — frontmatter is not required for `MEMORY.md`):
 - [<topic> — <date>](project/session-checkpoint-<date>-<slug>.md) — <one-line hook>
 ```
 
-**While you are in there, auto-flag stale entries.** For each existing line
-under `## Session checkpoints`, look at the linked file's `Branch:` field.
-Skip entries where that field is `(no git)` — nothing to check. Otherwise
-check locally first: `git show-ref --verify refs/heads/<branch>`. Only when
-that fails, confirm there is no remote copy either: `git ls-remote
---exit-code --heads origin <branch>`. Most branches still exist locally, so
-this keeps the common case a single fast local check instead of a network
-round-trip on every line, every checkpoint. Prepend `[stale]` only when both
-checks fail:
+**While you are in there, auto-flag stale entries.** Read each existing line
+under `## Session checkpoints` and take the linked file's `Branch:` field.
+Skip entries where that field is `(no git)` or already `[stale]` — nothing
+to re-check. One call covers every remaining line:
+
+```bash
+git for-each-ref --format='%(refname:short)' refs/heads
+```
+
+A branch present in that list is alive; skip it. Only for a branch absent
+from it, confirm there is no remote copy: `git ls-remote --exit-code --heads
+origin <branch>`. Prepend `[stale]` only when both checks fail:
 
 ```markdown
 - [stale] [<topic> — <date>](project/...) — <one-line hook>
@@ -215,17 +218,18 @@ false confidence that the session was captured.
 
 ## 7. Housekeeping run, confirm, stop
 
-Close the session loop inline instead of leaving a nudge the user has to act on
-later. **Default = report-only run** (no mutation). Honour the flags from `<args>`:
+**Default = no hygiene run.** The full `ai-kit-hygiene.sh` report is ~5,700
+tokens and `/ai:checkpoint` is a snapshot, not an audit; running it on every
+checkpoint costs more than it finds. Honour the flags from `<args>`:
 
-**`--skip-housekeeping`** — skip the run; just fire the cheap cross-cue nudge and
-go to the confirm print:
+**Default and `--skip-housekeeping`** — skip the run; just fire the cheap
+cross-cue nudge and go to the confirm print:
 
 ```bash
 bash "${CLAUDE_PLUGIN_ROOT}/bin/ai-kit-docs-sync-nudge.sh" "<project_path>" --context=checkpoint
 ```
 
-**Default and `--also-housekeeping`** — run both checks read-only and capture the
+**`--also-housekeeping`** — run both checks read-only and capture the
 output, applying the same applicability gates the nudge used:
 
 ```bash
@@ -240,9 +244,7 @@ run nothing and omit the `## Housekeeping` section.) Fold the results into the
 memo's `## Housekeeping` section (§4): the hygiene `Score: N/100`, a one-line
 summary per check, and an explicit **Applied** vs **Needs approval** split.
 
-- **Default (report-only):** mutate nothing. List what *could* be auto-fixed
-  under "Needs approval"; leave it for the user.
-- **`--also-housekeeping`:** additionally apply the safe, idempotent fixes now —
+- **`--also-housekeeping`:** apply the safe, idempotent fixes now —
   dead-link removal from `MEMORY.md`, empty-dir `rmdir`, finished-work branch
   cleanup. Anything risky (ai-kit version bumps, hook-wiring drift, content
   rewrites) is **never** auto-applied — surface it under "Needs approval" as a
