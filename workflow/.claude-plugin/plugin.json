@@ -1,7 +1,7 @@
 {
   "name": "ai",
   "description": "Stack-agnostic agile lifecycle for Claude Code — 33 skills, 6 subagents, 11 slash commands, 45 canonical rules. Ideation → development → testing → ship → retro, plus session-continuity (checkpoint/resume), prioritized backlog (/ai:next), feedback loop (/ai:feedback), one-shot hygiene (/ai:hygiene + /ai:docs-sync), and curated MCP/hook/plugin recommendations via /ai:recommend-tools.",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "author": {
     "name": "Yusuf Karacaburun",
     "email": "info@emeq.nl"

@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.0.1 — 2026-09-21
+
+### Fixed
+- **A corrupt `.ai-kit-setup` read as a healthy install.** Nine scripts parsed the marker with their own inline `python3 -c`; doctor turned a parse error into `setup_mode=""` and fell through to auto mode, upgrade turned it into `skip_skill_merge=False` and merged skills anyway, status interpolated the project path into python source. `lib/setup-marker.sh` is now the one reader (`marker_get <file> <dotted.key> [default]`): a bad marker prints the file and the JSON error on stderr and exits 1. Doctor, status and upgrade stop there; verify-setup reports it as the failed "valid JSON" check. No change on a valid marker. Test: `tests/bin/cases/doctor-corrupt-marker.sh`. (#184)
+- `/ai:upgrade` names the key to check: `jq -r .ai_kit_version .ai-kit-setup`.
+
+### Verified
+- #140 closed: the plugin ships `CHANGELOG.md` since 2.0.0 and `/ai:upgrade` 1.93.2 → 2.0.0 printed the release slice in theorieplek.
+
+### Score
+- 78/100 (`docs/score.md` row c): Works 26, Structure 16, Catalog 15, Docs 11, Process 10.
+
 ## 2.0.0 — 2026-09-19
 
 ### Removed
