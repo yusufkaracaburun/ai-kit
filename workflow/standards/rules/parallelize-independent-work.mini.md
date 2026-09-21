@@ -5,7 +5,7 @@ applies_to:
   frameworks: []
   languages: []
   architectures: []
-universal: true
+universal: false
 default_mode: always-on
 weight: high
 repo_age_min_years: 0

@@ -1,3 +1,6 @@
+---
+paths: ["**/*.md", "**/*.mdx", "**/*.astro", "**/*.tsx", "**/*.jsx", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.blade.php"]
+---
 <!-- ai-kit global rule (ADR-0015): Never fabricate user-facing content — every claim, number, quote and link is real or an openly labelled placeholder -->
 <!-- Source: standards/rules/content-honesty.mini.md — re-stamp with bin/sync-plugin-rules.sh -->
 

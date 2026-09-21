@@ -1,3 +1,6 @@
+---
+paths: ["**/*.sh"]
+---
 <!-- ai-kit global rule (ADR-0015): macOS / BSD sed does not support \b for word boundaries; use [[:<:]] / [[:>:]], grep -w, perl, or awk instead -->
 <!-- Source: standards/rules/feedback/bsd-sed-word-boundary.mini.md — re-stamp with bin/sync-plugin-rules.sh -->
 

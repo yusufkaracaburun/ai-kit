@@ -1,5 +1,5 @@
 ---
-description: One-shot content-drift check for the current project — dead markdown links, repo-hygiene (empty dirs / broken symlinks / orphan skill dirs), and finished-work cleanup (local merged branches + closable issues via merged-PR `closes #N` / `fixes #N` / `resolves #N`). Standalone counterpart to /ai:hygiene; never auto-edits markdown files. Reports findings, exits 0 (clean) or 1 (findings). Safe filesystem cleanup gated behind a single group-confirm prompt. Remote-branch-delete and `gh issue close` are always individual y/N per item.
+description: Content-drift check for the current project — dead markdown links, repo hygiene (empty dirs, broken symlinks), and finished-work cleanup. Counterpart to /ai:hygiene; reports findings, never auto-edits markdown.
 argument-hint: "[path] [--skip-dead-links] [--skip-repo-hygiene] [--skip-finished-work] [--no-prompt]"
 allowed-tools: Bash
 ---

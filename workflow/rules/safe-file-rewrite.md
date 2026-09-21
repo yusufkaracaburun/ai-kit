@@ -1,3 +1,6 @@
+---
+paths: ["**/*.sh"]
+---
 <!-- ai-kit global rule (ADR-0015): Never redirect into a file you are reading; a pipeline's exit status hides upstream failure and the redirect truncates the target before you notice -->
 <!-- Source: standards/rules/feedback/safe-file-rewrite.mini.md — re-stamp with bin/sync-plugin-rules.sh -->
 

@@ -7,6 +7,7 @@ applies_to:
   architectures: []
 universal: true
 default_mode: always-on
+paths: ["**/*.md", "**/*.mdx", "**/*.astro", "**/*.tsx", "**/*.jsx", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.blade.php"]
 weight: high
 repo_age_min_years: 0
 ---

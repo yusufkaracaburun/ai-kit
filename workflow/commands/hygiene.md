@@ -1,5 +1,5 @@
 ---
-description: One-shot hygiene/housekeeping for the current ai-kit project — runs doctor (install health), dedupe (duplicate skills/agents/rules), audit-setup-symmetry (catalog ↔ wiring), memory-audit (orphan/stale entries across .agents/memory/*/), repo-skill-hint (project-scoped hygiene skills like docs-sync), context-lean (always-loaded CLAUDE.md/AGENTS.md over 200 lines), test-ci (whether any workflow actually runs the test suite), and upstream-drift (vendored upstream copies that moved past their pinned SHA — ai-kit repo only). Always emits a `Score: N/100` install-quality grade with ranked "to reach 100" recipe. Reports only — never deletes.
+description: Install-quality check for the current ai-kit project — runs every hygiene section and emits a `Score: N/100` with a ranked recipe to 100. Reports only, never deletes.
 argument-hint: "[path] [--skip-doctor|--skip-dedupe|--skip-symmetry|--skip-memory|--skip-repo-skills|--skip-context-lean|--skip-test-ci|--skip-upstream-drift]"
 allowed-tools: Bash
 ---
