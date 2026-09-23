@@ -73,6 +73,17 @@ with open(path) as f:
     data = json.load(f)
 
 old_version = data.get("ai_kit_version", "unknown")
+
+def parse(v):
+    return tuple(map(int, v.split("."))) if re.fullmatch(r"\d+\.\d+\.\d+", v) else None
+
+# A peer session that was restarted after /plugin update can stamp a newer
+# version than this one runs; overwriting it would downgrade the project.
+if parse(old_version) and parse(version) and parse(old_version) > parse(version):
+    print(f"marker is newer than the running kit ({old_version} > {version}); "
+          "restart the session after /plugin update", file=sys.stderr)
+    sys.exit(1)
+
 data["ai_kit_version"] = version
 data["completed_at"] = completed
 

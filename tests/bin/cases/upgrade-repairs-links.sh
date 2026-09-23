@@ -118,4 +118,15 @@ assert "stale link resolves again" '[ -e "$PS/.claude/skills/demo-skill/SKILL.md
 assert "it resolves to the current version content" 'grep -q "v6" "$PS/.claude/skills/demo-skill/SKILL.md"'
 assert "repair ran, not skipped" '! grep -q "nothing to repair" <<<"$OUT_PS"'
 
+echo "=== #190: a marker newer than the running kit is refused, not downgraded ==="
+PD="$H/proj-newer"
+mkdir -p "$PD"
+write_marker "$PD" "4.0.1"
+cp "$PD/.ai-kit-setup" "$H/marker-before"
+RC=0
+OUT_PD="$(HOME="$H" bash "$V6/bin/ai-kit-upgrade.sh" "$PD" 2>&1)" || RC=$?
+assert "exits 1" '[ "$RC" -eq 1 ]'
+assert "names both versions" 'grep -qF "marker is newer than the running kit (4.0.1 > 4.0.0)" <<<"$OUT_PD"'
+assert "marker byte-identical" 'cmp -s "$H/marker-before" "$PD/.ai-kit-setup"'
+
 print_summary_and_exit
