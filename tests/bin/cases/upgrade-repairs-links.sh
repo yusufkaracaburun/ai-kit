@@ -128,5 +128,9 @@ OUT_PD="$(HOME="$H" bash "$V6/bin/ai-kit-upgrade.sh" "$PD" 2>&1)" || RC=$?
 assert "exits 1" '[ "$RC" -eq 1 ]'
 assert "names both versions" 'grep -qF "marker is newer than the running kit (4.0.1 > 4.0.0)" <<<"$OUT_PD"'
 assert "marker byte-identical" 'cmp -s "$H/marker-before" "$PD/.ai-kit-setup"'
+RC=0
+HOME="$H" bash "$V6/bin/ai-kit-upgrade.sh" "$PD" --skip-skill-merge=true >/dev/null 2>&1 || RC=$?
+assert "--skip-skill-merge path: exits 1" '[ "$RC" -eq 1 ]'
+assert "--skip-skill-merge path: marker byte-identical" 'cmp -s "$H/marker-before" "$PD/.ai-kit-setup"'
 
 print_summary_and_exit

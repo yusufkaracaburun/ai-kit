@@ -55,6 +55,16 @@ if [ ! -f "$MARKER" ]; then
   exit 2
 fi
 
+# A peer session restarted after /plugin update can stamp a newer version
+# than this one runs; writing now would downgrade the project.
+OLD_VERSION="$(marker_get "$MARKER" ai_kit_version unknown)"
+SEMVER='^[0-9]+\.[0-9]+\.[0-9]+$'
+if [[ $OLD_VERSION =~ $SEMVER && $VERSION =~ $SEMVER && $OLD_VERSION != "$VERSION" ]] &&
+   [ "$(printf '%s\n' "$OLD_VERSION" "$VERSION" | sort -t. -k1,1n -k2,2n -k3,3n | tail -1)" = "$OLD_VERSION" ]; then
+  echo "marker is newer than the running kit ($OLD_VERSION > $VERSION); restart the session after /plugin update" >&2
+  exit 1
+fi
+
 if [ -n "$SKIP_SKILL_MERGE_ARG" ]; then
   "$SCRIPT_BIN/write-setup-marker.sh" "$TARGET" "--skip-skill-merge=$SKIP_SKILL_MERGE_ARG"
 fi
@@ -73,17 +83,6 @@ with open(path) as f:
     data = json.load(f)
 
 old_version = data.get("ai_kit_version", "unknown")
-
-def parse(v):
-    return tuple(map(int, v.split("."))) if re.fullmatch(r"\d+\.\d+\.\d+", v) else None
-
-# A peer session that was restarted after /plugin update can stamp a newer
-# version than this one runs; overwriting it would downgrade the project.
-if parse(old_version) and parse(version) and parse(old_version) > parse(version):
-    print(f"marker is newer than the running kit ({old_version} > {version}); "
-          "restart the session after /plugin update", file=sys.stderr)
-    sys.exit(1)
-
 data["ai_kit_version"] = version
 data["completed_at"] = completed
 
