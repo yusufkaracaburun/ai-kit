@@ -58,6 +58,7 @@ ARCH_BRANCH="skipped"
 DOCKER_BRANCH=""
 SECRETS_SCAN_BRANCH=""
 DOMAIN_DOCS_BRANCH=""
+DEV_ENV_BRANCH=""
 PROJECT_SKILLS_MERGED_RAW=""
 SETUP_VALID=false
 MARKER_VERSION=""
@@ -72,6 +73,7 @@ if [ -f "$SETUP_FILE" ] && MARKER_VERSION="$(marker_get "$SETUP_FILE" ai_kit_ver
   DOCKER_BRANCH="$(marker_get "$SETUP_FILE" branches.docker skipped)"
   SECRETS_SCAN_BRANCH="$(marker_get "$SETUP_FILE" branches.secrets_scan)"
   DOMAIN_DOCS_BRANCH="$(marker_get "$SETUP_FILE" branches.domain_docs)"
+  DEV_ENV_BRANCH="$(marker_get "$SETUP_FILE" branches.dev_environment)"
   # skip_skill_merge=true is the v1.79 retrofit of project_skills_merged=false
   # (ADR-0012); a marker written between the two carries only the old field.
   PROJECT_SKILLS_MERGED_RAW="$(marker_get "$SETUP_FILE" branches.project_skills_merged)"
@@ -156,7 +158,9 @@ if [ -f "$SETUP_FILE" ]; then
     "$(bool [ -n "$SECRETS_SCAN_BRANCH" ])"
 fi
 
-check "dev-environment.md" "$(bool [ -f "$TARGET/docs/agents/dev-environment.md" ])"
+if [ "$DEV_ENV_BRANCH" != "false" ]; then
+  check "dev-environment.md" "$(bool [ -f "$TARGET/docs/agents/dev-environment.md" ])"
+fi
 
 if [ "$SETUP_MODE" = "brownfield" ]; then
   check "agent-stack.md (brownfield)" \
