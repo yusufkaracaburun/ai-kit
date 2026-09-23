@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.4 — 2026-09-23
+
+### Fixed
+- **`/ai:upgrade` downgraded a marker newer than the running kit (#190).** A session still on the 2.0.2 plugin after `/plugin update` stamped planny's 2.0.3 marker down to 2.0.2, printed the changelog slice backwards and re-pinned project links to the older cache, with no warning. With several peer sessions open, one running the new plugin and one the old, this is the normal state. Upgrade now exits 1 before writing: `marker is newer than the running kit (X > Y); restart the session after /plugin update`. A deliberate rollback is a manual marker edit.
+
 ## 2.0.3 — 2026-09-23
 
 ### Fixed
