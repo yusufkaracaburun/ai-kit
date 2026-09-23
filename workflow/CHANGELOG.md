@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.3 — 2026-09-23
+
+### Fixed
+- **`verify-setup.sh` failed projects that opted out of the dev-environment branch.** The `dev-environment.md` check ran unconditionally, so a marker with `branches.dev_environment: false` always reported `FAIL: dev-environment.md` (seen in planny on 1.91.0 and again on 2.0.2). The check now skips when the marker says `false`; a marker without the key is still checked, the same rule `domain_docs` already follows. Test: `tests/bin/cases/verify-setup-skipped-doc-branches.sh`.
+
 ## 2.0.2 — 2026-09-21
 
 ### Changed
