@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.1.0 — 2026-09-27
+
+### Added
+- **`design-to-code` has a fifth flow, `store` (#192).** It builds App Store and Play Store screenshot slides from the app's own `.pen` screen masters: each phone is a new shell instance with the screen's content master in its slot, captions and decoration sit outside the shell, and everything lives in one section the flow asks to keep or delete. A frame is store size / 3 exported at scale 3 (440x956 → 1320x2868); sizes not divisible by 3 get another scale or a 1:1 frame. Verified live in planny-app-mobile: Home exported at 1320x2868, section deleted, `.pen` diff empty afterwards.
+- **`app-store-screenshots` companion for mobile apps (#191).** ParthJadhav/app-store-screenshots, pinned `7faf7fc`, offered by `/ai:recommend-tools` only when the repo has `ios/` and `android/` (or a Flutter pubspec plus one of them). It is the fallback for apps without a `.pen`. It scaffolds a local Next.js editor whose API routes write to disk, so the entry and its AGENTS.md pointer say: sibling folder, never inside the app repo, never deployed. The earlier Ignore verdict moved to `plugins-excluded.json` `reversed[]` with the evidence that overturned it.
+
+### Changed
+- **Three `.pen` hard rules in `design-to-code`, for every flow that writes.** New nodes do not render in the `execute` call that creates them, so screenshot and export in a later call. Writes land in the active editor, not in `filePath`: run `get_app_state` before each write and claim Pen from peer sessions. Save via File > Save, then check mtime, `~/Library/Logs/Pen/main.log` for `Failed to serialize`, and the file diff.
+
 ## 2.0.4 — 2026-09-23
 
 ### Fixed
