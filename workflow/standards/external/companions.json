@@ -380,6 +380,37 @@
         "notes": "The `-s` flag installs only the named skills, space-separated (`-s a b c`; a comma-joined list is read as one unknown name and installs nothing) — never pass `--all` or omit `-s`. The upstream repo also ships `emil-design-eng` (skip: duplicates animate + review-animations' content, same tables, heavier — 674 lines), `apple-design`/`mobile-native`/`pick-ui-library`/`prototype` (not wired: no confirmed downstream signal at audit time), and `write-swift`/`animate-expo` (not wired: no native Swift or React Native/Expo codebase found across the checked repos — planny-app-mobile is Flutter/Dart, confirmed by import statements, not just .swift file count, which is inflated by vendored CocoaPods/Flutter-runner boilerplate). `skills@latest add` is the same CLI (vercel-labs/skills) naschool already uses for `frontend-design`/`superdesign` via its `skills-lock.json`."
       },
       "license": "MIT"
+    },
+    {
+      "name": "app-store-screenshots",
+      "category": "store-assets",
+      "best_for": "Mobile apps with an iOS and Android target that need App Store and Play Store screenshots and have no `.pen` design source to export them from",
+      "value": "One skill (`app-store-screenshots`) that scaffolds a local Next.js editor and renders store screenshot decks: device frames, 23 themes, export sizes for iPhone/iPad/Android/feature graphic (1320x2868 for iPhone 6.9\"). Fallback route: when the project has a `.pen` design source, the design-to-code store flow comes first.",
+      "risk": "Medium. The scaffolded template runs a local Next.js dev server whose API routes write to disk: `/api/project` overwrites `app-store-screenshots.json`, `/api/upload` and `/api/upload-font` write content-hashed files under `public/`. Cross-site writes are rejected since upstream PR #32 (JSON content type, loopback Origin, Sec-Fetch-Site check). The skill copies its template into the working directory, so scaffold it in a sibling folder next to the app, never inside the app repo. Local dev only, never deployed. `bun install` pulls 183 packages.",
+      "tiers": [
+        {
+          "name": "store-screenshots",
+          "description": "`app-store-screenshots` only. Offer only when the mobile signal fires; a web-only repo gets nothing from it.",
+          "wired_via": "workflow/skills/recommend-tools/SKILL.md Phase 3 app-store-screenshots branch (AGENTS.md pointer)",
+          "glue_files": [
+            "context/templates/companions/app-store-screenshots.md"
+          ]
+        }
+      ],
+      "detection": {
+        "skill": "test -d ~/.claude/skills/app-store-screenshots -o -d .claude/skills/app-store-screenshots",
+        "mobile_signal": "{ [ -d ios ] && [ -d android ]; } || { [ -f pubspec.yaml ] && grep -qE 'sdk:[[:space:]]*flutter' pubspec.yaml && { [ -d ios ] || [ -d android ]; }; }"
+      },
+      "install": {
+        "upstream": "https://github.com/ParthJadhav/app-store-screenshots",
+        "npm_package": "skills",
+        "install_command": "npx skills@latest add ParthJadhav/app-store-screenshots -a claude-code -y",
+        "auto_install": false,
+        "pinned_sha": "7faf7fcd62238df12c1d7f0578191bcc73cff07c",
+        "vetted_at": "2026-09-27",
+        "notes": "Per project, not `-g`. Installs one skill (SKILL.md 758 lines, style prompts, a Next.js 16 template; 95 tracked files upstream). POC 2026-09-27 on planny-app-mobile goldens: default slide transforms did not fit foreign content (tune per slide), and low-res captures upscale about 3x, so feed 3x Pencil exports or simulator captures."
+      },
+      "license": "MIT"
     }
   ]
 }

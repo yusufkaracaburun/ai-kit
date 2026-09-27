@@ -1046,3 +1046,58 @@ modern-web-guidance · category=web-platform · added 2026-09-19
                     platform-implementation source next to the
                     design-intelligence one; it never picks a direction)
 ```
+
+### `app-store-screenshots`, added 2026-09-27 (companions.json)
+
+Excluded by `/should-i-use` on 2026-09-02 and 2026-09-27 as one-off marketing
+tooling. The user reversed that on 2026-09-27: ai-kit will serve more mobile
+apps, and every app with an iOS and Android target needs store screenshots at
+each release. The reversal is recorded in `plugins-excluded.json` `reversed[]`.
+A POC the same day at the pinned SHA rendered a 6-slide 1320x2868 deck from
+planny-app-mobile goldens. It is the fallback route; apps with a `.pen` source
+use the design-to-code store flow (#192). Detection checked by hand: fires on
+planny-app-mobile, silent on emeq-app, emeq-hub, emeq-web and ai-kit.
+
+```
+app-store-screenshots · category=store-assets · added 2026-09-27
+  MARKETING-PARITY: pass (claimed Next.js editor with device frames and
+                    themes checked by POC: the shipped template rendered a
+                    1320x2868 deck with device frames and 23 themes)
+  BENCHMARK:        n/a (no numeric performance claims)
+  MARKETING-AUDIT:  pass with caveat (the output works, but the default slide
+                    transforms did not fit foreign content and needed per-slide
+                    tuning; low-res captures upscale about 3x. Both carried
+                    into the entry's install notes)
+  LICENSE:          MIT + safe (LICENSE at repo root, copyright Parth Jadhav,
+                    whole repo)
+  MATURITY:         pass (~7.0k stars, 42 commits since 2026-09-02, head
+                    committed 2026-09-27; one skill, SKILL.md 758 lines plus a
+                    Next.js 16 template, 95 tracked files)
+  DATA-LOCALITY:    local (no hard-coded external URL in the template's
+                    `src/`; `bun install` pulls 183 packages from the npm
+                    registry)
+  PROVENANCE:       7faf7fcd62238df12c1d7f0578191bcc73cff07c (main, 2026-09-27)
+  SECURITY-SCAN:    pass (hand-read, shallow clone at the pinned SHA, no
+                    skillspector run). Three routes write to disk, each gated
+                    by `rejectCrossSiteWrite` in `lib/request-guard.ts`
+                    (JSON content type required, Origin must be loopback when
+                    present, Sec-Fetch-Site must not be cross-site):
+                    `/api/project` POST takes validated project JSON and
+                    atomically overwrites `app-store-screenshots.json` in the
+                    cwd; `/api/upload` takes a PNG/JPEG data URL, magic-byte
+                    checked, max 8 MB, written to
+                    `public/screenshots/uploaded/<sha1-16>.<ext>`;
+                    `/api/upload-font` takes base64 WOFF2/WOFF/TTF/OTF,
+                    magic-byte checked, max 16 MB, written to
+                    `public/fonts/imported/<sha1-16>.<ext>`. Filenames are
+                    content hashes, so no path traversal. No
+                    `child_process`/`eval` in `skills/` or `scripts/`.
+                    SKILL.md copies the template into `$PWD` and runs
+                    `bun install`/`bun dev`, which is why the entry says
+                    sibling folder only
+  VERDICT:          ADD (companions.json, mobile-gated: `ios/` and
+                    `android/`, or a Flutter `pubspec.yaml` plus one of
+                    them. Risk carried into the entry: local dev server
+                    writing to disk, scaffold next to the app, never inside
+                    it, never deployed)
+```
