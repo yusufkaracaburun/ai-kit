@@ -22,6 +22,13 @@ _Last reconciled: 2026-09-21 against 47 open issues (#140, #184, #185 closed; ea
 
 ## P2 — next up
 
+- **#191** `enhancement` — catalog: `app-store-screenshots` (ParthJadhav, pinned
+  `7faf7fc`) as mobile-gated companion, the fallback route for store screenshots;
+  leaves `plugins-excluded.json`. Reversed from Ignore by the user 2026-09-27.
+- **#192** `enhancement` — `design-to-code`: `store` flow on Pencil (shell instance +
+  content master, 440×956 at scale 3) plus three `.pen` hard rules (render before
+  export, active-editor writes, save + log check). Two POCs in planny 2026-09-27.
+  Blocked by #191.
 - **#174** `bug` — hygiene `test-ci` does not recognise Dart/Flutter projects as having a
   test runner; planny-app-mobile reports "no test runner" with a full Patrol suite. Labelled
   P2 on 2026-09-19.
@@ -158,6 +165,9 @@ _Last reconciled: 2026-09-21 against 47 open issues (#140, #184, #185 closed; ea
 - **#189** `enhancement` — test gaps: `release.sh` non-dry-run and `emit-agents.sh` write
   path never run, CI shellcheck skips the 68 case files, three asserts pass on a crash,
   six cases read the real `$HOME`. bats-core decision. Audit 2026-09-19.
+- **#193** `enhancement` — `release-ios` / `release-android` from personal
+  `~/.claude/skills` into the kit, mobile-gated; HITL on form first. Follow-up of
+  #191/#192, 2026-09-27.
 
 - **#180** `enhancement` — `docs-sync`: naschool's 403-line project `docs-sync`
   (the skill #26 promoted the plugin's from) has diverged and shadows the plugin
