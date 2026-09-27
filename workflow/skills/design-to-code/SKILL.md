@@ -1,11 +1,11 @@
 ---
 name: design-to-code
-description: Turn a design file into code and prove the code still matches it — design → audit → build → prove against a `.pen` (Pencil) or other MCP-readable design source. Use when the user says "design naar code", "bouw dit scherm uit het design", "klopt de code met het design", "design sync", "parity check", after a `.pen` change, or via /ai:design-to-code. Not for choosing a visual direction.
+description: Turn a design file into code and prove the code still matches it — design → audit → build → prove against a `.pen` (Pencil) or other MCP-readable design source, plus store slides. Use when the user says "design naar code", "bouw dit scherm uit het design", "klopt de code met het design", "design sync", "parity check", "store screenshots", "App Store screenshots", "Play Store screenshots", after a `.pen` change, or via /ai:design-to-code. Not for choosing a visual direction.
 ---
 
 # Design to code
 
-The design file is the source of truth. Code follows it; drift is a finding, never a taste difference. Four flows — design, audit, build, prove — run one screen at a time or a whole module in batch.
+The design file is the source of truth. Code follows it; drift is a finding, never a taste difference. Five flows — design, audit, build, prove, store — run one screen at a time or a whole module in batch.
 
 Stack-agnostic: this skill carries the procedure, the bar, and the delegation shape. Project specifics — token names, route language, frame ids, the project's own gates — are an overlay the project keeps in its own `.agents/skills/` (or `.claude/skills/`); they do not belong here.
 
@@ -30,14 +30,17 @@ The overlay is a pointer file, not a second copy of this skill. It carries what 
 
 - **Never `Read` or `Grep` a `.pen` file.** They are encrypted; you will hallucinate a design from the bytes. Pencil MCP tools only. The one exception is a project that keeps a plain-JSON `.pen` in the repo and reads it with its own scripts — `head -c 200` tells you which kind you have.
 - **`get_app_state` first.** No other Pencil tool works without the current schema in context; it also tells you which file is active.
-- **Designs are read-only** unless the user explicitly asks to edit the design. This skill converts designs into code; it does not quietly fix the design to match the code.
+- **Designs are read-only** unless the user explicitly asks to edit the design. This skill converts designs into code; it does not quietly fix the design to match the code. The one exception is **store**, which only adds nodes inside its own section.
+- **New nodes do not render in the `execute` call that creates them.** `TakeScreenshot` and `Export` in that call return a blank image, so check and export in a later call. A white result there still means "not rendered yet", not a broken design: have the user bring the section into view and retry.
+- **Writes go to the active editor, not to `filePath`.** Run `get_app_state` before every write. When other sessions share the Pencil app, claim it first and release it afterwards.
+- **Save via File > Save, then verify** (on macOS, `osascript` clicking the Pen app's File > Save menu item): mtime changed, `~/Library/Logs/Pen/main.log` has no new `Failed to serialize`, and the file diff holds only the intended additions or removals. No probe or throw scripts in `execute`: a rollback in a document with nested masters has corrupted a file before.
 
 ## Run mode
 
-- **Claude Code (preferred):** *build* → delegate each unit to the `designer` subagent via the Task tool with `subagent_type=designer`. Pass: the frame id(s), the target path/route, the project's token file and its two or three most-polished components of the same kind, and from the overlay: the master → component map, the state recipe, the undesigned states, the copy keys per locale, the interactions. *Prove* → one `verifier` per unit with `subagent_type=verifier`; claim and observation method under **Prove** below. One subagent per unit, in parallel when units are independent (a module's frames usually are). Audit stays in the main context — it needs the MCP.
+- **Claude Code (preferred):** *build* → delegate each unit to the `designer` subagent via the Task tool with `subagent_type=designer`. Pass: the frame id(s), the target path/route, the project's token file and its two or three most-polished components of the same kind, and from the overlay: the master → component map, the state recipe, the undesigned states, the copy keys per locale, the interactions. *Prove* → one `verifier` per unit with `subagent_type=verifier`; claim and observation method under **Prove** below. One subagent per unit, in parallel when units are independent (a module's frames usually are). Audit and store stay in the main context — they need the MCP.
 - **Hosts without subagents:** run build and prove inline, budgeted per unit (one frame, one render, one verdict before the next). The flows below are the canonical source of truth — `designer`'s prompt mirrors the build rules.
 
-## The four flows
+## The five flows
 
 | Flow | Use it when |
 |------|-------------|
@@ -45,6 +48,7 @@ The overlay is a pointer file, not a second copy of this skill. It carries what 
 | **audit** | score existing code against its frame; after any `.pen` change |
 | **build** | generate or rebuild a screen from a finished frame |
 | **prove** | confirm a built screen is 1:1 with its frame before calling it done |
+| **store** | App Store / Play Store screenshot slides from the `.pen`'s screen masters |
 
 ### design — only when asked
 
@@ -89,6 +93,15 @@ Claim: **"`<component or route>` matches design frame `<id>`."** The main thread
 **What a proof can and cannot say.** A golden or self-baseline compares the app with *itself*: it locks regressions and can never show app ≠ design — only a compare against the design export can. Colour is the leg that slips: assert it explicitly, and pick a component's variant by the node's colour token, never by its name or role. A test entry (a query param, a flag, a fixture switch) may swap data and state, never styling — a style that only exists behind the test entry proves the test URL, not production.
 
 Verdict CONFIRMED means done; REFUTED means the counter-evidence is the next fix; UNTESTABLE means say what could not be observed — never upgrade it to a pass.
+
+### store — screenshot slides from the design
+
+Builds store slides from the real screen masters, exports them at store size, and leaves nothing behind unless the user keeps it. No `.pen`, or the screens you need have no content master → use the `app-store-screenshots` companion instead (offered by `/ai:recommend-tools` for mobile apps; feed it 3x Pencil exports or simulator captures).
+
+1. **Sizes first.** List the sizes each target store requires before building. Frame = store size / 3, exported at scale 3: a 440x956 frame gives 1320x2868 (iPhone 6.9"). Every other size gets its own frame size.
+2. **Phone = shell instance + content master.** Each phone is a new instance of the app's shell component, with the screen's content master in its content slot and the same descendant overrides (header, demo data) as the app's own screen frame for that screen. Never ref a screen frame and never copy one: copies drift. A screen without a content master cannot be used; report it and let the project promote it.
+3. **Caption and decoration live outside the shell**, in the slide's own nodes: label, headline, brand mark (the app's logo component), callouts (text plus a thin rectangle plus a dot; there is no line node), floating tiles (instances of real components with the file's own shadow token). Absolute positions have no layout, so `TakeScreenshot` every slide and check it by eye before export.
+4. **Own section, removable in one delete.** All slides go in one labelled top-level section. Add nodes only inside it; never Replace, Move or Update a node the flow did not create. Export with `Export(ids, "png", dir, {scale: 3})`, then ask the user to keep or delete the section.
 
 ## Modes
 

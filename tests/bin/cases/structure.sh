@@ -71,6 +71,7 @@ assert "autonomous skill names builder as the per-issue worker" 'grep -q "subage
 assert "design-to-code skill has a Run mode block" 'grep -q "^## Run mode" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
 assert "design-to-code skill delegates to designer" 'grep -q "subagent_type=designer" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
 assert "design-to-code skill delegates to verifier" 'grep -q "subagent_type=verifier" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "design-to-code skill has a store flow with its fallback" 'grep -q "^### store" "$AIKIT/workflow/skills/design-to-code/SKILL.md" && grep -q "app-store-screenshots" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
 
 
 echo "=== plugin-manifest ==="
