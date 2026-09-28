@@ -378,7 +378,5 @@ _Last reconciled: 2026-09-21 against 47 open issues (#140, #184, #185 closed; ea
   autonomous runs. Sequence after #19's setup-mode opt-in pattern stabilises.
 - **#31** `enhancement · primitive:* · needs-info` — structured per-claim validation
   as a cheap tech-debt surfacer; proposes 3 primitives. Stays needs-info till scoped.
-- **#25** `enhancement · needs-info` — re-evaluate book-to-skill as a catalog
-  candidate now that VETTING criteria (#22) have landed.
 - **#15** `enhancement · ready-for-human` — brainstorm a second plugin under
   `yusufkaracaburun/marketplace`. Marketplace shape only pays off at N ≥ 2.
