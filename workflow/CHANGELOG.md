@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.0 — 2026-09-29
+
+### Changed
+- **A lead session dispatches, it does not execute.** `session-coordination` defined lead only as owner of push/merge order, so leads built, tested and committed inline and filled their context with suite output. The rule now sends code edits, test changes, suite runs, builds, e2e and commits to subagents (`builder`, `designer`, `qa-runner`, `explore`), keeps inline work to one lookup or a one-line fix, requires invoking the phase skill instead of naming it (naming `tdd` passes the phase check and skips the builder), and has the lead check agent claims before relaying them. The peer-sessions hook injects these bullets whenever peers are live. ADR-0014 amended. Harvested from planny and planny-app-mobile.
+
 ## 2.1.0 — 2026-09-27
 
 ### Added
