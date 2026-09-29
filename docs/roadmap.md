@@ -168,6 +168,9 @@ _Last reconciled: 2026-09-21 against 47 open issues (#140, #184, #185 closed; ea
 - **#193** `enhancement` — `release-ios` / `release-android` from personal
   `~/.claude/skills` into the kit, mobile-gated; HITL on form first. Follow-up of
   #191/#192, 2026-09-27.
+- **#194** `enhancement` — harvest the global PR gate (`pr-gate-check.sh` +
+  `pr-gate-run.sh`, per-repo `.claude/pr-gate`) into `bin/hooks` + `/ai:setup` after real
+  use; re-check ~2026-10-13. Open: hard default vs opt-in, per-stack seeding. 2026-09-29.
 
 - **#180** `enhancement` — `docs-sync`: naschool's 403-line project `docs-sync`
   (the skill #26 promoted the plugin's from) has diverged and shadows the plugin
