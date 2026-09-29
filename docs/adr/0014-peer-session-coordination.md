@@ -60,6 +60,9 @@ Two facts found on the machine while building this shaped the mechanism:
 3. **One lead per repo, designated by the user.** The lead owns push/merge
    order; non-leads commit locally and report to the lead. No lead named → the
    first session on that repo is lead by default and says so in its claim.
+   Amended 2026-09-29: the lead also dispatches rather than executes. Leads in
+   two repos built inline, filled their context with suite output and lost
+   the board; the rule now routes execution to subagents.
 4. **Claims registry**: one file per session,
    `~/.config/ai-kit/claims/<session_id>.md` (YAML frontmatter: name, repo,
    cwd, branch, role, owns, provides, depends_on, updated), managed by
