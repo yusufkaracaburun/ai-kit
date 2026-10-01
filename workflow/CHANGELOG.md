@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.1 — 2026-10-01
+
+### Fixed
+- **Plugin subagents never resolved from a skill.** Agents lived at `workflow/agents/<name>/AGENT.md`; Claude Code namespaces a subdirectory, so they registered as `ai:qa-runner:qa-runner` while skills asked for `subagent_type=qa-runner`. Agents are now flat `workflow/agents/<name>.md` and every skill delegates with `subagent_type=ai:<name>`. `eval-structure.sh` fails a skill that names an agent without the `ai:` namespace. `install-global.sh`, project bootstrap and `/ai:upgrade` link `<name>.md` files; upgrade removes a project's old per-dir agent links. `emit-agents.sh`, `count-primitives.sh`, `ai-kit-dedupe.sh` and the ecosystem audit read the flat layout.
+
 ## 2.2.0 — 2026-09-29
 
 ### Changed
