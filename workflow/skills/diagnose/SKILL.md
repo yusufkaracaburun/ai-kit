@@ -11,7 +11,7 @@ When exploring the codebase, use the project's domain glossary to get a clear me
 
 ## Run mode
 
-- **Claude Code:** when you need to map the bug's code area — find callers, trace a data path, locate the seam a fix would sit at — delegate that read to the `explore` subagent via the Task tool with `subagent_type=explore`, and work from its ≤300-line summary. Keeps wide file dumps out of the diagnosis loop. The loop itself (Phases 1–6) stays in this context — it is iterative and checkpoints with the user.
+- **Claude Code:** when you need to map the bug's code area — find callers, trace a data path, locate the seam a fix would sit at — delegate that read to the `explore` subagent via the Task tool with `subagent_type=ai:explore`, and work from its ≤300-line summary. Keeps wide file dumps out of the diagnosis loop. The loop itself (Phases 1–6) stays in this context — it is iterative and checkpoints with the user.
 - **Hosts without subagents:** read the files inline, filtered per [`context-discipline.mini.md`](../../../standards/rules/context-discipline.mini.md).
 
 ## Phase 1 — Build a feedback loop

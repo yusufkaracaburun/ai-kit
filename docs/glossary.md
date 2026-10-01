@@ -44,7 +44,7 @@ The per-project context file: domain model, stack, recent ADRs index. Skills rea
 
 ### Emitter
 
-A script in `bin/` that converts a single canonical source into one or more derived files. `bin/emit-rules.sh` turns `standards/rules/*.mini.md` into host-specific rule files (Cursor `.mdc`, Claude Code skill text). `bin/emit-agents.sh` keeps a marked region of a subagent's `AGENT.md` generated from named sections of its source `SKILL.md`, so shared reference content has one home.
+A script in `bin/` that converts a single canonical source into one or more derived files. `bin/emit-rules.sh` turns `standards/rules/*.mini.md` into host-specific rule files (Cursor `.mdc`, Claude Code skill text). `bin/emit-agents.sh` keeps a marked region of a subagent's `workflow/agents/<name>.md` generated from named sections of its source `SKILL.md`, so shared reference content has one home.
 
 Use this pattern whenever an artifact needs per-host translation, or shares content with another artifact, in a way a symlink cannot solve.
 
@@ -123,7 +123,7 @@ A rule with `universal: false` and a `paths:` scope (laravel-conventions, flutte
 
 ### Subagent
 
-A Claude Code primitive: an isolated child context spawned via the Task tool. Definition: `workflow/agents/<name>/AGENT.md`. Use when a skill needs to do heavy work without polluting the main context.
+A Claude Code primitive: an isolated child context spawned via the Task tool. Definition: `workflow/agents/<name>.md`, invoked as `subagent_type=ai:<name>`. Use when a skill needs to do heavy work without polluting the main context.
 
 **Cursor and other hosts have no subagent primitive** — skills that delegate must include an inline fallback.
 

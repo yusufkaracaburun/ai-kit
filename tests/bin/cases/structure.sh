@@ -17,27 +17,27 @@ assert "rename-housekeeping skill exists" '[ -f "$AIKIT/workflow/skills/rename-h
 
 echo "=== agents ==="
 # section: agents
-AGENT_COUNT=$(find "$AIKIT/workflow/agents" -name AGENT.md | wc -l | tr -d ' ')
+AGENT_COUNT=$(find "$AIKIT/workflow/agents" -maxdepth 1 -name "*.md" | wc -l | tr -d ' ')
 assert "6 subagents present" '[ "$AGENT_COUNT" -eq 6 ]'
-assert "explore exists" '[ -f "$AIKIT/workflow/agents/explore/AGENT.md" ]'
-assert "reviewer exists" '[ -f "$AIKIT/workflow/agents/reviewer/AGENT.md" ]'
-assert "qa-runner exists" '[ -f "$AIKIT/workflow/agents/qa-runner/AGENT.md" ]'
-assert "verifier exists" '[ -f "$AIKIT/workflow/agents/verifier/AGENT.md" ]'
-assert "builder exists" '[ -f "$AIKIT/workflow/agents/builder/AGENT.md" ]'
-assert "designer exists" '[ -f "$AIKIT/workflow/agents/designer/AGENT.md" ]'
-assert "explore frontmatter name" 'head -5 "$AIKIT/workflow/agents/explore/AGENT.md" | grep -q "^name: explore$"'
-assert "explore frontmatter tools" 'head -5 "$AIKIT/workflow/agents/explore/AGENT.md" | grep -q "^tools:"'
-assert "reviewer frontmatter name" 'head -5 "$AIKIT/workflow/agents/reviewer/AGENT.md" | grep -q "^name: reviewer$"'
-assert "qa-runner frontmatter name" 'head -5 "$AIKIT/workflow/agents/qa-runner/AGENT.md" | grep -q "^name: qa-runner$"'
-assert "qa-runner frontmatter tools" 'head -5 "$AIKIT/workflow/agents/qa-runner/AGENT.md" | grep -q "^tools:"'
-assert "verifier frontmatter name" 'head -5 "$AIKIT/workflow/agents/verifier/AGENT.md" | grep -q "^name: verifier$"'
-assert "verifier frontmatter has no model pin" '! head -5 "$AIKIT/workflow/agents/verifier/AGENT.md" | grep -q "^model:"'
-assert "builder frontmatter name" 'head -5 "$AIKIT/workflow/agents/builder/AGENT.md" | grep -q "^name: builder$"'
-assert "builder frontmatter tools" 'head -5 "$AIKIT/workflow/agents/builder/AGENT.md" | grep -q "^tools:"'
-assert "designer frontmatter name" 'head -5 "$AIKIT/workflow/agents/designer/AGENT.md" | grep -q "^name: designer$"'
-assert "designer frontmatter has no model pin" '! head -5 "$AIKIT/workflow/agents/designer/AGENT.md" | grep -q "^model:"'
+assert "explore exists" '[ -f "$AIKIT/workflow/agents/explore.md" ]'
+assert "reviewer exists" '[ -f "$AIKIT/workflow/agents/reviewer.md" ]'
+assert "qa-runner exists" '[ -f "$AIKIT/workflow/agents/qa-runner.md" ]'
+assert "verifier exists" '[ -f "$AIKIT/workflow/agents/verifier.md" ]'
+assert "builder exists" '[ -f "$AIKIT/workflow/agents/builder.md" ]'
+assert "designer exists" '[ -f "$AIKIT/workflow/agents/designer.md" ]'
+assert "explore frontmatter name" 'head -5 "$AIKIT/workflow/agents/explore.md" | grep -q "^name: explore$"'
+assert "explore frontmatter tools" 'head -5 "$AIKIT/workflow/agents/explore.md" | grep -q "^tools:"'
+assert "reviewer frontmatter name" 'head -5 "$AIKIT/workflow/agents/reviewer.md" | grep -q "^name: reviewer$"'
+assert "qa-runner frontmatter name" 'head -5 "$AIKIT/workflow/agents/qa-runner.md" | grep -q "^name: qa-runner$"'
+assert "qa-runner frontmatter tools" 'head -5 "$AIKIT/workflow/agents/qa-runner.md" | grep -q "^tools:"'
+assert "verifier frontmatter name" 'head -5 "$AIKIT/workflow/agents/verifier.md" | grep -q "^name: verifier$"'
+assert "verifier frontmatter has no model pin" '! head -5 "$AIKIT/workflow/agents/verifier.md" | grep -q "^model:"'
+assert "builder frontmatter name" 'head -5 "$AIKIT/workflow/agents/builder.md" | grep -q "^name: builder$"'
+assert "builder frontmatter tools" 'head -5 "$AIKIT/workflow/agents/builder.md" | grep -q "^tools:"'
+assert "designer frontmatter name" 'head -5 "$AIKIT/workflow/agents/designer.md" | grep -q "^name: designer$"'
+assert "designer frontmatter has no model pin" '! head -5 "$AIKIT/workflow/agents/designer.md" | grep -q "^model:"'
 # No tools: line on purpose — designer inherits the Pencil MCP tools when the host has them.
-assert "designer frontmatter has no tools list" '! head -5 "$AIKIT/workflow/agents/designer/AGENT.md" | grep -q "^tools:"'
+assert "designer frontmatter has no tools list" '! head -5 "$AIKIT/workflow/agents/designer.md" | grep -q "^tools:"'
 
 
 echo "=== slash-commands ==="
@@ -60,17 +60,17 @@ for s in qa diagnose to-issues; do
   assert "$s skill has a Run mode block" 'grep -q "^## Run mode" "$AIKIT/workflow/skills/'"$s"'/SKILL.md"'
 done
 assert "qa skill delegates to qa-runner" 'grep -q "qa-runner" "$AIKIT/workflow/skills/qa/SKILL.md"'
-assert "review skill spawns verifier" 'grep -q "subagent_type=verifier" "$AIKIT/workflow/skills/review/SKILL.md"'
-assert "autonomous skill spawns verifier" 'grep -q "subagent_type=verifier" "$AIKIT/workflow/skills/autonomous/SKILL.md"'
+assert "review skill spawns verifier" 'grep -q "subagent_type=ai:verifier" "$AIKIT/workflow/skills/review/SKILL.md"'
+assert "autonomous skill spawns verifier" 'grep -q "subagent_type=ai:verifier" "$AIKIT/workflow/skills/autonomous/SKILL.md"'
 assert "autonomous stop conditions list verify-refuted" 'grep -q "exit-gate verify-refuted" "$AIKIT/workflow/skills/autonomous/SKILL.md"'
 assert "diagnose skill delegates to explore" 'grep -q "explore" "$AIKIT/workflow/skills/diagnose/SKILL.md"'
 assert "to-issues skill delegates to explore" 'grep -q "explore" "$AIKIT/workflow/skills/to-issues/SKILL.md"'
 assert "tdd skill has a Run mode block" 'grep -q "^## Run mode" "$AIKIT/workflow/skills/tdd/SKILL.md"'
-assert "tdd skill delegates to builder" 'grep -q "subagent_type=builder" "$AIKIT/workflow/skills/tdd/SKILL.md"'
-assert "autonomous skill names builder as the per-issue worker" 'grep -q "subagent_type=builder" "$AIKIT/workflow/skills/autonomous/SKILL.md"'
+assert "tdd skill delegates to builder" 'grep -q "subagent_type=ai:builder" "$AIKIT/workflow/skills/tdd/SKILL.md"'
+assert "autonomous skill names builder as the per-issue worker" 'grep -q "subagent_type=ai:builder" "$AIKIT/workflow/skills/autonomous/SKILL.md"'
 assert "design-to-code skill has a Run mode block" 'grep -q "^## Run mode" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
-assert "design-to-code skill delegates to designer" 'grep -q "subagent_type=designer" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
-assert "design-to-code skill delegates to verifier" 'grep -q "subagent_type=verifier" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "design-to-code skill delegates to designer" 'grep -q "subagent_type=ai:designer" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "design-to-code skill delegates to verifier" 'grep -q "subagent_type=ai:verifier" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
 assert "design-to-code skill has a store flow with its fallback" 'grep -q "^### store" "$AIKIT/workflow/skills/design-to-code/SKILL.md" && grep -q "app-store-screenshots" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
 
 

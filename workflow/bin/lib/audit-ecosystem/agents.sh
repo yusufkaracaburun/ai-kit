@@ -10,7 +10,7 @@ walk_agents() {
   for agent_file in "$USER_AGENTS_DIR"/*.md; do
     [ -f "$agent_file" ] || continue
     name="$(basename "$agent_file" .md)"
-    if [ -d "$PLUGIN_AGENTS_DIR/$name" ]; then
+    if [ -f "$PLUGIN_AGENTS_DIR/$name.md" ]; then
       emit agents "$name" "REPLACE" \
         "ai-kit ships agents/$name — personal copy shadows the plugin version" \
         "user_path=$agent_file"

@@ -23,8 +23,8 @@ fi
 write_ai_kit_root_config "$AIKIT"
 
 # Symlink every subdirectory of $src_root into $target, refusing to clobber
-# user/custom entries. Used for skills, agents — anything where each entry
-# is a directory containing a manifest file (SKILL.md, AGENT.md).
+# user/custom entries. Used for skills — each entry is a directory containing
+# a SKILL.md.
 install_dir_to() {
   local src_root="$1"
   local target="$2"
@@ -73,7 +73,7 @@ install_dir_to() {
 }
 
 # Symlink every *.md file (top-level, not recursive) from $src_root into $target.
-# Used for slash commands — each command is a single file, not a directory.
+# Used for slash commands and subagents — each entry is a single file, not a directory.
 install_files_to() {
   local src_root="$1"
   local target="$2"
@@ -152,7 +152,7 @@ if [ "$PREFER_PLUGIN" = true ]; then
   echo "  Install via /plugin install ai@yusufkaracaburun to get explore/reviewer/qa-runner/verifier/builder/designer."
 else
   echo "=== Claude Code subagents (~/.claude/agents) ==="
-  install_dir_to "$PRIMITIVES/agents" "${HOME}/.claude/agents"
+  install_files_to "$PRIMITIVES/agents" "${HOME}/.claude/agents"
 fi
 
 echo ""

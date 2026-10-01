@@ -21,7 +21,7 @@ PRIMITIVES="$(resolve_primitives_root "$AIKIT")"
 count_skills()    { find "$PRIMITIVES/skills" -mindepth 2 -maxdepth 2 -name SKILL.md 2>/dev/null | wc -l | tr -d ' '; }
 count_commands()  { find "$PRIMITIVES/commands" -mindepth 1 -maxdepth 1 -name '*.md' 2>/dev/null | wc -l | tr -d ' '; }
 count_rules()     { find "$AIKIT/standards/rules" -mindepth 1 -maxdepth 1 -name '*.mini.md' 2>/dev/null | wc -l | tr -d ' '; }
-count_subagents() { find "$PRIMITIVES/agents" -mindepth 2 -maxdepth 2 -name AGENT.md 2>/dev/null | wc -l | tr -d ' '; }
+count_subagents() { find "$PRIMITIVES/agents" -mindepth 1 -maxdepth 1 -name '*.md' 2>/dev/null | wc -l | tr -d ' '; }
 
 emit_json() {
   printf '{"skills":%s,"commands":%s,"rules":%s,"subagents":%s}\n' \

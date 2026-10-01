@@ -11,7 +11,7 @@ Browser/console output is large; quote only salient lines back into this context
 
 ## Run mode
 
-- **Claude Code (preferred):** delegate the full QA pass to the `qa-runner` subagent via the Task tool with `subagent_type=qa-runner`. Pass: target URL, environment (`local`/`staging`), critical flows, tier (`quick`/`standard`/`exhaustive`). The subagent drives Playwright / CLI checks so the large browser and console output stays out of this context; it returns the markdown report below. Surface that report to the user, then run the fix loop here if asked.
+- **Claude Code (preferred):** delegate the full QA pass to the `qa-runner` subagent via the Task tool with `subagent_type=ai:qa-runner`. Pass: target URL, environment (`local`/`staging`), critical flows, tier (`quick`/`standard`/`exhaustive`). The subagent drives Playwright / CLI checks so the large browser and console output stays out of this context; it returns the markdown report below. Surface that report to the user, then run the fix loop here if asked.
 - **Browser-MCP interactive QA, or hosts without subagents:** run the process below inline. The process below is the canonical source of truth — `qa-runner`'s system prompt mirrors it.
 
 ## Process

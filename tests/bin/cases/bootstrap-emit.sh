@@ -16,8 +16,8 @@ assert ".agents/skills dir" '[ -d "$TMP_BOOT/.agents/skills" ]'
 assert ".cursor/skills dir" '[ -d "$TMP_BOOT/.cursor/skills" ]'
 assert "setup skill linked" '[ -L "$TMP_BOOT/.cursor/skills/setup" ] || [ -d "$TMP_BOOT/.cursor/skills/setup" ]'
 assert ".claude/agents dir" '[ -d "$TMP_BOOT/.claude/agents" ]'
-assert ".claude/agents explore linked" '[ -L "$TMP_BOOT/.claude/agents/explore" ] || [ -d "$TMP_BOOT/.claude/agents/explore" ]'
-assert ".claude/agents reviewer linked" '[ -L "$TMP_BOOT/.claude/agents/reviewer" ] || [ -d "$TMP_BOOT/.claude/agents/reviewer" ]'
+assert ".claude/agents explore linked" '[ -L "$TMP_BOOT/.claude/agents/explore.md" ]'
+assert ".claude/agents reviewer linked" '[ -L "$TMP_BOOT/.claude/agents/reviewer.md" ]'
 assert ".claude/commands dir" '[ -d "$TMP_BOOT/.claude/commands" ]'
 assert ".claude/commands doctor linked" '[ -L "$TMP_BOOT/.claude/commands/doctor.md" ] || [ -f "$TMP_BOOT/.claude/commands/doctor.md" ]'
 assert ".cursor/commands which linked" '[ -L "$TMP_BOOT/.cursor/commands/which.md" ] || [ -f "$TMP_BOOT/.cursor/commands/which.md" ]'
@@ -97,21 +97,21 @@ rm -rf "$EMIT_TMP"
 
 echo "=== emit-agents ==="
 # section: emit-agents
-# The generated region of AGENT.md must stay in sync with its source SKILL.md.
-assert "emit-agents: --check passes (AGENT.md in sync)" \
+# The generated region of an agent file must stay in sync with its source SKILL.md.
+assert "emit-agents: --check passes (agent files in sync)" \
   '"$AIKIT/bin/emit-agents.sh" --check >/dev/null 2>&1'
-assert "emit-agents: reviewer AGENT.md carries the markers" \
-  'grep -q "emit-agents:begin" "$AIKIT/workflow/agents/reviewer/AGENT.md" && grep -q "emit-agents:end" "$AIKIT/workflow/agents/reviewer/AGENT.md"'
+assert "emit-agents: reviewer.md carries the markers" \
+  'grep -q "emit-agents:begin" "$AIKIT/workflow/agents/reviewer.md" && grep -q "emit-agents:end" "$AIKIT/workflow/agents/reviewer.md"'
 assert "emit-agents: generated region pulled the shared sections" \
-  'grep -q "## Security deep pass" "$AIKIT/workflow/agents/reviewer/AGENT.md"'
-assert "emit-agents: qa-runner AGENT.md carries the markers" \
-  'grep -q "emit-agents:begin" "$AIKIT/workflow/agents/qa-runner/AGENT.md" && grep -q "emit-agents:end" "$AIKIT/workflow/agents/qa-runner/AGENT.md"'
+  'grep -q "## Security deep pass" "$AIKIT/workflow/agents/reviewer.md"'
+assert "emit-agents: qa-runner.md carries the markers" \
+  'grep -q "emit-agents:begin" "$AIKIT/workflow/agents/qa-runner.md" && grep -q "emit-agents:end" "$AIKIT/workflow/agents/qa-runner.md"'
 assert "emit-agents: qa-runner pulled the Tiers + Output sections" \
-  'grep -q "## Tiers" "$AIKIT/workflow/agents/qa-runner/AGENT.md" && grep -q "## Output" "$AIKIT/workflow/agents/qa-runner/AGENT.md"'
-assert "emit-agents: builder AGENT.md carries the markers" \
-  'grep -q "emit-agents:begin" "$AIKIT/workflow/agents/builder/AGENT.md" && grep -q "emit-agents:end" "$AIKIT/workflow/agents/builder/AGENT.md"'
+  'grep -q "## Tiers" "$AIKIT/workflow/agents/qa-runner.md" && grep -q "## Output" "$AIKIT/workflow/agents/qa-runner.md"'
+assert "emit-agents: builder.md carries the markers" \
+  'grep -q "emit-agents:begin" "$AIKIT/workflow/agents/builder.md" && grep -q "emit-agents:end" "$AIKIT/workflow/agents/builder.md"'
 assert "emit-agents: builder pulled the loop section from tdd" \
-  'grep -q "^## Red-green-refactor loop" "$AIKIT/workflow/agents/builder/AGENT.md" && grep -q "^## Red-green-refactor loop" "$AIKIT/workflow/skills/tdd/SKILL.md"'
+  'grep -q "^## Red-green-refactor loop" "$AIKIT/workflow/agents/builder.md" && grep -q "^## Red-green-refactor loop" "$AIKIT/workflow/skills/tdd/SKILL.md"'
 # Drift detection: tweak the source skill, confirm --check catches it, restore.
 EMITA_SKILL="$AIKIT/workflow/skills/review/SKILL.md"
 EMITA_BAK=$(mktemp)

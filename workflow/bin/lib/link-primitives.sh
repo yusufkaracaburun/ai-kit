@@ -81,13 +81,18 @@ merge_agents() {
   local dest_parent="$1" label="$2" primitives="$3"
   local agents_dir="$dest_parent/agents"
   local src_root="$primitives/agents"
-  local project_root
+  local project_root legacy
 
   [ -d "$src_root" ] || return 0
   mkdir -p "$agents_dir"
   project_root="$(cd "$dest_parent/.." && pwd -P)"
-  for agent in "$src_root"/*/; do
-    [ -d "$agent" ] || continue
+  for agent in "$src_root"/*.md; do
+    [ -f "$agent" ] || continue
+    # Pre-2.2.1 linked a dir per agent, which Claude Code registers as <dir>:<name>.
+    legacy="$agents_dir/$(basename "$agent" .md)"
+    if [ -L "$legacy" ]; then
+      case "$(readlink "$legacy")" in *ai-kit*|*plugins/cache/*) rm -f "$legacy" ;; esac
+    fi
     link_preserving_custom "$agent" "$agents_dir/$(basename "$agent")" "$label" "$project_root"
   done
   echo "Merged ai-kit subagents into $label (custom entries preserved)"

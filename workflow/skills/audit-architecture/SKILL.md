@@ -39,7 +39,7 @@ If a concern doesn't fit one of those, it's out of audit scope — note it separ
 
 ## Run mode
 
-- **Claude Code (preferred):** delegate the codebase walk to the `explore` subagent via the Task tool with `subagent_type=explore`. Ask for one structured pass per dimension (or one batched pass with the dimension list inline) and have it return a ≤300-line summary per pass. Writing the report stays in this context.
+- **Claude Code (preferred):** delegate the codebase walk to the `explore` subagent via the Task tool with `subagent_type=ai:explore`. Ask for one structured pass per dimension (or one batched pass with the dimension list inline) and have it return a ≤300-line summary per pass. Writing the report stays in this context.
 - **Cursor / hosts without subagents:** walk inline, but budget tightly — see [`context-discipline.mini.md`](../../../standards/rules/context-discipline.mini.md). For large repos (>200 files), pick a scope first (one bounded context, one layer, one module) and audit it; iterate.
 
 ## Process

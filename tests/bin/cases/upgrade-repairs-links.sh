@@ -24,12 +24,12 @@ trap 'rm -rf "$H"' EXIT
 make_fake_version() {
   local version="$1" marker="$2"
   local root="$H/plugins/cache/mkt/ai/$version"
-  mkdir -p "$root/bin" "$root/workflow/skills/demo-skill" "$root/workflow/agents/demo-agent" "$root/workflow/commands"
+  mkdir -p "$root/bin" "$root/workflow/skills/demo-skill" "$root/workflow/agents" "$root/workflow/commands"
   cp -R "$AIKIT/bin/." "$root/bin/"
   ln -sfn "$AIKIT/context" "$root/context"
   printf '%s\n' "$version" > "$root/VERSION"
   printf '# demo-skill (%s)\n' "$marker" > "$root/workflow/skills/demo-skill/SKILL.md"
-  printf '# demo-agent (%s)\n' "$marker" > "$root/workflow/agents/demo-agent/AGENT.md"
+  printf '# demo-agent (%s)\n' "$marker" > "$root/workflow/agents/demo-agent.md"
   echo "$root"
 }
 
@@ -117,6 +117,17 @@ OUT_PS="$(HOME="$H" bash "$V6/bin/ai-kit-upgrade.sh" "$PS" 2>&1)"
 assert "stale link resolves again" '[ -e "$PS/.claude/skills/demo-skill/SKILL.md" ]'
 assert "it resolves to the current version content" 'grep -q "v6" "$PS/.claude/skills/demo-skill/SKILL.md"'
 assert "repair ran, not skipped" '! grep -q "nothing to repair" <<<"$OUT_PS"'
+
+echo "=== legacy per-dir agent link is replaced by a flat <name>.md link ==="
+# Claude Code reads plugin and project agents as flat <name>.md files; a dir
+# per agent registered as <dir>:<name>, so skills never resolved it.
+PA="$H/proj-agents"
+mkdir -p "$PA/.claude/agents"
+ln -s "$H/plugins/cache/yusufkaracaburun/ai/0.0.1/workflow/agents/demo-agent/" "$PA/.claude/agents/demo-agent"
+write_marker "$PA" "4.0.0"
+HOME="$H" bash "$V6/bin/ai-kit-upgrade.sh" "$PA" >/dev/null 2>&1
+assert "flat agent link resolves to current content" 'grep -q "v6" "$PA/.claude/agents/demo-agent.md"'
+assert "legacy per-dir agent link removed" '[ ! -L "$PA/.claude/agents/demo-agent" ]'
 
 echo "=== #190: a marker newer than the running kit is refused, not downgraded ==="
 PD="$H/proj-newer"

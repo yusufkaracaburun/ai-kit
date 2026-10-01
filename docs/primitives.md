@@ -41,7 +41,7 @@ Start: "I want to add X to ai-kit"
 │  │  │
 │  │  ├─ YES (and Claude Code is acceptable as primary host)
 │  │  │   → SUBAGENT called from a SKILL
-│  │  │     Source: workflow/agents/<name>/AGENT.md
+│  │  │     Source: workflow/agents/<name>.md
 │  │  │     Example: review skill delegates to reviewer
 │  │  │     Paired: ≥1 skill names it + the phase it fires in
 │  │  │       (enforced by tests/bin/eval-structure.sh)
@@ -103,7 +103,7 @@ Start: "I want to add X to ai-kit"
 ### "Run a heavy security audit on changed files before merge"
 - Multi-step workflow → skill territory
 - Heavy reading of files would pollute main context → delegate to a **SUBAGENT**
-- Source: `workflow/skills/review/SKILL.md` calls `workflow/agents/reviewer/AGENT.md`
+- Source: `workflow/skills/review/SKILL.md` calls `workflow/agents/reviewer.md`
 
 ### "Always remind the LLM to write Conventional Commits"
 - Cross-cutting, applies everywhere → **RULE**

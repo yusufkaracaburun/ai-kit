@@ -153,7 +153,7 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
    branch. Fail-fast if dirty working tree.
 5. **TDD.** Invoke `tdd` against the Agent Brief's acceptance
    criteria. The per-issue worker is the `builder` subagent
-   (`subagent_type=builder`, fed the brief's acceptance criteria and
+   (`subagent_type=ai:builder`, fed the brief's acceptance criteria and
    the project's test command) — that is the fresh context per
    issue. The brief passes the hard cap (≤3 attempts per red→green
    cycle) to builder, whose report carries a `## Cycles` block
@@ -166,7 +166,7 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
 6. **Review.** Invoke `review` in `comprehensive` mode with
    security depth `deep`. Any **Blocker** or security finding ≥ `high`
    → `exit-gate review-blocked`, leave branch for human.
-6a. **Verify.** Spawn `verifier` (Task tool, `subagent_type=verifier`)
+6a. **Verify.** Spawn `verifier` (Task tool, `subagent_type=ai:verifier`)
     on the claim "the acceptance criteria in the Agent Brief are met by
     this branch"; pass the brief and `git diff <default-branch>...HEAD`.
     REFUTED → `exit-gate verify-refuted <counter-evidence line>`, leave

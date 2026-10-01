@@ -95,9 +95,8 @@ fi
 
 # Surface 2: personal agents shadowing plugin agents
 if [ -d "$PERSONAL_AGENTS_DIR" ] && [ -d "$PLUGIN_AGENTS_DIR" ]; then
-  for agent_path in "$PLUGIN_AGENTS_DIR"/*/; do
-    name="$(basename "$agent_path")"
-    # personal agents are flat .md files; match <name>.md
+  for agent_path in "$PLUGIN_AGENTS_DIR"/*.md; do
+    name="$(basename "$agent_path" .md)"
     if [ -f "$PERSONAL_AGENTS_DIR/$name.md" ]; then
       DUP_AGENTS+=("$name")
     fi

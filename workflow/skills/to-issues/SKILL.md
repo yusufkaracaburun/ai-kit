@@ -30,7 +30,7 @@ publishing.
 
 ## Run mode
 
-- **Claude Code:** for the codebase exploration in step 2, delegate to the `explore` subagent via the Task tool with `subagent_type=explore` — ask it to map the area the plan touches and the current state of the code, and return a ≤300-line summary. Drafting slices, quizzing the user, and publishing issues stay in this context.
+- **Claude Code:** for the codebase exploration in step 2, delegate to the `explore` subagent via the Task tool with `subagent_type=ai:explore` — ask it to map the area the plan touches and the current state of the code, and return a ≤300-line summary. Drafting slices, quizzing the user, and publishing issues stay in this context.
 - **Hosts without subagents:** explore inline, filtered per [`context-discipline.mini.md`](../../../standards/rules/context-discipline.mini.md).
 
 ## Process

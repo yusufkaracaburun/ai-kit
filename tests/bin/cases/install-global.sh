@@ -28,7 +28,7 @@ OUT=$(install_global "$H")
 assert "links a known skill into ~/.claude/skills" '[ -L "$H/.claude/skills/audit-architecture" ]'
 assert "skill symlink resolves into the aikit source tree" \
   'readlink "$H/.claude/skills/audit-architecture" | grep -q "workflow/skills/audit-architecture"'
-assert "links a known agent into ~/.claude/agents" '[ -L "$H/.claude/agents/explore" ]'
+assert "links a known agent into ~/.claude/agents" '[ -L "$H/.claude/agents/explore.md" ]'
 assert "links a known command into ~/.claude/commands" '[ -L "$H/.claude/commands/doctor.md" ]'
 assert "also links skills into ~/.agents/skills (legacy path)" '[ -L "$H/.agents/skills/audit-architecture" ]'
 assert "also links skills into ~/.cursor/skills" '[ -L "$H/.cursor/skills/audit-architecture" ]'
@@ -70,7 +70,7 @@ mkdir -p "$H/.config/ai-kit"
 : > "$H/.config/ai-kit/prefer-plugin"
 OUT=$(install_global "$H")
 assert "skills skipped for ~/.claude under the marker" '[ ! -e "$H/.claude/skills/audit-architecture" ]'
-assert "agents skipped for ~/.claude under the marker" '[ ! -e "$H/.claude/agents/explore" ]'
+assert "agents skipped for ~/.claude under the marker" '[ ! -e "$H/.claude/agents/explore.md" ]'
 assert "commands skipped for ~/.claude under the marker" '[ ! -e "$H/.claude/commands/doctor.md" ]'
 assert "output explains the skip" 'grep -q "skipped (prefer-plugin marker)" <<<"$OUT"'
 assert "cursor has no plugin namespace, so its skills still link" '[ -L "$H/.cursor/skills/audit-architecture" ]'

@@ -42,7 +42,7 @@ curl -fsSL https://raw.githubusercontent.com/yusufkaracaburun/ai-kit/master/inst
 ## 3. The shape of the codebase
 
 - `workflow/` — the canonical primitives that ship to hosts.
-  - `skills/<name>/SKILL.md` (27) · `agents/<name>/AGENT.md` (3) ·
+  - `skills/<name>/SKILL.md` (27) · `agents/<name>.md` (3) ·
     `commands/<name>.md` (8) · `hooks/` (2) ·
     `.claude-plugin/plugin.json` (manifest).
 - `standards/rules/` — agent-agnostic mini-rules; `bin/emit-rules.sh`
@@ -61,7 +61,7 @@ See [docs/architecture.md](docs/architecture.md) for the full diagram.
 
 - **Skill** — a `SKILL.md` invoked by name (e.g. `/ai:setup`). Lives in
   `workflow/skills/`.
-- **Subagent** — an `AGENT.md` a skill can delegate to. 6 exist:
+- **Subagent** — a `workflow/agents/<name>.md` a skill can delegate to. 6 exist:
   `explore`, `reviewer`, `qa-runner`, `verifier`, `builder`, `designer`.
 - **Slash command** — a `workflow/commands/<name>.md` resolving to a
   bash script. 11 exist (`ls workflow/commands/`).

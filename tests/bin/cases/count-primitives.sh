@@ -27,7 +27,7 @@ RULES_ACTUAL="$(find "$AIKIT/standards/rules" -mindepth 1 -maxdepth 1 -name '*.m
 RULES_REPORTED="$(echo "$JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["rules"])')"
 assert "JSON rules matches find" '[ "$RULES_ACTUAL" = "$RULES_REPORTED" ]'
 
-SUBAGENTS_ACTUAL="$(find "$AIKIT/workflow/agents" -mindepth 2 -maxdepth 2 -name AGENT.md | wc -l | tr -d ' ')"
+SUBAGENTS_ACTUAL="$(find "$AIKIT/workflow/agents" -mindepth 1 -maxdepth 1 -name "*.md" | wc -l | tr -d ' ')"
 SUBAGENTS_REPORTED="$(echo "$JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["subagents"])')"
 assert "JSON subagents matches find" '[ "$SUBAGENTS_ACTUAL" = "$SUBAGENTS_REPORTED" ]'
 

@@ -37,7 +37,7 @@ The overlay is a pointer file, not a second copy of this skill. It carries what 
 
 ## Run mode
 
-- **Claude Code (preferred):** *build* → delegate each unit to the `designer` subagent via the Task tool with `subagent_type=designer`. Pass: the frame id(s), the target path/route, the project's token file and its two or three most-polished components of the same kind, and from the overlay: the master → component map, the state recipe, the undesigned states, the copy keys per locale, the interactions. *Prove* → one `verifier` per unit with `subagent_type=verifier`; claim and observation method under **Prove** below. One subagent per unit, in parallel when units are independent (a module's frames usually are). Audit and store stay in the main context — they need the MCP.
+- **Claude Code (preferred):** *build* → delegate each unit to the `designer` subagent via the Task tool with `subagent_type=ai:designer`. Pass: the frame id(s), the target path/route, the project's token file and its two or three most-polished components of the same kind, and from the overlay: the master → component map, the state recipe, the undesigned states, the copy keys per locale, the interactions. *Prove* → one `verifier` per unit with `subagent_type=ai:verifier`; claim and observation method under **Prove** below. One subagent per unit, in parallel when units are independent (a module's frames usually are). Audit and store stay in the main context — they need the MCP.
 - **Hosts without subagents:** run build and prove inline, budgeted per unit (one frame, one render, one verdict before the next). The flows below are the canonical source of truth — `designer`'s prompt mirrors the build rules.
 
 ## The five flows

@@ -11,7 +11,7 @@ Apply [`grill-first.mini.md`](../../../standards/rules/grill-first.mini.md) **be
 
 ## Run mode
 
-- **Claude Code:** when the change spans ≥3 files, or the caller wants the main context kept clean for review, delegate the whole red→green→refactor pass to the `builder` subagent via the Task tool with `subagent_type=builder`. Pass: the acceptance criteria agreed in Planning and the project's test command. It returns a `## Changed` / `## Tests` report — read it here, then continue with Review.
+- **Claude Code:** when the change spans ≥3 files, or the caller wants the main context kept clean for review, delegate the whole red→green→refactor pass to the `builder` subagent via the Task tool with `subagent_type=ai:builder`. Pass: the acceptance criteria agreed in Planning and the project's test command. It returns a `## Changed` / `## Tests` report — read it here, then continue with Review.
 - **Hosts without subagents:** run the loop below inline. The loop below is the canonical source of truth — `builder`'s system prompt mirrors it.
 
 ## Philosophy

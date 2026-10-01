@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# emit-agents.sh — keep the generated region of agents/*/AGENT.md in
+# emit-agents.sh — keep the generated region of agents/*.md in
 # sync with its source skill body. SKILL.md is canonical for shared reference
 # sections (the review checklist, the output-format spec); the agent prompt
 # only hand-writes its agent-runtime framing (Contract, Inputs, What not to do).
 #
-# An AGENT.md opts in with a directive immediately followed by a marked region:
+# An agent file opts in with a directive immediately followed by a marked region:
 #
 #   <!-- emit-agents:source skill=<skill-name> sections=<Heading,Heading> -->
 #   <!-- emit-agents:begin -->
@@ -28,10 +28,10 @@ usage() {
   cat <<EOF
 Usage: $0 [--check] [--dry-run] [agent-name]
 
-Sync the generated region of agents/*/AGENT.md from the source skill.
+Sync the generated region of agents/*.md from the source skill.
 
 Options:
-  --check     Verify every managed AGENT.md is in sync. Exit 1 on drift. No writes.
+  --check     Verify every managed agent file is in sync. Exit 1 on drift. No writes.
   --dry-run   Print the diff that would be applied. No writes.
   agent-name  Limit to a single agent directory (default: all).
   -h, --help  Show this help.
@@ -166,10 +166,9 @@ process_agent() {
 }
 
 found=0
-for dir in "$AGENTS_DIR"/*/; do
-  agent_md="${dir%/}/AGENT.md"
+for agent_md in "$AGENTS_DIR"/*.md; do
   [ -f "$agent_md" ] || continue
-  name="$(basename "$dir")"
+  name="$(basename "$agent_md" .md)"
   if [ -n "$ONLY_AGENT" ] && [ "$ONLY_AGENT" != "$name" ]; then
     continue
   fi
@@ -178,7 +177,7 @@ for dir in "$AGENTS_DIR"/*/; do
 done
 
 if [ -n "$ONLY_AGENT" ] && [ "$found" -eq 0 ]; then
-  echo "emit-agents: no agent directory named '$ONLY_AGENT' under $AGENTS_DIR" >&2
+  echo "emit-agents: no agent named '$ONLY_AGENT' under $AGENTS_DIR" >&2
   exit 2
 fi
 

@@ -18,7 +18,7 @@ three layers, including every path each distribution channel writes to.
 | Primitive | Source path | Reaches host via | Host directory |
 |---|---|---|---|
 | Skill | `workflow/skills/<name>/SKILL.md` | symlink (install-global.sh / bootstrap) **or** plugin manifest | `~/.claude/skills/` · `~/.cursor/skills/` · `<proj>/.claude/skills/` |
-| Subagent | `workflow/agents/<name>/AGENT.md` | same symlink pass + plugin manifest | `~/.claude/agents/` · `<proj>/.claude/agents/` |
+| Subagent | `workflow/agents/<name>.md` | same symlink pass + plugin manifest | `~/.claude/agents/` · `<proj>/.claude/agents/` |
 | Slash command | `workflow/commands/<name>.md` | same symlink pass (files, not dirs) + plugin manifest | `~/.claude/commands/` · `<proj>/.claude/commands/` |
 | Rule | `standards/rules/<name>.mini.md` | **emitter** (`bin/emit-rules.sh`) at `/ai:setup` time — converts to host format | `<proj>/.cursor/rules/*.mdc` (Cursor) · skill text (Claude Code) |
 | Hook | `.claude/settings.json` + `bin/hooks/*.sh` | committed in the project (or emitted by `/ai:setup`) | `<proj>/.claude/settings.json` |
@@ -37,7 +37,7 @@ An emitter reads one canonical source and writes derived files that cannot simpl
 
 **`bin/emit-rules.sh`** — rules are agent-agnostic markdown books (`standards/rules/`). Each host expects a different rule format (Cursor `.mdc`, Claude Code skill-text, etc.), so the emitter writes host-specific files into the *target project* at `/ai:setup` time.
 
-**`bin/emit-agents.sh`** — a subagent prompt (`workflow/agents/<name>/AGENT.md`) and its companion skill (`workflow/skills/<name>/SKILL.md`) share reference content: the review checklist, the output-format spec. The emitter keeps a marked region of `AGENT.md` generated verbatim from named `SKILL.md` sections, so the shared text has a single home. It runs at *authoring* time inside ai-kit's own tree; CI runs `emit-agents.sh --check` and fails the build on drift.
+**`bin/emit-agents.sh`** — a subagent prompt (`workflow/agents/<name>.md`) and its companion skill (`workflow/skills/<name>/SKILL.md`) share reference content: the review checklist, the output-format spec. The emitter keeps a marked region of the agent file generated verbatim from named `SKILL.md` sections, so the shared text has a single home. It runs at *authoring* time inside ai-kit's own tree; CI runs `emit-agents.sh --check` and fails the build on drift.
 
 Use this pattern whenever an artifact needs per-host transformation, or shares content with another artifact. Don't invent a parallel system.
 
@@ -68,7 +68,7 @@ every ai-kit release; `bin/release.sh` prints the copy-paste command.
 | You want to add … | Put it in … |
 |---|---|
 | A new workflow with `name:` + `description:` frontmatter | `workflow/skills/<name>/SKILL.md` |
-| An isolated context worker for one specific task | `workflow/agents/<name>/AGENT.md` — plus a skill that names it and the phase it fires in (ADR-0013) |
+| An isolated context worker for one specific task | `workflow/agents/<name>.md` — plus a skill that names it and the phase it fires in (ADR-0013) |
 | A short prompt-template invoked by `/<name>` | `workflow/commands/<name>.md` |
 | Cross-cutting guidance applicable to every host | `standards/rules/<name>.mini.md` + extend `bin/emit-rules.sh` |
 | A behavior triggered by tool events | `bin/hooks/<name>.sh` + register in `.claude/settings.json` |

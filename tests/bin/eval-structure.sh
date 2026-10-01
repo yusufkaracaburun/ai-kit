@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Structural checks across all workflow/skills/*/SKILL.md, workflow/agents/*/AGENT.md
+# Structural checks across all workflow/skills/*/SKILL.md, workflow/agents/*.md
 # and tests/eval/prompts/.
 # Pure, deterministic, no network. Run from ai-kit clone root or via run-all.sh.
 set -euo pipefail
@@ -10,11 +10,12 @@ SKILLS_DIR="$AIKIT/workflow/skills"
 AGENTS_DIR="$AIKIT/workflow/agents"
 PROMPTS_DIR="$AIKIT/tests/eval/prompts"
 
-# Pairing rule: an agent under workflow/agents/<x>/ ships only as a skill's
-# delegate. A SKILL.md names its agent as `subagent_type=<x>` (backticks
+# Pairing rule: an agent at workflow/agents/<x>.md ships only as a skill's
+# delegate. A SKILL.md names its agent as `subagent_type=ai:<x>` (backticks
 # optional); this one pattern drives both directions of the check — no
-# dangling reference, no orphan agent.
-AGENT_REF_RE='subagent_type=`?[a-z][a-z0-9-]*'
+# dangling reference, no orphan agent. The plugin registers its agents as
+# ai:<x>, so a bare <x> never resolves.
+AGENT_REF_RE='subagent_type=`?[a-z][a-z0-9:-]*'
 referenced_agents=""
 
 PASS=0
@@ -175,41 +176,40 @@ EOF_FIELDS
 
   # 9: every subagent_type=<x> the skill names has an agent to resolve to.
   refs="$(grep -oE "$AGENT_REF_RE" "$skill_file" | sed -E 's/^subagent_type=`?//' | sort -u || true)"
+  bare_refs="$(grep -v '^ai:' <<< "$refs" | tr '\n' ' ' || true)"
+  refs="$(sed -n 's/^ai://p' <<< "$refs")"
   referenced_agents="${referenced_agents}${refs}"$'\n'
   missing_agents=""
   while IFS= read -r ref; do
     [ -z "$ref" ] && continue
-    if [ ! -f "$AGENTS_DIR/$ref/AGENT.md" ]; then
+    if [ ! -f "$AGENTS_DIR/$ref.md" ]; then
       missing_agents="${missing_agents}${ref} "
     fi
   done <<< "$refs"
-  if [ -n "$missing_agents" ]; then
-    bad "[$name] subagent_type names agent(s) with no workflow/agents/<x>/AGENT.md: $missing_agents"
+  if [ -n "${bare_refs// /}" ]; then
+    bad "[$name] subagent_type without the ai: namespace (write subagent_type=ai:<x>): $bare_refs"
+  elif [ -n "$missing_agents" ]; then
+    bad "[$name] subagent_type names agent(s) with no workflow/agents/<x>.md: $missing_agents"
   else
     ok "[$name] subagent_type refs resolve"
   fi
 done
 
 echo ""
-echo "=== AGENT.md pairing checks ==="
+echo "=== agent pairing checks ==="
 echo ""
 
-for agent_dir in "$AGENTS_DIR"/*/; do
-  name="$(basename "$agent_dir")"
-  agent_file="$agent_dir/AGENT.md"
-
-  if [ ! -f "$agent_file" ]; then
-    bad "[agent $name] missing AGENT.md"
-    continue
-  fi
+for agent_file in "$AGENTS_DIR"/*.md; do
+  [ -f "$agent_file" ] || continue
+  name="$(basename "$agent_file" .md)"
 
   fm_name="$(read_field "$agent_file" name)"
   if [ -z "$fm_name" ]; then
     bad "[agent $name] frontmatter missing 'name:'"
   elif [ "$fm_name" != "$name" ]; then
-    bad "[agent $name] frontmatter name '$fm_name' != dir name"
+    bad "[agent $name] frontmatter name '$fm_name' != file name"
   else
-    ok "[agent $name] frontmatter name matches dir"
+    ok "[agent $name] frontmatter name matches file"
   fi
 
   if [ -z "$(read_field "$agent_file" description)" ]; then
@@ -229,7 +229,7 @@ for agent_dir in "$AGENTS_DIR"/*/; do
   if grep -qx "$name" <<< "$referenced_agents"; then
     ok "[agent $name] referenced by ≥1 skill"
   else
-    bad "[agent $name] orphan — no SKILL.md names subagent_type=$name"
+    bad "[agent $name] orphan — no SKILL.md names subagent_type=ai:$name"
   fi
 done
 
