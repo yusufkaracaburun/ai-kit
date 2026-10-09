@@ -31,6 +31,7 @@ PAIRS=(
   "bin/log-skill.sh|workflow/hooks/log-skill.sh"
   "bin/hooks/peer-sessions-check.sh|workflow/hooks/peer-sessions-check.sh"
   "bin/hooks/global-rules-link.sh|workflow/hooks/global-rules-link.sh"
+  "bin/hooks/session-reap.sh|workflow/hooks/session-reap.sh"
 )
 
 MODE="stamp"
