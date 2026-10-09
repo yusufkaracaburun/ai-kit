@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.0 — 2026-10-09
+
+### Added
+
+- `session-reap` hook (SessionStart + SessionEnd): kills detached processes (ppid 1) that ended sessions left running, such as dev servers, previews and headless browsers. A process is a target only when its environment carries the `AI_KIT_SESSION_ID` of the ending session or of a session with no live registry entry. Terminal and tmux processes, and processes of live sessions, are never touched. clear, resume and compact do nothing. Kills are logged to `$XDG_STATE_HOME/ai-kit/session-reap.log`. macOS only: Linux `ps` has no `-E`, so the hook does nothing there.
+
 ## 2.2.1 — 2026-10-01
 
 ### Fixed
