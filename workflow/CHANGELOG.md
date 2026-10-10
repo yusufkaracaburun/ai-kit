@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.4.1 — 2026-10-10
+
+### Fixed
+
+- `lead-guard` hook: package runners (`npx`, `npm`, `pnpm`, `yarn`) pass when the segment ends in a read verb (`whoami`, `list`, `ls`, `status`, `info`, `view`, `show`, `get`, `describe`, `audit` without `fix`, `search`, `why`, `help`, `doctor`, `explain`, `outdated`, or a sole `--help`/`--version`); `run`, `exec`, `x`, `dlx` and `create` stay denied. `curl`, `wget` and httpie are denied only with a mutating method (`POST`, `PUT`, `PATCH`, `DELETE`) or a body (`-d`, `-F`, `-T`, `--data*`, `--form`, `--upload-file`, `--json`, httpie `key=value` items). Live false deny on `npx wrangler whoami; npx wrangler deployments list` in a theorieplek lead session, 2026-10-10. Test case now covers 127 asserts, including a trailing-space `http ` command that crashed under `set -u`.
+- `search-delegation-check` hook: a plain `grep` counts as a repo-wide sweep only when recursive (`-r`, `-R`, `--recursive`, combined short flags with r/R). `cmd | grep x` and a grep on one named file stay quiet. 6 fires, 0 real sweeps in one lead session.
+- `phase-check` hook: relayed `<cross-session-message>`, `<agent-message>` and `<task-notification>` prompts exit silently, like `/` and `!` prompts.
+- `recommend-tools` skill: no longer runs `graphify claude install` (it wrote two absolute-path PreToolUse hooks, a duplicate CLAUDE.md block and a `settings.json.graphify-bak`); the companion block is appended to CLAUDE.md directly (#203).
+
+### Changed
+
+- `session-coordination` rule: "Every spawn names its model" removed (the Opus default via `CLAUDE_CODE_SUBAGENT_MODEL` covers it); interim progress lines and peer acks are exempt from the status block; an unanswered Needs-you survives "ok, do X" and lands in the artifact as open, never as decided; the "Decisions in force" block says "none" when none apply.
+
+### Verified live
+
+- Main-thread PreToolUse payload lacks `agent_id`, subagent payload carries it: the theorieplek lead's own Chrome `navigate` was denied while its subagent navigated under the same `role=lead` claim (#199).
+
 ## 2.4.0 — 2026-10-10
 
 ### Added
