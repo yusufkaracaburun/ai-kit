@@ -160,7 +160,6 @@ _Last reconciled: 2026-09-21 against 47 open issues (#140, #184, #185 closed; ea
 - **#199** `bug` — lead-guard misses `pkill`, `git -C … commit`, `echo x>f` and denies
   `jq '.a > 1'`; tokenise instead of regex. Live `agent_id` check pending. 2026-10-10.
 - **#200** `enhancement` — `ai-kit-heavy.sh`: one shared machine-load gate (check / wait / start / done via claim) replacing per-lead ps greps; 37/57 briefs lacked one, 2 overlaps + 1 Pest/simulator clash. 2026-10-10.
-- **#201** `enhancement` — `lead-nudge.sh` UserPromptSubmit hook: re-injects the status-block contract for `role=lead` sessions; theorieplek Fable lead had the block on 2/10 replies, 0/3 briefs with 'Decisions in force'. 2026-10-10.
 - **#202** `bug` — lead-guard denies every `/ai:setup` write step in a role=lead session; 3 of 4 leads flipped to role=build. Recommended: setup/upgrade skills spawn an agent for write steps. 2026-10-10.
 - **#203** `bug` — recommend-tools: `graphify claude install` adds 2 absolute-path hooks, a duplicate CLAUDE.md block and a settings backup; skip the install step. 2026-10-10.
 - **#204** `enhancement` — bootstrap templates filtered by detected stack (editorconfig, gitattributes, graphifyignore, board workflows, renovate); ~490 cuttable lines in an Expo repo. 2026-10-10.
@@ -168,6 +167,7 @@ _Last reconciled: 2026-09-21 against 47 open issues (#140, #184, #185 closed; ea
 - **#206** `bug` — build-delegation hook counts writes outside the project (memory files under `~/.claude`); skip paths outside `$CLAUDE_PROJECT_DIR` and memo paths. 2026-10-10.
 - **#207** `bug` — kit scripts hang on interactive mv/rm aliases (2 subagents hung during setup); `command mv -f` sweep over 15 scripts. 2026-10-10.
 - **#208** `bug` — `recommend-rules.sh --json` has no sources/quorum field the skill's "(sources: N/M verified)" annotation needs. 2026-10-10.
+- **#209** `enhancement` — memory-audit warns when a `MEMORY.md` index exceeds the host load limit (28.8 KB vs ~24 KB seen, silent truncation). 2026-10-10.
 
 ## P3 — backlog
 
