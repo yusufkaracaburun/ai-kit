@@ -161,6 +161,9 @@ _Last reconciled: 2026-09-21 against 47 open issues (#140, #184, #185 closed; ea
   `jq '.a > 1'`; tokenise instead of regex. Live `agent_id` check pending. 2026-10-10.
 - **#200** `enhancement` — `ai-kit-heavy.sh`: one shared machine-load gate (check / wait / start / done via claim) replacing per-lead ps greps; 37/57 briefs lacked one, 2 overlaps + 1 Pest/simulator clash. 2026-10-10.
 - **#201** `enhancement` — `lead-nudge.sh` UserPromptSubmit hook: re-injects the status-block contract for `role=lead` sessions; theorieplek Fable lead had the block on 2/10 replies, 0/3 briefs with 'Decisions in force'. 2026-10-10.
+- **#202** `bug` — lead-guard denies every `/ai:setup` write step in a role=lead session; 3 of 4 leads flipped to role=build. Recommended: setup/upgrade skills spawn an agent for write steps. 2026-10-10.
+- **#203** `bug` — recommend-tools: `graphify claude install` adds 2 absolute-path hooks, a duplicate CLAUDE.md block and a settings backup; skip the install step. 2026-10-10.
+- **#204** `enhancement` — bootstrap templates filtered by detected stack (editorconfig, gitattributes, graphifyignore, board workflows, renovate); ~490 cuttable lines in an Expo repo. 2026-10-10.
 
 ## P3 — backlog
 
