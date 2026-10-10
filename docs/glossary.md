@@ -75,9 +75,9 @@ Every `universal: true` + `default_mode: always-on` rule, pre-emitted into the p
 
 ### Hook
 
-A shell script registered in `.claude/settings.json` (or, for the plugin, `workflow/hooks/hooks.json`) that fires on host events. Plugin-shipped: a PreToolUse hook `lead-guard.sh` (denies work tools to a *lead* session's main thread; ADR-0017), a PostToolUse hook (`bin/hooks/post-skill-log.sh`) matching `^Skill$` for usage logging, and two SessionStart hooks — `peer-sessions-check.sh` (fires only when other Claude Code sessions are live on the machine; ADR-0014) and `global-rules-link.sh` (keeps `~/.claude/rules/ai-kit` pointing at the plugin's *global rules*; ADR-0015). Project-installed by `/ai:setup`: `search-delegation-check.sh` and `build-delegation-check.sh` (PreToolUse), `phase-check.sh` (UserPromptSubmit).
+A shell script registered in `.claude/settings.json` (or, for the plugin, `workflow/hooks/hooks.json`) that fires on host events. Plugin-shipped: a PreToolUse hook `lead-guard.sh` (denies work tools to a *lead* session's main thread; ADR-0017), a PostToolUse hook (`bin/hooks/post-skill-log.sh`) matching `^Skill$` for usage logging, and two SessionStart hooks — `peer-sessions-check.sh` (fires only when other Claude Code sessions are live on the machine; ADR-0014) and `global-rules-link.sh` (keeps `~/.claude/rules/ai-kit` pointing at the plugin's *global rules*; ADR-0015), plus `session-reap.sh` on both SessionStart and SessionEnd (kills detached processes left behind by ended sessions). Project-installed by `/ai:setup`: `search-delegation-check.sh` and `build-delegation-check.sh` (PreToolUse), `phase-check.sh` (UserPromptSubmit).
 
-Event types: `PreToolUse`, `PostToolUse`, `SessionStart`, `UserPromptSubmit`, `Notification`.
+Event types: `PreToolUse`, `PostToolUse`, `SessionStart`, `SessionEnd`, `UserPromptSubmit`, `Notification`.
 
 ### Host
 
