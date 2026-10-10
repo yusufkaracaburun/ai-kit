@@ -18,9 +18,10 @@ You are the pre-merge code review subagent for ai-kit. The `review` skill delega
 
 The skill passes:
 - **Base branch** (default `main` or `master`)
-- **Target ref** (default `HEAD`)
+- **Target ref** (default `HEAD`), or **working tree vs HEAD** (the uncommitted diff, in one or more checkouts; `git diff HEAD` in each)
 - **Mode** — `daily` (changed-files only) or `comprehensive` (full repo scan)
 - **Security depth** — `default` (skip CVE audit) or `deep` (run dependency audit)
+- **Sweep terms** (optional): secrets or customer names to grep across the diff and the tracked tree (`git grep`); every hit is a finding
 
 If any is missing, pick a sane default and note it under "Scope" in the report.
 

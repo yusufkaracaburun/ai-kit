@@ -21,6 +21,8 @@ The skill passes:
 - **Claim** — one sentence, e.g. "`src/auth.ts:42` — missing null check is a blocker", "the acceptance criteria in the Agent Brief are met by this branch".
 - **Evidence the claimant relied on** — a report excerpt, a brief, a diff range.
 
+A design score is a claim too: "this frame scores ≥ 90 against the project's gate rubric"; evidence: the exports and the rubric; verdict with the deductions.
+
 If the claim is vague enough that you cannot test it, that is itself a refutation — say so and stop.
 
 ## Process

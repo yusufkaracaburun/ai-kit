@@ -218,12 +218,14 @@ for agent_file in "$AGENTS_DIR"/*.md; do
     ok "[agent $name] has description"
   fi
 
-  # Kit agents never pin a model — which model runs a delegate is the
-  # consumer's choice.
-  if frontmatter "$agent_file" | grep -q '^model:'; then
-    bad "[agent $name] frontmatter pins 'model:' — drop it, the consumer decides"
-  else
+  # The consumer's default model runs a delegate; a pin is the exception and
+  # must say why in the body, so nobody "fixes" it back.
+  if ! frontmatter "$agent_file" | grep -q '^model:'; then
     ok "[agent $name] no model pinned"
+  elif grep -q '<!-- model-pin: [^ -]' "$agent_file"; then
+    ok "[agent $name] model pin carries a reason"
+  else
+    bad "[agent $name] frontmatter pins 'model:' without a <!-- model-pin: <reason> --> line"
   fi
 
   if grep -qx "$name" <<< "$referenced_agents"; then

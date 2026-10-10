@@ -16,5 +16,6 @@ Never present choices as a flat unranked list. Put the option **you would pick**
 
 - No clear winner → two leading options at 1 and 2, both `(Recommended — tradeoff)`, with the tie-breaker in the question; prefer the reversible one.
 - Skip only for commodities with no decision content ("badge colour: red / blue / green") or when the user said "don't recommend, just ask".
+- A turn that ends with a question to the user carries the recommendation in that same turn, also in prose, not only in `AskUserQuestion`. The user typing "advies?" means this rule was missed.
 
 Recommending is the grilling pattern collapsed to one turn (`grill-first.mini.md`).

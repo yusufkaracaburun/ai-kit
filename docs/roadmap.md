@@ -150,6 +150,16 @@ _Last reconciled: 2026-09-21 against 47 open issues (#140, #184, #185 closed; ea
 - **#104** `enhancement` — brownfield first-install friction: 15 points / 6 themes
   across setup · doctor · dedupe · status · plugin. Cluster, not one fix →
   decompose via `/ai:to-issues` before scheduling.
+- **#195** `enhancement` — `device-runner` agent for mobile E2E (Maestro/Patrol): one device,
+  Metro port discipline, teardown of what it started. 5 general-purpose runs / 195 min in
+  emeq-mobile 2026-10-09/10.
+- **#196** `enhancement` — `committer` agent: stage by path, read staged diff, needs review
+  marker, refuses `checkout --`/`reset`/`stash`/`clean`. One agent discarded a peer's file. 2026-10-10.
+- **#197** `enhancement` — PreCompact hook: write peer answers and decisions verbatim to the
+  checkpoint memo before compaction; lead invented a spec after one. 2026-10-10.
+- **#199** `bug` — lead-guard misses `pkill`, `git -C … commit`, `echo x>f` and denies
+  `jq '.a > 1'`; tokenise instead of regex. Live `agent_id` check pending. 2026-10-10.
+- **#200** `enhancement` — `ai-kit-heavy.sh`: one shared machine-load gate (check / wait / start / done via claim) replacing per-lead ps greps; 37/57 briefs lacked one, 2 overlaps + 1 Pest/simulator clash. 2026-10-10.
 
 ## P3 — backlog
 
@@ -171,6 +181,9 @@ _Last reconciled: 2026-09-21 against 47 open issues (#140, #184, #185 closed; ea
 - **#194** `enhancement` — harvest the global PR gate (`pr-gate-check.sh` +
   `pr-gate-run.sh`, per-repo `.claude/pr-gate`) into `bin/hooks` + `/ai:setup` after real
   use; re-check ~2026-10-13. Open: hard default vs opt-in, per-stack seeding. 2026-09-29.
+- **#198** `bug` — `sync-plugin-rules.sh` called by its real path writes a stray
+  `workflow/workflow/rules/`; resolve root from realpath, test both paths, check
+  `sync-plugin-hooks.sh`. 2026-10-10.
 
 - **#180** `enhancement` — `docs-sync`: naschool's 403-line project `docs-sync`
   (the skill #26 promoted the plugin's from) has diverged and shadows the plugin

@@ -56,6 +56,16 @@ Sentry, GitHub PATs).
 - Audit logs for the leaked window — what was accessed with the old
   credential between leak and revocation?
 
+## E2E and test runners
+
+- Test credentials come from an env file outside the repo or the gitignored
+  `.env`, never from a tracked file.
+- Pass secrets to the test tool through process env (Maestro: `MAESTRO_*`),
+  never via `-e KEY=value` or argv: argv lands in `ps`, shell history and the
+  runner's logs.
+- Label input steps so logs show the label, not the value; after a run grep
+  the tool's log directory for the value before the logs are kept or shared.
+
 ## See also
 
 - [`twelve-factor.mini.md`](./twelve-factor.mini.md) — config-in-env.
