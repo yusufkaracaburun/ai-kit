@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
-# Claude Code SessionStart hook: keep ~/.claude/rules/ai-kit pointing at the
+# Claude Code SessionStart + SessionEnd hook: keep ~/.claude/rules/ai-kit pointing at the
 # plugin's rules/ payload (ADR-0015). The host loads ~/.claude/rules/**/*.md
 # natively in every project — pathless files at session start, `paths:`
 # files on touch — so every universal always-on rule reaches every session with no
-# per-repo copies. The plugin cache path carries the version
-# (.../ai/1.94.0/rules), so every /plugin update moves the target; this hook
-# re-points the link on the first session after, one `ln -sfn`, nothing
-# else. That first session still ran on the old link (the host reads rules
-# before hooks report back) — one-session lag, then correct.
+# per-repo copies. The target is the newest version dir in the plugin cache,
+# not this script's own: at SessionEnd after a /plugin update the old plugin
+# still runs, so re-pointing there lets the next session start on fresh rules.
 #
 # Opt-out, machine-wide: bin/ai-kit-no-global-rules.sh on
 #
@@ -37,8 +35,11 @@ set -uo pipefail
 # Two layouts: plugin (hooks/ + rules/ side by side) or source (workflow/bin/hooks/).
 # pwd -P: source reaches this file via the root bin symlink (ADR-0016); `[ -d ]` resolves `..` physically, `cd` logically.
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd -P 2>/dev/null || true)"
+cache="$(cd "$HOOK_DIR/../.." && pwd -P)"
+newest="$(for d in "$cache"/*/rules; do v="${d%/rules}"; v="${v##*/}"; [[ -d $d && $v =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && echo "$v"; done | sort -t. -k1,1n -k2,2n -k3,3n | tail -1)"
 rules=""
-for cand in "$HOOK_DIR/../rules" "$HOOK_DIR/../../rules"; do
+[ -n "$newest" ] && rules="$(cd "$cache/$newest/rules" && pwd -P)"
+[ -n "$rules" ] || for cand in "$HOOK_DIR/../rules" "$HOOK_DIR/../../rules"; do
   [ -d "$cand" ] && { rules="$(cd "$cand" && pwd -P)"; break; }
 done
 [ -n "$rules" ] || exit 0

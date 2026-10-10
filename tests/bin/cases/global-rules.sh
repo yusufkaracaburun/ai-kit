@@ -47,6 +47,23 @@ bash "$HOOK" <<<"$PAYLOAD"
 assert "a real directory in the way is never clobbered" '[ ! -L "$LINK" ] && [ -f "$LINK/mine.md" ]'
 rm -rf "$LINK"
 
+echo "=== global-rules-link resolves the newest plugin cache ==="
+# section: global-rules-newest-cache
+H_C=$(mktemp -d)
+CACHE="$H_C/cache/any-marketplace/ai"
+LINK_C="$H_C/.claude/rules/ai-kit"
+for v in 2.4.2 2.5.0 latest; do mkdir -p "$CACHE/$v/hooks" "$CACHE/$v/rules"; done
+cp "$HOOK" "$CACHE/2.4.2/hooks/global-rules-link.sh"
+HOME="$H_C" CLAUDE_PLUGIN_ROOT="$CACHE/2.4.2" bash "$CACHE/2.4.2/hooks/global-rules-link.sh" <<<"$PAYLOAD"
+assert "old plugin's hook links the newest cache version" '[ "$(readlink "$LINK_C")" = "$(cd "$CACHE/2.5.0/rules" && pwd -P)" ]'
+rm -rf "${CACHE:?}"/* "$LINK_C"
+mkdir -p "$H_C/plugin/hooks" "$H_C/plugin/rules"
+cp "$HOOK" "$H_C/plugin/hooks/global-rules-link.sh"
+HOME="$H_C" CLAUDE_PLUGIN_ROOT="$H_C/plugin" bash "$H_C/plugin/hooks/global-rules-link.sh" <<<"$PAYLOAD"
+assert "empty cache falls back to the running plugin's rules" '[ "$(readlink "$LINK_C")" = "$(cd "$H_C/plugin/rules" && pwd -P)" ]'
+rm -rf "$H_C"
+assert "hooks.json registers global-rules-link on SessionEnd" 'jq -e ".hooks.SessionEnd[].hooks[].command | select(. == \"\${CLAUDE_PLUGIN_ROOT}/hooks/global-rules-link.sh\")" "$AIKIT/workflow/hooks/hooks.json" >/dev/null'
+
 echo "=== opt-out toggle ==="
 # section: global-rules-optout
 bash "$HOOK" <<<"$PAYLOAD"
@@ -79,6 +96,14 @@ assert "doctor: --project-only skips the check" '[ "$DOCTOR_PO" = "0" ]'
 printf '{"ai_kit_version":"1.94.0","branches":{"setup_mode":"project-only"}}\n' > "$P/.ai-kit-setup"
 assert "doctor: a legacy project-only marker does not hide it (host loads the rules there too)" 'doctor_line | grep -q "^  warn .*missing"'
 rm -f "$P/.ai-kit-setup"
+FAKE_CACHE="$TMP_H/.claude/plugins/cache/yusufkaracaburun/ai"
+mkdir -p "$FAKE_CACHE/2.4.2/rules" "$FAKE_CACHE/2.5.0/rules"
+: > "$FAKE_CACHE/2.5.0/rules/r.md"
+ln -sfn "$FAKE_CACHE/2.5.0/rules" "$LINK"
+assert "doctor: link at a sibling cache version passes (rollback leaves a newer dir)" \
+  'AI_KIT_ROOT="$FAKE_CACHE/2.4.2" bash "$DOCTOR" "$P" 2>&1 | grep -qE "^  ok .*global rules linked"'
+rm -rf "${FAKE_CACHE:?}"/*
+bash "$HOOK" <<<"$PAYLOAD"
 bash "$TOGGLE" on >/dev/null
 assert "doctor: opt-out marker → info" 'doctor_line | grep -q "^  info .*opted out"'
 bash "$TOGGLE" off >/dev/null

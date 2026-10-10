@@ -34,10 +34,11 @@ usage() {
   echo "  --skip-skill-merge=true|false  (plugin already serves ai-kit skills; don't merge them into this project's skills dirs)"
   echo "  --secrets-scan=clean|findings-acknowledged|findings-issue-filed|skipped-no-binary|skipped-not-git|error"
   echo "  --project-skills-merged=true|false  (ADR-0012: does this project also want ai-kit skills merged into its own skills dirs)"
-  exit 1
+  exit "${1:-1}"
 }
 
 if [ $# -lt 1 ]; then usage; fi
+case "$1" in -h|--help) usage 0 ;; esac
 
 TARGET="$(cd "$1" && pwd)"
 shift
@@ -90,7 +91,7 @@ while [ $# -gt 0 ]; do
     --skip-skill-merge=*) SKIP_SKILL_MERGE="${1#*=}"; shift ;;
     --secrets-scan=*) SECRETS_SCAN="${1#*=}"; shift ;;
     --project-skills-merged=*) PROJECT_SKILLS_MERGED="${1#*=}"; shift ;;
-    -h | --help) usage ;;
+    -h | --help) usage 0 ;;
     *) echo "Unknown option: $1" >&2; usage ;;
   esac
 done

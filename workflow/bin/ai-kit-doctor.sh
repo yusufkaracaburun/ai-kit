@@ -163,8 +163,8 @@ else
 fi
 
 # Global rules (ADR-0015): ~/.claude/rules/ai-kit must point at the rules/
-# payload of whatever ai-kit this doctor runs from; the SessionStart hook
-# re-points it on the first session after a plugin update. The host loads
+# payload of a version in the same plugin cache as this doctor; the hook
+# re-points it at the newest at SessionStart and SessionEnd. The host loads
 # ~/.claude/rules whatever a project's legacy setup_mode says (ADR-0012), so
 # only the explicit --project-only flag skips this; the machine-wide
 # no-globals opt-out is about skill symlinks, the hook ignores it, so the
@@ -183,8 +183,8 @@ elif [ -L "$GLOBAL_RULES_LINK" ]; then
   GLOBAL_RULES_TARGET="$(readlink "$GLOBAL_RULES_LINK")"
   if [ ! -d "$GLOBAL_RULES_TARGET" ]; then
     warn "global rules: $GLOBAL_RULES_LINK dangles ($GLOBAL_RULES_TARGET gone) — the next session start re-points it"
-  elif [ "$GLOBAL_RULES_TARGET" != "$GLOBAL_RULES_DIR" ] && [[ "$GLOBAL_RULES_DIR" == */plugins/cache/* ]]; then
-    warn "global rules: $GLOBAL_RULES_LINK points at $GLOBAL_RULES_TARGET, not $GLOBAL_RULES_DIR — stale after a plugin update; the next session start re-points it"
+  elif [[ "$GLOBAL_RULES_DIR" == */plugins/cache/* && "$(cd "$GLOBAL_RULES_TARGET" && pwd -P)" != "$(cd "$GLOBAL_RULES_DIR/../.." && pwd -P)"/* ]]; then
+    warn "global rules: $GLOBAL_RULES_LINK points at $GLOBAL_RULES_TARGET, outside the plugin cache; the next session start re-points it"
   else
     # A dev-clone doctor accepts a link into the plugin cache: the hook owns
     # the target, and only the plugin's own doctor knows the current version.

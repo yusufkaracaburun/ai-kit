@@ -75,6 +75,9 @@ SKIP_SKILL_MERGE="$(marker_get "$MARKER" branches.skip_skill_merge false)"
 COMPLETED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 CHANGELOG="$AIKIT/CHANGELOG.md"
 
+if [ "$OLD_VERSION" = "$VERSION" ]; then
+  echo "already on $VERSION, marker left as is"
+else
 python3 - "$MARKER" "$VERSION" "$COMPLETED_AT" "$CHANGELOG" <<'PY'
 import json, re, sys
 from pathlib import Path
@@ -136,6 +139,7 @@ print(f"Changes since v{old_version}:")
 print("-" * 60)
 print(snippet)
 PY
+fi
 
 # Repair project skill/agent/command links against the new version. A
 # project bootstrapped before the plugin-current indirection (#114 slice A)

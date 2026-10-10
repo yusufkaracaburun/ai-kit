@@ -27,4 +27,16 @@ assert "plugin cache present -> true" \
   'grep -q "\"global_channel_available\": true" "$TMP_M2/.ai-kit-setup"'
 rm -rf "$H2" "$TMP_M2"
 
+echo "=== write-setup-marker --help ==="
+RC=0; HELP_OUT="$("$AIKIT/bin/write-setup-marker.sh" --help 2>&1)" || RC=$?
+assert "--help exits 0" '[ "$RC" -eq 0 ]'
+assert "--help prints usage" 'grep -q "^Usage: " <<<"$HELP_OUT"'
+RC=0; "$AIKIT/bin/write-setup-marker.sh" >/dev/null 2>&1 || RC=$?
+assert "no argument still exits 1" '[ "$RC" -eq 1 ]'
+TMP_HELP="$(mktemp -d)"
+RC=0; "$AIKIT/bin/write-setup-marker.sh" "$TMP_HELP" --help >/dev/null 2>&1 || RC=$?
+assert "--help after the project path exits 0" '[ "$RC" -eq 0 ]'
+assert "--help after the project path writes no marker" '[ ! -e "$TMP_HELP/.ai-kit-setup" ]'
+rm -rf "$TMP_HELP"
+
 print_summary_and_exit

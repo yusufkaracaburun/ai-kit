@@ -144,4 +144,15 @@ HOME="$H" bash "$V6/bin/ai-kit-upgrade.sh" "$PD" --skip-skill-merge=true >/dev/n
 assert "--skip-skill-merge path: exits 1" '[ "$RC" -eq 1 ]'
 assert "--skip-skill-merge path: marker byte-identical" 'cmp -s "$H/marker-before" "$PD/.ai-kit-setup"'
 
+echo "=== #205: a marker already on the running version is a no-op ==="
+PE="$H/proj-same"
+mkdir -p "$PE"
+write_marker "$PE" "4.0.0"
+cp "$PE/.ai-kit-setup" "$H/marker-same"
+RC=0
+OUT_PE="$(HOME="$H" bash "$V6/bin/ai-kit-upgrade.sh" "$PE" 2>&1)" || RC=$?
+assert "exits 0" '[ "$RC" -eq 0 ]'
+assert "says marker left as is" 'grep -qxF "already on 4.0.0, marker left as is" <<<"$OUT_PE"'
+assert "marker byte-identical, completed_at kept" 'cmp -s "$H/marker-same" "$PE/.ai-kit-setup"'
+
 print_summary_and_exit

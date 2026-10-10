@@ -91,12 +91,14 @@ Bundled (via `workflow/.claude-plugin/plugin.json`):
   ADR-0014). Fires only when other Claude Code sessions are live on the
   machine; resolves `${CLAUDE_PLUGIN_ROOT}/bin/ai-kit-claim.sh` and reads the
   protocol from `${CLAUDE_PLUGIN_ROOT}/standards/rules/session-coordination.mini.md`.
-- The SessionStart global-rules hook (`workflow/hooks/global-rules-link.sh`,
-  ADR-0015). Keeps `~/.claude/rules/ai-kit` pointing at
-  `${CLAUDE_PLUGIN_ROOT}/rules/` — every universal always-on rule, pre-emitted by
-  `bin/sync-plugin-rules.sh` — so Claude Code loads them natively in every
-  project on the machine. Re-points itself on the first session after a
-  `/plugin update`. Opt out machine-wide: `bin/ai-kit-no-global-rules.sh on`.
+- The SessionStart and SessionEnd global-rules hook
+  (`workflow/hooks/global-rules-link.sh`, ADR-0015). Keeps
+  `~/.claude/rules/ai-kit` pointing at the `rules/` dir of the newest version
+  in the plugin cache. That dir holds every universal always-on rule,
+  pre-emitted by `bin/sync-plugin-rules.sh`, so Claude Code loads them natively
+  in every project on the machine. The session that ran `/plugin update`
+  re-points the link when it ends, so the next session starts on the new
+  rules. Opt out machine-wide: `bin/ai-kit-no-global-rules.sh on`.
 - The PreToolUse lead-guard hook (`workflow/hooks/lead-guard.sh`). In a
   session whose claim says `role=lead`, denies file edits, write/test/build
   Bash commands, pencil execute and chrome actions on the main thread; memo

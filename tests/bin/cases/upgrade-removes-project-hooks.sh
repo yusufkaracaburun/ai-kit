@@ -12,8 +12,9 @@ T="$(mktemp -d)"
 trap 'rm -rf "$T"' EXIT
 P="$T/p" M="$T/m" S="$T/s"
 mkdir -p "$P" "$M" "$S"
-CURRENT_VERSION="$(tr -d '[:space:]' < "$AIKIT/VERSION")"
-printf '{\n  "ai_kit_version": "%s",\n  "branches": {}\n}\n' "$CURRENT_VERSION" > "$P/.ai-kit-setup"
+for d in "$P" "$M" "$S"; do
+  printf '{\n  "ai_kit_version": "0.0.1",\n  "branches": {}\n}\n' > "$d/.ai-kit-setup"
+done
 mkdir -p "$P/.claude/hooks"
 for s in search-delegation-check build-delegation-check phase-check context-drift-check; do
   echo '#!/usr/bin/env bash' > "$P/.claude/hooks/$s.sh"
@@ -83,7 +84,6 @@ assert "non-ASCII value written as the literal character" 'grep -q "\"é\"" "$P/
 
 echo "=== upgrade keeps the copies when settings.json is malformed ==="
 # section: upgrade-malformed-settings-keeps-copies
-cp "$P/.ai-kit-setup" "$M/.ai-kit-setup"
 mkdir -p "$M/.claude/hooks"
 for s in search-delegation-check build-delegation-check phase-check context-drift-check; do
   echo '#!/usr/bin/env bash' > "$M/.claude/hooks/$s.sh"
@@ -101,7 +101,6 @@ assert "malformed settings.json byte-identical" '[ "$(cat "$M/.claude/settings.j
 
 echo "=== upgrade keeps a foreign command sharing a block with an ai-kit copy ==="
 # section: upgrade-shared-block
-cp "$P/.ai-kit-setup" "$S/.ai-kit-setup"
 mkdir -p "$S/.claude/hooks"
 echo '#!/usr/bin/env bash' > "$S/.claude/hooks/phase-check.sh"
 cat > "$S/.claude/settings.json" <<'JSON'

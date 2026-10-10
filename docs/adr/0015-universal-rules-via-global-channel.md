@@ -37,6 +37,9 @@ Catalog: 17 universal always-on pathless rules (5,239 words) + 6 universal
    correct. `/ai:doctor` reports the link (present / stale / opt-out).
    Opt-out: `~/.config/ai-kit/no-global-rules` marker, same pattern as the
    other machine-wide toggles.
+   Amended 2026-10-10 (#205): the hook runs at SessionStart and SessionEnd
+   and points the link at the newest version dir in the plugin cache, so the
+   session after a `/plugin update` starts on the new rules. No one-session lag.
 2. **Per-repo `.claude/rules/` = stack rules only**, the ones
    `recommend-rules` detects, `paths:`-scoped. Universal rules are emitted
    per repo only when `global_channel_available=false` (project-only
