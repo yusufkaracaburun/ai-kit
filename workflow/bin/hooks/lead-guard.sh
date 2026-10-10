@@ -109,10 +109,11 @@ is_work_command() {
 
   # App Store Connect: reads pass, everything else writes
   local asc="${head}asc " asc_read="${head}asc .* (get|list|read)"
-  # redirect to a file; /dev/null, fd merges and temp-dir targets are stripped first
+  # redirect to a file; /dev/null, fd merges, temp-dir and memo targets are stripped first
   local redirect='(>>|[[:space:]]>)' stripped="$cmd"
   [ -n "${TMPDIR:-}" ] && stripped="${stripped//"$TMPDIR"//tmp/}"
-  stripped="$(sed -E 's#\$\{?TMPDIR\}?#/tmp/#g; s#[0-9&]*>>? */dev/null##g; s#[0-9]*>&[0-9]##g; s#>>? *(/private)?/tmp/[^[:space:]]*##g' <<<"$stripped")"
+  stripped="${stripped//"$HOME"/\$HOME}"
+  stripped="$(sed -E 's#\$\{?TMPDIR\}?#/tmp/#g; s#[0-9&]*>>? */dev/null##g; s#[0-9]*>&[0-9]##g; s#>>? *(/private)?/tmp/[^[:space:]]*##g; s#>>? *"?(\$\{?HOME\}?|~)/\.claude/[^[:space:]]*##g; s#>>? *"?([^[:space:]"]*/)?\.(agents/memory|planning)/[^[:space:]]*##g' <<<"$stripped")"
 
   # quoted text is an argument, not a command: `grep -E 'pest|gradle'`
   local unquoted
