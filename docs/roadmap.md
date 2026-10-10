@@ -164,6 +164,10 @@ _Last reconciled: 2026-09-21 against 47 open issues (#140, #184, #185 closed; ea
 - **#202** `bug` — lead-guard denies every `/ai:setup` write step in a role=lead session; 3 of 4 leads flipped to role=build. Recommended: setup/upgrade skills spawn an agent for write steps. 2026-10-10.
 - **#203** `bug` — recommend-tools: `graphify claude install` adds 2 absolute-path hooks, a duplicate CLAUDE.md block and a settings backup; skip the install step. 2026-10-10.
 - **#204** `enhancement` — bootstrap templates filtered by detected stack (editorconfig, gitattributes, graphifyignore, board workflows, renovate); ~490 cuttable lines in an Expo repo. 2026-10-10.
+- **#205** `bug` — upgrade: project hook copies in `.claude/hooks/` never refresh (2.4.1 fixes reach no repo), rules symlink lags one session, same-version `/ai:upgrade` rewrites `completed_at`, `write-setup-marker.sh` lacks `--help`. Proposal: advisory hooks into plugin hooks.json, relink at SessionEnd. 2026-10-10.
+- **#206** `bug` — build-delegation hook counts writes outside the project (memory files under `~/.claude`); skip paths outside `$CLAUDE_PROJECT_DIR` and memo paths. 2026-10-10.
+- **#207** `bug` — kit scripts hang on interactive mv/rm aliases (2 subagents hung during setup); `command mv -f` sweep over 15 scripts. 2026-10-10.
+- **#208** `bug` — `recommend-rules.sh --json` has no sources/quorum field the skill's "(sources: N/M verified)" annotation needs. 2026-10-10.
 
 ## P3 — backlog
 
