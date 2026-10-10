@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.5.0 — 2026-10-10
+
+Advisory hooks ship machine-wide via the plugin and refresh on /plugin update; /ai:upgrade cleans up the old project copies. Peers: /plugin marketplace update, /plugin update, restart once, then /ai:upgrade in each repo.
+
+### Changed
+
+- The `search-delegation`, `build-delegation`, `phase-check` and `context-drift` hooks ship in the plugin's `hooks/hooks.json` instead of being copied into `<project>/.claude/hooks/`, so a hook fix reaches every project with `/plugin update` (#205, ADR-0018). Each hook reads the project's `.ai-kit-setup`: no marker means silent; the first three fire unless their `branches.<name>_hook` is `skipped`, `context-drift` stays opt-in and fires only on `wired`.
+- `/ai:setup` branches 2d, 2f and 11 only record the marker flag. `apply-search-delegation-hook.sh`, `apply-build-delegation-hook.sh`, `apply-phase-check-hook.sh`, `apply-context-drift-hook.sh` and `install_project_hook` are removed.
+- `/ai:upgrade` deletes the four old project copies and their `.claude/settings.json` entries; every other hook and key stays.
+- `/ai:doctor` replaces the project-hook wiring and `cmp` drift checks with one warning per leftover copy: `stale project copy of <name> hook, run /ai:upgrade`.
+- The `global-rules-link` hook also runs at SessionEnd and points `~/.claude/rules/ai-kit` at the newest version dir in the plugin cache, not at the running plugin's own. The session after a `/plugin update` starts on the new rules instead of one session later (#205).
+- `/ai:upgrade` on a marker already at the running version prints `already on <version>, marker left as is` and leaves the marker as is. The link repairs, rule re-emit and hook-copy cleanup still run. `/ai:upgrade` now gives the order: `/plugin update`, restart, then `/ai:upgrade`.
+- `write-setup-marker.sh --help` prints the usage and exits 0, also after the project path; before it tried to `cd --help` or exited 1.
+- `/ai:doctor` accepts a global rules link to any version dir in the plugin cache, so a rollback that leaves a newer dir behind no longer warns.
+
 ## 2.4.2 — 2026-10-10
 
 ### Added
