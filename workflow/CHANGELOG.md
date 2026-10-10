@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.4.2 — 2026-10-10
+
+### Added
+
+- `lead-nudge` hook (UserPromptSubmit, bundled): in a session whose claim says `role=lead`, one fixed line is injected before every user prompt: open with Doing / Where / Needs-you / Advice, recommendation in the same turn as any question, invoke the phase skill instead of naming it, lookups after the first go to an agent, briefs carry "Decisions in force". Skips `/`, `!` and relayed `<cross-session-message>`, `<agent-message>`, `<task-notification>` prompts. Three Fable leads on 2026-10-10 kept the execution half of the contract (lead-guard) and dropped the posture half (status block on 2/10, 0/6 and 2/6 replies; "advies?" typed twice). Closes #201.
+- `peer-sessions` SessionStart line names the role: alone on the repo → `role=lead (no other session on this repo: you are lead)`. A lead that claimed `role=build` while alone then committed, pushed and ran tests itself with nothing to deny it.
+
+### Fixed
+
+- `lead-guard`: a redirect into a memo path (`~/.claude/…`, `.agents/memory/…`, `.planning/…`) no longer counts as work; `printf >> MEMORY.md` was denied in two lead sessions (#199).
+
 ## 2.4.1 — 2026-10-10
 
 ### Fixed
