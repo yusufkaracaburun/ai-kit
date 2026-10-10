@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.4.0 — 2026-10-10
+
+### Added
+
+- `lead-guard` hook (PreToolUse, bundled, machine-wide): a session whose claim says `role=lead` is denied `Edit`/`Write`/`MultiEdit`/`NotebookEdit` on repo files, mutating or heavy Bash (commits, pushes, test suites, builds, e2e, simulator boots, `sed -i`, redirects, `asc`/`gh`/`eas` writes, `rm`, `kill`), `mcp__pencil__execute` and Chrome write tools. Memo and scratch paths (`~/.claude/`, `.agents/memory/`, `.planning/`, `$TMPDIR`, `/tmp`) stay allowed, so checkpoints and claims still work. Subagents (payload carries `agent_id`) and non-lead sessions pass through. The only override is the role: `ai-kit-claim.sh set role=build`. Harvested from two emeq-mobile lead sessions (2026-10-09/10) in which the lead did 104 Pen edits and 71 browser actions inline while the prose rule said to dispatch.
+- `session-coordination` rule: the lead contract. The lead never executes (code, tests, builds, e2e, commits, `.pen` edits, browser and store-console flows, CLI release ops all go to subagents); opens every reply with one status block (Doing, Where, Needs-you asked once, Advice for every open choice, and a one-time pushback with reasons when an instruction would make the product worse); accepts no agent claim without evidence or a few targeted reads of its own; guards quality against the project's design principles through a reviewer subagent; guards scope and picks simplicity; models: strongest model for the lead, Opus default for subagents via `CLAUDE_CODE_SUBAGENT_MODEL`, another model per spawn only when the task fits it. Shared resources are announced on take and release, never asked for; a permission denial is final for the session. Body stays within the 14-line budget the peer-sessions hook injects.
+- `secrets-hygiene` rule: `## E2E and test runners`. Credentials from an env file outside the repo, passed through process env (never argv), labelled input steps, grep the runner's logs for the value after a run. A real password landed in a tracked `.env.example` and in Maestro argv and 16 log files within one hour.
+- `mark-recommended-option` rule: a turn that ends with a question carries the recommendation in that turn, also in prose. "advies?" was typed six times in one day.
+- `designer` agent: `## Pen authoring mode` (fresh scope per `execute`, visitor reads, masters first, light theme when a brand kit exists, `sips` for measurement, md5 on untouched exports). 9 of 14 designer runs authored the `.pen` with no guidance for it.
+- `builder` and `designer` agents: evidence, not claims (`git diff --stat` opens Changed, the runner's own count line in Tests, artifact path in Verified); heavy runs are granted by the brief and start only after a `ps` check; never discard work (`git checkout --`, `reset`, `stash`, `clean` forbidden). `builder` gets a small-change path (under ten lines: skip Red-green, still type-check and run the nearest test).
+- `explore` agent pins `model: sonnet` (bounded read-only role) and counts images and design exports as codebase artefacts. `eval-structure.sh` now allows a model pin only with a `<!-- model-pin: <reason> -->` line.
+- `verifier` takes a design score as a claim; `reviewer` gets a working-tree-vs-HEAD mode and optional sweep terms; `qa-runner` states it is web only.
+- `design-leads` rule `paths:` now covers Expo and React Native layouts (`app/**/*.tsx`, `src/app/**`, `src/features/**`).
+
+### Deferred
+
+- #195 device-runner agent for mobile E2E, #196 committer agent, #197 PreCompact memo hook, #198 sync-plugin-rules root resolution, #199 lead-guard gaps (`git -C`, quoted commands, `jq`/`awk` comparison false deny, live `agent_id` check), #200 `ai-kit-heavy.sh` shared machine-load gate.
+
 ## 2.3.0 — 2026-10-09
 
 ### Added
