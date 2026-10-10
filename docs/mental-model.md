@@ -55,11 +55,11 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
 | You are running … | Delegate to … |
 | ----------------- | -------------- |
 | `review` skill on Claude Code | `reviewer` (full pre-merge review with structured markdown report) |
-| `qa` skill on Claude Code | `qa-runner` (full QA pass — Playwright/CLI tests, structured findings report; large browser output stays isolated) |
+| `qa` skill on Claude Code | `qa-runner` (full QA pass, web only — Playwright/CLI tests, structured findings report; large browser output stays isolated) |
 | A blocker from `review`, or the "acceptance criteria met" claim before `autonomous` ships | `verifier` (adversarial check of one claim — REFUTED / CONFIRMED / UNTESTABLE, verdict only) |
-| `tdd` skill on Claude Code, change spans ≥3 files; `autonomous` per issue | `builder` (whole red→green→refactor pass against the acceptance criteria; returns a Changed/Tests report, never commits) |
-| `design-to-code` build flow, one per frame | `designer` (UI from a design frame against the project's own tokens and components; Design sources / Changed / States / Verified report, never commits) |
-| Codebase walk from `diagnose`, `to-issues` | `explore` (read-only sweeps, ≤300 lines, structured return) |
+| `tdd` skill on Claude Code, change spans ≥3 files; `autonomous` per issue | `builder` (whole red→green→refactor pass against the acceptance criteria; returns a Changed/Tests report opening with the diff stat and the verbatim test count, takes heavy runs only when the brief grants them, never commits or discards work) |
+| `design-to-code` build flow, one per frame | `designer` (UI from a design frame against the project's own tokens and components; Design sources / Changed / States / Verified report, never commits; Pen authoring mode when the brief makes the `.pen` the deliverable) |
+| Codebase walk from `diagnose`, `to-issues` | `explore` (read-only sweeps, ≤300 lines, structured return; pinned to `sonnet` with a `model-pin` reason) |
 | Cross-file impact analysis from any other skill | `explore` |
 
 Subagents are Claude Code-only. Cursor and other hosts fall back to the inline checklist inside the calling skill — single source of truth.

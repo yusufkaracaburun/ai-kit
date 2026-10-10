@@ -26,6 +26,10 @@ The act of initializing ai-kit in a project: `bin/bootstrap-project.sh` or runni
 
 Repo-root changelog. Sub-1.0 semver convention: feature additions = minor bump; breaking changes get a `**Breaking**` block.
 
+### Claim role
+
+The `role` field of a session's claim in `~/.config/ai-kit/claims/<session_id>.md` (`lead`, `build`, `design`, `e2e`, `review`), set with `ai-kit-claim.sh set role=<role>` (ADR-0014). `role=lead` is the switch for *lead-guard*; changing the role is its only override.
+
 ### CLAUDE.md
 
 Claude Code's project-memory file. ai-kit prefers `AGENTS.md` + `CONTEXT.md` for agent-agnostic reach; users on Claude Code only may keep a `CLAUDE.md` referencing those.
@@ -71,13 +75,21 @@ Every `universal: true` + `default_mode: always-on` rule, pre-emitted into the p
 
 ### Hook
 
-A shell script registered in `.claude/settings.json` (or, for the plugin, `workflow/hooks/hooks.json`) that fires on host events. Plugin-shipped: a PostToolUse hook (`bin/hooks/post-skill-log.sh`) matching `^Skill$` for usage logging, and two SessionStart hooks — `peer-sessions-check.sh` (fires only when other Claude Code sessions are live on the machine; ADR-0014) and `global-rules-link.sh` (keeps `~/.claude/rules/ai-kit` pointing at the plugin's *global rules*; ADR-0015). Project-installed by `/ai:setup`: `search-delegation-check.sh` and `build-delegation-check.sh` (PreToolUse), `phase-check.sh` (UserPromptSubmit).
+A shell script registered in `.claude/settings.json` (or, for the plugin, `workflow/hooks/hooks.json`) that fires on host events. Plugin-shipped: a PreToolUse hook `lead-guard.sh` (denies work tools to a *lead* session's main thread; ADR-0017), a PostToolUse hook (`bin/hooks/post-skill-log.sh`) matching `^Skill$` for usage logging, and two SessionStart hooks — `peer-sessions-check.sh` (fires only when other Claude Code sessions are live on the machine; ADR-0014) and `global-rules-link.sh` (keeps `~/.claude/rules/ai-kit` pointing at the plugin's *global rules*; ADR-0015). Project-installed by `/ai:setup`: `search-delegation-check.sh` and `build-delegation-check.sh` (PreToolUse), `phase-check.sh` (UserPromptSubmit).
 
 Event types: `PreToolUse`, `PostToolUse`, `SessionStart`, `UserPromptSubmit`, `Notification`.
 
 ### Host
 
 Synonym for *Agent* in the "IDE / CLI" sense. This glossary uses *agent* for that meaning and reserves *host* for ambiguous contexts where "agent" could be misread as "subagent."
+
+### Lead
+
+The one session per repo, named by the user, that owns push/merge order and the board (ADR-0014). Under the lead contract (ADR-0017) it never executes: work goes to subagents, every reply opens with a Doing / Where / Needs-you / Advice status block, and no agent claim reaches the user without evidence.
+
+### Lead-guard
+
+The plugin's PreToolUse hook `workflow/hooks/lead-guard.sh`. For a session with *claim role* `lead`, it denies Edit/Write on repo files, mutating or heavy Bash, Pencil execute and Chrome write tools on the main thread. Subagents and memo or scratch paths pass (ADR-0017).
 
 ### Marker
 

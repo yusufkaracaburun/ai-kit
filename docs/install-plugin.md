@@ -99,8 +99,10 @@ Bundled (via `workflow/.claude-plugin/plugin.json`):
   `/plugin update`. Opt out machine-wide: `bin/ai-kit-no-global-rules.sh on`.
 - The PreToolUse lead-guard hook (`workflow/hooks/lead-guard.sh`). In a
   session whose claim says `role=lead`, denies file edits, write/test/build
-  Bash commands, pencil execute and chrome actions on the main thread; memos
-  and subagents pass. Turn it off with `ai-kit-claim.sh set role=build`.
+  Bash commands, pencil execute and chrome actions on the main thread; memo
+  and scratch paths (`~/.claude/`, `.agents/memory/`, `.planning/`, `/tmp`,
+  `$TMPDIR`) and subagents pass. Turn it off with `ai-kit-claim.sh set
+  role=build`. ADR-0017.
 
 **Not bundled** (intentionally):
 

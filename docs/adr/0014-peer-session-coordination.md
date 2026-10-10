@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted.
+Accepted. Decision 3 (the lead) is extended by ADR-0017 (lead contract).
 
 ## Context
 
