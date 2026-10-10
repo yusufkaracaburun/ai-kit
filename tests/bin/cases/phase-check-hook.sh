@@ -31,7 +31,8 @@ for p in \
   "los dit op" \
   "refactor the payment service" \
   "build the export endpoint" \
-  "deploy naar staging"
+  "deploy naar staging" \
+  "fix the login bug"
 do
   OUT=$(fire "$p")
   assert "fires: $p" '[ -n "$OUT" ]'
@@ -47,7 +48,10 @@ for p in \
   "prefix de key met env" \
   "address the review comments" \
   "/ai:tdd start" \
-  "!git status"
+  "!git status" \
+  "<cross-session-message from=\"peer\">fix the login bug</cross-session-message>" \
+  "<agent-message from=\"builder\">fix the login bug</agent-message>" \
+  "<task-notification>fix the login bug</task-notification>"
 do
   OUT=$(fire "$p")
   assert "silent: $p" '[ -z "$OUT" ]'

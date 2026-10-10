@@ -61,8 +61,9 @@ prompt="$(read_prompt)"
 [ -z "$prompt" ] && exit 0
 
 # Leading / or ! — the user named a command already; nothing to route.
+# Relayed peer and subagent messages are not user prompts.
 case "$prompt" in
-  /*|!*) exit 0 ;;
+  /*|!*|'<cross-session-message'*|'<agent-message'*|'<task-notification'*) exit 0 ;;
 esac
 
 # Work-start verbs, NL + EN. Word-bounded so `fix` does not match `prefix`.

@@ -29,6 +29,16 @@ assert "bash grep fires" '[ -n "$OUT" ]'
 OUT=$(fire "$TMP_H" '{"tool_name":"Bash","tool_input":{"command":"rg pattern"}}')
 assert "bash rg fires" '[ -n "$OUT" ]'
 
+for c in "echo x | grep y" "grep -c foo path/file.md" "grep -nE 'a|b' wrangler.jsonc"; do
+  OUT=$(fire "$TMP_H" "$(python3 -c 'import json,sys; print(json.dumps({"tool_name":"Bash","tool_input":{"command":sys.argv[1]}}))' "$c")")
+  assert "non-recursive grep silent: $c" '[ -z "$OUT" ]'
+done
+
+for c in "grep -rn foo src/" "grep -Rin foo ."; do
+  OUT=$(fire "$TMP_H" "$(python3 -c 'import json,sys; print(json.dumps({"tool_name":"Bash","tool_input":{"command":sys.argv[1]}}))' "$c")")
+  assert "sweep fires: $c" '[ -n "$OUT" ]'
+done
+
 OUT=$(fire "$TMP_H" '{"tool_name":"Bash","tool_input":{"command":"ls -la"}}')
 assert "bash ls silent" '[ -z "$OUT" ]'
 

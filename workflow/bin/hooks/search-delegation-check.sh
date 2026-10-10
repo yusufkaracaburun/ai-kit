@@ -9,7 +9,7 @@
 #
 # Fires on WIDE sweeps only — never on a narrow lookup:
 #
-#   Bash  — command contains grep / rg / ripgrep / find / fd / ack / ag
+#   Bash  — command contains rg / ripgrep / find / fd / ack / ag, or a recursive grep
 #   Grep  — no `path` (or path is the project root) → searches the whole repo
 #   Glob  — same
 #
@@ -84,11 +84,12 @@ case "$tool" in
     cmd="$(read_field '.tool_input.command')"
     [ -z "$cmd" ] && exit 0
     case "$cmd" in
-      # No *ripgrep* arm: `*grep*` already matches it as a substring, so it
-      # was dead — same outcome either way, but shellcheck is right that a
-      # branch that can never fire is a claim the code does not keep.
-      *grep*|*"rg "*|*"find "*|*"fd "*|*"ack "*|*"ag "*) wide=1 ;;
+      *ripgrep*|*"rg "*|*"find "*|*"fd "*|*"ack "*|*"ag "*) wide=1 ;;
     esac
+    # Plain grep is a sweep only when recursive; `cmd | grep x` or a grep on a
+    # named file is a narrow lookup.
+    recursive_grep='(^|[^[:alnum:]_-])grep[[:space:]]([^|;&]*[[:space:]])?(-[[:alpha:]]*[rR][[:alpha:]]*|--recursive)([[:space:]]|$)'
+    [[ "$cmd" =~ $recursive_grep ]] && wide=1
     ;;
   Grep|Glob)
     # A wide sweep is one with no path narrowing. An explicit path means the
