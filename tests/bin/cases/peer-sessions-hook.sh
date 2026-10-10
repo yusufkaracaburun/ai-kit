@@ -67,6 +67,16 @@ assert "table names the peer repo" 'grep -q "| planny |" <<<"$OUT"'
 assert "own session not listed as a peer" '! grep -q "ai-kit-99" <<<"$OUT"'
 assert "nudge asks for ListAgents + claim" 'grep -q "ListAgents" <<<"$OUT" && grep -q "ai-kit-claim.sh" <<<"$OUT"'
 assert "emits valid JSON" 'bash "$HOOK" <<<"$OWN" | python3 -c "import json,sys; json.load(sys.stdin)"'
+assert "alone on repo -> Do now names role=lead" 'grep "^Do now" <<<"$OUT" | grep -qF "role=lead (no other session on this repo: you are lead)"'
+sleep 30 &
+SAME_PID=$!
+registry "$SAME_PID" peer-2 planny-lead "$REPO"
+"$CLAIM" --session peer-2 set role=lead >/dev/null
+OUT_SAME=$(fire "$OWN")
+assert "lead peer on same repo -> Do now keeps role=…" 'grep "^Do now" <<<"$OUT_SAME" | grep -qF "role=…" && ! grep "^Do now" <<<"$OUT_SAME" | grep -qF "role=lead"'
+kill "$SAME_PID"
+wait "$SAME_PID" 2>/dev/null || true
+rm -f "$REG/$SAME_PID.json" "$CLAIMS/peer-2.md"
 
 echo "=== peer-sessions-check: protocol read from the rule ==="
 # section: peer-sessions-protocol

@@ -91,6 +91,8 @@ branch="$(git -C "$cwd" symbolic-ref --short HEAD 2>/dev/null || true)"
 
 peers="$("$claim" show 2>/dev/null || true)"
 [ -n "$peers" ] || exit 0
+role_hint="role=lead (no other session on this repo: you are lead)"
+awk -F'|' -v r="$(basename "$cwd")" 'NR>2 { gsub(/^ +| +$/, "", $3); if ($3 == r) f=1 } END { exit !f }' <<<"$peers" && role_hint="role=…"
 
 ctx="ai-kit peer sessions: other Claude Code sessions are live on this machine. Coordinate — do not re-negotiate.
 
@@ -99,7 +101,7 @@ ${protocol:+
 Protocol (session-coordination rule):
 $protocol
 }
-Do now: call \`ListAgents\` once, then register with \`$claim set role=… owns=… depends_on=…\` (AI_KIT_SESSION_ID=$sid is exported for this session; your skeleton claim already records repo, cwd and branch)."
+Do now: call \`ListAgents\` once, then register with \`$claim set $role_hint owns=… depends_on=…\` (AI_KIT_SESSION_ID=$sid is exported for this session; your skeleton claim already records repo, cwd and branch)."
 
 if command -v jq >/dev/null 2>&1; then
   jq -n --arg ctx "$ctx" \
