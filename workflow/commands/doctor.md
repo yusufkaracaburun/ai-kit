@@ -15,7 +15,7 @@ Summarise the output for the user:
 3. **All-clear last** (exit code 0) — single line: "ai-kit install is healthy."
 
 Common fixes to suggest by name (the doctor prints the exact command per finding — repeat it verbatim):
-- Hook not wired → `bash "${CLAUDE_PLUGIN_ROOT}/bin/apply-<name>-hook.sh" .`
+- Stale project hook copy → `/ai:upgrade`
 - Marker version behind → `/ai:upgrade`
 - Project not set up → `/ai:setup`
 - Want to skip global checks → `/ai:no-globals on`

@@ -4,103 +4,33 @@ AIKIT="$(cd "$(dirname "$0")/../../.." && pwd)"
 # shellcheck source=../lib/harness.sh
 source "$AIKIT/tests/bin/lib/harness.sh"
 
-# #113: a project that only updates the plugin gets new skills but never the
-# hook a newer /ai:setup would have wired, and the marker keeps saying
-# `wired`. Doctor derives the expected set from bin/apply-*-hook.sh and
-# checks .claude/settings.json — the marker is advisory: its `wired` claim is
-# verified against settings.json, its `skipped` is the user's recorded choice.
+# #205: the four advisory hooks ship in the plugin's hooks.json, gated on the
+# marker. A copy left in .claude/hooks/ by an older /ai:setup fires next to the
+# plugin's and never gets fixes, so doctor names it and points at /ai:upgrade.
 
 DOCTOR="$AIKIT/bin/ai-kit-doctor.sh"
 
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-# wire_all <project> [skip-name] — run every applier the doctor derives from.
-wire_all() {
-  local p="$1" skip="${2:-}" a
-  for a in "$AIKIT"/bin/apply-*-hook.sh; do
-    [ "$a" = "$AIKIT/bin/apply-$skip-hook.sh" ] && continue
-    bash "$a" "$p" >/dev/null
-  done
-}
-
-echo "=== every expected hook registered ==="
+echo "=== no project copies ==="
 A="$TMP/all"
-mkdir -p "$A"
-wire_all "$A"
+mkdir -p "$A/.claude"
 OUT_A="$(bash "$DOCTOR" "$A" --project-only 2>&1 || true)"
-assert "ok line names every hook" \
-  'echo "$OUT_A" | grep -qE "^  ok .*hooks wired in .claude/settings.json: .*context-drift.*phase-check.*search-delegation"'
-assert "no hook warning when all are wired" \
+assert "no hook warning without project copies" \
   '! echo "$OUT_A" | grep -E "^  warn" | grep -q "hook"'
 
-echo "=== one auto-apply hook missing ==="
-M="$TMP/missing"
-mkdir -p "$M"
-wire_all "$M" phase-check
-OUT_M="$(bash "$DOCTOR" "$M" --project-only 2>&1 || true)"
-assert "missing hook warns, never errors" \
-  'echo "$OUT_M" | grep -qE "^  warn .*hook phase-check not in .claude/settings.json"'
-assert "warning carries the apply recipe" \
-  'echo "$OUT_M" | grep -F -q "run: bash $AIKIT/bin/apply-phase-check-hook.sh $M"'
-OK_M="$(echo "$OUT_M" | grep -E "^  ok .*hooks wired in .claude/settings.json:" || true)"
-assert "wired hooks still reported ok, missing one left out" \
-  'grep -q "context-drift" <<<"$OK_M" && grep -q "search-delegation" <<<"$OK_M" && ! grep -q "phase-check" <<<"$OK_M"'
-assert "no disagreement claimed without a marker" \
-  '! echo "$OUT_M" | grep -q "disagree"'
-
-echo "=== opt-in hook absent, no marker ==="
-# Four repos that never ran /ai:setup warned "hook context-drift not in
-# settings" — but setup's Tier-A default records it skipped, so a project
-# with no marker claim never chose it. Not chosen is not drifted.
-O="$TMP/optin"
-mkdir -p "$O"
-wire_all "$O" context-drift
-OUT_O="$(bash "$DOCTOR" "$O" --project-only 2>&1 || true)"
-assert "absent opt-in hook is info, naming it opt-in" \
-  'echo "$OUT_O" | grep -E "^  info .*hook context-drift" | grep -q "opt-in"'
-assert "no warn for an opt-in hook the project never chose" \
-  '! echo "$OUT_O" | grep -E "^  warn" | grep -q "context-drift"'
-
-echo "=== marker says wired, settings.json lacks it ==="
-D="$TMP/disagree"
-mkdir -p "$D"
-wire_all "$D" context-drift
-bash "$AIKIT/bin/write-setup-marker.sh" "$D" --context-drift-hook=wired >/dev/null
-OUT_D="$(bash "$DOCTOR" "$D" --project-only 2>&1 || true)"
-assert "marker vs settings.json disagreement is named" \
-  'echo "$OUT_D" | grep -qE "^  warn .*hook context-drift: .ai-kit-setup says wired but .claude/settings.json does not register .claude/hooks/context-drift-check.sh — marker and reality disagree"'
-assert "disagreement warning carries the apply recipe" \
-  'echo "$OUT_D" | grep -F -q "run: bash $AIKIT/bin/apply-context-drift-hook.sh $D"'
-
-echo "=== marker says skipped ==="
-S="$TMP/skipped"
-mkdir -p "$S"
-wire_all "$S" context-drift
-bash "$AIKIT/bin/write-setup-marker.sh" "$S" --context-drift-hook=skipped >/dev/null
-OUT_S="$(bash "$DOCTOR" "$S" --project-only 2>&1 || true)"
-assert "skipped per marker is info, not warn" \
-  'echo "$OUT_S" | grep -qE "^  info .*hook context-drift skipped per .ai-kit-setup"'
-assert "no warn for a hook the user declined" \
-  '! echo "$OUT_S" | grep -E "^  warn" | grep -q "context-drift"'
-
-echo "=== no .claude/ dir (Cursor-only) ==="
-C="$TMP/cursor"
-mkdir -p "$C/.cursor/skills"
-OUT_C="$(bash "$DOCTOR" "$C" --project-only 2>&1 || true)"
-assert "hook check absent without .claude/" \
-  '! echo "$OUT_C" | grep -qE "hook.*(wired|not in|skipped)"'
-
-echo "=== wired but the project copy is stale ==="
+echo "=== stale project copies ==="
 ST="$TMP/stale"
-mkdir -p "$ST"
-wire_all "$ST"
-echo "# drifted" >> "$ST/.claude/hooks/phase-check.sh"
+mkdir -p "$ST/.claude/hooks"
+for s in search-delegation-check build-delegation-check phase-check context-drift-check; do
+  echo '#!/usr/bin/env bash' > "$ST/.claude/hooks/$s.sh"
+done
 OUT_ST="$(bash "$DOCTOR" "$ST" --project-only 2>&1 || true)"
-assert "stale hook copy is warned with the apply recipe" \
-  'echo "$OUT_ST" | grep -E "^  warn .*hook phase-check copy in .claude/hooks differs" | grep -F -q "apply-phase-check-hook.sh $ST"'
-assert "stale hook is not listed as wired" \
-  '! echo "$OUT_ST" | grep -E "^  ok .*hooks wired" | grep -q "phase-check"'
+for n in search-delegation-check build-delegation-check phase-check context-drift-check; do
+  assert "stale $n copy warned with the upgrade recipe" \
+    'echo "$OUT_ST" | grep -qE "^  warn .*stale project copy of $n hook, run /ai:upgrade"'
+done
 
 echo "=== stale ~/.config/ai-kit/root ==="
 RH="$TMP/home-stale"
@@ -113,6 +43,6 @@ assert "stale root file is warned with the plugin-current recipe" \
 echo "=== no path argument: cwd is the project ==="
 OUT_CWD="$(cd "$TMP/all" && bash "$DOCTOR" --project-only 2>&1 || true)"
 assert "doctor run from a project cwd without a path still checks the project" \
-  'echo "$OUT_CWD" | grep -q "^Project: " && echo "$OUT_CWD" | grep -qE "^  ok .*hooks wired"'
+  'echo "$OUT_CWD" | grep -q "^Project: .*all"'
 
 print_summary_and_exit

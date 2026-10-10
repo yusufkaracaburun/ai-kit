@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- The `search-delegation`, `build-delegation`, `phase-check` and `context-drift` hooks ship in the plugin's `hooks/hooks.json` instead of being copied into `<project>/.claude/hooks/`, so a hook fix reaches every project with `/plugin update` (#205, ADR-0018). Each hook reads the project's `.ai-kit-setup`: no marker means silent; the first three fire unless their `branches.<name>_hook` is `skipped`, `context-drift` stays opt-in and fires only on `wired`.
+- `/ai:setup` branches 2d, 2f and 11 only record the marker flag. `apply-search-delegation-hook.sh`, `apply-build-delegation-hook.sh`, `apply-phase-check-hook.sh`, `apply-context-drift-hook.sh` and `install_project_hook` are removed.
+- `/ai:upgrade` deletes the four old project copies and their `.claude/settings.json` entries; every other hook and key stays.
+- `/ai:doctor` replaces the project-hook wiring and `cmp` drift checks with one warning per leftover copy: `stale project copy of <name> hook, run /ai:upgrade`.
+
 ## 2.4.2 — 2026-10-10
 
 ### Added

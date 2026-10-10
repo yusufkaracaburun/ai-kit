@@ -5,15 +5,18 @@ AIKIT="$(cd "$(dirname "$0")/../../.." && pwd)"
 source "$AIKIT/tests/bin/lib/harness.sh"
 
 HOOK="$AIKIT/bin/hooks/phase-check.sh"
+# Older markers carry no phase_check_hook field; the hook fires for them.
+PROJ=$(mktemp -d)
+echo '{"branches": {}}' > "$PROJ/.ai-kit-setup"
 
 # The hook must fire on work-start prompts and stay silent on everything else.
 # Firing on questions and exploration would tax every turn of a session for a
 # nudge that only means something when work is about to start — so the fire /
 # quiet split is what these cases pin down.
 fire() {
-  # fire <prompt> -> prints additionalContext, empty if silent
+  # fire <prompt> [project] -> prints additionalContext, empty if silent
   python3 -c 'import json,sys; print(json.dumps({"prompt": sys.argv[1]}))' "$1" |
-    bash "$HOOK" |
+    CLAUDE_PROJECT_DIR="${2:-$PROJ}" bash "$HOOK" |
     python3 -c 'import json,sys
 raw = sys.stdin.read().strip()
 if not raw:
@@ -76,38 +79,26 @@ JUNK_RC=$?
 set -e
 assert "malformed payload exits clean" '[ "$JUNK_RC" -eq 0 ]'
 
-echo "=== apply-phase-check-hook ==="
-# section: apply-phase-check-hook
-TMP_A=$(mktemp -d)
+echo "=== phase-check: marker gate ==="
+# section: phase-check-gate
+NOMARK=$(mktemp -d)
+OUT=$(fire "fix the login bug" "$NOMARK")
+assert "silent without .ai-kit-setup" '[ -z "$OUT" ]'
+SKIP=$(mktemp -d)
+"$AIKIT/bin/write-setup-marker.sh" "$SKIP" --phase-check-hook=skipped >/dev/null
+OUT=$(fire "fix the login bug" "$SKIP")
+assert "silent when marker says skipped" '[ -z "$OUT" ]'
 
-"$AIKIT/bin/apply-phase-check-hook.sh" "$TMP_A" >/dev/null
-assert "hook script copied into project" '[ -x "$TMP_A/.claude/hooks/phase-check.sh" ]'
-assert "settings.json wires UserPromptSubmit" \
-  'python3 -c "import json,sys; d=json.load(open(sys.argv[1])); print(d[\"hooks\"][\"UserPromptSubmit\"][0][\"hooks\"][0][\"command\"])" "$TMP_A/.claude/settings.json" | grep -q "CLAUDE_PROJECT_DIR"'
-
-# Idempotent: a second apply must not stack a second entry.
-"$AIKIT/bin/apply-phase-check-hook.sh" "$TMP_A" >/dev/null
-COUNT=$(python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); print(len(d["hooks"]["UserPromptSubmit"]))' "$TMP_A/.claude/settings.json")
-assert "re-apply does not stack" '[ "$COUNT" -eq 1 ]'
-
-# Non-destructive: unrelated keys and hooks survive the merge.
-TMP_B=$(mktemp -d)
-mkdir -p "$TMP_B/.claude"
-cat > "$TMP_B/.claude/settings.json" <<'JSON'
-{
-  "env": {"FOO": "bar"},
-  "hooks": {
-    "PreToolUse": [{"matcher": "Bash", "hooks": [{"type": "command", "command": "other.sh"}]}]
-  }
-}
-JSON
-"$AIKIT/bin/apply-phase-check-hook.sh" "$TMP_B" >/dev/null
-assert "unrelated env key survives" \
-  'python3 -c "import json,sys; print(json.load(open(sys.argv[1]))[\"env\"][\"FOO\"])" "$TMP_B/.claude/settings.json" | grep -q bar'
-assert "unrelated PreToolUse hook survives" \
-  'grep -q "other.sh" "$TMP_B/.claude/settings.json"'
-
-rm -rf "$TMP_A" "$TMP_B"
+echo "=== phase-check: plugin delivery ==="
+# section: phase-check-plugin
+assert "hooks.json registers phase-check on UserPromptSubmit" \
+  'python3 -c "
+import json
+d = json.load(open(\"$AIKIT/workflow/hooks/hooks.json\"))
+cmds = [h[\"command\"] for b in d[\"hooks\"][\"UserPromptSubmit\"] for h in b[\"hooks\"]]
+assert \"\${CLAUDE_PLUGIN_ROOT}/hooks/phase-check.sh\" in cmds, cmds
+"'
+rm -rf "$NOMARK" "$SKIP" "$PROJ"
 
 echo "=== write-setup-marker records the branch ==="
 # section: phase-check-marker

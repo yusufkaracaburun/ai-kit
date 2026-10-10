@@ -10,6 +10,8 @@ source "$SCRIPT_BIN/lib/ai-kit-root.sh"
 source "$SCRIPT_BIN/lib/link-primitives.sh"
 # shellcheck source=lib/setup-marker.sh
 source "$SCRIPT_BIN/lib/setup-marker.sh"
+# shellcheck source=lib/settings-hooks.sh
+source "$SCRIPT_BIN/lib/settings-hooks.sh"
 AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
 VERSION="$(resolve_ai_kit_version "$AIKIT")"
 PRIMITIVES="$(resolve_primitives_root "$AIKIT")"
@@ -221,6 +223,17 @@ if [ -d "$TARGET/.claude/rules" ]; then
     "$AIKIT/bin/emit-rules.sh" "$TARGET" --rules "$reemit" --agents claude-code >/dev/null || echo "warn: emit-rules.sh failed (non-fatal)"
   fi
 fi
+
+# These hooks ship in the plugin's hooks.json now (#205); a copy left in the
+# project would fire next to the plugin's and never receive fixes.
+# Unwire before removing: settings.json must never point at a missing script.
+for script in "${PLUGIN_HOOK_SCRIPTS[@]}"; do
+  unwire_hook "$TARGET/.claude/settings.json" "$script" || { echo "warn: could not unwire $script, copy kept (non-fatal)"; continue; }
+  if [ -f "$TARGET/.claude/hooks/$script" ]; then
+    rm -f "$TARGET/.claude/hooks/$script"
+    echo "removed: .claude/hooks/$script, the plugin serves this hook now"
+  fi
+done
 
 echo ""
 echo "Run: $AIKIT/bin/verify-setup.sh $TARGET --strict"

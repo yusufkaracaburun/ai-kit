@@ -27,3 +27,12 @@ else:
     print(value)
 PY
 }
+
+# marker_hook_on <project> <hook-name> <default>
+#   Succeeds when the project's marker has branches.<hook_name>_hook = wired,
+#   or <default> = wired and the key is absent. No marker or an unreadable
+#   one: fails.
+marker_hook_on() {
+  [ -f "$1/.ai-kit-setup" ] &&
+    [ "$(marker_get "$1/.ai-kit-setup" "branches.${2//-/_}_hook" "$3" 2>/dev/null)" = wired ]
+}

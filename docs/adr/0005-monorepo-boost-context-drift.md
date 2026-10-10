@@ -4,6 +4,8 @@
 
 Accepted (Unreleased)
 
+Install mechanism superseded by [ADR-0018](0018-advisory-hooks-via-plugin.md), 2026-10-10.
+
 ## Context
 
 Evaluating ai-kit against a real target — a Laravel 13 monorepo (`backend/`

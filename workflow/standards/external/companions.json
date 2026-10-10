@@ -17,8 +17,8 @@
       "tiers": [
         {
           "name": "base",
-          "description": "Default tier — query/path/explain over graphify-out/graph.json; no auto-generated wiki. The 'grep → query the graph instead' nudge is NOT a graphify-specific hook: /ai:setup wires bin/hooks/search-delegation-check.sh into every project (Tier A), and that hook emits the graphify message the moment graphify-out/graph.json appears. Nothing to wire here.",
-          "wired_via": "workflow/skills/recommend-tools/SKILL.md Phase 3 graphify branch (docs + ignore file); the PreToolUse nudge comes from bin/apply-search-delegation-hook.sh",
+          "description": "Default tier — query/path/explain over graphify-out/graph.json; no auto-generated wiki. The 'grep → query the graph instead' nudge is NOT a graphify-specific hook: the plugin's hooks.json serves bin/hooks/search-delegation-check.sh in every project with an .ai-kit-setup marker, and that hook emits the graphify message the moment graphify-out/graph.json appears. Nothing to wire here.",
+          "wired_via": "workflow/skills/recommend-tools/SKILL.md Phase 3 graphify branch (docs + ignore file); the PreToolUse nudge comes from the plugin's hooks/hooks.json (bin/hooks/search-delegation-check.sh)",
           "glue_files": [
             "context/templates/companions/graphify.md",
             "context/templates/companions/graphifyignore"

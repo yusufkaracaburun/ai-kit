@@ -39,4 +39,4 @@ Any of: an issue number / URL / spec path is passed · "implement this", "pak je
 
 The user answered the open questions in the same turn · says "go", "skip grill", "no questions", "geen vragen, gewoon doen" · the task is a trivial one-liner the issue body fully specifies (typo, lint, version bump).
 
-Completeness of the source doc ≠ completeness of the implementation spec; the grill closes the gap. See `grill-me` / `grill-with-docs` (the workflows) and `bin/hooks/phase-check.sh` (the enforcement half on Claude Code — it repeats the table on every work-start prompt; wire it with `bin/apply-phase-check-hook.sh` where `/ai:setup` has not).
+Completeness of the source doc ≠ completeness of the implementation spec; the grill closes the gap. See `grill-me` / `grill-with-docs` (the workflows) and `bin/hooks/phase-check.sh` (the enforcement half on Claude Code — it repeats the table on every work-start prompt; the plugin serves it in every project with an `.ai-kit-setup` marker).

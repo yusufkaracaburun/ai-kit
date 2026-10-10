@@ -176,12 +176,11 @@ Tier-A because the universals' value is stack-agnostic.
 
 ### Branch 2d — Search + build delegation hooks (auto-apply)
 
-```bash
-$AI_KIT_ROOT/bin/apply-search-delegation-hook.sh "$(pwd)"
-$AI_KIT_ROOT/bin/apply-build-delegation-hook.sh "$(pwd)"
-```
+Both hooks ship in the plugin's `hooks/hooks.json` and fire in any project
+whose `.ai-kit-setup` does not record them `skipped`. Nothing is copied into
+the project; this branch only records the choice in the marker.
 
-**Search-delegation** wires a `PreToolUse(Bash|Grep|Glob)` hook that fires
+**Search-delegation** is a `PreToolUse(Bash|Grep|Glob)` hook that fires
 **only on repo-wide sweeps** — a Bash `grep`/`rg`/`find`, or a `Grep`/`Glob`
 with no `path` to narrow it. A search already scoped to a directory stays
 silent.
@@ -191,7 +190,7 @@ when `graphify-out/graph.json` exists, otherwise a sub-agent (`Explore`,
 `ai:explore`, `cavecrew-investigator`) so the raw output lands in the
 sub-agent's context instead of the main one.
 
-**Build-delegation** wires a `PreToolUse(Edit|Write|MultiEdit)` hook that
+**Build-delegation** is a `PreToolUse(Edit|Write|MultiEdit)` hook that
 fires **once per session, on the third distinct file** edited inline, and
 points the agent at the `builder` subagent for the rest of the change.
 One- and two-file changes, repeat edits to the same file, and every edit
@@ -207,8 +206,8 @@ applied, not negotiated. Record `--search-delegation-hook=wired` and
 `--build-delegation-hook=wired`.
 
 The search hook supersedes the older graphify-only nudge that
-`/ai:recommend-tools` used to merge; its applier **replaces** that entry
-rather than stacking a second one.
+`/ai:recommend-tools` used to merge into `.claude/settings.json`. If a project
+still carries that inline entry, remove it so the nudge does not fire twice.
 
 ### Branch 2e — Universal companions (auto-prompt)
 
@@ -267,11 +266,8 @@ the glue.
 
 ### Branch 2f — Phase-check hook (auto-apply)
 
-```bash
-$AI_KIT_ROOT/bin/apply-phase-check-hook.sh "$(pwd)"
-```
-
-Wires a `UserPromptSubmit` hook that fires **only on work-start prompts** — a
+A `UserPromptSubmit` hook in the plugin's `hooks/hooks.json`, gated on the
+marker like Branch 2d. It fires **only on work-start prompts** — a
 build/fix/ship verb in the prompt. Questions, explanations, an explicit
 `/slash` command and a `!bash` passthrough all stay silent.
 
@@ -294,7 +290,7 @@ project. Record `--phase-check-hook=wired`.
 
 **Skip entirely if `branches.secrets_scan` is already set** in `.ai-kit-setup`
 — this branch runs exactly once per project, never re-scans on a
-re-invocation that keeps it. (Unlike 2d/2f: those are idempotent appliers,
+re-invocation that keeps it. (Unlike 2d/2f: those only record a marker flag,
 safe to always re-run; this one is a discovery scan, not.)
 
 ```bash
@@ -452,15 +448,9 @@ silent no-op otherwise.
 > [1] Yes, wire it    → `wired`
 > [2] No thanks       → `skipped`
 
-On `wired`:
-
-```bash
-$AI_KIT_ROOT/bin/apply-context-drift-hook.sh "$(pwd)"
-```
-
-It copies the hook into `.claude/hooks/` and merges a `PostToolUse` entry into
-`.claude/settings.json` — non-destructive and idempotent. Record the choice in
-the marker (`--context-drift-hook=wired|skipped`). See [ADR-0005](../../../docs/adr/0005-monorepo-boost-context-drift.md).
+The hook ships in the plugin's `hooks/hooks.json` and fires only where the
+marker records it `wired`. Record the
+choice in the marker (`--context-drift-hook=wired|skipped`). See [ADR-0005](../../../docs/adr/0005-monorepo-boost-context-drift.md).
 
 ### Branch 11b — Rename detector (machine-wide, ask once)
 

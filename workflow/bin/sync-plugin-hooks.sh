@@ -34,6 +34,10 @@ PAIRS=(
   "bin/hooks/session-reap.sh|workflow/hooks/session-reap.sh"
   "bin/hooks/lead-guard.sh|workflow/hooks/lead-guard.sh"
   "bin/hooks/lead-nudge.sh|workflow/hooks/lead-nudge.sh"
+  "bin/hooks/phase-check.sh|workflow/hooks/phase-check.sh"
+  "bin/hooks/search-delegation-check.sh|workflow/hooks/search-delegation-check.sh"
+  "bin/hooks/build-delegation-check.sh|workflow/hooks/build-delegation-check.sh"
+  "bin/hooks/context-drift-check.sh|workflow/hooks/context-drift-check.sh"
 )
 
 MODE="stamp"

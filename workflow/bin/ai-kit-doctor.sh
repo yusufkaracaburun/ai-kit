@@ -13,6 +13,8 @@ SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_BIN/lib/ai-kit-root.sh"
 # shellcheck source=lib/setup-marker.sh
 source "$SCRIPT_BIN/lib/setup-marker.sh"
+# shellcheck source=lib/settings-hooks.sh
+source "$SCRIPT_BIN/lib/settings-hooks.sh"
 AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
 KIT_VERSION="$(resolve_ai_kit_version "$AIKIT")"
 
@@ -400,56 +402,13 @@ if [ -n "$TARGET" ]; then
       warn ".ai-kit-setup absent — /ai:setup not yet run"
     fi
 
-    # Project hooks (#113). One expected hook per bin/apply-<name>-hook.sh,
-    # so a new applier registers itself here with no doctor change. Truth is
-    # settings.json; the marker is advisory — its `wired` claim is verified
-    # against settings.json, its `skipped` is the user's recorded choice.
-    # A project without .claude/ (Cursor-only) has no hooks to check.
-    # settings.local.json counts too — Claude Code merges hooks from both.
-    if [ -d "$TARGET/.claude" ]; then
-      _wired_cmds="$(python3 -c "import json, os, sys
-for p in sys.argv[1:]:
-    if not os.path.isfile(p): continue
-    try: d = json.load(open(p))
-    except Exception: continue
-    print('\n'.join(h.get('command','') for bs in d.get('hooks',{}).values() for b in bs for h in b.get('hooks',[])))" "$TARGET/.claude/settings.json" "$TARGET/.claude/settings.local.json" 2>/dev/null || true)"
-      _marker_hooks="$(python3 -c "import json, sys; b=json.load(open(sys.argv[1])).get('branches',{}); print(' '.join(k[:-5].replace('_','-')+'='+str(v) for k,v in b.items() if k.endswith('_hook')))" "$TARGET/.ai-kit-setup" 2>/dev/null || true)"
-      # Opt-in hooks: /ai:setup's Tier-A default records them `skipped`, so
-      # no marker claim means "never chosen", not "drifted" — info, not warn.
-      _opt_in_hooks="context-drift"
-      _hooks_ok=()
-      for _apply in "$AIKIT"/bin/apply-*-hook.sh; do
-        _name="${_apply##*/apply-}"
-        _name="${_name%-hook.sh}"
-        _script="$(grep -oE -m1 '\.claude/hooks/[A-Za-z0-9_.-]+' "$_apply")"
-        _claim=""
-        case " $_marker_hooks " in
-          *" $_name=wired "*) _claim=wired ;;
-          *" $_name=skipped "*) _claim=skipped ;;
-        esac
-        if printf '%s\n' "$_wired_cmds" | grep -qF "$_script"; then
-          # The project holds a copy, not a link: a hook that changed in a
-          # newer ai-kit stays old there until the applier re-runs.
-          if [ -f "$TARGET/$_script" ] && [ -f "$AIKIT/bin/hooks/${_script##*/}" ] && ! cmp -s "$TARGET/$_script" "$AIKIT/bin/hooks/${_script##*/}"; then
-            warn "hook $_name copy in .claude/hooks differs from ai-kit $KIT_VERSION — re-run: bash $AIKIT/bin/apply-$_name-hook.sh $TARGET"
-          else
-            _hooks_ok+=("$_name")
-          fi
-        elif [ "$_claim" = skipped ]; then
-          info "hook $_name skipped per .ai-kit-setup"
-        elif [ "$_claim" = wired ]; then
-          warn "hook $_name: .ai-kit-setup says wired but .claude/settings.json does not register $_script — marker and reality disagree; run: bash $AIKIT/bin/apply-$_name-hook.sh $TARGET"
-        else
-          case " $_opt_in_hooks " in
-            *" $_name "*) info "hook $_name is opt-in — not wired; choose it in /ai:setup" ;;
-            *) warn "hook $_name not in .claude/settings.json — run: bash $AIKIT/bin/apply-$_name-hook.sh $TARGET" ;;
-          esac
-        fi
-      done
-      if [ "${#_hooks_ok[@]}" -gt 0 ]; then
-        ok "hooks wired in .claude/settings.json: ${_hooks_ok[*]}"
+    # The plugin's hooks.json serves these hooks (#205); a copy an older
+    # /ai:setup left in the project fires next to it and never gets fixes.
+    for _script in "${PLUGIN_HOOK_SCRIPTS[@]}"; do
+      if [ -f "$TARGET/.claude/hooks/$_script" ]; then
+        warn "stale project copy of ${_script%.sh} hook, run /ai:upgrade"
       fi
-    fi
+    done
 
     # ------------------------------------------------------------------
     # Single-dev drift — 3 checks. ai-kit issue #69 (parent #52).

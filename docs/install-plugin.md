@@ -106,6 +106,13 @@ Bundled (via `workflow/.claude-plugin/plugin.json`):
 - The UserPromptSubmit lead-nudge hook (`workflow/hooks/lead-nudge.sh`). In a
   `role=lead` session, prints one line restating the lead reply contract before
   each user prompt; silent otherwise. ADR-0017.
+- The advisory project hooks: `search-delegation-check.sh` and
+  `build-delegation-check.sh` (PreToolUse), `phase-check.sh`
+  (UserPromptSubmit) and `context-drift-check.sh` (PostToolUse). Each is
+  silent in a project without `.ai-kit-setup` and follows its
+  `branches.<name>_hook` choice there; context-drift fires only on `wired`.
+  `/ai:upgrade` removes the copies older setups left in `.claude/hooks/`.
+  ADR-0018.
 
 **Not bundled** (intentionally):
 

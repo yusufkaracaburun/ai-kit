@@ -93,27 +93,6 @@ assert "idempotent: architecture added" 'grep -q "\"architecture\": \"documented
 rm -rf "$TMP_AR"
 
 
-echo "=== apply-context-drift-hook ==="
-# section: apply-context-drift-hook
-TMP_CDH=$(mktemp -d)
-"$AIKIT/bin/apply-context-drift-hook.sh" "$TMP_CDH" >/dev/null
-assert "hook copied into project" '[ -x "$TMP_CDH/.claude/hooks/context-drift-check.sh" ]'
-assert "settings.json created" '[ -f "$TMP_CDH/.claude/settings.json" ]'
-assert "settings.json is valid JSON" 'python3 -c "import json; json.load(open(\"$TMP_CDH/.claude/settings.json\"))"'
-assert "PostToolUse entry wired" 'python3 -c "import json; d=json.load(open(\"$TMP_CDH/.claude/settings.json\")); assert any(h[\"command\"].endswith(\"context-drift-check.sh\") for b in d[\"hooks\"][\"PostToolUse\"] for h in b[\"hooks\"])"'
-"$AIKIT/bin/apply-context-drift-hook.sh" "$TMP_CDH" >/dev/null
-assert "apply is idempotent (no duplicate)" 'python3 -c "import json; d=json.load(open(\"$TMP_CDH/.claude/settings.json\")); n=sum(1 for b in d[\"hooks\"][\"PostToolUse\"] for h in b[\"hooks\"] if h[\"command\"].endswith(\"context-drift-check.sh\")); assert n==1, n"'
-rm -rf "$TMP_CDH"
-
-TMP_CDH2=$(mktemp -d)
-mkdir -p "$TMP_CDH2/.claude"
-printf '{\n  "hooks": {\n    "PostToolUse": [\n      { "matcher": "^Skill$", "hooks": [{ "type": "command", "command": "existing.sh" }] }\n    ]\n  }\n}\n' > "$TMP_CDH2/.claude/settings.json"
-"$AIKIT/bin/apply-context-drift-hook.sh" "$TMP_CDH2" >/dev/null
-assert "apply preserves a pre-existing hook" 'grep -q "existing.sh" "$TMP_CDH2/.claude/settings.json"'
-assert "apply adds context-drift alongside" 'grep -q "context-drift-check.sh" "$TMP_CDH2/.claude/settings.json"'
-rm -rf "$TMP_CDH2"
-
-
 echo "=== audit-setup-symmetry ==="
 # section: audit-setup-symmetry
 # Lock for #48 — every standards/external/*.json catalog must be wired

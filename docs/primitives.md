@@ -93,7 +93,7 @@ Start: "I want to add X to ai-kit"
 ### "Nudge me when I edit code the docs describe"
 - Fires on a tool event (after Edit/Write/MultiEdit) → **HOOK** (PostToolUse matcher `Edit|Write|MultiEdit`)
 - Deterministic shell — greps `CONTEXT.md` / `docs/adr/` for the edited path, no LLM
-- Source: `bin/hooks/context-drift-check.sh`; installed by `bin/apply-context-drift-hook.sh` (ADR-0005)
+- Source: `bin/hooks/context-drift-check.sh`; served by the plugin's `hooks/hooks.json`, opt-in per project through `.ai-kit-setup` (ADR-0005, ADR-0018)
 
 ### "Show me which skill fits my current task"
 - User wants explicit `/` invocation → **SLASH COMMAND**

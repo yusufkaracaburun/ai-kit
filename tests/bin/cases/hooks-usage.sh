@@ -109,8 +109,11 @@ echo "=== hook-context-drift ==="
 # section: hook-context-drift
 CD_HOOK="$AIKIT/bin/hooks/context-drift-check.sh"
 assert "context-drift hook is executable" '[ -x "$CD_HOOK" ]'
+# Opt-in: the hook fires only where the marker records it wired.
+cd_wire() { echo '{"branches": {"context_drift_hook": "wired"}}' > "$1/.ai-kit-setup"; }
 
 CD_PROJ=$(mktemp -d)
+cd_wire "$CD_PROJ"
 mkdir -p "$CD_PROJ/src"
 echo "code" > "$CD_PROJ/src/session.ts"
 echo "Session logic lives in src/session.ts and handles auth." > "$CD_PROJ/CONTEXT.md"
@@ -129,6 +132,7 @@ assert "context-drift handles empty stdin" '[ -z "$OUT_CD_EMPTY" ]'
 rm -rf "$CD_PROJ"
 
 CD_NODOCS=$(mktemp -d)
+cd_wire "$CD_NODOCS"
 echo "x" > "$CD_NODOCS/foo.ts"
 OUT_CD_NODOCS="$(echo "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$CD_NODOCS/foo.ts\"}}" | CLAUDE_PROJECT_DIR="$CD_NODOCS" "$CD_HOOK")"
 assert "context-drift silent when no docs exist" '[ -z "$OUT_CD_NODOCS" ]'
@@ -142,6 +146,7 @@ rm -rf "$CD_NODOCS"
 echo "=== hook-context-drift-path-pattern-triggers ==="
 # section: hook-context-drift-path-pattern-triggers
 CD_PP=$(mktemp -d)
+cd_wire "$CD_PP"
 mkdir -p "$CD_PP/app/Models" "$CD_PP/database/migrations" "$CD_PP/database/seeders" \
          "$CD_PP/app/Policies" "$CD_PP/routes"
 touch "$CD_PP/app/Models/User.php" \
@@ -180,6 +185,7 @@ rm -rf "$CD_PP"
 
 # Project override — .ai-kit/drift-triggers.json replaces built-in defaults.
 CD_OV=$(mktemp -d)
+cd_wire "$CD_OV"
 mkdir -p "$CD_OV/.ai-kit" "$CD_OV/lib/custom"
 touch "$CD_OV/lib/custom/widget.ts"
 cat > "$CD_OV/.ai-kit/drift-triggers.json" <<'EOF'
@@ -207,6 +213,7 @@ rm -rf "$CD_OV"
 # Combined firing — both literal-doc path AND path-pattern can fire on the
 # same edit; both messages should appear.
 CD_COMB=$(mktemp -d)
+cd_wire "$CD_COMB"
 mkdir -p "$CD_COMB/app/Models"
 echo "code" > "$CD_COMB/app/Models/User.php"
 echo "The User model in app/Models/User.php is central to auth." > "$CD_COMB/CONTEXT.md"
@@ -215,6 +222,32 @@ assert "combined: literal-doc match still fires" 'echo "$OUT_COMB" | grep -q "CO
 assert "combined: path-pattern match also fires" 'echo "$OUT_COMB" | grep -q "context-drift (model)"'
 assert "combined: emits valid JSON" 'echo "$OUT_COMB" | python3 -c "import json,sys; json.load(sys.stdin)"'
 rm -rf "$CD_COMB"
+
+
+echo "=== hook-context-drift-marker-gate ==="
+# section: hook-context-drift-marker-gate
+CD_G=$(mktemp -d)
+echo "Session logic lives in src/session.ts." > "$CD_G/CONTEXT.md"
+CD_G_PAYLOAD="{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$CD_G/src/session.ts\"}}"
+OUT_G="$(echo "$CD_G_PAYLOAD" | CLAUDE_PROJECT_DIR="$CD_G" "$CD_HOOK")"
+assert "context-drift silent without .ai-kit-setup" '[ -z "$OUT_G" ]'
+echo '{"branches": {}}' > "$CD_G/.ai-kit-setup"
+OUT_G="$(echo "$CD_G_PAYLOAD" | CLAUDE_PROJECT_DIR="$CD_G" "$CD_HOOK")"
+assert "context-drift silent when the marker has no context_drift_hook" '[ -z "$OUT_G" ]'
+"$AIKIT/bin/write-setup-marker.sh" "$CD_G" --context-drift-hook=skipped >/dev/null
+OUT_G="$(echo "$CD_G_PAYLOAD" | CLAUDE_PROJECT_DIR="$CD_G" "$CD_HOOK")"
+assert "context-drift silent when marker says skipped" '[ -z "$OUT_G" ]'
+"$AIKIT/bin/write-setup-marker.sh" "$CD_G" --context-drift-hook=wired >/dev/null
+OUT_G="$(echo "$CD_G_PAYLOAD" | CLAUDE_PROJECT_DIR="$CD_G" "$AIKIT/workflow/hooks/context-drift-check.sh")"
+assert "plugin copy fires when marker says wired" 'echo "$OUT_G" | grep -q "CONTEXT.md"'
+assert "hooks.json registers context-drift on PostToolUse(Edit|Write|MultiEdit)" \
+  'python3 -c "
+import json
+d = json.load(open(\"$AIKIT/workflow/hooks/hooks.json\"))
+b = [b for b in d[\"hooks\"][\"PostToolUse\"] if any(h[\"command\"] == \"\${CLAUDE_PLUGIN_ROOT}/hooks/context-drift-check.sh\" for h in b[\"hooks\"])]
+assert len(b) == 1 and b[0][\"matcher\"] == \"Edit|Write|MultiEdit\", b
+"'
+rm -rf "$CD_G"
 
 
 echo "=== privacy ==="
