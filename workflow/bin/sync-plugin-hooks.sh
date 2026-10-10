@@ -33,6 +33,7 @@ PAIRS=(
   "bin/hooks/global-rules-link.sh|workflow/hooks/global-rules-link.sh"
   "bin/hooks/session-reap.sh|workflow/hooks/session-reap.sh"
   "bin/hooks/lead-guard.sh|workflow/hooks/lead-guard.sh"
+  "bin/hooks/lead-nudge.sh|workflow/hooks/lead-nudge.sh"
 )
 
 MODE="stamp"

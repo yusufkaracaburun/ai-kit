@@ -75,7 +75,7 @@ Every `universal: true` + `default_mode: always-on` rule, pre-emitted into the p
 
 ### Hook
 
-A shell script registered in `.claude/settings.json` (or, for the plugin, `workflow/hooks/hooks.json`) that fires on host events. Plugin-shipped: a PreToolUse hook `lead-guard.sh` (denies work tools to a *lead* session's main thread; ADR-0017), a PostToolUse hook (`bin/hooks/post-skill-log.sh`) matching `^Skill$` for usage logging, and two SessionStart hooks — `peer-sessions-check.sh` (fires only when other Claude Code sessions are live on the machine; ADR-0014) and `global-rules-link.sh` (keeps `~/.claude/rules/ai-kit` pointing at the plugin's *global rules*; ADR-0015), plus `session-reap.sh` on both SessionStart and SessionEnd (kills detached processes left behind by ended sessions). Project-installed by `/ai:setup`: `search-delegation-check.sh` and `build-delegation-check.sh` (PreToolUse), `phase-check.sh` (UserPromptSubmit).
+A shell script registered in `.claude/settings.json` (or, for the plugin, `workflow/hooks/hooks.json`) that fires on host events. Plugin-shipped: a PreToolUse hook `lead-guard.sh` (denies work tools to a *lead* session's main thread; ADR-0017), a PostToolUse hook (`bin/hooks/post-skill-log.sh`) matching `^Skill$` for usage logging, a UserPromptSubmit hook `lead-nudge.sh` (re-injects the lead reply contract per prompt), and two SessionStart hooks — `peer-sessions-check.sh` (fires only when other Claude Code sessions are live on the machine; ADR-0014) and `global-rules-link.sh` (keeps `~/.claude/rules/ai-kit` pointing at the plugin's *global rules*; ADR-0015), plus `session-reap.sh` on both SessionStart and SessionEnd (kills detached processes left behind by ended sessions). Project-installed by `/ai:setup`: `search-delegation-check.sh` and `build-delegation-check.sh` (PreToolUse), `phase-check.sh` (UserPromptSubmit).
 
 Event types: `PreToolUse`, `PostToolUse`, `SessionStart`, `SessionEnd`, `UserPromptSubmit`, `Notification`.
 
@@ -90,6 +90,10 @@ The one session per repo, named by the user, that owns push/merge order and the 
 ### Lead-guard
 
 The plugin's PreToolUse hook `workflow/hooks/lead-guard.sh`. For a session with *claim role* `lead`, it denies Edit/Write on repo files, mutating or heavy Bash, Pencil execute and Chrome write tools on the main thread. Subagents and memo or scratch paths pass (ADR-0017).
+
+### Lead-nudge
+
+The plugin's UserPromptSubmit hook `workflow/hooks/lead-nudge.sh`. For a session with *claim role* `lead`, it prints one line before each user prompt that restates the lead reply contract; slash commands, `!bash` and relayed peer or agent messages stay silent (ADR-0017).
 
 ### Marker
 

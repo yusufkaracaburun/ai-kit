@@ -103,6 +103,9 @@ Bundled (via `workflow/.claude-plugin/plugin.json`):
   and scratch paths (`~/.claude/`, `.agents/memory/`, `.planning/`, `/tmp`,
   `$TMPDIR`) and subagents pass. Turn it off with `ai-kit-claim.sh set
   role=build`. ADR-0017.
+- The UserPromptSubmit lead-nudge hook (`workflow/hooks/lead-nudge.sh`). In a
+  `role=lead` session, prints one line restating the lead reply contract before
+  each user prompt; silent otherwise. ADR-0017.
 
 **Not bundled** (intentionally):
 

@@ -12,7 +12,7 @@ flowchart LR
   subgraph SRC["Source layer — ai-kit repo (single source of truth)"]
     SA["workflow/skills · agents<br/>33 skills + 6 subagents"]
     CB["workflow/commands + bin/ai-kit-*.sh<br/>11 slash commands + CLI"]
-    H["bin/hooks/*.sh + hooks.json<br/>4 hook wirings"]
+    H["bin/hooks/*.sh + hooks.json<br/>5 hook wirings"]
     R["standards/rules/*.mini.md<br/>45 agent-agnostic rules"]
   end
 
