@@ -49,6 +49,47 @@ role="$(awk '
 
 tool="$(read_field '.tool_name')"
 
+# Package runners pass only when the last non-flag word is a read verb
+# (`npx wrangler d1 list`) and no script runner is named; a help/version flag
+# passes only as the sole argument. HTTP clients pass unless they send a body
+# or method; httpie body items (`a=1`, `n:=1`, `f@x`) imply POST.
+segment_is_work() {
+  local seg args i w url nl=$'\n'
+  local lead='^[[:space:]$(`]*([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+)*([^[:space:]]*/)?'
+  local read_verbs=' whoami list ls status info view show get describe audit outdated search why help doctor explain '
+  local runners=' run run-script exec x dlx create '
+  local http_write='[[:space:]](-X[[:space:]]*|--request[[:space:]=]+)(POST|PUT|PATCH|DELETE)|[[:space:]]-[A-Za-z]*[dFT]([[:space:]]|$)|[[:space:]]-d[^[:space:]]|--data|--form|--json|--upload-file|--post-|[[:space:]](POST|PUT|PATCH|DELETE)([[:space:]]|$)'
+  local httpie_item='^[A-Za-z0-9_.-]+(=[^=]|=$|:=|@)'
+  while IFS= read -r seg; do
+    seg="${seg%%[)\`]*}"
+    if [[ $seg =~ ${lead}(npx|npm|pnpm|yarn)([[:space:]]+(.*))?$ ]]; then
+      read -r -a args <<<"${BASH_REMATCH[5]}"
+      [[ ${BASH_REMATCH[3]} == npx && ${#args[@]} -gt 0 && ${args[0]} != -* ]] && args=("${args[@]:1}")
+      [[ ${#args[@]} -eq 1 && " --help --version -h -v " == *" ${args[0]} "* ]] && continue
+      w=""
+      for ((i = ${#args[@]} - 1; i >= 0; i--)); do
+        [[ $runners == *" ${args[i]} "* ]] && return 0
+        [[ -z $w && ${args[i]} != -* ]] && w="${args[i]}"
+      done
+      [[ $w == audit && " ${args[*]} " == *" --fix "* ]] && return 0
+      [[ $read_verbs == *" $w "* ]] || return 0
+    elif [[ $seg =~ ${lead}(curl|wget|https?|httpie)([[:space:]]|$) ]]; then
+      [[ $seg =~ $http_write ]] && return 0
+      [[ $seg =~ ${lead}(https?|httpie)[[:space:]]+([^[:space:]].*) ]] || continue
+      read -r -a args <<<"${BASH_REMATCH[4]}"
+      url=""
+      for w in "${args[@]}"; do
+        if [[ -n $url ]]; then
+          [[ $w =~ $httpie_item ]] && return 0
+        elif [[ $w != -* && $w =~ [^A-Z] ]]; then
+          url="$w"
+        fi
+      done
+    fi
+  done <<<"${1//[;&|]/$nl}"
+  return 1
+}
+
 is_work_command() {
   local cmd="$1" re=""
   # A tool counts only at the head of a pipeline segment, after env assignments
@@ -59,7 +100,7 @@ is_work_command() {
   re+="|git stash([[:space:]]+(push|pop|drop|apply|clear|save|branch|store|create))?[[:space:]]*($|[;&|)])"
   re+="|git branch (-[dD]|--delete)|git worktree remove"
   re+="|rm|sed -i|tee|mv|cp|chmod"
-  re+="|npm (test|run|install|ci)|npx|pnpm|yarn|jest|vitest|playwright"
+  re+="|jest|vitest|playwright"
   re+="|pest|paratest|phpunit|php artisan|composer (install|update|require)|make"
   re+="|flutter (test|build|run|pub)|dart|patrol|maestro|xcodebuild|xcrun simctl boot|gradlew?|eas"
   re+="|gh (pr|issue|release|repo) (create|edit|merge|close|delete)|gh pr (comment|review)|gh issue comment"
@@ -77,6 +118,7 @@ is_work_command() {
   local unquoted
   unquoted="$(sed -E "s/'[^']*'/''/g; s/\"[^\"]*\"/\"\"/g" <<<"$cmd")"
 
+  segment_is_work "$unquoted" && return 0
   shopt -s nocasematch
   [[ $unquoted =~ $re ]] && return 0
   [[ $cmd =~ $asc ]] && ! [[ $cmd =~ $asc_read ]] && return 0
@@ -102,7 +144,7 @@ case "$tool" in
   *) exit 0 ;;
 esac
 
-msg="lead-guard: this session is lead (claim role=lead). The lead dispatches, it never executes. $tool is work: hand it to a subagent (ai:builder for code, ai:designer for .pen/UI, general-purpose for CLI, browser and store consoles; the subagent default model applies; pass model only when another one fits the task). The lead keeps reads, status commands, one lookup, peer messages, claims and memos. Not the lead for this repo? \`ai-kit-claim.sh set role=build\`."
+msg="lead-guard: this session is lead (claim role=lead). The lead dispatches, it never executes. $tool is work: hand it to a subagent (ai:builder for code, ai:designer for .pen/UI, general-purpose for CLI, browser and store consoles; the subagent default model applies; pass model only when another one fits the task). The lead keeps file reads, status commands, MCP reads, peer messages, claims and memos; browser actions and package runners count as work. Not the lead for this repo? \`ai-kit-claim.sh set role=build\`."
 
 if command -v jq >/dev/null 2>&1; then
   jq -n --arg r "$msg" \
