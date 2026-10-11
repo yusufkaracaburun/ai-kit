@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.5.1 — 2026-10-11
+
+### Changed
+
+- `lead-nudge` now tells lead sessions to pass model "sonnet" on general-purpose spawns for CLI, browser or mechanical work (#212). Closes #212.
+- The `designer` agent reads only the assigned frame's subtree when building code.
+
 ## 2.5.0 — 2026-10-10
 
 Advisory hooks ship machine-wide via the plugin and refresh on /plugin update; /ai:upgrade cleans up the old project copies. Peers: /plugin marketplace update, /plugin update, restart once, then /ai:upgrade in each repo.
