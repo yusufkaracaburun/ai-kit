@@ -167,6 +167,7 @@ _Last reconciled: 2026-10-10 against 47 open issues (#140, #184, #185 closed; ea
 - **#207** `bug` — kit scripts hang on interactive mv/rm aliases (2 subagents hung during setup); `command mv -f` sweep over 15 scripts. 2026-10-10.
 - **#208** `bug` — `recommend-rules.sh --json` has no sources/quorum field the skill's "(sources: N/M verified)" annotation needs. 2026-10-10.
 - **#209** `enhancement` — memory-audit warns when a `MEMORY.md` index exceeds the host load limit (28.8 KB vs ~24 KB seen, silent truncation). 2026-10-10.
+- **#212** `enhancement` — lead-nudge hints `model: sonnet` on general-purpose spawns without a model (advisory, no deny). 2026-10-11.
 
 ## P3 — backlog
 
