@@ -39,5 +39,5 @@ case "$prompt" in
   /*|!*|'<cross-session-message'*|'<agent-message'*|'<task-notification'*) exit 0 ;;
 esac
 
-echo 'Lead reply: open with Doing / Where / Needs-you (count) / Advice; the recommendation goes in the same turn as any question; invoke the phase skill, do not name it; after the first lookup, lookups go to an agent; briefs carry "Decisions in force".'
+echo 'Lead reply: open with Doing / Where / Needs-you (count) / Advice; the recommendation goes in the same turn as any question; invoke the phase skill, do not name it; after the first lookup, lookups go to an agent; briefs carry "Decisions in force"; general-purpose spawns for CLI, browser or mechanical work pass model "sonnet".'
 exit 0

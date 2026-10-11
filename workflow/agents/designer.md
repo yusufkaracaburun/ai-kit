@@ -38,6 +38,7 @@ A repo-local skill that governs UI work — a design-system skill, a design→co
 - **Never `Read` or `Grep` a `.pen` file.** They are encrypted; the bytes are garbage and you will hallucinate a design from them. Pencil MCP tools only.
 - **`get_app_state` first** — no other Pencil tool works without the current schema in context.
 - No Pencil tools available here → work from the render the caller passed; say so under Verified.
+- **Building code from a frame:** read only the assigned frame's node subtree and take one screenshot per frame; never dump the whole document.
 
 ## Pen authoring mode
 

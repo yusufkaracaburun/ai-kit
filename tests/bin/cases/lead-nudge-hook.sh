@@ -5,7 +5,7 @@ AIKIT="$(cd "$(dirname "$0")/../../.." && pwd)"
 source "$AIKIT/tests/bin/lib/harness.sh"
 
 HOOK="$AIKIT/bin/hooks/lead-nudge.sh"
-LINE='Lead reply: open with Doing / Where / Needs-you (count) / Advice; the recommendation goes in the same turn as any question; invoke the phase skill, do not name it; after the first lookup, lookups go to an agent; briefs carry "Decisions in force".'
+LINE='Lead reply: open with Doing / Where / Needs-you (count) / Advice; the recommendation goes in the same turn as any question; invoke the phase skill, do not name it; after the first lookup, lookups go to an agent; briefs carry "Decisions in force"; general-purpose spawns for CLI, browser or mechanical work pass model "sonnet".'
 
 TMP_H=$(mktemp -d)
 export HOME="$TMP_H"
