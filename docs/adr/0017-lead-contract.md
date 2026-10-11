@@ -47,6 +47,11 @@ The rule existed and was skipped. More prose would be skipped the same way.
    8. The lead runs on the strongest model. Subagents default to Opus through
       `CLAUDE_CODE_SUBAGENT_MODEL`; a spawn names a different model only when
       the task fits it better.
+      Amended 2026-10-11: the lead runs on the session default (Opus), not
+      Fable. Fable runs inside `grill-with-docs`, `grill-me`, `to-issues`,
+      `to-prd` and `diagnose` through their `model: fable` frontmatter. That
+      key holds for the turn the skill loads; a multi-turn grill falls back to
+      the session model from the next user prompt on.
 2. **Enforcement is a hook, not more prose.** `workflow/hooks/lead-guard.sh`
    (PreToolUse, plugin-bundled) denies Edit/Write on repo files, mutating or
    heavy Bash, `mcp__pencil__execute` and Chrome write tools. The switch is
@@ -97,6 +102,9 @@ agreed on the edges:
 
 - That a Fable-led session behaves better than an Opus-led one. Compare
   after one full Fable-led day.
+  Amended 2026-10-11: the Fable-lead hypothesis was dropped untested. The
+  open question is now whether Fable on the prep and debug skills beats Opus
+  there, measured by the user on 2026-10-15.
 
 **Open**
 

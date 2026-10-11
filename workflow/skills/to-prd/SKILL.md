@@ -1,6 +1,7 @@
 ---
 name: to-prd
 description: Turn the current conversation context into a PRD and publish it to the project issue tracker. Also supports Defer mode — when the user wants a short parking-lot capture ("defer this", "track this for later", "follow-up on …", "we'll do this in N") instead of a full PRD, produce a one-line issue + roadmap entry. Use when user wants to create a PRD, defer a lead, or capture a follow-up.
+model: fable
 ---
 
 This skill takes the current conversation context and codebase understanding and produces either:
