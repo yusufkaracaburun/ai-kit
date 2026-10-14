@@ -168,6 +168,10 @@ _Last reconciled: 2026-10-10 against 47 open issues (#140, #184, #185 closed; ea
 - **#208** `bug` — `recommend-rules.sh --json` has no sources/quorum field the skill's "(sources: N/M verified)" annotation needs. 2026-10-10.
 - **#209** `enhancement` — memory-audit warns when a `MEMORY.md` index exceeds the host load limit (28.8 KB vs ~24 KB seen, silent truncation). 2026-10-10.
 - **#212** `enhancement` — lead-nudge hints `model: sonnet` on general-purpose spawns without a model (advisory, no deny). 2026-10-11.
+- **#213** `enhancement` — trim plugins and MCP tools per project: ai-kit loads 92 skills plus ~190 deferred MCP tool names every turn (97% of tokens were cache reads, 10-05..14). Deferred until `/context` gives the block size in ai-kit, system and planny; then a per-project `enabledPlugins` recommendation. 2026-10-14.
+- **#214** `enhancement` — search-delegation hook repeats the graphify hint on every Bash call (`jq`, `ls`, `git log` too); emit only for grep/rg/find and once per session. Small, independent, first slice for v2.7.0. 2026-10-14.
+- **#215** `enhancement` — PreToolUse hook on SendMessage to block acks and cap message rate (1,767 calls in 10 days, still 170 to 230 per day after the 2026-10-10 rule). Deferred: needs a grill on block criteria, and v2.6.0 measured first (around 2026-10-18). 2026-10-14.
+- **#216** `enhancement` — `model:` frontmatter on read-only agents (ai:explore, ai:qa-runner); 827 of 1,362 spawns had no model and ran on Opus. Deferred: quality risk, needs a grill and a before/after check on real explore tasks. 2026-10-14.
 
 ## P3 — backlog
 
