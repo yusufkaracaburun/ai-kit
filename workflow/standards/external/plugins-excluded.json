@@ -321,6 +321,14 @@
       "reason": "The Ignore rested on one-off marketing tooling with no per-project value. The user reversed it on 2026-09-27: ai-kit will serve more mobile apps, so store screenshots are a recurring ship-phase step for every app with an iOS and Android target, like the release skills. A POC the same day at the pinned SHA rendered a 6-slide 1320x2868 deck from planny-app-mobile goldens. The earlier concern that it scaffolds a whole Next.js app stays true and moved into the entry risk: scaffold in a sibling folder, never inside the app repo.",
       "consequence": "Gated on a mobile signal (`ios/` and `android/`, or a Flutter `pubspec.yaml` plus one of them), so web-only repos never see it. The primary route is the Pencil flow in design-to-code (#192); this companion is for apps without a `.pen` source. See VETTING.md.",
       "pinned_sha": "7faf7fcd62238df12c1d7f0578191bcc73cff07c"
+    },
+    {
+      "name": "rtk",
+      "was": "Ignore (catalog), spike (2026-09-12): untested hook collision",
+      "now": "Wire. companions.json, vetted on 1.0.1 (2026-10-14)",
+      "reason": "The Ignore rested on one open objection: an untested collision between rtk's PreToolUse Bash rewrite and ai-kit's additionalContext hook on the same Bash call. A live test on 2026-10-14 showed the rtk rewrite and the ai-kit additionalContext both applied to one Bash call, which settles it.",
+      "consequence": "/ai:recommend-tools offers the rtk hook only. The proxy, delegate-reads and telemetry options stay declined.",
+      "pinned_sha": "4ef8730cf3a0dea11c8d64a9b90bc0616fe52100"
     }
   ]
 }
