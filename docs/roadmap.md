@@ -172,6 +172,8 @@ _Last reconciled: 2026-10-10 against 47 open issues (#140, #184, #185 closed; ea
 - **#214** `enhancement` — search-delegation hook repeats the graphify hint on every Bash call (`jq`, `ls`, `git log` too); emit only for grep/rg/find and once per session. Small, independent, first slice for v2.7.0. 2026-10-14.
 - **#215** `enhancement` — PreToolUse hook on SendMessage to block acks and cap message rate (1,767 calls in 10 days, still 170 to 230 per day after the 2026-10-10 rule). Deferred: needs a grill on block criteria, and v2.6.0 measured first (around 2026-10-18). 2026-10-14.
 - **#216** `enhancement` — `model:` frontmatter on read-only agents (ai:explore, ai:qa-runner); 827 of 1,362 spawns had no model and ran on Opus. Deferred: quality risk, needs a grill and a before/after check on real explore tasks. 2026-10-14.
+- **#217** `enhancement` — `design-to-code`: scaffold new Pencil designs as `brand.lib.pen` (variables, themes, logo, brand assets as components) plus surface files that import it (`website.pen`, `mobile.pen`, `marketing.pen`; `tablet.pen`/`watch.pen` on demand). The user's convention, not Pencil's. Deferred: first test in the Pencil app whether a `.lib.pen` can hold non-component frames. 2026-10-14.
+- **#218** `enhancement` — to-prd Defer mode expects a `## What's next` heading; this roadmap uses `## P1`/`## P2`/`## P3`, so the #213 to #216 capture stalled. Append to the section matching the priority label instead. Deferred: batch with the v2.7.0 skill changes and test on a downstream roadmap. 2026-10-14.
 
 ## P3 — backlog
 
