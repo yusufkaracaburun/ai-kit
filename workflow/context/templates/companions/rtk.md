@@ -5,4 +5,4 @@
   does not overlap graphify (code search input) or caveman (output prose).
 - Activation is machine-wide: `rtk init -g` patches `~/.claude/settings.json`,
   so it applies in every project on this machine.
-- Remove: `rtk init -g --uninstall && brew uninstall rtk`.
+- Remove: `rtk init -g --uninstall`, then remove the binary (`brew uninstall rtk` for brew, `rm ~/.local/bin/rtk` for install.sh).

@@ -441,12 +441,12 @@
       "install": {
         "upstream": "https://github.com/rtk-ai/rtk",
         "commands": [
-          "brew install rtk",
+          "brew install rtk-ai/tap/rtk",
           "rtk init -g"
         ],
         "auto_install": false,
         "vetted_at": "2026-10-14",
-        "notes": "Install steps and prompt answers (answer N to the proxy): recommend-tools SKILL.md Phase 3 rtk branch. Vetted on 1.0.1. Uninstall: `rtk init -g --uninstall && brew uninstall rtk`."
+        "notes": "Install steps and prompt answers (answer N to the proxy): recommend-tools SKILL.md Phase 3 rtk branch. Vetted on 1.0.1. Uninstall: `rtk init -g --uninstall`, then remove the binary (`brew uninstall rtk` for brew, `rm ~/.local/bin/rtk` for install.sh)."
       }
     }
   ]
