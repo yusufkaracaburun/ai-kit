@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.6.0 — 2026-10-14
+
+### Added
+
+- `rtk` companion in `/ai:recommend-tools`: a PreToolUse Bash hook that compacts command output. It offers the hook only; the proxy, delegate-reads and telemetry options are declined (#110).
+- Vetting record in `plugins-excluded.json`: rtk moved from Ignore to companion after a live test showed its rewrite and the ai-kit `additionalContext` working on one Bash call.
+- `morluto/rea` added to the excluded plugins list with the usage rationale.
+
+### Changed
+
+- Prep and debug skills run on Fable; the lead session stays on Opus.
+
 ## 2.5.1 — 2026-10-11
 
 ### Changed
