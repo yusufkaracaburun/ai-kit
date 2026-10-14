@@ -69,6 +69,26 @@ OUT=$(fire "$TMP_H" '{"tool_name":"Grep","tool_input":{"pattern":"x"}}')
 assert "graph present -> graphify message" 'grep -q "graphify query" <<<"$OUT"'
 rm -rf "$TMP_H"
 
+echo "=== search-delegation-check: graphify hint once per session ==="
+GH=$(mktemp -d)
+echo '{"branches": {}}' > "$GH/.ai-kit-setup"
+mkdir -p "$GH/graphify-out"
+echo '{}' > "$GH/graphify-out/graph.json"
+GTMP=$(mktemp -d)
+gfire() {
+  # gfire <session_id> <command> -> additionalContext or empty
+  TMPDIR="$GTMP" fire "$GH" "$(python3 -c 'import json,sys; print(json.dumps({"tool_name":"Bash","session_id":sys.argv[1],"tool_input":{"command":sys.argv[2]}}))' "$1" "$2")"
+}
+OUT=$(gfire s1 "jq . x.json")
+assert "non-search command gets no graphify hint" '! grep -q "graphify query" <<<"$OUT"'
+OUT=$(gfire s1 "grep -rn foo .")
+assert "first sweep in session gets graphify hint" 'grep -q "graphify query" <<<"$OUT"'
+OUT=$(gfire s1 "grep -rn foo .")
+assert "second sweep in same session gets no graphify hint" '! grep -q "graphify query" <<<"$OUT"'
+OUT=$(gfire s2 "grep -rn foo .")
+assert "new session gets graphify hint again" 'grep -q "graphify query" <<<"$OUT"'
+rm -rf "$GH" "$GTMP"
+
 echo "=== search-delegation-check: marker gate ==="
 # section: search-delegation-gate
 SWEEP='{"tool_name":"Grep","tool_input":{"pattern":"x"}}'

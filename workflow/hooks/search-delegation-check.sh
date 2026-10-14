@@ -21,7 +21,8 @@
 # Two messages, mutually exclusive:
 #
 #   1. graphify-out/graph.json present → point at `graphify query`, which
-#      returns a scoped subgraph instead of raw matches.
+#      returns a scoped subgraph instead of raw matches. Once per session
+#      (marker in $TMPDIR keyed by session_id).
 #   2. Otherwise → point at a sub-agent (Explore / ai:explore, plus
 #      cavecrew-investigator when the caveman plugin is enabled), so the raw
 #      output lands in the sub-agent's context, not this one.
@@ -102,6 +103,12 @@ esac
 # Pick the message.
 # ---------------------------------------------------------------------------
 if [ -f "$root/graphify-out/graph.json" ]; then
+  sid="$(read_field '.session_id')"
+  if [ -n "$sid" ]; then
+    seen="${TMPDIR:-/tmp}/ai-kit-graphify-hint-$sid"
+    [ -e "$seen" ] && exit 0
+    : >"$seen" 2>/dev/null || true
+  fi
   msg="graphify: knowledge graph at graphify-out/. For focused questions, run \`graphify query \"<question>\"\` (scoped subgraph, usually much smaller than GRAPH_REPORT.md) instead of grepping raw files. Read GRAPH_REPORT.md only for broad architecture context."
 else
   agents="\`Explore\` or \`ai:explore\`"
