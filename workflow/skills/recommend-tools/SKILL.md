@@ -1,13 +1,13 @@
 ---
 name: recommend-tools
-description: Recommend optional companion tools (graphify, caveman, ponytail, llm-wiki, ui-ux-pro-max) and stack-specific runtime helpers — MCP servers + Claude Code hooks — for the current project. ai-kit writes integration glue, never auto-installs. Use when the user asks "should I add graphify / caveman / ponytail / a wiki / design references", "which MCP servers fit this stack", "any hooks I should turn on", "set up companion tools", "fewer tokens", or after /ai:setup to layer extra capability.
+description: Recommend optional companion tools (graphify, caveman, ponytail, llm-wiki, ui-ux-pro-max, rtk) and stack-specific runtime helpers — MCP servers + Claude Code hooks — for the current project. ai-kit writes integration glue, never auto-installs. Use when the user asks "should I add graphify / caveman / ponytail / a wiki / design references", "which MCP servers fit this stack", "any hooks I should turn on", "set up companion tools", "fewer tokens", or after /ai:setup to layer extra capability.
 ---
 
 Recommend and wire **companion tools** for this project — external AI-productivity tools that sit alongside ai-kit's lifecycle skills. ai-kit configures them; it never vendors or auto-installs them. Same trust model as `recommend-rules`: surface, let the user choose, wire only what they pick.
 
 ## What a companion tool is
 
-A third-party tool *or pattern* that improves the AI coding setup but is **not** part of ai-kit's agile lifecycle. ai-kit owns the *integration glue* (a rules block, a hook, a scaffold), never the tool itself. The current catalog lives at `standards/external/companions.json` — that file is the source of truth for which companions exist, their tiers, detection signals, and conflict checks. The table below summarises; see the JSON for fields, glue paths, and conflict rules. Eleven are known today:
+A third-party tool *or pattern* that improves the AI coding setup but is **not** part of ai-kit's agile lifecycle. ai-kit owns the *integration glue* (a rules block, a hook, a scaffold), never the tool itself. The current catalog lives at `standards/external/companions.json` — that file is the source of truth for which companions exist, their tiers, detection signals, and conflict checks. The table below summarises; see the JSON for fields, glue paths, and conflict rules. Twelve are known today:
 
 | Companion | Optimizes | Effect | Risk |
 | --------- | --------- | ------ | ---- |
@@ -22,6 +22,7 @@ A third-party tool *or pattern* that improves the AI coding setup but is **not**
 | **inspo-mcp** | Design — real production-site exemplars instead of vibe-word taxonomy | MCP server over 832 curated production sites / 2,320 screens: discovery (`find_similar`/`find_by_color`/`find_examples_for_macrostructure`), study (`get_design_system`/`compare`), and reference code (`find_reference_jsx`). | Low-medium — clean VETTING.md pass, but vendor-hosted only (no self-host). |
 | **emilkowalski-skills** | Design — animation-specific taste (easing/duration/physicality) that ui-ux-pro-max/impeccable/skillui don't cover | Six markdown skills from Sonner/Vaul's author: `animate` (build motion against a strict decision table), `review-animations` (critique a diff), `improve-animations` (read-only audit-then-plan workflow, one plan per finding), `find-animation-opportunities`, `animation-vocabulary` (reverse-lookup glossary), and `ask-sonner` (gated separately on the `sonner` dependency). | Low — plain markdown, no executable code; installed via the official Vercel `skills` CLI. |
 | **app-store-screenshots** | Ship, App Store and Play Store screenshots for mobile apps | One skill that scaffolds a local Next.js editor and renders store decks with device frames and themes. Fallback route: apps with a `.pen` source use the design-to-code store flow first. | Medium. The scaffold runs a local dev server whose API routes write to disk; scaffold it in a sibling folder, never inside the app repo. |
+| **rtk** | Runtime tool output, what the AI reads back from shell commands | A PreToolUse Bash hook compacts git/ls/grep/test/docker output before the agent reads it. Not graphify (input search), not caveman (output prose). | Medium. `rtk init -g` patches the machine-wide `~/.claude/settings.json`. |
 
 They are orthogonal to each other and to ai-kit. Recommend per project, never blanket — except **context7**, which scores `universal: true` in `standards/external/mcp-servers.json` and surfaces for every stack the deterministic recommender runs against (Phase "MCP servers + Claude Code hooks + Claude Code plugins" below).
 
@@ -79,6 +80,8 @@ command -v scrapling >/dev/null 2>&1 && echo "scrapling: CLI present" || echo "s
 { grep -q '"sonner"' package.json 2>/dev/null || find . -maxdepth 3 -name package.json -not -path '*/node_modules/*' -exec grep -l '"sonner"' {} \; 2>/dev/null | head -1 | grep -q .; } && echo "emilkowalski-skills: sonner tier — sonner dependency present" || echo "emilkowalski-skills: sonner tier — no sonner dependency"
 { [ -d "$HOME/.claude/skills/app-store-screenshots" ] || [ -d .claude/skills/app-store-screenshots ]; } && echo "app-store-screenshots: installed" || echo "app-store-screenshots: not installed"
 { { [ -d ios ] && [ -d android ]; } || { [ -f pubspec.yaml ] && grep -qE 'sdk:[[:space:]]*flutter' pubspec.yaml && { [ -d ios ] || [ -d android ]; }; }; } && echo "app-store-screenshots: mobile app signal" || echo "app-store-screenshots: no mobile app signal"
+command -v rtk >/dev/null 2>&1 && echo "rtk: CLI present" || echo "rtk: not installed"
+grep -qE 'rtk hook|rtk-rewrite' ~/.claude/settings.json 2>/dev/null && echo "rtk: hook registered" || echo "rtk: hook not registered"
 ```
 
 Report the lines plainly. Detection drives the recommendation — never claim a tool is wired when it is not. The two graphify lines disambiguate **base tier** (`graphify-out/`) from **wiki tier** (`graphify-out/wiki/`); the wiki tier is an opt-in nudge described in Phase 3.
@@ -97,6 +100,7 @@ Judge fit against the actual repo, do not blanket-recommend:
 - **inspo-mcp** — strong fit for landing-page/marketing-site/portfolio design work, especially a redesign brief that names vibe words ("Linear-style", "Awwwards-experimental") the model would otherwise only match from training-data associations. Same UI-signal gate as ui-ux-pro-max/skillui. Complements both: ui-ux-pro-max names the pattern from a taxonomy, skillui extracts tokens from one URL the user already named, inspo-mcp is the step in between — finding a real comparable site when none was named yet. Clean VETTING.md pass, but disclose the vendor-hosted-only risk (no self-host path; free today, could add pricing/auth later).
 - **emilkowalski-skills** — two independent gates, offer per-tier: the **animation** tier (animate/review-animations/improve-animations/find-animation-opportunities/animation-vocabulary) fits any project with a frontend framework and real transition/animate/`@keyframes`/framer-motion code — weak fit with no motion signal at all. The **sonner** tier (ask-sonner) fits whenever the `sonner` package is a dependency, independent of the animation gate — a backend-heavy app that only uses Sonner for toasts still gets it. Neither overlaps ui-ux-pro-max/impeccable/skillui/inspo-mcp — those are palette/token/anti-slop/reference-site tools, none cover animation-specific taste (easing, duration, physicality, interruptibility). Do not offer `emil-design-eng` from the same upstream repo — it duplicates `animate` + `review-animations`' content; do not offer `write-swift`/`animate-expo`/`apple-design`/`mobile-native`/`pick-ui-library`/`prototype` either — no confirmed signal for them yet (see companions.json install notes for what was checked and ruled out).
 - **app-store-screenshots**: fits only a mobile app (Phase 1 mobile signal: `ios/` and `android/`, or a Flutter `pubspec.yaml` plus one of them); never offer it to a web-only repo. It is the fallback route: if the project has a `.pen` design source, point at the `design-to-code` store flow first. Disclose the risk when offering: the scaffold runs a local Next.js dev server whose API routes write to disk, so it goes in a sibling folder, never inside the app repo.
+- **rtk**: fits any project where the agent runs noisy shell commands (git, test runners, docker) and reads the raw output. It owns the runtime tool-output dimension: graphify covers input search, caveman covers output prose, neither touches Bash output. State the machine-wide blast radius when offering it.
 
 State, for each: present-or-not, fit for *this* repo, and the one-line why.
 
@@ -180,6 +184,12 @@ Glue templates live in `$AI_KIT_ROOT/context/templates/companions/`. Wire only t
 2. If already installed (Phase 1 detection), skip straight to appending the AGENTS.md pointer.
 3. Otherwise offer it with the risk stated (local dev server writing to disk, sibling folder only). On yes: `npx skills@latest add ParthJadhav/app-store-screenshots -a claude-code -y`, per project, not `-g`.
 4. Append `companions/app-store-screenshots.md` to the project `AGENTS.md`.
+
+**rtk:**
+1. If Phase 1 shows the hook registered, skip straight to appending the AGENTS.md pointer.
+2. Otherwise offer it with the machine-wide scope stated. ai-kit never installs it and never edits `~/.claude/settings.json`; the user installs rtk (`brew install rtk` or the upstream installer), then runs `rtk init -g` in an interactive terminal, answering y to patching `~/.claude/settings.json`. Warn: run without a TTY (for example the Claude Code `!` prefix) the prompt defaults to N and no hook is registered, with no error. Only the hook is in scope: answer N to the later prompts. "Set up the RTK proxy" sets `env.ANTHROPIC_BASE_URL=http://127.0.0.1:8080` plus a SessionStart hook in `~/.claude/settings.json`; the rtk-proxy daemon is a separately licensed download brew does not ship, so every Claude Code API call goes to whatever listens on :8080 (seen 2026-10-14 as `model_not_found` 404s). Answer N to delegate-reads and telemetry too.
+3. The user restarts Claude Code, then verifies: `git status` output is compacted and `grep -qE 'rtk hook|rtk-rewrite' ~/.claude/settings.json` succeeds.
+4. Append `companions/rtk.md` to the project `AGENTS.md`. Uninstall: `rtk init -g --uninstall && brew uninstall rtk`.
 
 ### Phase 4 — Output contract
 

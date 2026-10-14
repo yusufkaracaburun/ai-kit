@@ -31,4 +31,13 @@ assert "companions.json llm-wiki entry cross-refs graphify" \
 assert "recommend-tools SKILL emits disambig when both wikis present" \
   'grep -q "Two wikis present" "$RECOMMEND_SKILL"'
 
+# rtk compacts Bash tool output; it must name graphify (input search) and
+# caveman (output prose) so the agent does not treat them as one dimension.
+assert "companions.json rtk entry cross-refs graphify and caveman" \
+  'python3 -c "import json,sys; d=json.load(open(\"$COMPANIONS_JSON\")); r=[x for x in d[\"recommendations\"] if x[\"name\"]==\"rtk\"][0]; sys.exit(0 if all(k in r[\"complements\"] for k in (\"graphify\",\"caveman\")) else 1)"'
+assert "plugins-excluded.json no longer lists rtk" \
+  'python3 -c "import json,sys; d=json.load(open(\"$AIKIT/standards/external/plugins-excluded.json\")); sys.exit(1 if any(e[\"name\"]==\"rtk\" for e in d[\"excluded\"]) else 0)"'
+assert "recommend-tools SKILL wires rtk via rtk init -g" \
+  'grep -q "rtk init -g" "$RECOMMEND_SKILL"'
+
 print_summary_and_exit

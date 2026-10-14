@@ -5,7 +5,7 @@
     "source_url": "https://github.com/yusufkaracaburun/ai-kit/blob/master/standards/external/companions.json",
     "source_license": "MIT",
     "vendored_at": "2026-05-25",
-    "notes": "Catalogues the companions branch of /ai:recommend-tools (graphify, caveman, ponytail, llm-wiki, context7, ui-ux-pro-max, skillui, scrapling, inspo-mcp). Each entry documents its tier(s), detection signal, glue file(s), conflict checks, and wiring path. Consumed by `audit-setup-symmetry.sh` so new companions cannot land without a documented wiring path. Companions are orthogonal to MCP/hooks/plugins/subagents — the latter score via `recommend-tools-lib.sh` from stack-signals; companions are surfaced per project judgement and never scored numerically."
+    "notes": "Catalogues the companions branch of /ai:recommend-tools (graphify, caveman, ponytail, llm-wiki, context7, ui-ux-pro-max, skillui, scrapling, inspo-mcp, rtk). Each entry documents its tier(s), detection signal, glue file(s), conflict checks, and wiring path. Consumed by `audit-setup-symmetry.sh` so new companions cannot land without a documented wiring path. Companions are orthogonal to MCP/hooks/plugins/subagents — the latter score via `recommend-tools-lib.sh` from stack-signals; companions are surfaced per project judgement and never scored numerically."
   },
   "recommendations": [
     {
@@ -411,6 +411,43 @@
         "notes": "Per project, not `-g`. Installs one skill (SKILL.md 758 lines, style prompts, a Next.js 16 template; 95 tracked files upstream). POC 2026-09-27 on planny-app-mobile goldens: default slide transforms did not fit foreign content (tune per slide), and low-res captures upscale about 3x, so feed 3x Pencil exports or simulator captures."
       },
       "license": "MIT"
+    },
+    {
+      "name": "rtk",
+      "category": "runtime-output",
+      "best_for": "Projects where the agent runs noisy shell commands (git, ls, grep, test runners, docker) and reads the raw output",
+      "value": "A PreToolUse Bash hook rewrites `git status` to `rtk git status`, so the agent reads a compacted form of the command output.",
+      "risk": "Medium. `rtk init -g` patches the machine-wide ~/.claude/settings.json, so it applies in every project on the machine.",
+      "license": "Apache-2.0",
+      "tiers": [
+        {
+          "name": "base",
+          "description": "PreToolUse Bash hook from `rtk init -g`. `rtk read` defaults to `-l none` (full content); `minimal` and `aggressive` are opt-in.",
+          "wired_via": "workflow/skills/recommend-tools/SKILL.md Phase 3 rtk branch (install pointer + AGENTS.md note)",
+          "glue_files": [
+            "context/templates/companions/rtk.md"
+          ],
+          "machine_wide": true
+        }
+      ],
+      "detection": {
+        "cli": "command -v rtk",
+        "settings": "grep -qE 'rtk hook|rtk-rewrite' ~/.claude/settings.json"
+      },
+      "complements": {
+        "graphify": "graphify cuts what the agent reads when it searches the code (input). rtk cuts what it reads back from shell commands it ran. Different dimension.",
+        "caveman": "caveman compresses what the agent writes (output prose). rtk compresses tool output before the agent reads it. Different dimension."
+      },
+      "install": {
+        "upstream": "https://github.com/rtk-ai/rtk",
+        "commands": [
+          "brew install rtk",
+          "rtk init -g"
+        ],
+        "auto_install": false,
+        "vetted_at": "2026-10-14",
+        "notes": "Install steps and prompt answers (answer N to the proxy): recommend-tools SKILL.md Phase 3 rtk branch. Vetted on 1.0.1. Uninstall: `rtk init -g --uninstall && brew uninstall rtk`."
+      }
     }
   ]
 }
