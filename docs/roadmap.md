@@ -414,3 +414,7 @@ _Last reconciled: 2026-10-10 against 47 open issues (#140, #184, #185 closed; ea
 - **#221** `enhancement` — search-delegation hint: subagents may use up the once-per-session
   hint, and ai-kit's own repo gets no nudge (no `.ai-kit-setup`). Deferred: surfaced in
   the v2.7.0 pre-release review, no effect on downstream users. 2026-10-15.
+- **#222** `catalog-candidate` — marketing track from theorieplek, harvested per part only once that
+  part has a measured result there (proven-only rule, 2026-10-15). First checkpoint: 2026-11-05
+  re-measurement. Route /ai:harvest from theorieplek, validate in emeq-web, then generalise.
+  marketingskills is a pattern source only, its plugin stays excluded. 2026-10-15.
