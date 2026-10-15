@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.7.0 — 2026-10-15
+
+### Added
+
+- `/ai:setup` offers `rtk` on every repo, since it is universal, and offers graphify on repos with about 500 code files or more that graphify can parse. Both offers check the `.ai-kit-setup` marker first and skip a question already answered (#219, #220).
+- `/ai:recommend-tools` offers `graphify hook install` for routine graph refresh. The hooks run the same AST-only rebuild as `graphify update`, no LLM.
+- Stack-fit rule: graphify and rtk are only offered where they fit the project.
+
+### Changed
+
+- The graphify hint in the search-delegation hook shows once per session instead of on every Bash call (#214).
+- The first graphify run is pinned to `--backend claude-cli`, so files never go to whichever provider's API key happens to be set. The `AGENTS.md` graphify block and `/ai:recommend-tools` step 4 now show the pinned command. `.agents/memory/` is excluded from the graph by default.
+- README lists rtk and the graphify setup offer.
+
+### Fixed
+
+- The once-per-session hint hook drops a `session_id` that contains `/` or `..` before using it in a file path.
+
 ## 2.6.0 — 2026-10-14
 
 ### Added
