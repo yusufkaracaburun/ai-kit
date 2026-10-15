@@ -6,7 +6,7 @@
 
 - `/ai:setup` offers `rtk` on every repo, since it is universal, and offers graphify on repos with about 500 code files or more that graphify can parse. Both offers check the `.ai-kit-setup` marker first and skip a question already answered (#219, #220).
 - `/ai:recommend-tools` offers `graphify hook install` for routine graph refresh. The hooks run the same AST-only rebuild as `graphify update`, no LLM.
-- Stack-fit rule: graphify and rtk are only offered where they fit the project.
+- Stack-fit rule for graphify: fit is weak when most source files yield no symbols (`.astro` and `.svelte` give imports only). rtk is offered on every repo.
 
 ### Changed
 
