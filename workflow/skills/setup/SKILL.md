@@ -214,7 +214,7 @@ still carries that inline entry, remove it so the nudge does not fire twice.
 Some companions are worth having on every project regardless of stack — they
 are marked `universal: true` in
 [`standards/external/companions.json`](../../../standards/external/companions.json).
-Today that means `caveman` and `ponytail`; future-proof for more.
+Today that means `caveman`, `ponytail` and `rtk`; future-proof for more.
 
 Same six steps as Branch 2c, with `branches.universal_companions_prompted` as
 the already-handled list:
@@ -222,7 +222,9 @@ the already-handled list:
 1. **Read catalog.** Filter `recommendations` for `universal: true`.
 2. **Read marker.** Collect `branches.universal_companions_prompted`.
 3. **Detect already-installed.** Run the entry's `detection.status` when it has
-   one — for caveman: `$AI_KIT_ROOT/bin/apply-caveman.sh --status`.
+   one — for caveman: `$AI_KIT_ROOT/bin/apply-caveman.sh --status`. For rtk,
+   run `detection.settings` (`grep -qE 'rtk hook|rtk-rewrite' ~/.claude/settings.json`);
+   a match means the hook is registered, so skip the prompt.
 4. **Prompt per candidate** that is neither in the prompted-list nor already
    installed. For caveman:
 
@@ -249,14 +251,39 @@ the already-handled list:
    > [1] Yes, install + activate (default) → `bin/apply-ponytail.sh`
    > [2] No thanks → record skipped, never re-prompt
 
+   For rtk:
+
+   > Optional: install `rtk` (machine-wide)?
+   > A PreToolUse Bash hook rewrites commands like `git status` so the agent
+   > reads a compacted form of the output.
+   > **`rtk init -g` patches the machine-wide `~/.claude/settings.json`, so the
+   > hook runs in every project on this machine, not just this one.**
+   > [1] Yes → you run the install steps from `/ai:recommend-tools` Phase 3 rtk
+   > [2] No thanks → record skipped, never re-prompt
+
 5. **On Yes:** run the entry's `install.applier`
    (`$AI_KIT_ROOT/bin/apply-caveman.sh`). It adds the marketplace, installs the
    plugin via the official `claude plugin` CLI, writes caveman's own
    `defaultMode`, and strips the duplicate hooks that caveman's standalone
-   installer leaves behind. Idempotent — safe to re-run.
+   installer leaves behind. Idempotent — safe to re-run. rtk has no applier.
+   Hand the user the steps in
+   [`recommend-tools/SKILL.md`](../recommend-tools/SKILL.md) Phase 3 rtk, which
+   they run in an interactive terminal.
 6. **Record outcome.** Append the name to `--universal-companions-prompted=`
    on the Tier-A marker write. Yes and No both record, so a second `/ai:setup`
    never re-asks.
+
+**graphify (size-gated, not universal).** Offer it only when the repo has
+roughly 500 code files or more, counting only files graphify's AST extractor
+pulls symbols from (the stack-fit rule in `/ai:recommend-tools` Phase 2, so
+`.astro` and `.svelte` files do not count). On a smaller repo the first LLM
+build, the `graphify update` after each change and the per-session hint cost
+more than they save, so skip the prompt silently. Skip it too when
+`graphify-out/` exists or `graphify` is already in the prompted-list. On Yes,
+wire it with the graphify steps in
+[`recommend-tools/SKILL.md`](../recommend-tools/SKILL.md) Phase 3; the first
+build is `graphify . --backend claude-cli`. Record the outcome in
+`--universal-companions-prompted=` like the universal ones.
 
 **Trust model.** Prompt-per-tool, never silent install — the machine-wide blast
 radius is stated in the prompt itself, because a user who says yes in one repo

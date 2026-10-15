@@ -419,15 +419,17 @@
       "value": "A PreToolUse Bash hook rewrites `git status` to `rtk git status`, so the agent reads a compacted form of the command output.",
       "risk": "Medium. `rtk init -g` patches the machine-wide ~/.claude/settings.json, so it applies in every project on the machine.",
       "license": "Apache-2.0",
+      "universal": true,
       "tiers": [
         {
           "name": "base",
           "description": "PreToolUse Bash hook from `rtk init -g`. `rtk read` defaults to `-l none` (full content); `minimal` and `aggressive` are opt-in.",
-          "wired_via": "workflow/skills/recommend-tools/SKILL.md Phase 3 rtk branch (install pointer + AGENTS.md note)",
+          "wired_via": "workflow/skills/setup/SKILL.md Branch 2e + workflow/skills/recommend-tools/SKILL.md Phase 3 rtk branch (install pointer + AGENTS.md note)",
           "glue_files": [
             "context/templates/companions/rtk.md"
           ],
-          "machine_wide": true
+          "machine_wide": true,
+          "auto_prompted": true
         }
       ],
       "detection": {
@@ -445,6 +447,7 @@
           "rtk init -g"
         ],
         "auto_install": false,
+        "default_state": "auto-prompted",
         "vetted_at": "2026-10-14",
         "notes": "Install steps and prompt answers (answer N to the proxy): recommend-tools SKILL.md Phase 3 rtk branch. Vetted on 1.0.1. Uninstall: `rtk init -g --uninstall`, then remove the binary (`brew uninstall rtk` for brew, `rm ~/.local/bin/rtk` for install.sh)."
       }
