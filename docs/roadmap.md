@@ -411,3 +411,6 @@ _Last reconciled: 2026-10-10 against 47 open issues (#140, #184, #185 closed; ea
   as a cheap tech-debt surfacer; proposes 3 primitives. Stays needs-info till scoped.
 - **#15** `enhancement · ready-for-human` — brainstorm a second plugin under
   `yusufkaracaburun/marketplace`. Marketplace shape only pays off at N ≥ 2.
+- **#221** `enhancement` — search-delegation hint: subagents may use up the once-per-session
+  hint, and ai-kit's own repo gets no nudge (no `.ai-kit-setup`). Deferred: surfaced in
+  the v2.7.0 pre-release review, no effect on downstream users. 2026-10-15.
