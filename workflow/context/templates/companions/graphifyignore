@@ -35,6 +35,7 @@ out/
 # Agent / tooling scratch
 .tmp/
 .agents/worktrees/
+.agents/memory/
 .claude/tdd-guard/
 .playwright-cli/
 .playwright-mcp/

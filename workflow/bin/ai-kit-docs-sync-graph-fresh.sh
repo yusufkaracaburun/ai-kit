@@ -54,7 +54,7 @@ except Exception:
 
 if [ -z "$built_at" ]; then
   echo "WARN: graph.json has no built_at_commit — drift is not computable."
-  echo "Fix: rebuild with \`graphify .\` so future runs can detect staleness."
+  echo "Fix: rebuild with \`graphify . --backend claude-cli\` so future runs can detect staleness."
   exit 1
 fi
 
