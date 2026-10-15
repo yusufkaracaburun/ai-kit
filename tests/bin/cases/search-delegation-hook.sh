@@ -87,7 +87,11 @@ OUT=$(gfire s1 "grep -rn foo .")
 assert "second sweep in same session gets no graphify hint" '! grep -q "graphify query" <<<"$OUT"'
 OUT=$(gfire s2 "grep -rn foo .")
 assert "new session gets graphify hint again" 'grep -q "graphify query" <<<"$OUT"'
-rm -rf "$GH" "$GTMP"
+GOUT=$(mktemp -d)
+mkdir -p "$GOUT/tmp/ai-kit-graphify-hint-x"
+TMPDIR="$GOUT/tmp" fire "$GH" '{"tool_name":"Bash","session_id":"x/../../escaped","tool_input":{"command":"grep -rn foo ."}}' >/dev/null
+assert "session_id with ../ writes no file outside TMPDIR" '[ ! -e "$GOUT/escaped" ]'
+rm -rf "$GH" "$GTMP" "$GOUT"
 
 echo "=== search-delegation-check: marker gate ==="
 # section: search-delegation-gate

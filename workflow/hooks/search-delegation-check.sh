@@ -104,6 +104,7 @@ esac
 # ---------------------------------------------------------------------------
 if [ -f "$root/graphify-out/graph.json" ]; then
   sid="$(read_field '.session_id')"
+  case "$sid" in */*|*..*) sid= ;; esac
   if [ -n "$sid" ]; then
     seen="${TMPDIR:-/tmp}/ai-kit-graphify-hint-$sid"
     [ -e "$seen" ] && exit 0

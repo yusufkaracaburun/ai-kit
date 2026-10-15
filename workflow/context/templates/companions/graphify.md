@@ -22,4 +22,4 @@ Rules:
   (AST-only, no API cost).
 - Tune `.graphifyignore` at the project root to exclude generated /
   vendored paths (e.g. `node_modules/`, `vendor/`, build outputs) before
-  the first `graphify .` run, so the graph indexes source — not junk.
+  the first `graphify . --backend claude-cli` run, so the graph indexes source — not junk.

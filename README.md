@@ -92,7 +92,8 @@ command; install the tools from their own upstreams.
 **Glue-wired** (ai-kit writes `AGENTS.md` block, Claude Code hook, `wiki/`
 scaffold):
 
-- **graphify** — codebase knowledge graph. Scoped subgraph per query instead of raw grep.
+- **graphify** — codebase knowledge graph. Scoped subgraph per query instead of raw grep. `/ai:setup` offers it on repos with about 500 code files or more that graphify can parse.
+- **rtk** — condenses command output before it reaches the agent. Universal: `/ai:setup` offers it once, and `rtk init -g` patches the machine-wide Claude settings. ai-kit never installs it.
 - **caveman** — token-compressed agent responses (~65% fewer output tokens), plus the `cavecrew-*` sub-agents. Universal: `/ai:setup` **asks** for it in Tier A (default yes) and installs via the official plugin CLI on an explicit yes. Never silent — activation is machine-wide, and the prompt says so.
 - **llm-wiki** — self-maintaining knowledge base for non-code documents.
 
