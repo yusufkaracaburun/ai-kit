@@ -25,7 +25,7 @@ If a branch can be settled from the codebase, settle it silently first and repor
 For each branch:
 
 1. **Ask the question.** Single, concrete, no compound sub-questions.
-2. **Offer your recommended answer** with a one-line *why* — this gives the user something to push against, which is faster than open-ended brainstorming.
+2. **Offer your recommended answer** with a one-line *why* — this gives the user something to push against, which is faster than open-ended brainstorming. Word the question so "yes" accepts your recommendation.
 3. **Wait.** Don't preempt with the next question.
 4. **Resolve before moving on.** If the answer reveals a new sub-branch, push it onto the agenda and announce that explicitly ("That opens a question about X — I'll come back to it after we finish Y").
 
