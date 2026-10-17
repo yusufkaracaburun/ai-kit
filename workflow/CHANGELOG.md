@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.7.1 — 2026-10-17
+
+### Changed
+
+- `diagnose`: if you forced the red by mutating code or a fixture, `diff` against a pristine copy to prove the mutation landed before you trust it. Pattern from mattpocock/skills f3fc563.
+- `grill-me`: word each question so "yes" accepts the recommendation. Pattern from mattpocock/skills 95249b0.
+- Sandcastle reviewer pin moved to 7a4e7f7. No vendored file changed; upstream did not touch the template.
+- Catalog: marketingskills and social-media-skills excluded.
+
+### Fixed
+
+- 2.7.0 changelog: the stack-fit line was corrected after release.
+
 ## 2.7.0 — 2026-10-15
 
 ### Added
