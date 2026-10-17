@@ -176,6 +176,7 @@ _Last reconciled: 2026-10-10 against 47 open issues (#140, #184, #185 closed; ea
 
 ## P3 — backlog
 
+- **#223** `enhancement` — quarterly idea-source check: distilled sources (mattpocock/skills, gstack, superpowers) have no drift signal. Due on or after 2027-01-15; adopt as pattern, never resync; drop the cadence if it yields 2 ideas or fewer. 2026-10-17.
 - **#210** `bug` — ai-kit's own `.claude/hooks/` copies are ungated and drifted since #205; commit a marker and drop the copies so the kit's own sessions run the plugin hooks. 2026-10-10.
 - **#211** `enhancement` — `/ai:upgrade` sweeps the legacy graphify-only inline nudge (`graphify-out/graph.json` command) from settings.json, same loop as the hook copies. 2026-10-10.
 - **#186** `enhancement` — catalog prune: `audit-architecture-*` out of the skill index,
