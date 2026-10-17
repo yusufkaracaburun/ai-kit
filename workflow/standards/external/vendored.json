@@ -10,10 +10,10 @@
       "repo": "https://github.com/mattpocock/sandcastle",
       "ref": "HEAD",
       "upstream_path": "src/templates/sequential-reviewer",
-      "source_url": "https://github.com/mattpocock/sandcastle/tree/e99f832f26dc9d245c019a9ddd19fa5dee792427/src/templates/sequential-reviewer",
+      "source_url": "https://github.com/mattpocock/sandcastle/tree/7a4e7f7d93056600d979d79a090256feddf653ea/src/templates/sequential-reviewer",
       "source_license": "MIT",
-      "pinned_sha": "e99f832f26dc9d245c019a9ddd19fa5dee792427",
-      "vendored_at": "2026-08-27",
+      "pinned_sha": "7a4e7f7d93056600d979d79a090256feddf653ea",
+      "vendored_at": "2026-10-17",
       "paths": [
         "orchestration/sandcastle/sequential-reviewer/",
         "orchestration/sandcastle/main.ts.template"
