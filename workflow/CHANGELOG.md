@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.8.0 — 2026-10-18
+
+### Added
+
+- `/ai:qa` gets an opt-in personas tier: five sequential lenses (impatient, skeptic, mobile, literal reader, breaker) run in one runner. A mandatory money guard fails closed on live payment keys, blocks checkout and uses test-domain e-mail only. A finding counts as fixed only with a regression test (#224).
+
 ## 2.7.1 — 2026-10-17
 
 ### Changed
