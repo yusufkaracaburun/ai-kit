@@ -21,7 +21,7 @@ The skill passes:
 - **Target URL** — the running app to test
 - **Environment** — `local` or `staging`
 - **Critical flows** — the user journeys that matter most
-- **Tier** — `quick`, `standard`, or `exhaustive` (see **Tiers** below)
+- **Tier** — `quick`, `standard`, or `exhaustive` (see **Tiers** below), plus optional `personas` with the chosen lenses (see **Personas** below)
 
 If any is missing, pick a sane default and note it in the report's Findings preamble. If no URL is reachable, stop and report that — don't guess.
 
@@ -36,7 +36,7 @@ Drive the app with Playwright when the project has E2E tests — extend them ove
 
 Emit the report in the **Output** format below, exactly.
 
-<!-- emit-agents:source skill=qa sections=Tiers,Output -->
+<!-- emit-agents:source skill=qa sections=Tiers,Personas,Output -->
 <!-- emit-agents:begin — generated from workflow/skills/qa/SKILL.md; edit there, then run bin/emit-agents.sh -->
 
 ## Tiers
@@ -46,6 +46,25 @@ Emit the report in the **Output** format below, exactly.
 | Quick | Critical + high only |
 | Standard | + medium |
 | Exhaustive | + cosmetic / polish |
+| Personas (opt-in) | + the persona lenses below, on top of any tier |
+
+## Personas
+
+Opt-in only. The caller picks the lenses per run; default is all 5. They run one after another in ONE runner, never in parallel browsers.
+
+- **impatient:** skims, clicks the first button, quits at the first error.
+- **skeptic:** reads pricing, terms and privacy before signing up.
+- **mobile:** 375px viewport plus slow-3G via Playwright CDP throttling.
+- **literal reader:** a second-language speaker of the UI's own language, who follows only the literal UI text.
+- **breaker:** junk input, back mid-flow, double-clicks.
+
+Before the first lens, run the heavy-run check `ps -Ao args | grep -E 'pest|paratest|phpunit|playwright|patrol|maestro|xcodebuild|gradle' | grep -v grep`. A hit from another repo means wait; still there after one recheck, report it and stop. Playwright runs with at most 2 workers.
+
+Money guard, mandatory unless the caller states the flow has no payments or orders. Run on non-prod only. Print the payment key mode and abort on a live key: a key in page source or .env with prefix `pk_live_`/`sk_live_` (Stripe) or `live_` (Mollie). Route-abort the payment-provider hosts and the order-create endpoint. Never submit checkout. Use test-domain e-mail only: `@example.test` or the project's own test domain. No non-prod env: stop and report it as a blocker; the caller asks the user. Never fall back to prod.
+
+Rank findings by severity times flow position, sign-up and checkout first. Never rank by how many lenses hit a finding: the lenses share one model, so their misses correlate. Persona rows add a `Smoke would catch` column (yes/no) to the Findings table in Output.
+
+Evidence: the theorieplek run of 2026-10-18 found 5 findings (2 high); a smoke run caught 0 of the 5.
 
 ## Output
 
