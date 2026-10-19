@@ -72,6 +72,27 @@ Name these in the report instead of "fixing" them:
 - After changing a token, read it back and confirm the exact name changed.
   A typo creates an orphan token beside the real one and nothing rebinds.
 
+## File split
+
+- `brand.lib.pen` holds what every design must follow: tokens and themes,
+  logo, brand mark, shared brand components (a buy button), brand kit and
+  brand assets. Brand assets are components; a non-component frame in a lib
+  is untested by Pencil.
+- One surface file per surface, scaffolded only when needed: `website.pen`,
+  `mobile.pen`, `tablet.pen`, `watch.pen`, `marketing.pen`. Each holds only
+  its own screens and components (website: screens, components, sitemap,
+  system states; marketing: marketing frames).
+- Imports run one way, lib to surface. Surfaces never import each other.
+  References read `brand:<id>`, tokens `$brand:<name>`.
+- DRY: a master or brand rule used by more than one surface lives in the lib,
+  never as a copy in a surface file. KISS: a single-surface master stays in
+  its surface file.
+- Pencil imports share components and variables only, as relative paths:
+  keep lib and surfaces in one folder. Custom fonts do not travel; install
+  them per surface file. "Turn this file into a library" cannot be undone.
+- New designs start with the lib. Existing projects are not restructured
+  unprompted.
+
 ## Hard rules
 
 - Design is the source; code follows. Drift is fixed frame-first.
@@ -80,6 +101,8 @@ Name these in the report instead of "fixing" them:
 - One screen at a time, with a user OK before the next.
 - Done means marked on the canvas and derived from a pinned check, not
   declared in a table.
+- Shared masters and brand rules live in `brand.lib.pen`; surfaces import
+  only the lib, never each other.
 
 ## See also
 

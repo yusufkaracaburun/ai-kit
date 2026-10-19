@@ -34,6 +34,7 @@ The overlay is a pointer file, not a second copy of this skill. It carries what 
 - **New nodes do not render in the `execute` call that creates them.** `TakeScreenshot` and `Export` in that call return a blank image, so check and export in a later call. A white result there still means "not rendered yet", not a broken design: have the user bring the section into view and retry.
 - **Writes go to the active editor, not to `filePath`.** Run `get_app_state` before every write. When other sessions share the Pencil app, claim it first and release it afterwards, per the session-coordination rule (`ai-kit-claim.sh`, a message to each peer that uses Pen).
 - **Save via File > Save, then verify** (on macOS, `osascript` clicking the Pen app's File > Save menu item): mtime changed, `~/Library/Logs/Pen/main.log` has no new `Failed to serialize`, and the file diff holds only the intended additions or removals. On other hosts, ask the user to save and confirm. No probe or throw scripts in `execute`: a rollback in a document with nested masters has corrupted a file before.
+- **One lib, one-way imports.** The file split lives in the [design-leads rule](../../../standards/rules/design-leads.mini.md#file-split). In audit and design flows, a copy of a lib master in a surface file, or a surface importing another surface, is drift to report.
 
 ## Run mode
 

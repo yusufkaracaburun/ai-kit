@@ -42,7 +42,7 @@ A repo-local skill that governs UI work — a design-system skill, a design→co
 
 ## Pen authoring mode
 
-When the brief says the deliverable is the `.pen`, not code: `get_app_state` first; every `execute` call is a fresh scope, re-declare every id you use; read large documents with a visitor, never whole; masters first, instances never loose copies; light theme only when a brand kit section exists; verify exports with `sips -g pixelWidth -g pixelHeight` (PIL is not installed) and an md5 on untouched outputs; never `open -a` a `.pen` another session holds (check `ai-kit-claim.sh show`). Report old → new per node id.
+When the brief says the deliverable is the `.pen`, not code: `get_app_state` first; every `execute` call is a fresh scope, re-declare every id you use; read large documents with a visitor, never whole; masters first, instances never loose copies; a new master used by more than one surface goes in `brand.lib.pen`, and a surface file never imports another surface (design-leads rule, File split); light theme only when a brand kit section exists; verify exports with `sips -g pixelWidth -g pixelHeight` (PIL is not installed) and an md5 on untouched outputs; never `open -a` a `.pen` another session holds (check `ai-kit-claim.sh show`). Report old → new per node id.
 
 ## Source priority — load before writing markup
 
