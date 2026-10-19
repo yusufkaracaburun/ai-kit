@@ -175,9 +175,9 @@ detect_frameworks() {
     FRAMEWORKS+=("shadcn")
   fi
 
-  # Pencil (pen.dev) design file: a `*.pen` at the repo root or under `.pencil/`.
+  # Pencil (pen.dev) design file: a `*.pen` at any depth outside deps, VCS and worktrees.
   # Signal for the design-leads rule and the design-to-code skill.
-  if compgen -G "$target/*.pen" >/dev/null 2>&1 || compgen -G "$target/.pencil/*.pen" >/dev/null 2>&1; then
+  if [ -n "$(find "$target" \( -name node_modules -o -name vendor -o -name .git -o -name .agents \) -prune -o -name '*.pen' -print -quit 2>/dev/null)" ]; then
     FRAMEWORKS+=("pencil")
   fi
 }

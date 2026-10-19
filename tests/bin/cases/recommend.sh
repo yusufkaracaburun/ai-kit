@@ -88,6 +88,14 @@ PEN_TMP2=$(mktemp -d); mkdir "$PEN_TMP2/.pencil"; : > "$PEN_TMP2/.pencil/app.pen
 assert "recommend: .pencil/*.pen also surfaces design-leads" \
   '"$AIKIT/bin/recommend-rules.sh" "$PEN_TMP2" --json | python3 -c "import json,sys; d=json.load(sys.stdin); assert any(x[\"name\"]==\"design-leads\" for x in d[\"recommendations\"])"'
 rm -rf "$PEN_TMP2"
+PEN_TMP3=$(mktemp -d); mkdir "$PEN_TMP3/design"; : > "$PEN_TMP3/design/x.pen"
+assert "recommend: nested design/x.pen surfaces design-leads" \
+  '"$AIKIT/bin/recommend-rules.sh" "$PEN_TMP3" --json | python3 -c "import json,sys; d=json.load(sys.stdin); assert any(x[\"name\"]==\"design-leads\" for x in d[\"recommendations\"])"'
+rm -rf "$PEN_TMP3"
+PEN_TMP4=$(mktemp -d); mkdir -p "$PEN_TMP4/node_modules/pkg"; : > "$PEN_TMP4/node_modules/pkg/x.pen"
+assert "recommend: .pen only under node_modules does not surface design-leads" \
+  '"$AIKIT/bin/recommend-rules.sh" "$PEN_TMP4" --json | python3 -c "import json,sys; d=json.load(sys.stdin); assert not any(x[\"name\"]==\"design-leads\" for x in d[\"recommendations\"])"'
+rm -rf "$PEN_TMP4"
 
 
 echo "=== recommend-tools ==="
