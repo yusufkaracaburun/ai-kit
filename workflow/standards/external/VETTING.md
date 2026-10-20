@@ -1101,3 +1101,38 @@ app-store-screenshots · category=store-assets · added 2026-09-27
                     writing to disk, scaffold next to the app, never inside
                     it, never deployed)
 ```
+
+### `openseo`, added 2026-10-20 (companions.json)
+
+Offered on web, marketing and content sites, or when the user asks about SEO.
+Real use on 2026-10-20: a self-hosted instance ran against emeq.nl. Baseline:
+1 ranked keyword ("infrabedrijf", position 53), 113 referring domains, and a
+50-page site audit (0 critical, 42 warnings, 53 info). The audit surfaced two
+site-wide issues: canonicals pointing at `/` and missing H1s. Self-host does
+not report credit spend. Re-measure after the Astro emeq.nl site goes live; drop to Ignore if there is no gain.
+
+```
+openseo · category=seo · added 2026-10-20
+  MARKETING-PARITY: pass for the parts used (rank tracking, backlinks and
+                    site audit returned data on a real site, see above);
+                    AI visibility (GEO/AEO) not exercised
+  BENCHMARK:        n/a (no numeric performance claims checked)
+  MARKETING-AUDIT:  not run beyond the real-use check above
+  LICENSE:          MIT (GitHub API license field)
+  MATURITY:         pass (~24.3k stars)
+  DATA-LOCALITY:    hosted plugin sends queries to app.openseo.so; self-host
+                    keeps them on your instance, research calls go to
+                    DataForSEO with your own key
+  PROVENANCE:       c5f8db19c7ca9e750836b6ed5c8a6491d4f967f4 (every-app/open-seo
+                    main, checked 2026-10-20)
+  SECURITY-SCAN:    not run (no code vendored or executed by ai-kit). The
+                    official plugin's `plugins/openseo/.mcp.json` registers
+                    one http MCP at `https://app.openseo.so/mcp`
+  VERDICT:          ADD (companions.json, auto_install false. ai-kit ships no
+                    MCP URL, OAuth config or skill copies, only an AGENTS.md
+                    pointer. Risks carried into the entry: research spends
+                    credits; plugin next to a self-hosted MCP gives a
+                    duplicate openseo MCP; OpenSEO's `seo-audit` skill
+                    clashes with a project skill of the same name, confirmed
+                    in theorieplek, which one wins is unverified)
+```

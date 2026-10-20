@@ -451,6 +451,37 @@
         "vetted_at": "2026-10-14",
         "notes": "Install steps and prompt answers (answer N to the proxy): recommend-tools SKILL.md Phase 3 rtk branch. Vetted on 1.0.1. Uninstall: `rtk init -g --uninstall`, then remove the binary (`brew uninstall rtk` for brew, `rm ~/.local/bin/rtk` for install.sh)."
       }
+    },
+    {
+      "name": "openseo",
+      "category": "seo",
+      "best_for": "Web, marketing and content sites, or any project where the user asks about SEO",
+      "value": "MCP server plus skills for SEO research, rank tracking and AI visibility (GEO/AEO). Hosted at openseo.so or self-hosted from the open-seo repo.",
+      "risk": "Low-medium. Research tools spend OpenSEO credits (hosted) or your own DataForSEO budget (self-host). The official plugin's `.mcp.json` points at app.openseo.so, so a self-hoster who also installs the plugin gets a duplicate openseo MCP. OpenSEO ships a skill named `seo-audit`, which clashes with a project skill of the same name.",
+      "license": "MIT",
+      "tiers": [
+        {
+          "name": "base",
+          "description": "Offered only on a web/marketing/content site or when the user asks about SEO. Hosted: the official Claude Code plugin. Self-host: the MCP URL of your own instance plus the public skills, never the plugin.",
+          "wired_via": "workflow/skills/recommend-tools/SKILL.md Phase 3 openseo branch (official docs pointer + AGENTS.md note)",
+          "glue_files": [
+            "context/templates/companions/openseo.md"
+          ]
+        }
+      ],
+      "detection": {
+        "mcp": "claude mcp list 2>/dev/null | grep -qi openseo || claude plugin list 2>/dev/null | grep -qi openseo"
+      },
+      "install": {
+        "upstream": "https://github.com/every-app/open-seo",
+        "docs": [
+          "https://openseo.so/docs/mcp",
+          "https://openseo.so/docs/claude-code-plugin",
+          "https://github.com/every-app/open-seo/tree/main/docs"
+        ],
+        "auto_install": false,
+        "notes": "ai-kit ships no MCP URL, OAuth config or skill copies. Self-host docs are the docs/SELF_HOSTING_*.md files upstream."
+      }
     }
   ]
 }

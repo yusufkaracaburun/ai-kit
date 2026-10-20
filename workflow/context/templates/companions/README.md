@@ -18,6 +18,7 @@ upstream; ai-kit owns only the integration glue in this directory. Same pattern 
 | `llm-wiki/` | llm-wiki | project `wiki/` + `raw/` skeleton + `AGENTS.md` pointer |
 | `ui-ux-pro-max.md` | ui-ux-pro-max | project `AGENTS.md` (design-reference pointer) |
 | `rtk.md` | rtk | project `AGENTS.md` (compacted shell output note + how to remove) |
+| `openseo.md` | openseo | project `AGENTS.md` (hosted vs self-host note + `seo-audit` clash) |
 
 There is no `graphify-hook.json`. The "grep → query the graph instead" nudge is
 not graphify-specific: `/ai:setup` Branch 2d wires

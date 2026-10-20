@@ -40,4 +40,15 @@ assert "plugins-excluded.json no longer lists rtk" \
 assert "recommend-tools SKILL wires rtk via rtk init -g" \
   'grep -q "rtk init -g" "$RECOMMEND_SKILL"'
 
+# The OpenSEO plugin's .mcp.json points at the hosted app; a self-hoster who
+# installs it as well registers a second openseo MCP.
+assert "companions.json lists openseo" \
+  'python3 -c "import json,sys; d=json.load(open(\"$COMPANIONS_JSON\")); sys.exit(0 if any(x[\"name\"]==\"openseo\" for x in d[\"recommendations\"]) else 1)"'
+assert "recommend-tools SKILL says the OpenSEO plugin is hosted only" \
+  'grep -q "plugin is for hosted OpenSEO only" "$RECOMMEND_SKILL"'
+assert "recommend-tools SKILL warns about the seo-audit name clash" \
+  'grep -q "name clash" "$RECOMMEND_SKILL"'
+assert "VETTING.md carries an openseo audit row" \
+  'grep -q "openseo · category=seo" "$AIKIT/standards/external/VETTING.md"'
+
 print_summary_and_exit

@@ -7,7 +7,7 @@ Recommend and wire **companion tools** for this project — external AI-producti
 
 ## What a companion tool is
 
-A third-party tool *or pattern* that improves the AI coding setup but is **not** part of ai-kit's agile lifecycle. ai-kit owns the *integration glue* (a rules block, a hook, a scaffold), never the tool itself. The current catalog lives at `standards/external/companions.json` — that file is the source of truth for which companions exist, their tiers, detection signals, and conflict checks. The table below summarises; see the JSON for fields, glue paths, and conflict rules. Twelve are known today:
+A third-party tool *or pattern* that improves the AI coding setup but is **not** part of ai-kit's agile lifecycle. ai-kit owns the *integration glue* (a rules block, a hook, a scaffold), never the tool itself. The current catalog lives at `standards/external/companions.json` — that file is the source of truth for which companions exist, their tiers, detection signals, and conflict checks. The table below summarises; see the JSON for fields, glue paths, and conflict rules. Thirteen are known today:
 
 | Companion | Optimizes | Effect | Risk |
 | --------- | --------- | ------ | ---- |
@@ -23,6 +23,7 @@ A third-party tool *or pattern* that improves the AI coding setup but is **not**
 | **emilkowalski-skills** | Design — animation-specific taste (easing/duration/physicality) that ui-ux-pro-max/impeccable/skillui don't cover | Six markdown skills from Sonner/Vaul's author: `animate` (build motion against a strict decision table), `review-animations` (critique a diff), `improve-animations` (read-only audit-then-plan workflow, one plan per finding), `find-animation-opportunities`, `animation-vocabulary` (reverse-lookup glossary), and `ask-sonner` (gated separately on the `sonner` dependency). | Low — plain markdown, no executable code; installed via the official Vercel `skills` CLI. |
 | **app-store-screenshots** | Ship, App Store and Play Store screenshots for mobile apps | One skill that scaffolds a local Next.js editor and renders store decks with device frames and themes. Fallback route: apps with a `.pen` source use the design-to-code store flow first. | Medium. The scaffold runs a local dev server whose API routes write to disk; scaffold it in a sibling folder, never inside the app repo. |
 | **rtk** | Runtime tool output, what the AI reads back from shell commands | A PreToolUse Bash hook compacts git/ls/grep/test/docker output before the agent reads it. Not graphify (input search), not caveman (output prose). | Medium. `rtk init -g` patches the machine-wide `~/.claude/settings.json`. |
+| **openseo** | SEO, rank tracking and AI visibility (GEO/AEO) for web and content sites | MCP server plus skills, hosted at openseo.so or self-hosted. | Low-medium. Research spends credits; plugin plus self-host gives a duplicate MCP; its `seo-audit` skill can clash with a project skill. |
 
 They are orthogonal to each other and to ai-kit. Recommend per project, never blanket — except **context7**, which scores `universal: true` in `standards/external/mcp-servers.json` and surfaces for every stack the deterministic recommender runs against (Phase "MCP servers + Claude Code hooks + Claude Code plugins" below).
 
@@ -82,6 +83,7 @@ command -v scrapling >/dev/null 2>&1 && echo "scrapling: CLI present" || echo "s
 { { [ -d ios ] && [ -d android ]; } || { [ -f pubspec.yaml ] && grep -qE 'sdk:[[:space:]]*flutter' pubspec.yaml && { [ -d ios ] || [ -d android ]; }; }; } && echo "app-store-screenshots: mobile app signal" || echo "app-store-screenshots: no mobile app signal"
 command -v rtk >/dev/null 2>&1 && echo "rtk: CLI present" || echo "rtk: not installed"
 grep -qE 'rtk hook|rtk-rewrite' ~/.claude/settings.json 2>/dev/null && echo "rtk: hook registered" || echo "rtk: hook not registered"
+{ claude mcp list 2>/dev/null | grep -qi openseo || claude plugin list 2>/dev/null | grep -qi openseo; } && echo "openseo: MCP or plugin present" || echo "openseo: not installed"
 ```
 
 Report the lines plainly. Detection drives the recommendation — never claim a tool is wired when it is not. The two graphify lines disambiguate **base tier** (`graphify-out/`) from **wiki tier** (`graphify-out/wiki/`); the wiki tier is an opt-in nudge described in Phase 3.
@@ -101,6 +103,7 @@ Judge fit against the actual repo, do not blanket-recommend:
 - **emilkowalski-skills** — two independent gates, offer per-tier: the **animation** tier (animate/review-animations/improve-animations/find-animation-opportunities/animation-vocabulary) fits any project with a frontend framework and real transition/animate/`@keyframes`/framer-motion code — weak fit with no motion signal at all. The **sonner** tier (ask-sonner) fits whenever the `sonner` package is a dependency, independent of the animation gate — a backend-heavy app that only uses Sonner for toasts still gets it. Neither overlaps ui-ux-pro-max/impeccable/skillui/inspo-mcp — those are palette/token/anti-slop/reference-site tools, none cover animation-specific taste (easing, duration, physicality, interruptibility). Do not offer `emil-design-eng` from the same upstream repo — it duplicates `animate` + `review-animations`' content; do not offer `write-swift`/`animate-expo`/`apple-design`/`mobile-native`/`pick-ui-library`/`prototype` either — no confirmed signal for them yet (see companions.json install notes for what was checked and ruled out).
 - **app-store-screenshots**: fits only a mobile app (Phase 1 mobile signal: `ios/` and `android/`, or a Flutter `pubspec.yaml` plus one of them); never offer it to a web-only repo. It is the fallback route: if the project has a `.pen` design source, point at the `design-to-code` store flow first. Disclose the risk when offering: the scaffold runs a local Next.js dev server whose API routes write to disk, so it goes in a sibling folder, never inside the app repo.
 - **rtk**: fits any project where the agent runs noisy shell commands (git, test runners, docker) and reads the raw output. It owns the runtime tool-output dimension: graphify covers input search, caveman covers output prose, neither touches Bash output. Universal (`universal: true`), so `/ai:setup` Branch 2e already auto-prompts it. Check `branches.universal_companions_prompted` first and do not re-ask, unless the project has no marker or the user is revisiting the decision (a Yes in setup does not prove the install ran). State the machine-wide blast radius when offering it.
+- **openseo**: fits a web, marketing or content site (Phase 1 reports UI to design and no mobile app signal), or any project where the user asks about SEO, rank tracking or AI visibility (GEO/AEO). No fit for a backend, CLI or mobile-only repo.
 
 State, for each: present-or-not, fit for *this* repo, and the one-line why.
 
@@ -190,6 +193,14 @@ Glue templates live in `$AI_KIT_ROOT/context/templates/companions/`. Wire only t
 2. Otherwise offer it with the machine-wide scope stated. ai-kit never installs it and never edits `~/.claude/settings.json`; the user installs rtk (`brew install rtk-ai/tap/rtk` or `curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/master/install.sh | sh`), then runs `rtk init -g` in an interactive terminal, answering y to patching `~/.claude/settings.json`. Warn: run without a TTY (for example the Claude Code `!` prefix) the prompt defaults to N and no hook is registered, with no error. Only the hook is in scope: answer N to the later prompts. "Set up the RTK proxy" sets `env.ANTHROPIC_BASE_URL=http://127.0.0.1:8080` plus a SessionStart hook in `~/.claude/settings.json`; the rtk-proxy daemon is a separately licensed download brew does not ship, so every Claude Code API call goes to whatever listens on :8080 (seen 2026-10-14 as `model_not_found` 404s). Answer N to delegate-reads and telemetry too.
 3. The user restarts Claude Code, then verifies: `git status` output is compacted and `grep -qE 'rtk hook|rtk-rewrite' ~/.claude/settings.json` succeeds.
 4. Append `companions/rtk.md` to the project `AGENTS.md`. Uninstall: `rtk init -g --uninstall`, then remove the binary (`brew uninstall rtk` for brew, `rm ~/.local/bin/rtk` for install.sh).
+
+**openseo:**
+1. Only offer under the Phase 2 openseo fit. If Phase 1 shows it present, skip straight to appending the AGENTS.md pointer.
+2. Otherwise ask hosted or self-host, then point at the official docs only. ai-kit ships no MCP URL, no OAuth config and no skill copies.
+   - Hosted: the official Claude Code plugin, https://openseo.so/docs/claude-code-plugin.
+   - Self-host: install per `docs/SELF_HOSTING_*.md` in https://github.com/every-app/open-seo, then add only your instance's MCP URL (https://openseo.so/docs/mcp) plus the public skills. The official plugin is for hosted OpenSEO only: its `.mcp.json` points at app.openseo.so, so installing it next to a self-hosted MCP gives a duplicate openseo MCP.
+3. OpenSEO ships a skill named `seo-audit`. If the project has its own `seo-audit` skill, warn about the name clash and have the user check which one loads.
+4. Append `companions/openseo.md` to the project `AGENTS.md`.
 
 ### Phase 4 — Output contract
 
