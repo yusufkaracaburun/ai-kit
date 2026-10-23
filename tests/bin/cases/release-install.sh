@@ -120,7 +120,7 @@ export AI_KIT_ROOT="$AIKIT"
 OUT_WHICH_LIST="$("$AIKIT/bin/ai-kit-which.sh" --list)"
 assert "which --list has header" 'echo "$OUT_WHICH_LIST" | head -1 | grep -q "SKILL"'
 WHICH_LIST_ROWS="$(echo "$OUT_WHICH_LIST" | tail -n +3 | wc -l | tr -d ' ')"
-assert "which --list shows all 33 skills" '[ "$WHICH_LIST_ROWS" -eq 33 ]'
+assert "which --list shows all 34 skills" '[ "$WHICH_LIST_ROWS" -eq 34 ]'
 
 # --explain dumps the SKILL.md.
 OUT_WHICH_EXP="$("$AIKIT/bin/ai-kit-which.sh" --explain tdd)"
@@ -141,6 +141,11 @@ assert "which: TDD intent -> tdd at rank 1" 'echo "$OUT_WHICH_TDD" | grep -q "^1
 
 OUT_WHICH_REVIEW="$("$AIKIT/bin/ai-kit-which.sh" "review my code before merging")"
 assert "which: review intent -> review at rank 1" 'echo "$OUT_WHICH_REVIEW" | grep -q "^1\. /ai:review"'
+
+for intent in "toets dit idee" "heeft dit potentie" "marktonderzoek"; do
+  OUT_WHICH_IDEA="$("$AIKIT/bin/ai-kit-which.sh" "$intent" || true)"
+  assert "which: '$intent' -> validate-idea at rank 1" 'echo "$OUT_WHICH_IDEA" | grep -q "^1\. /ai:validate-idea"'
+done
 
 # Gibberish intent returns the no-match message instead of a false positive.
 set +e
