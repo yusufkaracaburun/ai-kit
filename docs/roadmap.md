@@ -420,3 +420,4 @@ _Last reconciled: 2026-10-10 against 47 open issues (#140, #184, #185 closed; ea
   part has a measured result there (proven-only rule, 2026-10-15). First checkpoint: 2026-11-05
   re-measurement. Route /ai:harvest from theorieplek, validate in emeq-web, then generalise.
   marketingskills is a pattern source only, its plugin stays excluded. 2026-10-15.
+- **#226** `enhancement` — `/ai:design-to-code` from-reference step: reference URL → tokens + section patterns → own brand in Pencil → build, harvested after one real run in a marketing site. 2026-10-23.
