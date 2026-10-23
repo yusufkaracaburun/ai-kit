@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.9.0 — 2026-10-23
+
+### Added
+
+- `/ai:validate-idea`: go/no-go research for a new product idea. It writes a sourced brief, `ai:verifier` checks the 5 key numbers, and the run ends in one recorded exit with a stop rule. Reports and a ledger land in `$IDEAS_DIR` (#225).
+- `/ai:recommend-tools` offers OpenSEO as an optional SEO companion. It is offered only on web or content sites, or on request, and is never auto-installed. Unmeasured: the baseline covers emeq.nl only. Re-measure after the Astro site goes live.
+
+### Fixed
+
+- Pencil detection finds `.pen` files at any depth.
+
+### Changed
+
+- Design-leads rule documents the `.pen` file split.
+- Catalog: treg excluded (hosted pay-per-call broker).
+- Roadmap: #226 deferred.
+
 ## 2.8.0 — 2026-10-18
 
 ### Added
