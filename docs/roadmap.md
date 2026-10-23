@@ -421,3 +421,4 @@ _Last reconciled: 2026-10-10 against 47 open issues (#140, #184, #185 closed; ea
   re-measurement. Route /ai:harvest from theorieplek, validate in emeq-web, then generalise.
   marketingskills is a pattern source only, its plugin stays excluded. 2026-10-15.
 - **#226** `enhancement` — `/ai:design-to-code` from-reference step: reference URL → tokens + section patterns → own brand in Pencil → build, harvested after one real run in a marketing site. 2026-10-23.
+- **#227** `enhancement` — `perf(detect)`: `.pen` detection in `detect-lib.sh` walks the whole tree with `find` (6.0 s on naschool); use `git ls-files -co --exclude-standard '*.pen'` in git repos, keep `find` as fallback, add a vendor-ignored test. 2026-10-23.
