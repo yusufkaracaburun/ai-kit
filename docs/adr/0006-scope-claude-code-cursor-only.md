@@ -4,6 +4,8 @@
 
 Accepted (Unreleased)
 
+Proposed for supersession by [ADR-0019](0019-multi-host-cursor-copilot.md) (2026-10-25). Stands until 0019 is accepted.
+
 ## Context
 
 ai-kit started as a Claude Code + Cursor toolkit and then grew multi-host

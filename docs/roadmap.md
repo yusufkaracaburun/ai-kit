@@ -174,6 +174,7 @@ _Last reconciled: 2026-10-10 against 47 open issues (#140, #184, #185 closed; ea
 - **#217** `enhancement` — `design-to-code`: scaffold new Pencil designs as `brand.lib.pen` (variables, themes, logo, brand assets as components) plus surface files that import it (`website.pen`, `mobile.pen`, `marketing.pen`; `tablet.pen`/`watch.pen` on demand). The user's convention, not Pencil's. Deferred: first test in the Pencil app whether a `.lib.pen` can hold non-component frames. 2026-10-14.
 - **#218** `enhancement` — to-prd Defer mode expects a `## What's next` heading; this roadmap uses `## P1`/`## P2`/`## P3`, so the #213 to #216 capture stalled. Append to the section matching the priority label instead. Deferred: batch with the v2.7.0 skill changes and test on a downstream roadmap. 2026-10-14.
 - **#225** `enhancement` — `/ai:validate-idea`: research a new product idea (sourced brief, verifier refutes the 5 key numbers) and end in a recorded go/no-go with a measurable stop rule, so ideas stop costing a build before they cost a test. 2026-10-23.
+- **#229** `enhancement` — **Multi-host: Cursor and GitHub Copilot**, the PRD for running ai-kit on client machines that have only Cursor or only Copilot, and on the own laptop alongside the Claude Code plugin. ADR-0019 (proposed) supersedes 0006 and 0010. 2026-10-25.
 
 ## P3 — backlog
 
