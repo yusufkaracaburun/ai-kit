@@ -175,6 +175,19 @@ _Last reconciled: 2026-10-10 against 47 open issues (#140, #184, #185 closed; ea
 - **#218** `enhancement` — to-prd Defer mode expects a `## What's next` heading; this roadmap uses `## P1`/`## P2`/`## P3`, so the #213 to #216 capture stalled. Append to the section matching the priority label instead. Deferred: batch with the v2.7.0 skill changes and test on a downstream roadmap. 2026-10-14.
 - **#225** `enhancement` — `/ai:validate-idea`: research a new product idea (sourced brief, verifier refutes the 5 key numbers) and end in a recorded go/no-go with a measurable stop rule, so ideas stop costing a build before they cost a test. 2026-10-23.
 - **#229** `enhancement` — **Multi-host: Cursor and GitHub Copilot**, the PRD for running ai-kit on client machines that have only Cursor or only Copilot, and on the own laptop alongside the Claude Code plugin. ADR-0019 (proposed) supersedes 0006 and 0010. 2026-10-25.
+- **#230** `enhancement` — Live check of four Cursor and Copilot behaviours before building, slice of #229. 2026-10-25.
+- **#231** `enhancement` — Host paths table and install on machines without Claude Code, slice of #229. 2026-10-25.
+- **#232** `enhancement` — Convert the 11 plugin-root commands to skills that find the root via ~/.config/ai-kit/root, slice of #229. 2026-10-25.
+- **#233** `enhancement` — Fallbacks for autonomous, setup and docs-sync on hosts without subagents or AskUserQuestion, slice of #229. 2026-10-25.
+- **#234** `enhancement` — Prefer-plugin links ~/.agents/skills to the plugin's current skills, slice of #229. 2026-10-25.
+- **#235** `enhancement` — Copilot rules emitter for project and universal rules, slice of #229. 2026-10-25.
+- **#236** `enhancement` — Universal rules as an alwaysApply local Cursor plugin, slice of #229. 2026-10-25.
+- **#237** `enhancement` — Subagents shipped to Copilot CLI, Copilot cloud, Cursor and VS Code, slice of #229. 2026-10-25.
+- **#238** `enhancement` — Per-host upgrade and clean uninstall, slice of #229. 2026-10-25.
+- **#239** `enhancement` — /ai:setup asks local-only or committed per client repo, slice of #229. 2026-10-25.
+- **#240** `enhancement` — Host-neutral fallbacks and skill names in the 12 degrading skills, slice of #229. 2026-10-25.
+- **#241** `enhancement` — Opt-in `--with-hooks` adapter for Cursor and Copilot, slice of #229. 2026-10-25.
+- **#242** `enhancement` — Accept ADR-0019 and sweep the two-host wording, slice of #229. 2026-10-25.
 
 ## P3 — backlog
 
