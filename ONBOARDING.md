@@ -11,7 +11,7 @@ subagents, slash commands, hooks, and rules to both hosts — no per-host
 duplication, no runtime daemon, no network calls, no telemetry.
 
 Today (v1.89.0): **34 skills · 6 subagents · 11 slash commands · 2 hooks ·
-45 canonical mini-rules · 24 curated MCP servers · 28 curated hook recipes ·
+46 canonical mini-rules · 24 curated MCP servers · 28 curated hook recipes ·
 23 curated plugins · 5 baseline repo templates.**
 
 ## 2. How to run it locally

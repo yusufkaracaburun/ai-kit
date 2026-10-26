@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Rule `worker-fronts-static-site`: on a static site behind an edge Worker, forms, lead posts and redirects live in the Worker, and its handler carries the tests.
+
 ## 2.9.0 — 2026-10-23
 
 ### Added
