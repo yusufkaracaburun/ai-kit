@@ -1,6 +1,6 @@
 # Mental model
 
-How the 34 skills fit together, plus the 6 subagents and 11 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
+How the 35 skills fit together, plus the 6 subagents and 11 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
 
 For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossary.md). For "I want to add X — which primitive?" see [primitives.md](primitives.md).
 
@@ -37,6 +37,7 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
 | Pick the next ticket to work on | `triage` |
 | Build a feature via red-green-refactor | `tdd` |
 | Build a screen from a design file and prove the code matches it | `design-to-code` |
+| Rebuild an existing site's pages as local code | `clone-website` |
 | Get a second pass on a diff before PR | `review` |
 | Smoke-test a running web app | `qa` |
 | Hunt a hard bug or perf regression | `diagnose` |

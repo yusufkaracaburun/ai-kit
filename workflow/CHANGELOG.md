@@ -4,6 +4,7 @@
 
 ### Added
 
+- `/ai:clone-website`: rebuild an existing site's pages as local Astro or Next.js code, matching real content, assets, responsive layout and interactions. It detects the framework from the project and recommends Astro for an empty folder. Vendored from JCodesMore/ai-website-cloner-template (MIT, ee3f5a2), plus lessons from the hazarfan.nl and planny.nl clone runs.
 - Rule `worker-fronts-static-site`: on a static site behind an edge Worker, forms, lead posts and redirects live in the Worker, and its handler carries the tests.
 
 ## 2.9.0 — 2026-10-23
