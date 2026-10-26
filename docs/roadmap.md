@@ -188,6 +188,8 @@ _Last reconciled: 2026-10-10 against 47 open issues (#140, #184, #185 closed; ea
 - **#240** `enhancement` — Host-neutral fallbacks and skill names in the 12 degrading skills, slice of #229. 2026-10-25.
 - **#241** `enhancement` — Opt-in `--with-hooks` adapter for Cursor and Copilot, slice of #229. 2026-10-25.
 - **#242** `enhancement` — Accept ADR-0019 and sweep the two-host wording, slice of #229. 2026-10-25.
+- **#247** `bug` — tests: the docs-sync case in `tests/bin/run-all.sh` fails on machine git state (a local branch with no commits of its own such as `epic/multi-host` counts as merged); the fixture run must ignore the host repo's branches. 2026-10-26.
+- **#248** `bug` — `bin/release.sh` ignores a `## Unreleased` CHANGELOG section: it prepends the new version and leaves Unreleased, duplicating lines. Fold Unreleased into the new version heading, with a fixture test. 2026-10-26.
 
 ## P3 — backlog
 
@@ -441,5 +443,3 @@ _Last reconciled: 2026-10-10 against 47 open issues (#140, #184, #185 closed; ea
 - **#244** `enhancement` — AI image generation for site visuals, harvested from hazarfan.nl: generate, plausibility-check, place and credit objects-only images via OpenRouter (key from Keychain, never exported), site only. Deferred until hazarfan.nl PR 1 is on main with credits and a credits check; opt-in per app (theorieplek bans AI images). 2026-10-25.
 - **#245** `enhancement` — grill skills: after recommending several design choices, check the combination still produces the source pattern's visual effect (seen: white header + pill nav made a white pill invisible). Deferred until a second occurrence fixes the wording. 2026-10-26.
 - **#246** `bug` — lead-guard: Bash appends to the memory index are blocked while Write works; make the guard message say "use Write", and keep agent briefs/hooks off interactive `rm` aliases (`command rm -f`). Low severity, workarounds exist. 2026-10-26.
-- **#247** `bug` — tests: the docs-sync case in `tests/bin/run-all.sh` fails on machine git state (a branchless-commit local branch such as `epic/multi-host` counts as merged); the fixture run must ignore the host repo's branches. 2026-10-26.
-- **#248** `bug` — `bin/release.sh` ignores a `## Unreleased` CHANGELOG section: it prepends the new version and leaves Unreleased, duplicating lines. Fold Unreleased into the new version heading, with a fixture test. 2026-10-26.
