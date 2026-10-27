@@ -8,6 +8,19 @@ Pure Bash + Markdown. One canonical source emits skills, subagents, slash
 commands, hooks, and rules to both hosts — no per-host duplication, no
 runtime daemon, no network calls, no telemetry.
 
+**Quickstart (Claude Code):**
+
+```text
+/plugin marketplace add yusufkaracaburun/marketplace
+/plugin install ai@yusufkaracaburun
+/ai:setup     # once per repo
+/ai:next      # what to work on first
+```
+
+Cursor and other hosts: see [Install](#install).
+
+![/ai:next ranking this repo's open work](docs/assets/demo.gif)
+
 | Primitive | Count | Reaches |
 | --------- | -----:| ------- |
 | Skills | 35 | Claude Code · Cursor |
