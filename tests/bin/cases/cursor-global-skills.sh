@@ -164,9 +164,9 @@ rm -rf "$H6"
 
 echo "=== install_dir_to leaves a current link alone ==="
 # section: cursor-global-idempotent
-BEFORE="$(stat -f '%i' "$H/.agents/skills/demo-skill" 2>/dev/null || stat -c '%i' "$H/.agents/skills/demo-skill")"
+BEFORE="$(stat -c '%i' "$H/.agents/skills/demo-skill" 2>/dev/null || stat -f '%i' "$H/.agents/skills/demo-skill")"
 HOME="$H" bash -c "source '$AIKIT/bin/lib/link-primitives.sh'; install_dir_to '$H/.config/ai-kit/plugin-current/workflow/skills' '$H/.agents/skills'" >/dev/null
-AFTER="$(stat -f '%i' "$H/.agents/skills/demo-skill" 2>/dev/null || stat -c '%i' "$H/.agents/skills/demo-skill")"
+AFTER="$(stat -c '%i' "$H/.agents/skills/demo-skill" 2>/dev/null || stat -f '%i' "$H/.agents/skills/demo-skill")"
 assert "an up-to-date link is not recreated" '[ "$BEFORE" = "$AFTER" ]'
 
 echo "=== SessionEnd hook adds new and prunes dead ai-kit entries in ~/.agents/skills ==="
