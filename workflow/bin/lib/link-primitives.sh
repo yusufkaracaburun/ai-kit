@@ -113,3 +113,54 @@ merge_commands() {
   done
   echo "Merged ai-kit slash commands into $label (custom entries preserved)"
 }
+
+# Symlink every subdirectory of $src_root into $target, refusing to clobber
+# user/custom entries. Used for skills — each entry is a directory containing
+# a SKILL.md.
+install_dir_to() {
+  local src_root="$1"
+  local target="$2"
+  local src_real
+  if [ ! -d "$src_root" ]; then
+    return 0
+  fi
+  src_real="$(cd "$src_root" && pwd -P)"
+  mkdir -p "$target"
+  # Reap ai-kit links whose target moved. Includes orphans this run will not
+  # relink (renamed or removed entries), which would otherwise stay dead
+  # forever — the loop below only ever visits names that still exist in the
+  # source tree, and a dead link there reads as "existing entry, skip".
+  for dead in "$target"/*; do
+    [ -L "$dead" ] && [ ! -e "$dead" ] || continue
+    was="$(readlink "$dead")"
+    case "$was" in
+      */ai-kit/*|"${PREV_ROOT:-//no-previous-root}"/*)
+        rm -f "$dead"
+        echo "Removed dead link $(basename "$dead") (was -> $was)"
+        ;;
+    esac
+  done
+  for entry in "$src_root"/*/; do
+    [ -d "$entry" ] || continue
+    name="$(basename "$entry")"
+    dest="$target/$name"
+    if [ -e "$dest" ] || [ -L "$dest" ]; then
+      if [ -L "$dest" ]; then
+        [ "$(readlink "$dest")" = "$entry" ] && continue
+        resolved="$(cd "$dest" 2>/dev/null && pwd -P)" || resolved=""
+        case "$resolved" in
+          "$src_real"/*) rm -f "$dest" ;;
+          *)
+            echo "Skipped $name (existing non-aikit entry at $dest)"
+            continue
+            ;;
+        esac
+      else
+        echo "Skipped $name (existing non-aikit entry at $dest)"
+        continue
+      fi
+    fi
+    ln -sfn "$entry" "$dest"
+    echo "Linked $name -> $dest"
+  done
+}

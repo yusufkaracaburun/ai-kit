@@ -123,11 +123,28 @@ if [ "$NO_SKILLS" = true ]; then
 elif [ "$SKILLS_MODE" = "link-all" ]; then
   link_skills_all "$TARGET/.claude" ".claude/skills" "$PRIMITIVES" "$COPY_SKILLS"
   link_skills_all "$TARGET/.agents" ".agents/skills" "$PRIMITIVES" "$COPY_SKILLS"
-  link_skills_all "$TARGET/.cursor" ".cursor/skills" "$PRIMITIVES" "$COPY_SKILLS"
 else
   merge_skills "$TARGET/.claude" ".claude/skills" "$PRIMITIVES"
   merge_skills "$TARGET/.agents" ".agents/skills" "$PRIMITIVES"
-  merge_skills "$TARGET/.cursor" ".cursor/skills" "$PRIMITIVES"
+fi
+
+if [ "$NO_SKILLS" = false ]; then
+  CURSOR_GLOBAL=false
+  case "$AIKIT" in
+    */plugins/cache/*)
+      if [ "$COPY_SKILLS" = false ] && [ -d "${HOME}/.cursor" ]; then
+        install_dir_to "$PRIMITIVES/skills" "${HOME}/.cursor/skills" >/dev/null
+        cursor_global_holds_skills && CURSOR_GLOBAL=true
+      fi
+      ;;
+  esac
+  if [ "$CURSOR_GLOBAL" = true ]; then
+    echo "Cursor skills served from ~/.cursor/skills (project .cursor/skills skipped)"
+  elif [ "$SKILLS_MODE" = "link-all" ]; then
+    link_skills_all "$TARGET/.cursor" ".cursor/skills" "$PRIMITIVES" "$COPY_SKILLS"
+  else
+    merge_skills "$TARGET/.cursor" ".cursor/skills" "$PRIMITIVES"
+  fi
 fi
 
 if [ "$NO_AGENTS" = true ]; then

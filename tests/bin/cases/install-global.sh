@@ -52,12 +52,12 @@ echo "=== idempotent re-run ==="
 H=$(mktemp -d)
 install_global "$H" >/dev/null
 OUT2=$(install_global "$H")
-# Positive assertion first: the previous version only checked that "Skipped"
-# was absent (true of empty output) and that a symlink the FIRST run created
-# still existed. Both passed with the installer replaced by `true`, so the
-# re-link branch was not actually covered.
-assert "re-run reports it linked the skill again" \
-  'grep -q "Linked audit-architecture" <<<"$OUT2"'
+# Positive assertion first: "Skipped" being absent is also true of empty
+# output, so prove the installer ran before checking it left current links alone.
+assert "re-run ran the skill install" \
+  'grep -q "=== Cursor skills (~/.cursor/skills) ===" <<<"$OUT2"'
+assert "re-run leaves an up-to-date link alone" \
+  '! grep -q "Linked audit-architecture" <<<"$OUT2"'
 assert "re-run does not warn about a foreign symlink" \
   '! grep -q "Skipped audit-architecture" <<<"$OUT2"'
 assert "symlink still resolves to the repo after the second run" \

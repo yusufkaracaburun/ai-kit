@@ -66,6 +66,31 @@ global_channel_available() {
   return 1
 }
 
+# Is $1 a symlink into ai-kit's skills (plugin-current or this marketplace's
+# cache)? A dead link is judged by its raw target, a live one by where it resolves.
+aikit_skill_link() {
+  local link="$1" target pc pc_real
+  [ -L "$link" ] || return 1
+  pc="${HOME}/.config/ai-kit/plugin-current"
+  target="$(cd "$link" 2>/dev/null && pwd -P)" || target="$(readlink "$link")"
+  case "$target" in
+    "$pc"/*|*/plugins/cache/yusufkaracaburun/ai/*/skills|*/plugins/cache/yusufkaracaburun/ai/*/skills/*) return 0 ;;
+  esac
+  pc_real="$(cd "$(resolve_primitives_root "$pc")/skills" 2>/dev/null && pwd -P)" || return 1
+  case "$target" in "$pc_real"|"$pc_real"/*) return 0 ;; esac
+  return 1
+}
+
+# Cursor has no plugin channel; ~/.cursor/skills is its global one. True once
+# it holds a live ai-kit skill link — the project .cursor/skills is then redundant.
+cursor_global_holds_skills() {
+  local link
+  for link in "${HOME}/.cursor/skills"/*; do
+    [ -e "$link" ] && aikit_skill_link "$link" && return 0
+  done
+  return 1
+}
+
 write_ai_kit_root_config() {
   local root="$1"
   mkdir -p "${HOME}/.config/ai-kit"

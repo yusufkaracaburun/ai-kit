@@ -2,6 +2,9 @@
 # Shared detection helpers for ai-kit bin scripts.
 # Source this file, then call detect_* functions with a project directory.
 
+# shellcheck source=ai-kit-root.sh
+source "$(dirname "${BASH_SOURCE[0]}")/ai-kit-root.sh"
+
 # Official docs suggestions (agent verifies live)
 docs_url_for() {
   case "$1" in
@@ -332,7 +335,7 @@ detect_bootstrap_state() {
     BOOTSTRAP_MISSING+=(".agents/skills")
   fi
 
-  if _has_skills_layout "$target/.cursor/skills"; then
+  if _has_skills_layout "$target/.cursor/skills" || cursor_global_holds_skills; then
     has_cursor=true
   else
     BOOTSTRAP_MISSING+=(".cursor/skills")

@@ -322,8 +322,8 @@ if [ -n "$TARGET" ]; then
         # .claude/skills and .agents/skills are pure duplication once ai-kit
         # is installed as a Claude Code plugin — the plugin already serves
         # /ai:* — so their absence is the healthy config, not a finding
-        # (#114). .cursor/skills is unaffected: Cursor has no plugin channel,
-        # so it still needs the project symlink.
+        # (#114). Cursor has no plugin channel: .cursor/skills is redundant
+        # only once ~/.cursor/skills holds ai-kit's skills.
         #
         # ADR-0012 phase (d): global_channel_available is a machine fact
         # (is the plugin installed anywhere on this machine), not "is THIS
@@ -340,7 +340,13 @@ if [ -n "$TARGET" ]; then
               warn "$d absent (run bootstrap-project.sh)"
             fi
             ;;
-          *) warn "$d absent (run bootstrap-project.sh)" ;;
+          *)
+            if cursor_global_holds_skills; then
+              info "$d absent — served by ~/.cursor/skills"
+            else
+              warn "$d absent (run bootstrap-project.sh)"
+            fi
+            ;;
         esac
         continue
       fi
