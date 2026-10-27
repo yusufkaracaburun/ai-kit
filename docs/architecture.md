@@ -17,7 +17,7 @@ three layers, including every path each distribution channel writes to.
 
 | Primitive | Source path | Reaches host via | Host directory |
 |---|---|---|---|
-| Skill | `workflow/skills/<name>/SKILL.md` | symlink (install-global.sh / bootstrap) **or** plugin manifest | `~/.claude/skills/` · `~/.cursor/skills/` · `<proj>/.claude/skills/` |
+| Skill | `workflow/skills/<name>/SKILL.md` | symlink (install-global.sh / bootstrap) **or** plugin manifest | `~/.claude/skills/` · `~/.agents/skills/` · `<proj>/.claude/skills/` |
 | Subagent | `workflow/agents/<name>.md` | same symlink pass + plugin manifest | `~/.claude/agents/` · `<proj>/.claude/agents/` |
 | Slash command | `workflow/commands/<name>.md` | same symlink pass (files, not dirs) + plugin manifest | `~/.claude/commands/` · `<proj>/.claude/commands/` |
 | Rule | `standards/rules/<name>.mini.md` | **emitter** (`bin/emit-rules.sh`) at `/ai:setup` time — converts to host format | `<proj>/.cursor/rules/*.mdc` (Cursor) · skill text (Claude Code) |

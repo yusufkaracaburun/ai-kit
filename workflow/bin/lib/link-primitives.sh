@@ -164,3 +164,21 @@ install_dir_to() {
     echo "Linked $name -> $dest"
   done
 }
+
+# ~/.cursor/skills held ai-kit's links up to v2.10.1; Cursor also reads
+# ~/.agents/skills, so they would show twice. Removes links into ai-kit
+# (plugin, or $1's source tree); foreign entries stay. Needs ai-kit-root.sh.
+prune_cursor_global_skills() {
+  local src_real="" link resolved
+  # Same dir (~/.cursor/skills -> ~/.agents/skills): pruning would delete the links just made.
+  [ "$(cd "${HOME}/.cursor/skills" 2>/dev/null && pwd -P)" = "$(cd "${HOME}/.agents/skills" 2>/dev/null && pwd -P)" ] && return 0
+  [ -n "${1:-}" ] && src_real="$(cd "$1" 2>/dev/null && pwd -P)"
+  for link in "${HOME}/.cursor/skills"/*; do
+    [ -L "$link" ] || continue
+    resolved="$(cd "$link" 2>/dev/null && pwd -P)" || resolved=""
+    if aikit_skill_link "$link" || { [ -n "$src_real" ] && [[ $resolved == "$src_real"/* ]]; }; then
+      rm -f "$link"
+    fi
+  done
+  return 0
+}

@@ -190,20 +190,20 @@ repair_links() {
   esac
 }
 
-# Once ~/.cursor/skills serves ai-kit, the project's own ai-kit links there are
+# Once ~/.agents/skills serves ai-kit, the project's own ai-kit links there are
 # duplicates. Only symlinks into ai-kit go; real dirs and foreign links stay.
 prune_cursor_project_skills() {
   local dir="$TARGET/.cursor/skills" link global
   if [ -L "$dir" ]; then
-    aikit_skill_link "$dir" && rm -f "$dir" && echo "Removed .cursor/skills link (served by ~/.cursor/skills)"
+    aikit_skill_link "$dir" && rm -f "$dir" && echo "Removed .cursor/skills link (served by ~/.agents/skills)"
     return 0
   fi
   [ -d "$dir" ] || return 0
   for link in "$dir"/*; do
-    global="${HOME}/.cursor/skills/$(basename "$link")"
+    global="${HOME}/.agents/skills/$(basename "$link")"
     aikit_skill_link "$link" && [ -e "$global" ] && aikit_skill_link "$global" && rm -f "$link"
   done
-  rmdir "$dir" 2>/dev/null && echo "Removed empty .cursor/skills (served by ~/.cursor/skills)"
+  rmdir "$dir" 2>/dev/null && echo "Removed empty .cursor/skills (served by ~/.agents/skills)"
   return 0
 }
 

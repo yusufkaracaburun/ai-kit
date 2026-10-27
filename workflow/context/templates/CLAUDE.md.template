@@ -12,4 +12,4 @@
 
 ## Cursor
 
-Same skills and docs as Claude Code. Skills also live in `.cursor/skills/` (project) or `~/.cursor/skills/` (global). Read `AGENTS.md` as the entry point — Cursor rules emitted under `.cursor/rules/` mirror `docs/agents/active-rules.md`.
+Same skills and docs as Claude Code. Skills also live in `.cursor/skills/` (project) or `~/.agents/skills/` (global). Read `AGENTS.md` as the entry point — Cursor rules emitted under `.cursor/rules/` mirror `docs/agents/active-rules.md`.

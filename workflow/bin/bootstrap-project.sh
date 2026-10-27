@@ -119,7 +119,7 @@ cp -n "$TPL/docs/agents/workflow.md" "$TARGET/docs/agents/" 2>/dev/null || true
 cp -n "$TPL/docs/agents/triage-labels.md" "$TARGET/docs/agents/" 2>/dev/null || true
 
 if [ "$NO_SKILLS" = true ]; then
-  echo "Skipped project skill links (--no-skills; use global ~/.claude/skills, ~/.agents/skills and ~/.cursor/skills)"
+  echo "Skipped project skill links (--no-skills; use global ~/.claude/skills and ~/.agents/skills)"
 elif [ "$SKILLS_MODE" = "link-all" ]; then
   link_skills_all "$TARGET/.claude" ".claude/skills" "$PRIMITIVES" "$COPY_SKILLS"
   link_skills_all "$TARGET/.agents" ".agents/skills" "$PRIMITIVES" "$COPY_SKILLS"
@@ -132,14 +132,14 @@ if [ "$NO_SKILLS" = false ]; then
   CURSOR_GLOBAL=false
   case "$AIKIT" in
     */plugins/cache/*)
-      if [ "$COPY_SKILLS" = false ] && [ -d "${HOME}/.cursor" ]; then
-        install_dir_to "$PRIMITIVES/skills" "${HOME}/.cursor/skills" >/dev/null
+      if [ "$COPY_SKILLS" = false ] && { [ -d "${HOME}/.cursor" ] || [ -d "${HOME}/.agents" ]; }; then
+        install_dir_to "$PRIMITIVES/skills" "${HOME}/.agents/skills" >/dev/null
         cursor_global_holds_skills && CURSOR_GLOBAL=true
       fi
       ;;
   esac
   if [ "$CURSOR_GLOBAL" = true ]; then
-    echo "Cursor skills served from ~/.cursor/skills (project .cursor/skills skipped)"
+    echo "Cursor skills served from ~/.agents/skills (project .cursor/skills skipped)"
   elif [ "$SKILLS_MODE" = "link-all" ]; then
     link_skills_all "$TARGET/.cursor" ".cursor/skills" "$PRIMITIVES" "$COPY_SKILLS"
   else

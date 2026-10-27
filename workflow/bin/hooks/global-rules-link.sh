@@ -8,7 +8,7 @@
 # still runs, so re-pointing there lets the next session start on fresh rules.
 #
 # Opt-out, machine-wide: bin/ai-kit-no-global-rules.sh on
-# The Cursor skill sync (~/.cursor/skills, re-points plugin-current) runs regardless of that opt-out.
+# The Cursor/Copilot skill sync (~/.agents/skills, re-points plugin-current) runs regardless of that opt-out.
 #
 # Silent by design — a hook must never break a session. No rules dir
 # found, link already current, a real directory in the way (the user's
@@ -38,16 +38,17 @@ HOOK_DIR="$(cd "$(dirname "$0")" && pwd -P 2>/dev/null || true)"
 cache="$(cd "$HOOK_DIR/../.." && pwd -P)"
 newest="$(for d in "$cache"/*/rules; do v="${d%/rules}"; v="${v##*/}"; [[ -d $d && $v =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && echo "$v"; done | sort -t. -k1,1n -k2,2n -k3,3n | tail -1)"
 
-# Cursor has no plugin channel: keep ~/.cursor/skills in step with the newest
-# version (new skills linked, removed ones reaped) via plugin-current.
+# Cursor and Copilot have no plugin channel: keep ~/.agents/skills in step with
+# the newest version (new skills linked, removed ones reaped) via plugin-current.
 lib="$HOOK_DIR/../bin/lib"
-if [ -n "$newest" ] && [ -d "${HOME:-}/.cursor/skills" ] && [ -f "$lib/link-primitives.sh" ]; then
+if [ -n "$newest" ] && { [ -d "${HOME:-}/.cursor" ] || [ -d "${HOME:-}/.agents" ]; } && [ -f "$lib/link-primitives.sh" ]; then
   # shellcheck source=../bin/lib/ai-kit-root.sh
   source "$lib/ai-kit-root.sh"
   # shellcheck source=../bin/lib/link-primitives.sh
   source "$lib/link-primitives.sh"
   sync_plugin_current_link "$cache/$newest"
-  install_dir_to "$(resolve_primitives_root "${HOME}/.config/ai-kit/plugin-current")/skills" "${HOME}/.cursor/skills" >/dev/null 2>&1
+  install_dir_to "$(resolve_primitives_root "${HOME}/.config/ai-kit/plugin-current")/skills" "${HOME}/.agents/skills" >/dev/null 2>&1
+  prune_cursor_global_skills
 fi
 
 [ -f "${HOME:-}/.config/ai-kit/no-global-rules" ] && exit 0

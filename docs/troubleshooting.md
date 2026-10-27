@@ -13,10 +13,10 @@ $AI_KIT_ROOT/bin/install-global.sh
 Then verify:
 
 ```bash
-ls -la ~/.agents/skills/setup ~/.cursor/skills/setup
+ls -la ~/.agents/skills/setup
 ```
 
-Both should resolve to `$AI_KIT_ROOT/workflow/skills/setup`. If they don't, the symlink target is stale — delete the symlinks and re-run `install-global.sh`.
+It should resolve to `$AI_KIT_ROOT/workflow/skills/setup`. If it doesn't, the symlink target is stale — delete the symlink and re-run `install-global.sh`.
 
 ### `ai-kit root not found`
 

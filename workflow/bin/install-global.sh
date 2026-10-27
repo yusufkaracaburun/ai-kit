@@ -91,12 +91,9 @@ else
 fi
 
 echo ""
-echo "=== Claude Code legacy (~/.agents/skills) ==="
+echo "=== Cursor, Copilot and Claude Code legacy (~/.agents/skills) ==="
 install_dir_to "$PRIMITIVES/skills" "${HOME}/.agents/skills"
-
-echo ""
-echo "=== Cursor skills (~/.cursor/skills) ==="
-install_dir_to "$PRIMITIVES/skills" "${HOME}/.cursor/skills"
+prune_cursor_global_skills "$PRIMITIVES/skills"
 
 echo ""
 if [ "$PREFER_PLUGIN" = true ]; then

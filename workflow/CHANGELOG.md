@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Global skill links move from `~/.cursor/skills` to `~/.agents/skills`, so Cursor and VS Code Copilot read the same links, and other hosts that read `~/.agents/skills` (Codex, Gemini CLI) now get the skills too. Existing ai-kit links in `~/.cursor/skills` are removed. A name that already exists in `~/.agents/skills` is skipped, and doctor reports it as shadowed (refs #231).
+
 ## 2.10.1 — 2026-10-27
 
 ### Fixed

@@ -81,11 +81,11 @@ aikit_skill_link() {
   return 1
 }
 
-# Cursor has no plugin channel; ~/.cursor/skills is its global one. True once
+# Cursor and Copilot have no plugin channel; both read ~/.agents/skills. True once
 # it holds a live ai-kit skill link — the project .cursor/skills is then redundant.
 cursor_global_holds_skills() {
   local link
-  for link in "${HOME}/.cursor/skills"/*; do
+  for link in "${HOME}/.agents/skills"/*; do
     [ -e "$link" ] && aikit_skill_link "$link" && return 0
   done
   return 1

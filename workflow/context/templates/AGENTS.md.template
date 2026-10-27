@@ -27,7 +27,7 @@ Setup status: `.ai-kit-setup` (committed after `/setup`).
 | Tool | Project | Global |
 | ---- | ------- | ------ |
 | Claude Code | `.agents/skills/` | `~/.agents/skills/` |
-| Cursor | `.cursor/skills/` | `~/.cursor/skills/` |
+| Cursor | `.cursor/skills/` | `~/.agents/skills/` |
 
 ### Agent stack
 

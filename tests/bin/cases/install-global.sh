@@ -5,7 +5,7 @@ AIKIT="$(cd "$(dirname "$0")/../../.." && pwd)"
 source "$AIKIT/tests/bin/lib/harness.sh"
 
 # install-global.sh symlinks ai-kit's skills/agents/commands from this repo
-# into ~/.claude, ~/.agents, and ~/.cursor. Every case here runs with HOME
+# into ~/.claude and ~/.agents (skills) and ~/.cursor (commands only). Every case here runs with HOME
 # redirected into a temp dir, so the developer's real machine is never
 # touched. AI_KIT_ROOT is left unset — the script resolves its own root from
 # its own path (bin/..), which is this real repo, so it reads real skills
@@ -30,10 +30,13 @@ assert "skill symlink resolves into the aikit source tree" \
   'readlink "$H/.claude/skills/audit-architecture" | grep -q "workflow/skills/audit-architecture"'
 assert "links a known agent into ~/.claude/agents" '[ -L "$H/.claude/agents/explore.md" ]'
 assert "links a known command into ~/.claude/commands" '[ -L "$H/.claude/commands/doctor.md" ]'
-assert "also links skills into ~/.agents/skills (legacy path)" '[ -L "$H/.agents/skills/audit-architecture" ]'
-assert "also links skills into ~/.cursor/skills" '[ -L "$H/.cursor/skills/audit-architecture" ]'
+assert "also links skills into ~/.agents/skills (Cursor and Copilot read it)" '[ -L "$H/.agents/skills/audit-architecture" ]'
+assert "no skills linked into ~/.cursor/skills" '[ ! -e "$H/.cursor/skills/audit-architecture" ]'
 assert "also links commands into ~/.cursor/commands" '[ -L "$H/.cursor/commands/doctor.md" ]'
 assert "writes the ai-kit root config" 'grep -qx "$AIKIT" "$H/.config/ai-kit/root"'
+DOC="$(HOME="$H" bash "$AIKIT/bin/ai-kit-doctor.sh" 2>&1 || true)"
+assert "doctor global install checks ~/.agents/skills" 'grep -q "ok .*$H/.agents/skills —" <<<"$DOC"'
+assert "doctor global install no longer checks ~/.cursor/skills" '! grep -q "$H/.cursor/skills" <<<"$DOC"'
 rm -rf "$H"
 
 echo "=== existing non-aikit entry is skipped, not clobbered ==="
@@ -55,7 +58,7 @@ OUT2=$(install_global "$H")
 # Positive assertion first: "Skipped" being absent is also true of empty
 # output, so prove the installer ran before checking it left current links alone.
 assert "re-run ran the skill install" \
-  'grep -q "=== Cursor skills (~/.cursor/skills) ===" <<<"$OUT2"'
+  'grep -q "(~/.agents/skills) ===" <<<"$OUT2"'
 assert "re-run leaves an up-to-date link alone" \
   '! grep -q "Linked audit-architecture" <<<"$OUT2"'
 assert "re-run does not warn about a foreign symlink" \
@@ -73,8 +76,21 @@ assert "skills skipped for ~/.claude under the marker" '[ ! -e "$H/.claude/skill
 assert "agents skipped for ~/.claude under the marker" '[ ! -e "$H/.claude/agents/explore.md" ]'
 assert "commands skipped for ~/.claude under the marker" '[ ! -e "$H/.claude/commands/doctor.md" ]'
 assert "output explains the skip" 'grep -q "skipped (prefer-plugin marker)" <<<"$OUT"'
-assert "cursor has no plugin namespace, so its skills still link" '[ -L "$H/.cursor/skills/audit-architecture" ]'
+assert "cursor has no plugin namespace, so its skills still link in ~/.agents/skills" '[ -L "$H/.agents/skills/audit-architecture" ]'
 assert "cursor commands still link" '[ -L "$H/.cursor/commands/doctor.md" ]'
+rm -rf "$H"
+
+echo "=== ai-kit links leave ~/.cursor/skills, foreign entries stay ==="
+H=$(mktemp -d)
+mkdir -p "$H/.cursor/skills/ui-ux-pro-max" "$H/elsewhere/hyperframes-x"
+ln -s "$AIKIT/workflow/skills/audit-architecture/" "$H/.cursor/skills/audit-architecture"
+ln -s "$H/.config/ai-kit/plugin-current/skills/aikit-tdd/" "$H/.cursor/skills/aikit-tdd"
+ln -s "$H/elsewhere/hyperframes-x" "$H/.cursor/skills/hyperframes-x"
+install_global "$H" >/dev/null
+assert "source-mode ai-kit link removed from ~/.cursor/skills" '[ ! -L "$H/.cursor/skills/audit-architecture" ]'
+assert "plugin-current ai-kit link removed from ~/.cursor/skills" '[ ! -L "$H/.cursor/skills/aikit-tdd" ]'
+assert "foreign link in ~/.cursor/skills kept" '[ -L "$H/.cursor/skills/hyperframes-x" ]'
+assert "foreign real dir in ~/.cursor/skills kept" '[ -d "$H/.cursor/skills/ui-ux-pro-max" ]'
 rm -rf "$H"
 
 echo "=== dead ai-kit symlinks are reclaimed, foreign dead links are not ==="

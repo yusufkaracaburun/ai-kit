@@ -20,9 +20,8 @@ Run:
 
 This saves the path to ~/.config/ai-kit/root for future runs.
 
-Verify both exist:
-  ~/.agents/skills/setup   (Claude Code)
-  ~/.cursor/skills/setup   (Cursor)
+Verify it exists:
+  ~/.agents/skills/setup   (Claude Code, Cursor, VS Code Copilot)
 
 Skills will be available in any project via /ai:setup without project-local symlinks.
 When I open a repo, I will use the project setup prompt or run /ai:setup directly.

@@ -132,8 +132,7 @@ else
   echo "Global install"
   GLOBAL_CLAUDE="$HOME/.claude/skills"
   GLOBAL_AGENTS="$HOME/.agents/skills"
-  GLOBAL_CURSOR="$HOME/.cursor/skills"
-  for d in "$GLOBAL_CLAUDE" "$GLOBAL_AGENTS" "$GLOBAL_CURSOR"; do
+  for d in "$GLOBAL_CLAUDE" "$GLOBAL_AGENTS"; do
     if [ -d "$d" ]; then
       count="$(find "$d" -mindepth 1 -maxdepth 1 \( -type d -o -type l \) 2>/dev/null | wc -l | tr -d ' ')"
       aikit_links="$(find "$d" -mindepth 1 -maxdepth 1 -type l -exec readlink {} \; 2>/dev/null | grep -c "$AIKIT" || true)"
@@ -192,6 +191,18 @@ elif [ -L "$GLOBAL_RULES_LINK" ]; then
   fi
 else
   warn "global rules: $GLOBAL_RULES_LINK missing — start one Claude Code session with the plugin active (SessionStart hook links it), or: ln -sfn \"$GLOBAL_RULES_DIR\" \"$GLOBAL_RULES_LINK\""
+fi
+
+# ~/.agents/skills serves Cursor and Copilot; install_dir_to never overwrites a
+# foreign entry there (Cursor mirrors its built-in review), so that name stays the host's.
+if cursor_global_holds_skills; then
+  for entry in "$(resolve_primitives_root "$AIKIT")/skills"/*/; do
+    name="$(basename "$entry")"
+    dest="$HOME/.agents/skills/$name"
+    if { [ -e "$dest" ] || [ -L "$dest" ]; } && ! aikit_skill_link "$dest"; then
+      warn "$name shadowed — ~/.agents/skills/$name is not ai-kit's, so Cursor and Copilot load that one instead"
+    fi
+  done
 fi
 
 # Detect a marketplace-installed ai-kit plugin coexisting with the
@@ -323,7 +334,7 @@ if [ -n "$TARGET" ]; then
         # is installed as a Claude Code plugin — the plugin already serves
         # /ai:* — so their absence is the healthy config, not a finding
         # (#114). Cursor has no plugin channel: .cursor/skills is redundant
-        # only once ~/.cursor/skills holds ai-kit's skills.
+        # only once ~/.agents/skills holds ai-kit's skills.
         #
         # ADR-0012 phase (d): global_channel_available is a machine fact
         # (is the plugin installed anywhere on this machine), not "is THIS
@@ -342,7 +353,7 @@ if [ -n "$TARGET" ]; then
             ;;
           *)
             if cursor_global_holds_skills; then
-              info "$d absent — served by ~/.cursor/skills"
+              info "$d absent — served by ~/.agents/skills"
             else
               warn "$d absent (run bootstrap-project.sh)"
             fi

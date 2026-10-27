@@ -132,7 +132,7 @@ if [ "$SKILLS_REQUIRED" = true ]; then
   if [ -d "$TARGET/.cursor/skills" ] || [ -L "$TARGET/.cursor/skills" ]; then
     check ".cursor/skills present" true
   elif cursor_global_holds_skills; then
-    check ".cursor/skills served by ~/.cursor/skills" true
+    check ".cursor/skills served by ~/.agents/skills" true
   else
     check ".cursor/skills present" false
   fi

@@ -21,8 +21,8 @@ global_channel_available && echo yes || echo no
 
 True iff the ai-kit plugin is installed (Claude Code only) or the legacy
 symlink-install has run (`~/.config/ai-kit/root` present — this half
-covers every host, since `install-global.sh` writes `~/.cursor/skills`
-too, not just `~/.claude/skills`).
+covers every host, since `install-global.sh` writes `~/.agents/skills`,
+which serves Cursor, too, not just `~/.claude/skills`).
 
 **Running under Cursor:** ignore the plugin half of this fact — Cursor
 has no plugin channel, so a plugin-cache hit on this machine (e.g. the

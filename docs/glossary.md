@@ -145,7 +145,7 @@ A Claude Code primitive: an isolated child context spawned via the Task tool. De
 
 ### Symlink install
 
-The default ai-kit distribution mechanism: `bin/install-global.sh` creates symbolic links from `~/.claude/skills/`, `~/.cursor/skills/`, etc., back to `~/.local/share/ai-kit/workflow/skills/`. Updates propagate via `git pull` in the source repo.
+The default ai-kit distribution mechanism: `bin/install-global.sh` creates symbolic links from `~/.claude/skills/`, `~/.agents/skills/`, etc., back to `~/.local/share/ai-kit/workflow/skills/`. Updates propagate via `git pull` in the source repo.
 
 ### Template
 
