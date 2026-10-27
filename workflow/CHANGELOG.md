@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.10.1 — 2026-10-27
+
+### Fixed
+
+- Cursor skills are linked once into `~/.cursor/skills` (plugin mode, only when `~/.cursor` exists) instead of about 35 symlinks per repo in `.cursor/skills`. The session hook adds new skills and reaps dead ones after a plugin update. `/ai:upgrade` removes project `.cursor/skills` links that point into ai-kit; real dirs and foreign links stay. Doctor, verify-setup and status accept the global dir (4c612c0, refs #231).
+
 ## 2.10.0 — 2026-10-26
 
 ### Added
