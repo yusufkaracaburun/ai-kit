@@ -14,6 +14,9 @@ PASS=0
 FAIL=0
 FAIL_DETAILS=()
 
+# Host detection counts an installed VS Code as Copilot; keep the dev machine's apps out of sandboxed HOMEs.
+export AIKIT_VSCODE_APP=/nonexistent/vscode.app
+
 assert() {
   # An assertion asks what the output contains, not whether the process that
   # produced it survived writing. `echo "$BIG" | grep -q x` makes grep exit on

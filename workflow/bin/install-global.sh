@@ -76,13 +76,32 @@ install_files_to() {
 echo "Installing ai-kit globally..."
 echo ""
 
+# Three refusals write nothing; detection then decides, as without a TTY.
+if [ ! -f "$(aikit_hosts_file)" ] && [ -t 0 ]; then
+  detected="$(aikit_hosts | paste -sd, -)"
+  for _ in 1 2 3; do
+    printf 'Which agents do you use? (claude,cursor,copilot,codex,gemini) [%s]: ' "$detected"
+    read -r answer || answer=""
+    if write_aikit_hosts "${answer:-$detected}"; then
+      echo "Saved to ~/.config/ai-kit/hosts"
+      break
+    fi
+  done
+  echo ""
+fi
+HOSTS="$(aikit_hosts)"
+CLAUDE_HOST=false
+grep -qx claude <<<"$HOSTS" && CLAUDE_HOST=true
+
 PREFER_PLUGIN_MARKER="${HOME}/.config/ai-kit/prefer-plugin"
 PREFER_PLUGIN=false
 if [ -f "$PREFER_PLUGIN_MARKER" ]; then
   PREFER_PLUGIN=true
 fi
 
-if [ "$PREFER_PLUGIN" = true ]; then
+if [ "$CLAUDE_HOST" = false ]; then
+  echo "=== Claude Code — skipped (not in ~/.config/ai-kit/hosts, or ~/.claude absent) ==="
+elif [ "$PREFER_PLUGIN" = true ]; then
   echo "=== Claude Code skills — skipped (prefer-plugin marker) ==="
   echo "  Install via /plugin install ai@yusufkaracaburun to get /ai:* skills."
 else
@@ -91,31 +110,40 @@ else
 fi
 
 echo ""
-echo "=== Cursor, Copilot and Claude Code legacy (~/.agents/skills) ==="
-install_dir_to "$PRIMITIVES/skills" "${HOME}/.agents/skills"
-prune_cursor_global_skills "$PRIMITIVES/skills"
-
-echo ""
-if [ "$PREFER_PLUGIN" = true ]; then
-  echo "=== Claude Code subagents — skipped (prefer-plugin marker) ==="
-  echo "  Install via /plugin install ai@yusufkaracaburun to get explore/reviewer/qa-runner/verifier/builder/designer."
+if aikit_agents_skills_wanted; then
+  echo "=== Cursor, Copilot and Claude Code legacy (~/.agents/skills) ==="
+  install_dir_to "$PRIMITIVES/skills" "${HOME}/.agents/skills"
+  prune_cursor_global_skills "$PRIMITIVES/skills"
 else
-  echo "=== Claude Code subagents (~/.claude/agents) ==="
-  install_files_to "$PRIMITIVES/agents" "${HOME}/.claude/agents"
+  echo "=== ~/.agents/skills — no host reads it; ai-kit links removed ==="
+  prune_aikit_skill_links "${HOME}/.agents/skills" "$PRIMITIVES/skills"
 fi
 
-echo ""
-if [ "$PREFER_PLUGIN" = true ]; then
-  echo "=== Claude Code slash commands — skipped (prefer-plugin marker) ==="
-  echo "  Install via /plugin install ai@yusufkaracaburun to get /ai:doctor etc."
-else
-  echo "=== Claude Code slash commands (~/.claude/commands) ==="
-  install_files_to "$PRIMITIVES/commands" "${HOME}/.claude/commands"
+if [ "$CLAUDE_HOST" = true ]; then
+  echo ""
+  if [ "$PREFER_PLUGIN" = true ]; then
+    echo "=== Claude Code subagents — skipped (prefer-plugin marker) ==="
+    echo "  Install via /plugin install ai@yusufkaracaburun to get explore/reviewer/qa-runner/verifier/builder/designer."
+  else
+    echo "=== Claude Code subagents (~/.claude/agents) ==="
+    install_files_to "$PRIMITIVES/agents" "${HOME}/.claude/agents"
+  fi
+
+  echo ""
+  if [ "$PREFER_PLUGIN" = true ]; then
+    echo "=== Claude Code slash commands — skipped (prefer-plugin marker) ==="
+    echo "  Install via /plugin install ai@yusufkaracaburun to get /ai:doctor etc."
+  else
+    echo "=== Claude Code slash commands (~/.claude/commands) ==="
+    install_files_to "$PRIMITIVES/commands" "${HOME}/.claude/commands"
+  fi
 fi
 
-echo ""
-echo "=== Cursor slash commands (~/.cursor/commands) ==="
-install_files_to "$PRIMITIVES/commands" "${HOME}/.cursor/commands"
+if grep -qx cursor <<<"$HOSTS"; then
+  echo ""
+  echo "=== Cursor slash commands (~/.cursor/commands) ==="
+  install_files_to "$PRIMITIVES/commands" "${HOME}/.cursor/commands"
+fi
 
 echo ""
 echo "Saved ai-kit root to ~/.config/ai-kit/root"

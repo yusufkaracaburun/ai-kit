@@ -3,8 +3,11 @@ set -euo pipefail
 AIKIT="$(cd "$(dirname "$0")/../../.." && pwd)"
 # shellcheck source=../lib/harness.sh
 source "$AIKIT/tests/bin/lib/harness.sh"
+SANDBOX_HOME="$(mktemp -d)"
+export HOME="$SANDBOX_HOME"
 # shellcheck source=../lib/fixtures.sh
 source "$AIKIT/tests/bin/lib/fixtures.sh"
+trap 'rm -rf "$_BOOTSTRAP_FIXTURE_DIR" "$SANDBOX_HOME"' EXIT
 
 
 echo "=== ai-kit-status on the kit itself ==="

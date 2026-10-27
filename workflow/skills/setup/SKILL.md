@@ -88,6 +88,14 @@ See [agent-stack-guide.md](./agent-stack-guide.md) for the full procedure.
    `needs_doc`) and unrelated to (1)/(2) — it only sets Tier-B defaults.
 4. Record both new fields, plus a derived legacy `--setup-mode=` for
    anything still reading it.
+5. Hosts, once per machine. If `~/.config/ai-kit/hosts` is missing, ask a
+   multi-select with four options: `claude`, `cursor`, `copilot`,
+   `codex/gemini` (writes `codex,gemini`; both read `~/.agents/skills`).
+   Run `source "$AI_KIT_ROOT/bin/lib/ai-kit-root.sh"; aikit_hosts` and mark
+   those hosts (Recommended). Write the answer with
+   `write_aikit_hosts claude,cursor` (same shell). If the file exists, show
+   it and offer keep/change. The choice decides what `install-global.sh` and
+   the plugin hook link.
 
 ### Branch 1 — Bootstrap
 

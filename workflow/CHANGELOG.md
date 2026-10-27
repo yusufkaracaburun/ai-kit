@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- ai-kit installs only for the agents you use. `~/.config/ai-kit/hosts` holds the choice, one comma-separated line from `claude,cursor,copilot,codex,gemini`. `/ai:setup` asks once per machine, and `install-global.sh` asks when it runs on a terminal. Without the file, ai-kit detects: `~/.claude` means Claude Code, and `~/.agents/skills` is linked when `~/.cursor`, `~/.agents`, `~/.copilot` or VS Code exists, so a VS Code Copilot user without Cursor now gets the skills. An installed VS Code counts as Copilot when no hosts file exists. An unknown host name is refused when the file is written, and doctor warns about one already in the file. If no chosen host reads `~/.agents/skills`, ai-kit's links there are removed and foreign entries stay. `install-global.sh` writes nothing under `~/.claude` when Claude Code is not chosen or present, and doctor prints one line per host and exits 0 on a Cursor-only or Copilot-only machine (refs #252).
+
+### Changed
+
+- Doctor reports a skill shadowed in `~/.agents/skills` on an info line, not as a warning. Cursor restores its own `review` there after every removal, so the warning made doctor exit 1 on every Cursor machine (refs #252).
+
 ## 2.11.0 — 2026-10-27
 
 ### Changed

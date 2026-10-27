@@ -91,6 +91,65 @@ cursor_global_holds_skills() {
   return 1
 }
 
+aikit_hosts_file() { echo "${HOME}/.config/ai-kit/hosts"; }
+
+aikit_host_valid() {
+  case "$1" in claude|cursor|copilot|codex|gemini) return 0 ;; esac
+  return 1
+}
+
+# Comma-separated hosts on stdin, one token per line on stdout. awk 1 ends the
+# last line, so `read` keeps a host from a file saved without a trailing newline.
+aikit_host_tokens() { tr ',' '\n' | tr -d '[:blank:]\r' | awk 1; }
+
+# Hosts ai-kit serves on this machine, one per line: the hosts file (written
+# by /ai:setup or install-global.sh) or, without it, detected.
+aikit_hosts() {
+  local f t
+  f="$(aikit_hosts_file)"
+  if [ -f "$f" ]; then
+    while read -r t; do
+      aikit_host_valid "$t" && echo "$t"
+    done < <(aikit_host_tokens < "$f")
+    return 0
+  fi
+  [ -d "${HOME}/.claude" ] && echo claude
+  [ -d "${HOME}/.cursor" ] && echo cursor
+  if [ -d "${HOME}/.copilot" ] || [ -d "${AIKIT_VSCODE_APP:-/Applications/Visual Studio Code.app}" ]; then
+    echo copilot
+  fi
+  return 0
+}
+
+# Cursor, Copilot, Codex and Gemini all read ~/.agents/skills. Without a hosts
+# file an existing ~/.agents counts too, as it did before the file existed.
+aikit_agents_skills_wanted() {
+  grep -qxE 'cursor|copilot|codex|gemini' <<<"$(aikit_hosts)" && return 0
+  [ ! -f "$(aikit_hosts_file)" ] && [ -d "${HOME}/.agents" ]
+}
+
+# Writes nothing unless every token in $1 is a known host.
+write_aikit_hosts() {
+  local hosts t
+  hosts="$(printf '%s' "$1" | tr -d '[:blank:]')"
+  if [ -z "$hosts" ]; then
+    echo "hosts: empty answer, nothing written" >&2
+    return 1
+  fi
+  while read -r t; do
+    if [ -z "$t" ]; then
+      echo "hosts: empty host name, nothing written (use claude,cursor,copilot,codex,gemini)" >&2
+      return 1
+    fi
+    if ! aikit_host_valid "$t"; then
+      echo "hosts: unknown host '$t', nothing written (use claude,cursor,copilot,codex,gemini)" >&2
+      return 1
+    fi
+  done < <(aikit_host_tokens <<<"$hosts")
+  mkdir -p "$(dirname "$(aikit_hosts_file)")"
+  printf '%s\n' "$hosts" > "$(aikit_hosts_file)"
+}
+
 write_ai_kit_root_config() {
   local root="$1"
   mkdir -p "${HOME}/.config/ai-kit"

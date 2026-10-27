@@ -63,7 +63,10 @@ echo "=== doctor / verify-setup / status do not flag the absent project .cursor/
 DOC="$(HOME="$H" bash "$V1/bin/ai-kit-doctor.sh" "$P" --project-only 2>&1 || true)"
 assert "doctor: no .cursor/skills absent warning" '! grep -q "\.cursor/skills absent (run bootstrap-project.sh)" <<<"$DOC"'
 assert "doctor: names ~/.agents/skills as the served dir" 'grep -q "served by ~/.agents/skills" <<<"$DOC"'
-assert "doctor: warns review is shadowed" 'grep -q "warn .*review shadowed" <<<"$DOC"'
+assert "doctor: reports review as shadowed on an info line" 'grep -q "info .*review shadowed" <<<"$DOC"'
+assert "doctor: shadowed is not a warning" '! grep -q "warn .*shadowed" <<<"$DOC"'
+assert "doctor: the only warning counted is the absent marker" \
+  'grep -q "Summary: 1 warning(s)" <<<"$DOC" && [ "$(grep -c "^  warn" <<<"$DOC")" -eq 1 ] && grep -q "warn .*\.ai-kit-setup absent" <<<"$DOC"'
 assert "doctor: shadowed is not an error" '! grep -q "ERR .*review" <<<"$DOC"'
 assert "doctor: an ai-kit link is not called shadowed" '! grep -q "demo-skill shadowed" <<<"$DOC"'
 printf '{"ai_kit_version":"1.0.0","branches":{"project_skills_merged":true}}\n' > "$P/.ai-kit-setup"
@@ -209,5 +212,46 @@ ln -s "$H8/.agents/skills" "$H8/.cursor/skills"
 HOME="$H8" bash "$CACHE/2.0.0/hooks/global-rules-link.sh" </dev/null >/dev/null
 assert "hook keeps its own links when ~/.cursor/skills is a symlink to ~/.agents/skills" '[ -L "$H8/.agents/skills/new-skill" ] && [ -e "$H8/.agents/skills/new-skill" ]'
 rm -rf "$H8"
+
+echo "=== ~/.config/ai-kit/hosts, or detection, decides the ~/.agents/skills link set ==="
+# section: cursor-global-hosts
+run_hook() { HOME="$1" bash "$CACHE/2.0.0/hooks/global-rules-link.sh" </dev/null >/dev/null; }
+H9=$(mktemp -d)
+mkdir -p "$H9/.config/ai-kit"
+echo "claude,copilot" > "$H9/.config/ai-kit/hosts"
+run_hook "$H9"
+assert "hosts claude,copilot: hook links ~/.agents/skills" '[ -L "$H9/.agents/skills/new-skill" ]'
+rm -rf "$H9"
+
+H10=$(mktemp -d)
+mkdir -p "$H10/.config/ai-kit" "$H10/.agents/skills/own-dir" "$H10/elsewhere/x" "$H10/.cursor"
+echo "claude" > "$H10/.config/ai-kit/hosts"
+ln -s "$H10/.config/ai-kit/plugin-current/skills/old-skill/" "$H10/.agents/skills/old-skill"
+ln -s "$H10/elsewhere/x" "$H10/.agents/skills/foreign"
+run_hook "$H10"
+assert "hosts claude only: hook links nothing into ~/.agents/skills" '[ ! -e "$H10/.agents/skills/new-skill" ]'
+assert "hosts claude only: existing ai-kit link removed" '[ ! -L "$H10/.agents/skills/old-skill" ]'
+assert "hosts claude only: foreign link stays" '[ -L "$H10/.agents/skills/foreign" ]'
+assert "hosts claude only: foreign dir stays" '[ -d "$H10/.agents/skills/own-dir" ]'
+HOME="$H10" bash "$V1/bin/bootstrap-project.sh" --minimal --no-agents --no-commands --no-rules --no-gh-workflow "$H10/proj" >/dev/null
+assert "hosts claude only: bootstrap links nothing into ~/.agents/skills" '[ ! -e "$H10/.agents/skills/demo-skill" ]'
+assert "hosts claude only: bootstrap keeps the project .cursor/skills" '[ -L "$H10/proj/.cursor/skills/demo-skill" ]'
+rm -rf "$H10"
+
+H11=$(mktemp -d)
+mkdir -p "$H11/.copilot"
+run_hook "$H11"
+assert "no hosts file, only ~/.copilot: hook links ~/.agents/skills" '[ -L "$H11/.agents/skills/new-skill" ]'
+rm -rf "$H11"
+H12=$(mktemp -d)
+mkdir -p "$H12/.copilot"
+HOME="$H12" bash "$V1/bin/bootstrap-project.sh" --minimal --no-agents --no-commands --no-rules --no-gh-workflow "$H12/proj" >/dev/null
+assert "no hosts file, only ~/.copilot: bootstrap links ~/.agents/skills" '[ -L "$H12/.agents/skills/demo-skill" ]'
+rm -rf "$H12"
+H13=$(mktemp -d)
+mkdir -p "$H13/vscode.app"
+AIKIT_VSCODE_APP="$H13/vscode.app" run_hook "$H13"
+assert "no hosts file, VS Code installed: hook links ~/.agents/skills" '[ -L "$H13/.agents/skills/new-skill" ]'
+rm -rf "$H13"
 
 print_summary_and_exit

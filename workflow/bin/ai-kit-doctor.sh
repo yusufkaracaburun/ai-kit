@@ -94,6 +94,22 @@ else
 fi
 echo ""
 
+HOSTS="$(aikit_hosts)"
+if [ -f "$(aikit_hosts_file)" ]; then
+  echo "Hosts (~/.config/ai-kit/hosts)"
+  while read -r t; do
+    [ -z "$t" ] || aikit_host_valid "$t" || warn "unknown host '$t' in ~/.config/ai-kit/hosts, ignored (use claude,cursor,copilot,codex,gemini)"
+  done < <(aikit_host_tokens < "$(aikit_hosts_file)")
+else
+  echo "Hosts (detected)"
+fi
+for h in claude cursor copilot codex gemini; do
+  if grep -qx "$h" <<<"$HOSTS"; then ok "$h installed"; else info "$h not used"; fi
+done
+CLAUDE_HOST=false
+grep -qx claude <<<"$HOSTS" && CLAUDE_HOST=true
+echo ""
+
 # Decide whether to check globals.
 #   1. CLI flags always win.
 #   2. If a project marker has setup_mode=project-only, skip.
@@ -130,9 +146,10 @@ if [ "$EFFECTIVE_MODE" = "project-only" ]; then
   echo ""
 else
   echo "Global install"
-  GLOBAL_CLAUDE="$HOME/.claude/skills"
-  GLOBAL_AGENTS="$HOME/.agents/skills"
-  for d in "$GLOBAL_CLAUDE" "$GLOBAL_AGENTS"; do
+  GLOBAL_DIRS=()
+  [ "$CLAUDE_HOST" = true ] && GLOBAL_DIRS+=("$HOME/.claude/skills")
+  aikit_agents_skills_wanted && GLOBAL_DIRS+=("$HOME/.agents/skills")
+  for d in ${GLOBAL_DIRS[@]+"${GLOBAL_DIRS[@]}"}; do
     if [ -d "$d" ]; then
       count="$(find "$d" -mindepth 1 -maxdepth 1 \( -type d -o -type l \) 2>/dev/null | wc -l | tr -d ' ')"
       aikit_links="$(find "$d" -mindepth 1 -maxdepth 1 -type l -exec readlink {} \; 2>/dev/null | grep -c "$AIKIT" || true)"
@@ -170,7 +187,7 @@ fi
 # link is still reported under it.
 GLOBAL_RULES_LINK="$HOME/.claude/rules/ai-kit"
 GLOBAL_RULES_DIR="$(resolve_primitives_root "$AIKIT")/rules"
-if [ "$MODE" = "project-only" ]; then
+if [ "$MODE" = "project-only" ] || [ "$CLAUDE_HOST" = false ]; then
   :
 elif ! global_channel_available; then
   info "global rules: no global channel on this machine (plugin not installed) — universal rules come from the project's .claude/rules"
@@ -195,12 +212,13 @@ fi
 
 # ~/.agents/skills serves Cursor and Copilot; install_dir_to never overwrites a
 # foreign entry there (Cursor mirrors its built-in review), so that name stays the host's.
+# Info, not warn: Cursor puts its review back after every removal, so the user cannot fix it.
 if cursor_global_holds_skills; then
   for entry in "$(resolve_primitives_root "$AIKIT")/skills"/*/; do
     name="$(basename "$entry")"
     dest="$HOME/.agents/skills/$name"
     if { [ -e "$dest" ] || [ -L "$dest" ]; } && ! aikit_skill_link "$dest"; then
-      warn "$name shadowed — ~/.agents/skills/$name is not ai-kit's, so Cursor and Copilot load that one instead"
+      info "$name shadowed — ~/.agents/skills/$name is not ai-kit's, so Cursor and Copilot load that one instead"
     fi
   done
 fi

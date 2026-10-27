@@ -17,9 +17,10 @@ source "$AIKIT/tests/bin/lib/harness.sh"
 # never runs here.
 
 install_global() {
-  # install_global <sandbox_home>
+  # install_global <sandbox_home> — a machine with Claude Code and Cursor, no hosts file, no TTY
   local home="$1"
-  HOME="$home" bash "$AIKIT/bin/install-global.sh"
+  mkdir -p "$home/.claude" "$home/.cursor"
+  HOME="$home" bash "$AIKIT/bin/install-global.sh" </dev/null
 }
 
 echo "=== fresh install ==="
@@ -156,6 +157,113 @@ ln -s "/nonexistent/other-tool/skills/mine/" "$H/.agents/skills/mine"
 OUT=$(install_global "$H")
 assert "foreign dead link survives when ~/.config/ai-kit/root is absent" \
   '[ -L "$H/.agents/skills/mine" ]'
+rm -rf "$H"
+
+echo "=== no ~/.claude, no hosts file, no TTY: nothing written for any host ==="
+H=$(mktemp -d)
+HOME="$H" bash "$AIKIT/bin/install-global.sh" </dev/null >/dev/null
+assert "no ~/.claude created" '[ ! -e "$H/.claude" ]'
+assert "no ~/.agents created" '[ ! -e "$H/.agents" ]'
+assert "no ~/.cursor created" '[ ! -e "$H/.cursor" ]'
+assert "no hosts file written without a TTY" '[ ! -e "$H/.config/ai-kit/hosts" ]'
+rm -rf "$H"
+
+echo "=== hosts file decides what is linked ==="
+H=$(mktemp -d)
+mkdir -p "$H/.config/ai-kit"
+echo "claude,copilot" > "$H/.config/ai-kit/hosts"
+HOME="$H" bash "$AIKIT/bin/install-global.sh" </dev/null >/dev/null
+assert "claude,copilot: ~/.claude/skills linked" '[ -L "$H/.claude/skills/audit-architecture" ]'
+assert "claude,copilot: ~/.agents/skills linked" '[ -L "$H/.agents/skills/audit-architecture" ]'
+assert "claude,copilot: no ~/.cursor/commands" '[ ! -e "$H/.cursor" ]'
+echo "claude" > "$H/.config/ai-kit/hosts"
+mkdir -p "$H/elsewhere/x"
+ln -s "$H/elsewhere/x" "$H/.agents/skills/foreign"
+HOME="$H" bash "$AIKIT/bin/install-global.sh" </dev/null >/dev/null
+assert "claude only: ai-kit links removed from ~/.agents/skills" '[ ! -L "$H/.agents/skills/audit-architecture" ]'
+assert "claude only: foreign link in ~/.agents/skills stays" '[ -L "$H/.agents/skills/foreign" ]'
+assert "claude only: ~/.claude/skills still linked" '[ -L "$H/.claude/skills/audit-architecture" ]'
+rm -rf "$H"
+
+echo "=== doctor on a clean single-host install without Claude Code ==="
+for host in cursor copilot; do
+  H=$(mktemp -d)
+  mkdir -p "$H/.$host"
+  HOME="$H" bash "$AIKIT/bin/install-global.sh" </dev/null >/dev/null
+  DOC_EXIT=0
+  OUT_DOC="$(cd "$H" && HOME="$H" bash "$AIKIT/bin/ai-kit-doctor.sh" 2>&1)" || DOC_EXIT=$?
+  assert "$host only: no ~/.claude created" '[ ! -e "$H/.claude" ]'
+  assert "$host only: ~/.agents/skills linked" '[ -L "$H/.agents/skills/audit-architecture" ]'
+  assert "$host only: doctor exits 0" '[ "$DOC_EXIT" -eq 0 ]'
+  assert "$host only: doctor reports $host installed" 'grep -q "ok .*$host installed" <<<"$OUT_DOC"'
+  assert "$host only: doctor reports claude not used" 'grep -q "info .*claude not used" <<<"$OUT_DOC"'
+  rm -rf "$H"
+done
+
+echo "=== the install-global prompt writes ~/.config/ai-kit/hosts on a TTY ==="
+# run_on_tty <home> <typed input>: pty.fork gives install-global a real terminal on stdin.
+run_on_tty() {
+  HOME="$1" python3 -c '
+import os, pty, sys
+pid, fd = pty.fork()
+if pid == 0:
+    os.execvp("bash", ["bash", sys.argv[1]])
+os.write(fd, sys.argv[2].encode())
+out = b""
+while True:
+    try:
+        chunk = os.read(fd, 4096)
+    except OSError:
+        break
+    if not chunk:
+        break
+    out += chunk
+os.waitpid(pid, 0)
+sys.stdout.write(out.decode(errors="replace"))
+' "$AIKIT/bin/install-global.sh" "$2" 2>&1
+}
+H=$(mktemp -d)
+mkdir -p "$H/.cursor"
+PTY_OUT="$(run_on_tty "$H" $'cursor,codex\n')"
+assert "prompt names the detected hosts" 'grep -q "\[cursor\]" <<<"$PTY_OUT"'
+assert "answer written to the hosts file" '[ "$(cat "$H/.config/ai-kit/hosts" 2>/dev/null)" = "cursor,codex" ]'
+assert "answer applied: ~/.agents/skills linked, no ~/.claude" '[ -L "$H/.agents/skills/audit-architecture" ] && [ ! -e "$H/.claude" ]'
+rm -rf "$H"
+
+H=$(mktemp -d)
+PTY_TYPO="$(run_on_tty "$H" $'claude,cursr\ncursor\n')"
+assert "typo: the unknown token is named" 'grep -q "unknown host .cursr." <<<"$PTY_TYPO"'
+assert "typo: asked again, the corrected answer is written" '[ "$(cat "$H/.config/ai-kit/hosts" 2>/dev/null)" = "cursor" ]'
+rm -rf "$H"
+
+H=$(mktemp -d)
+PTY_EMPTY="$(run_on_tty "$H" $'\n\n\n')"
+assert "empty: the refusal is reported" 'grep -q "hosts: empty answer" <<<"$PTY_EMPTY"'
+assert "empty: asked three times" '[ "$(grep -o "Which agents do you use" <<<"$PTY_EMPTY" | wc -l | tr -d " ")" -eq 3 ]'
+assert "empty: nothing written after three refusals" '[ ! -e "$H/.config/ai-kit/hosts" ]'
+assert "empty: falls back to detection, nothing linked" '[ ! -e "$H/.claude" ] && [ ! -e "$H/.agents" ]'
+rm -rf "$H"
+
+echo "=== doctor warns about an unknown name in the hosts file ==="
+H=$(mktemp -d)
+mkdir -p "$H/.config/ai-kit"
+echo "cursor,cursr" > "$H/.config/ai-kit/hosts"
+OUT_DOC="$(cd "$H" && HOME="$H" bash "$AIKIT/bin/ai-kit-doctor.sh" 2>&1 || true)"
+assert "doctor names the unknown token" 'grep -q "warn .*unknown host .cursr." <<<"$OUT_DOC"'
+assert "doctor does not flag a valid token" '! grep -q "unknown host .cursor." <<<"$OUT_DOC"'
+rm -rf "$H"
+
+echo "=== a hosts file without a trailing newline keeps its last host ==="
+H=$(mktemp -d)
+mkdir -p "$H/.config/ai-kit"
+printf 'claude,cursor' > "$H/.config/ai-kit/hosts"
+NO_NL_HOSTS="$(HOME="$H" bash -c 'source "$1/bin/lib/ai-kit-root.sh"; aikit_hosts | paste -sd, -' _ "$AIKIT")"
+assert "aikit_hosts returns both hosts" '[ "$NO_NL_HOSTS" = "claude,cursor" ]'
+printf 'claude,cursr' > "$H/.config/ai-kit/hosts"
+OUT_DOC="$(cd "$H" && HOME="$H" bash "$AIKIT/bin/ai-kit-doctor.sh" 2>&1 || true)"
+assert "doctor names an unknown last token" 'grep -q "warn .*unknown host .cursr." <<<"$OUT_DOC"'
+EMPTY_TOK="$(HOME="$H" bash -c 'source "$1/bin/lib/ai-kit-root.sh"; write_aikit_hosts "claude,"' _ "$AIKIT" 2>&1 || true)"
+assert "an empty token is called an empty host name" 'grep -q "empty host name" <<<"$EMPTY_TOK" && ! grep -q "unknown host" <<<"$EMPTY_TOK"'
 rm -rf "$H"
 
 print_summary_and_exit

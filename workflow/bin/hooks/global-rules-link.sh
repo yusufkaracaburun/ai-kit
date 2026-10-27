@@ -41,14 +41,18 @@ newest="$(for d in "$cache"/*/rules; do v="${d%/rules}"; v="${v##*/}"; [[ -d $d 
 # Cursor and Copilot have no plugin channel: keep ~/.agents/skills in step with
 # the newest version (new skills linked, removed ones reaped) via plugin-current.
 lib="$HOOK_DIR/../bin/lib"
-if [ -n "$newest" ] && { [ -d "${HOME:-}/.cursor" ] || [ -d "${HOME:-}/.agents" ]; } && [ -f "$lib/link-primitives.sh" ]; then
+if [ -n "$newest" ] && [ -f "$lib/link-primitives.sh" ]; then
   # shellcheck source=../bin/lib/ai-kit-root.sh
   source "$lib/ai-kit-root.sh"
   # shellcheck source=../bin/lib/link-primitives.sh
   source "$lib/link-primitives.sh"
-  sync_plugin_current_link "$cache/$newest"
-  install_dir_to "$(resolve_primitives_root "${HOME}/.config/ai-kit/plugin-current")/skills" "${HOME}/.agents/skills" >/dev/null 2>&1
-  prune_cursor_global_skills
+  if aikit_agents_skills_wanted; then
+    sync_plugin_current_link "$cache/$newest"
+    install_dir_to "$(resolve_primitives_root "${HOME}/.config/ai-kit/plugin-current")/skills" "${HOME}/.agents/skills" >/dev/null 2>&1
+    prune_cursor_global_skills
+  else
+    prune_aikit_skill_links "${HOME}/.agents/skills"
+  fi
 fi
 
 [ -f "${HOME:-}/.config/ai-kit/no-global-rules" ] && exit 0

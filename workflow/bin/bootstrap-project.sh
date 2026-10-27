@@ -132,7 +132,7 @@ if [ "$NO_SKILLS" = false ]; then
   CURSOR_GLOBAL=false
   case "$AIKIT" in
     */plugins/cache/*)
-      if [ "$COPY_SKILLS" = false ] && { [ -d "${HOME}/.cursor" ] || [ -d "${HOME}/.agents" ]; }; then
+      if [ "$COPY_SKILLS" = false ] && aikit_agents_skills_wanted; then
         install_dir_to "$PRIMITIVES/skills" "${HOME}/.agents/skills" >/dev/null
         cursor_global_holds_skills && CURSOR_GLOBAL=true
       fi
