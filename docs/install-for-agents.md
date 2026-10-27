@@ -32,8 +32,10 @@ Plan (run in order; stop on the first failure and report it):
        is needed. Slash commands resolve ${CLAUDE_PLUGIN_ROOT}/bin/*.sh.
 
    3b. (Cursor, or Claude Code if the user prefers symlinks) Install via the
-       installer (clones the repo + symlinks skills/commands/agents into
-       ~/.claude and ~/.cursor). Primitives surface WITHOUT a /ai: prefix
+       installer (clones the repo + symlinks skills into ~/.claude/skills and
+       ~/.agents/skills, agents and commands into ~/.claude, and commands into
+       ~/.cursor/commands, for the hosts in ~/.config/ai-kit/hosts or, without
+       that file, the hosts it detects). Primitives surface WITHOUT a /ai: prefix
        (`/setup`, `/tdd`, `/grill-me`, …) — substitute `/ai:foo` → `/foo`
        in steps 5, 6, 7.
 
@@ -86,8 +88,10 @@ Rules:
   markdown only at runtime.
 - Opt-in usage logging is OFF unless the human explicitly asks for it (then
   set `AI_KIT_USAGE=1` in their shell profile).
-- If any step writes outside `~/.local/share/ai-kit/` or the current project,
-  stop and ask the human first.
+- If any step writes outside `~/.local/share/ai-kit/`, the current project, or
+  the paths the installer and plugin own (`~/.config/ai-kit/`,
+  `~/.claude/{skills,agents,commands,rules/ai-kit,plugins}`, `~/.agents/skills`,
+  `~/.cursor/commands`, `~/.local/state/ai-kit/`), stop and ask the human first.
 
 Report at the end: install version, host(s) detected, install path used
 (plugin vs. symlink), skills/subagents/commands counted, any blockers, and the two suggested next moves.

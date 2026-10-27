@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted (Unreleased)
+Accepted (v1.25.0)
 
 ## Context
 

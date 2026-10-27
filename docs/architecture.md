@@ -7,7 +7,7 @@ Read this before adding a new primitive type or moving files between layers. For
 ## Three layers
 
 1. **Source layer** — the ai-kit repository (`~/.local/share/ai-kit/` after install). Single source of truth for skills, agents, commands, rules, hooks, and templates.
-2. **Distribution layer** — scripts and manifests that hand artifacts to the host: `bin/install-global.sh` (symlinks), `bin/bootstrap-project.sh` (per-project), the Claude Code plugin (`workflow/.claude-plugin/plugin.json` + `.claude-plugin/marketplace.json`).
+2. **Distribution layer** — scripts and manifests that hand artifacts to the host: `bin/install-global.sh` (symlinks), `bin/bootstrap-project.sh` (per-project), the Claude Code plugin (`workflow/.claude-plugin/plugin.json`, listed in the separate `yusufkaracaburun/marketplace` catalog).
 3. **Host layer** — the IDE/CLI that loads the artifacts: Claude Code or Cursor.
 
 [diagrams.md](diagrams.md#wiring--how-a-primitive-reaches-the-host) renders these
@@ -19,9 +19,9 @@ three layers, including every path each distribution channel writes to.
 |---|---|---|---|
 | Skill | `workflow/skills/<name>/SKILL.md` | symlink (install-global.sh / bootstrap) **or** plugin manifest | `~/.claude/skills/` · `~/.agents/skills/` · `<proj>/.claude/skills/` |
 | Subagent | `workflow/agents/<name>.md` | same symlink pass + plugin manifest | `~/.claude/agents/` · `<proj>/.claude/agents/` |
-| Slash command | `workflow/commands/<name>.md` | same symlink pass (files, not dirs) + plugin manifest | `~/.claude/commands/` · `<proj>/.claude/commands/` |
-| Rule | `standards/rules/<name>.mini.md` | **emitter** (`bin/emit-rules.sh`) at `/ai:setup` time — converts to host format | `<proj>/.cursor/rules/*.mdc` (Cursor) · skill text (Claude Code) |
-| Hook | `.claude/settings.json` + `bin/hooks/*.sh` | committed in the project (or emitted by `/ai:setup`) | `<proj>/.claude/settings.json` |
+| Slash command | `workflow/commands/<name>.md` | same symlink pass (files, not dirs) + plugin manifest | `~/.claude/commands/` · `~/.cursor/commands/` · `<proj>/.claude/commands/` |
+| Rule | `standards/rules/<name>.mini.md` | **emitter** (`bin/emit-rules.sh`) at `/ai:setup` time — converts to host format | `<proj>/.cursor/rules/*.mdc` (Cursor) · `<proj>/.claude/rules/*.md` (Claude Code) |
+| Hook | `bin/hooks/*.sh` + `workflow/hooks/hooks.json` | plugin manifest (ADR-0018); `bin/sync-plugin-hooks.sh` copies `bin/hooks/*.sh` into `workflow/hooks/`, which `hooks.json` runs | plugin hooks (Claude Code) |
 
 ## Two design choices that keep the kit coherent
 
@@ -35,7 +35,7 @@ Consequence: never write into `~/.claude/skills/<name>/` or `<proj>/.claude/skil
 
 An emitter reads one canonical source and writes derived files that cannot simply be symlinked.
 
-**`bin/emit-rules.sh`** — rules are agent-agnostic markdown books (`standards/rules/`). Each host expects a different rule format (Cursor `.mdc`, Claude Code skill-text, etc.), so the emitter writes host-specific files into the *target project* at `/ai:setup` time.
+**`bin/emit-rules.sh`** — rules are agent-agnostic markdown books (`standards/rules/`). Each host expects a different rule format (Cursor `.mdc`, Claude Code `.claude/rules/*.md`, etc.), so the emitter writes host-specific files into the *target project* at `/ai:setup` time.
 
 **`bin/emit-agents.sh`** — a subagent prompt (`workflow/agents/<name>.md`) and its companion skill (`workflow/skills/<name>/SKILL.md`) share reference content: the review checklist, the output-format spec. The emitter keeps a marked region of the agent file generated verbatim from named `SKILL.md` sections, so the shared text has a single home. It runs at *authoring* time inside ai-kit's own tree; CI runs `emit-agents.sh --check` and fails the build on drift.
 
@@ -60,8 +60,9 @@ in-repo:
 The plugin marketplace catalog lives in a **separate repo**
 (`yusufkaracaburun/marketplace`) since 2026-05-23 — one catalog for all
 `yusufkaracaburun` plugins. Its `.claude-plugin/marketplace.json` pins each
-plugin's `source.ref` to a release tag and must be bumped manually after
-every ai-kit release; `bin/release.sh` prints the copy-paste command.
+plugin's `source.ref` to a release tag and must be bumped after every ai-kit
+release; `bin/release.sh --bump-marketplace` does it, and without the flag
+the script prints the reminder.
 
 ## Where to put new things
 
@@ -71,7 +72,7 @@ every ai-kit release; `bin/release.sh` prints the copy-paste command.
 | An isolated context worker for one specific task | `workflow/agents/<name>.md` — plus a skill that names it and the phase it fires in (ADR-0013) |
 | A short prompt-template invoked by `/<name>` | `workflow/commands/<name>.md` |
 | Cross-cutting guidance applicable to every host | `standards/rules/<name>.mini.md` + extend `bin/emit-rules.sh` |
-| A behavior triggered by tool events | `bin/hooks/<name>.sh` + register in `.claude/settings.json` |
+| A behavior triggered by tool events | `bin/hooks/<name>.sh` + register in `workflow/hooks/hooks.json` |
 | A user-facing diagnostic script | `bin/ai-kit-<name>.sh` — and wrap it as a slash command |
 
 If your answer is "two of these at once," step back: usually one is primary and the other should defer to it.
@@ -80,8 +81,7 @@ If your answer is "two of these at once," step back: usually one is primary and 
 
 All five primitive types (skill, subagent, slash command, hook, rule) are
 landed and documented above. Remaining work is tracked in
-[roadmap.md](roadmap.md) — chiefly Cursor `.cursor/commands/` runtime verification
-and bundling the hook in the plugin.
+[roadmap.md](roadmap.md) — chiefly Cursor `.cursor/commands/` runtime verification.
 
 ## See also
 

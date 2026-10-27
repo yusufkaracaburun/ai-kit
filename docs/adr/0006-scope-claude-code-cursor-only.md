@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted (Unreleased)
+Accepted (v1.0.0)
 
 Proposed for supersession by [ADR-0019](0019-multi-host-cursor-copilot.md) (2026-10-25). Stands until 0019 is accepted.
 

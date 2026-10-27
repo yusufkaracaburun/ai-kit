@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted (Unreleased)
+Accepted (v1.0.0)
 
 Install mechanism superseded by [ADR-0018](0018-advisory-hooks-via-plugin.md), 2026-10-10.
 

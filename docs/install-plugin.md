@@ -15,7 +15,8 @@ The first command registers the catalog at `https://github.com/yusufkaracaburun/
 
 After install, Claude Code namespace-prefixes plugin skills: `/ai:setup`, `/ai:tdd`, etc. Slash commands likewise get the prefix: `/ai:doctor`. Subagents (`explore`, `reviewer`, `qa-runner`, `verifier`, `builder`, `designer`) become discoverable via the Task tool.
 
-> **3.0 rename.** Until ai-kit 3.0 (2026-05-23) the plugin was named
+> **3.0 rename.** Until ai-kit 3.0 (2026-05-23, numbering from before the
+> 1.0.0 version reset) the plugin was named
 > `ai-kit` and skills were prefixed `aikit-` — `/plugin install
 > ai-kit@yusufkaracaburun` then `/aikit-setup`. The plugin is now
 > named `ai` and skills lost the prefix — `/plugin install
@@ -115,10 +116,14 @@ Bundled (via `workflow/.claude-plugin/plugin.json`):
   `branches.<name>_hook` choice there; context-drift fires only on `wired`.
   `/ai:upgrade` removes the copies older setups left in `.claude/hooks/`.
   ADR-0018.
+- The SessionStart and SessionEnd session-reap hook
+  (`workflow/hooks/session-reap.sh`). Kills detached processes an ended
+  session left running and logs each kill to
+  `${XDG_STATE_HOME:-~/.local/state}/ai-kit/session-reap.log`.
 
 **Not bundled** (intentionally):
 
-- Project rules — emitted into a project at `/ai:setup` time (`bin/emit-rules.sh`); plugin context can't write into your project repo. Until v1.95 that is still the full universal set plus stack rules; from v1.95 (ADR-0015 release 2) stack rules only.
+- Project rules — emitted into a project at `/ai:setup` time (`bin/emit-rules.sh`); plugin context can't write into your project repo. `bin/bootstrap-project.sh` still emits the full universal set plus stack rules; the stack-rules-only step (ADR-0015 release 2) has not shipped.
 
 `bin/*.sh` (everything the slash-commands invoke) lives at `workflow/bin/`; the
 repo-root `bin/` (like `standards/`, `context/`, `orchestration/`, `CHANGELOG.md`) is a

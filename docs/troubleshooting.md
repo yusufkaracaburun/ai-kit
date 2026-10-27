@@ -30,7 +30,7 @@ export AI_KIT_ROOT="/path/to/your/ai-kit/clone"
 
 ### Skills missing in Cursor
 
-1. Check the project symlink: `ls -la .cursor/skills` — should resolve to a directory containing the skill folders (either ai-kit's symlink-merge layout or `--link-all` style).
+1. Check the skill links: `ls -la ~/.agents/skills` (global and plugin installs) or `ls -la .cursor/skills` (project install). They should resolve to a directory containing the skill folders (either ai-kit's symlink-merge layout or `--link-all` style).
 2. Reload the Cursor window (Cmd-R / `Developer: Reload Window`).
 3. If symlinks point to `/Users/<other-name>/...`, the project was set up under a different user; re-run `bootstrap-project.sh` here.
 
@@ -154,9 +154,9 @@ brew install bash
 
 ### `eval-structure.sh` fails on a new skill
 
-Read the failure message — each check is named (`description missing trigger phrase`, `missing ## Process or ## Phase heading`, …). The most common new-skill failure is a description that lacks a trigger phrase like "Use when …". Add one.
+Read the failure message — each check is named (`description missing trigger phrase`, `longer than 20 lines but has no ## heading`, …). The most common new-skill failure is a description that lacks a trigger phrase like "Use when …". Add one.
 
-For skills under 20 lines, the `## Process` check is skipped automatically.
+For skills under 20 lines, the heading check is skipped automatically.
 
 ## Usage logging
 

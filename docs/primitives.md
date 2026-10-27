@@ -16,7 +16,8 @@ Start: "I want to add X to ai-kit"
 │  │
 │  └─ YES → HOOK
 │           Source: bin/hooks/<name>.sh
-│           Registered in: .claude/settings.json
+│           Registered in: workflow/hooks/hooks.json, which runs the copy
+│             bin/sync-plugin-hooks.sh makes in workflow/hooks/
 │           Example: post-skill-log.sh fires on PostToolUse(Skill)
 │
 ├─ Is X a short prompt template the user will invoke explicitly
@@ -98,7 +99,7 @@ Start: "I want to add X to ai-kit"
 ### "Show me which skill fits my current task"
 - User wants explicit `/` invocation → **SLASH COMMAND**
 - Wraps an existing script (`bin/ai-kit-which.sh`) → fits the wrapper case
-- Source: `workflow/commands/ai:which.md`
+- Source: `workflow/commands/which.md`
 
 ### "Run a heavy security audit on changed files before merge"
 - Multi-step workflow → skill territory

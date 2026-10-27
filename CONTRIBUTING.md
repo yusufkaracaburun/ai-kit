@@ -30,7 +30,7 @@ Skills live in `workflow/skills/<name>/SKILL.md`. Each SKILL.md must:
 1. Open with YAML frontmatter containing `name:` and `description:`.
 2. Have `name` matching the directory name.
 3. Have a single-line `description` between 30 and 500 characters, including a trigger phrase like "Use when …".
-4. Contain at least one `## Process` or `## Phase` heading with the actual procedure.
+4. Contain at least one `## ` heading with the actual procedure (skills under 20 lines are exempt).
 5. Resolve every relative `.md` link on disk.
 6. Use spaces, not tabs. LF line endings.
 
@@ -56,7 +56,7 @@ The full set of branch/commit/PR conventions lives in [`standards/rules/git-hygi
 
 ## Releases
 
-Maintainers only, via `bin/release.sh`: `VERSION` + tag + GitHub release in one commit; CHANGELOG.md follows Keep a Changelog conventions.
+Maintainers only, via `bin/release.sh`: `VERSION` + CHANGELOG entry in one commit, then a tag; `--bump-marketplace` also pushes and bumps the marketplace catalog; CHANGELOG.md follows Keep a Changelog conventions.
 
 Cadence: at most one release per working day. Commits stack on master; one `chore(release)` at the end of the day. A patch release ships only after one consumer repo has run the minor it patches (1.94.0 → .1 → .2 within hours is the failure mode this rule prevents).
 

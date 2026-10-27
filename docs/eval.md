@@ -11,18 +11,23 @@ There is **no LLM judge** and no A/B harness. The deliberate trade-off: determin
 
 ## Structural layer
 
-`eval-structure.sh` runs 8 checks per skill and 3 per fixture. Failure halts CI.
+`eval-structure.sh` runs 11 checks per skill, 4 per agent, 3 per fixture, and one coverage check that every skill has a fixture. Failure halts CI.
 
 Per skill:
 
 1. Frontmatter has `name` and `description`.
 2. `name` matches the directory.
-3. `description` length is 30–500 chars, single line.
-4. `description` contains a trigger phrase (`Use when/before/at/after/during/for` or `when (user|the user|you) …`). Skipped if the skill sets `disable-model-invocation: true`.
-5. All relative `.md` links resolve on disk.
-6. No unresolved `{{PLACEHOLDER}}` tokens.
-7. No tab characters, LF line endings.
-8. Skills longer than 20 lines have at least one `## ` heading.
+3. `name` uses only lowercase letters, digits and hyphens.
+4. Frontmatter has no fields beyond `name`, `description`, `argument-hint`, `model`, `disable-model-invocation`, `tools`, `allowed-tools`, `extends`, `strictness`.
+5. `description` length is 30–500 chars, single line.
+6. `description` contains a trigger phrase (`Use when/before/at/after/during/for` or `when (user|the user|you) …`). Skipped if the skill sets `disable-model-invocation: true`.
+7. All relative `.md` links resolve on disk.
+8. No unresolved `{{PLACEHOLDER}}` tokens.
+9. No tab characters, LF line endings.
+10. Skills of 20 lines or more have at least one `## ` heading.
+11. Every `subagent_type=ai:<x>` the skill names has a `workflow/agents/<x>.md`.
+
+Per agent (`workflow/agents/<x>.md`): `name` matches the file, has a `description`, a pinned `model:` carries a `<!-- model-pin: <reason> -->` line, and at least one skill names it.
 
 Per fixture (`tests/eval/prompts/<skill>/<scenario>.md`):
 
@@ -75,7 +80,7 @@ Run locally:
 
 ## Which skills are covered
 
-v1.1.0 ships fixtures for `diagnose`, `tdd`, `retro`, and `to-prd` — the ones with the most procedural content and the highest blast radius if they regress. Open-ended skills like `grill-me` are intentionally left without fixtures (their value is shape, not output).
+Every skill in `workflow/skills/` has at least one fixture; the coverage check fails the run when one is missing.
 
 ## Out of scope (today)
 

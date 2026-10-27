@@ -4,8 +4,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 **The agile lifecycle as Claude Code + Cursor primitives.** Stack-agnostic.
-Pure Bash + Markdown. One canonical source emits skills, subagents, slash
-commands, hooks, and rules to both hosts — no per-host duplication, no
+Pure Bash + Markdown. One canonical source emits skills, slash commands and
+rules to both hosts, and subagents and hooks to Claude Code — no per-host duplication, no
 runtime daemon, no network calls, no telemetry.
 
 **Quickstart (Claude Code):**
@@ -26,7 +26,7 @@ Cursor and other hosts: see [Install](#install).
 | Skills | 35 | Claude Code · Cursor |
 | Subagents | 6 | Claude Code |
 | Slash commands | 11 | Claude Code · Cursor |
-| Hooks | 2 | Claude Code |
+| Hooks | 10 plugin-wired (`workflow/hooks/hooks.json`) | Claude Code |
 | Rules | 46 canonical mini-rules | Cursor · Claude Code (via emitter) |
 | Curated companions | 24 MCP servers · 28 hook recipes · 23 plugins | Recommend-only — never auto-installed |
 | Repo templates | 5 baseline files (`.editorconfig`, `.gitattributes`, `CODEOWNERS`, `renovate.json`, `.envrc`) | Drop-in via `/ai:setup` |
@@ -53,7 +53,7 @@ curl -fsSL https://raw.githubusercontent.com/yusufkaracaburun/ai-kit/master/inst
 ```
 
 - **Project-only** (no machine-wide symlinks): append `-s -- --no-global` to `bash`.
-- **Pin a release**: `… | AI_KIT_REF=v1.94.2 bash` (see [tags](https://github.com/yusufkaracaburun/ai-kit/tags) for the current one).
+- **Pin a release**: `… | AI_KIT_REF=v2.12.0 bash` (see [tags](https://github.com/yusufkaracaburun/ai-kit/tags) for the current one).
 - **Update later**: `~/.local/share/ai-kit/install.sh --update`.
 
 **Are you an AI agent doing the install?** Follow [docs/install-for-agents.md](docs/install-for-agents.md) — a self-contained prompt with detection, verification, and reporting steps.
@@ -66,7 +66,8 @@ In any project, inside Claude Code or Cursor:
 /ai:setup
 ```
 
-`/ai:setup` writes `AGENTS.md` + `CONTEXT.md`, symlinks the skills into the project,
+`/ai:setup` writes `AGENTS.md` + `CONTEXT.md`, symlinks the skills into the project
+(when a global install already serves them, it asks first),
 drops a `.ai-kit-setup` marker, and detects your stack. The default mode
 (`solo-both`) needs no input.
 
@@ -150,7 +151,9 @@ Two install paths, pick one:
    no clone to maintain.
 2. **Global symlinks** (Cursor + Claude Code legacy) — the one-line curl
    installer clones into `~/.local/share/ai-kit` and `install-global.sh`
-   symlinks skills, subagents, and commands into `~/.claude/` + `~/.cursor/`.
+   symlinks skills into `~/.claude/skills` + `~/.agents/skills`, subagents and
+   commands into `~/.claude/`, and commands into `~/.cursor/commands`, for the
+   hosts listed in `~/.config/ai-kit/hosts` (asked once, or detected).
    Skip with `--no-global` for project-only mode.
 
 Either way, **`/ai:setup`** bootstraps `AGENTS.md`, `CONTEXT.md`, project skills,
@@ -167,7 +170,7 @@ see [docs/primitives.md](docs/primitives.md).
 | ----- | ------------------ |
 | `/ai:setup` not found | Plugin: re-run `/plugin install ai@yusufkaracaburun` and restart Claude Code. Curl-install: re-run `install-global.sh` and verify the `setup` symlinks |
 | ai-kit root unknown | Plugin: `${CLAUDE_PLUGIN_ROOT}` is set by Claude Code — restart it. Curl-install: set `AI_KIT_ROOT` or re-run `install-global.sh` |
-| Skills missing in Cursor | Reload the window, check `.cursor/skills` resolves |
+| Skills missing in Cursor | Reload the window, check `~/.agents/skills` (or the project `.cursor/skills`) resolves |
 | Re-configure a project | `/ai:setup` again (keep/change/skip per branch) or `rm .ai-kit-setup` |
 | Usage log empty | `export AI_KIT_USAGE=1` and open a new shell |
 
@@ -175,24 +178,38 @@ Full list: [docs/troubleshooting.md](docs/troubleshooting.md).
 
 ## Privacy & local data
 
-No network calls, no telemetry. ai-kit writes three local files at most: the
-project `.ai-kit-setup` marker, `~/.config/ai-kit/root`, and — only when
-`AI_KIT_USAGE=1` is set — an opt-in skill-usage log at
-`~/.local/state/ai-kit/usage.jsonl` (skill name, event, project basename — never
-paths, prompts, or file contents). `retro` reads it; `bin/usage-purge.sh`
-wipes it. Full data contract + the Claude Code auto-log hook JSON snippet:
+No network calls, no telemetry. Outside the project (where it writes the
+`.ai-kit-setup` marker and setup files) ai-kit writes only local paths:
+
+- Install and plugin state: `~/.config/ai-kit/root`, `~/.config/ai-kit/hosts`,
+  the `~/.config/ai-kit/plugin-current` link, and skill, subagent, command and
+  rule links under `~/.claude/{skills,agents,commands,rules/ai-kit}`,
+  `~/.agents/skills` and `~/.cursor/commands`.
+- Session hooks: claims in `~/.config/ai-kit/claims/` and kills logged to
+  `~/.local/state/ai-kit/session-reap.log`.
+- Only when you ask: the toggle markers `~/.config/ai-kit/{no-globals,prefer-plugin,no-global-rules}`,
+  the `recommend-rules` cache in `~/.cache/ai-kit/`, path rewrites by
+  `/ai:rename-housekeeping` in `~/.claude/*.md`, `~/.claude/rules/**`,
+  `~/.claude/projects/*/memory/**`, `~/.cursor/**/*.md`, `~/.codex/**/*.md` and
+  `~/.gemini/**/*.md`, backups made before it or caveman/ponytail cleanup edit
+  files, in `~/.claude/.backups/`, the opt-in rename hook
+  (`~/.claude/hooks/rename-detector.sh`, its `~/.claude/settings.json` entry and
+  `~/.claude/known-projects.json`), caveman and ponytail cleanup in
+  `~/.claude/settings.json`, and with `AI_KIT_USAGE=1` a skill-usage log at
+  `~/.local/state/ai-kit/usage.jsonl` (skill name, event, project basename; never
+  paths, prompts, or file contents). `retro` reads it; `bin/usage-purge.sh`
+  wipes it. Full data contract (every path above) + the Claude Code auto-log hook JSON snippet:
 [SECURITY.md](SECURITY.md).
 
-The second hook, `bin/hooks/context-drift-check.sh`, is opt-in per project —
-`/ai:setup` wires it on request. After an edit it nudges you to update
+The plugin's `context-drift-check.sh` hook is opt-in per project:
+it fires only where `/ai:setup` recorded it as wired. After an edit it nudges you to update
 `CONTEXT.md` or an ADR when you change code those docs name. Deterministic
 shell, no LLM, silent when no such docs exist.
 
 ## Contributing
 
 Pure Bash + Markdown, no build step. `./tests/bin/run-all.sh` runs the suite in
-parallel (≈3.5× faster than the legacy sequential `run-tests.sh`); CI runs the
-same on every push. See [CONTRIBUTING.md](CONTRIBUTING.md) for
+parallel; CI runs the same on every push. See [CONTRIBUTING.md](CONTRIBUTING.md) for
 skill-authoring rules and [docs/eval.md](docs/eval.md) for the eval harness.
 
 ## License & provenance

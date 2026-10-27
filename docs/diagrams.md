@@ -12,7 +12,7 @@ flowchart LR
   subgraph SRC["Source layer — ai-kit repo (single source of truth)"]
     SA["workflow/skills · agents<br/>35 skills + 6 subagents"]
     CB["workflow/commands + bin/ai-kit-*.sh<br/>11 slash commands + CLI"]
-    H["bin/hooks/*.sh + hooks.json<br/>5 hook wirings"]
+    H["bin/hooks/*.sh + hooks.json<br/>10 hooks on 5 events"]
     R["standards/rules/*.mini.md<br/>46 agent-agnostic rules"]
   end
 
@@ -37,7 +37,7 @@ flowchart LR
   IG --> CC & CU
   BP --> CC & CU & HA
   PL --> CC
-  ER --> CU
+  ER --> CU & CC
 ```
 
 This is the compressed view — three routes, three host groups. The full
@@ -98,8 +98,9 @@ flowchart TD
 - **Skill** — a workflow with a `description:` the model routes to on its own.
   The only primitive the LLM picks autonomously.
 - **Subagent** — the same workflow in its own context window, so browser and
-  grep output never reaches your main context. Claude Code only; Cursor gets the
-  inline variant emitted from the same source.
+  grep output never reaches your main context. Claude Code only; Cursor follows
+  the inline checklist in the calling skill, the source the agent prompt is
+  generated from.
 - **Slash command** — a thin wrapper around a bash script. No LLM decision, so
   the output is reproducible.
 - **Hook** — the only layer guaranteed to run regardless of what the model

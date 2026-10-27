@@ -31,10 +31,10 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
 | You are about to … | Use this skill |
 | ------------------ | -------------- |
 | Stress-test an idea by being interviewed | `grill-me` |
-| Read external docs deeply and apply them | `grill-with-docs` |
+| Stress-test a plan against `CONTEXT.md` and ADRs, updating them as decisions land | `grill-with-docs` |
 | Turn a vague idea into a PRD | `to-prd` |
 | Shatter a plan / PRD into N independently-grabbable tracer-bullet issues | `to-issues` |
-| Pick the next ticket to work on | `triage` |
+| Move incoming issues through triage states, ready for an agent | `triage` |
 | Build a feature via red-green-refactor | `tdd` |
 | Build a screen from a design file and prove the code matches it | `design-to-code` |
 | Rebuild an existing site's pages as local code | `clone-website` |

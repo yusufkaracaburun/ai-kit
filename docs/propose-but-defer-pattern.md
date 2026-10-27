@@ -41,4 +41,4 @@ If only #1 holds: just write a comment in the relevant SKILL.md pointing at the 
 
 - `bin/write-setup-marker.sh` — the canonical flag-parsing + JSON-key pattern.
 - `workflow/skills/setup/SKILL.md` branch 10 — the user-facing prose.
-- `CHANGELOG.md` entry `1.2.0` — the first application of the pattern.
+- Commit `79ea6aa` (pre-reset v1.2.0, 2026-05-21): the first application of the pattern. Its CHANGELOG entry was dropped in the 1.0.0 version reset (`48ba09d`).

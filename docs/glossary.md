@@ -24,7 +24,7 @@ The act of initializing ai-kit in a project: `bin/bootstrap-project.sh` or runni
 
 ### CHANGELOG.md
 
-Repo-root changelog. Sub-1.0 semver convention: feature additions = minor bump; breaking changes get a `**Breaking**` block.
+Repo-root changelog in Keep a Changelog format; `bin/release.sh` prepends one entry per release. Feature additions = minor bump.
 
 ### Claim role
 
@@ -48,7 +48,7 @@ The per-project context file: domain model, stack, recent ADRs index. Skills rea
 
 ### Emitter
 
-A script in `bin/` that converts a single canonical source into one or more derived files. `bin/emit-rules.sh` turns `standards/rules/*.mini.md` into host-specific rule files (Cursor `.mdc`, Claude Code skill text). `bin/emit-agents.sh` keeps a marked region of a subagent's `workflow/agents/<name>.md` generated from named sections of its source `SKILL.md`, so shared reference content has one home.
+A script in `bin/` that converts a single canonical source into one or more derived files. `bin/emit-rules.sh` turns `standards/rules/*.mini.md` into host-specific rule files (Cursor `.mdc`, Claude Code `.claude/rules/*.md`). `bin/emit-agents.sh` keeps a marked region of a subagent's `workflow/agents/<name>.md` generated from named sections of its source `SKILL.md`, so shared reference content has one home.
 
 Use this pattern whenever an artifact needs per-host translation, or shares content with another artifact, in a way a symlink cannot solve.
 
@@ -61,15 +61,15 @@ The YAML block between `---` lines at the top of a skill / agent / command file.
 
 ### Global channel
 
-The machine-wide path through which ai-kit reaches every project without per-repo files: the Claude Code plugin (`ai@yusufkaracaburun`) or the legacy symlink-install. Recorded per project as `global_channel_available` in `.ai-kit-setup` (ADR-0012). Since ADR-0015 it also carries the *global rules*. Cursor has no global channel.
+The machine-wide path through which ai-kit reaches every project without per-repo files: the Claude Code plugin (`ai@yusufkaracaburun`) or the legacy symlink-install. Recorded per project as `global_channel_available` in `.ai-kit-setup` (ADR-0012). Since ADR-0015 it also carries the *global rules*. Cursor has no plugin channel; it reads skills from `~/.agents/skills`.
 
 ### Global install
 
-The machine-wide install path. `bin/install-global.sh` creates symlinks under `~/.claude/`, `~/.agents/`, `~/.cursor/`. Opt out per machine with `bin/ai-kit-no-globals.sh on`.
+The machine-wide install path. `bin/install-global.sh` creates symlinks under `~/.claude/`, `~/.agents/`, `~/.cursor/` for the hosts in `~/.config/ai-kit/hosts` (asked once, or detected). Opt out per machine with `bin/ai-kit-no-globals.sh on`.
 
 ### Global rules
 
-Every `universal: true` + `default_mode: always-on` rule, pre-emitted into the plugin's `rules/` and linked at `~/.claude/rules/ai-kit` by the plugin's SessionStart hook, so Claude Code loads them in every session on the machine (ADR-0015). Pathless ones load at start; `paths:`-scoped ones on touch. Opt-out: `~/.config/ai-kit/no-global-rules`. A project gets per-repo copies only when it has no global channel.
+Every `universal: true` + `default_mode: always-on` rule, pre-emitted into the plugin's `rules/` and linked at `~/.claude/rules/ai-kit` by the plugin's SessionStart hook, so Claude Code loads them in every session on the machine (ADR-0015). Pathless ones load at start; `paths:`-scoped ones on touch. Opt-out: `~/.config/ai-kit/no-global-rules`. `/ai:setup` still writes per-repo copies too, until ADR-0015 release 2 ships.
 
 **Not** the same as *stack rules*, which stay per repo.
 
@@ -101,11 +101,11 @@ The `.ai-kit-setup` file at a project root. Indicates the project has been boots
 
 ### Plugin
 
-A Claude Code distributable bundle of skills + agents + commands, defined by `workflow/.claude-plugin/plugin.json` and catalogued in `.claude-plugin/marketplace.json`. **Claude Code-only**; Cursor users keep using the symlink install.
+A Claude Code distributable bundle of skills + agents + commands, defined by `workflow/.claude-plugin/plugin.json` and catalogued in `.claude-plugin/marketplace.json` of the separate `yusufkaracaburun/marketplace` repo. **Claude Code-only**; Cursor users keep using the symlink install.
 
 ### PostToolUse hook
 
-A hook event firing after a tool call completes. ai-kit's current hook matches `^Skill$` and logs to local usage stats.
+A hook event firing after a tool call completes. ai-kit ships two: one matches `^Skill$` and logs to local usage stats, the other (`context-drift-check.sh`) matches `Edit|Write|MultiEdit`.
 
 ### Primitive
 
@@ -135,7 +135,7 @@ A prompt template invoked by `/<name>` in the host. File: `workflow/commands/<na
 
 ### Stack rule
 
-A rule with `universal: false` and a `paths:` scope (laravel-conventions, flutter-conventions, tailwind, …). Chosen per project by `recommend-rules`, emitted into that repo's `.claude/rules/`; the only rules `/ai:setup` still writes into a plugin-served Claude Code repo (ADR-0015).
+A rule with `universal: false` and a `paths:` scope (laravel-conventions, flutter-conventions, tailwind, …). Chosen per project by `recommend-rules`, emitted into that repo's `.claude/rules/`. ADR-0015 makes them the only rules `/ai:setup` writes into a plugin-served Claude Code repo once its release 2 ships; today setup also writes the universal set.
 
 ### Subagent
 
@@ -153,7 +153,7 @@ A file under `context/templates/` (or `orchestration/`) that `bootstrap-project.
 
 ### VERSION
 
-The single-source-of-truth version file at the repo root. All derived version fields (plugin manifest, marketplace catalog) must mirror it. `bin/sync-plugin-version.sh` enforces this.
+The single-source-of-truth version file at the repo root. All derived version fields (plugin manifest, marketplace catalog) must mirror it. `bin/sync-plugin-version.sh` enforces this for the plugin manifest; `bin/release.sh --bump-marketplace` bumps the catalog.
 
 ---
 

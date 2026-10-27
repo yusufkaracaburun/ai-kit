@@ -7,7 +7,7 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-10-10 against 47 open issues (#140, #184, #185 closed; earlier reconciliation notes live in [roadmap-archive.md](roadmap-archive.md#reconciliation-notes))._
+_Last reconciled: 2026-10-27 against 97 open issues (#31, #47, #182, #191, #192, #203, #212, #225, #231, #252 closed; #256 closed as duplicate of #232; #117, #118 moved to P3 to match their labels; earlier reconciliation notes live in [roadmap-archive.md](roadmap-archive.md#reconciliation-notes))._
 
 ## P1 — broken in the wild
 
@@ -22,26 +22,9 @@ _Last reconciled: 2026-10-10 against 47 open issues (#140, #184, #185 closed; ea
 
 ## P2 — next up
 
-- **#191** `enhancement` — catalog: `app-store-screenshots` (ParthJadhav, pinned
-  `7faf7fc`) as mobile-gated companion, the fallback route for store screenshots;
-  leaves `plugins-excluded.json`. Reversed from Ignore by the user 2026-09-27.
-- **#192** `enhancement` — `design-to-code`: `store` flow on Pencil (shell instance +
-  content master, 440×956 at scale 3) plus three `.pen` hard rules (render before
-  export, active-editor writes, save + log check). Two POCs in planny 2026-09-27.
-  Blocked by #191.
 - **#174** `bug` — hygiene `test-ci` does not recognise Dart/Flutter projects as having a
   test runner; planny-app-mobile reports "no test runner" with a full Patrol suite. Labelled
   P2 on 2026-09-19.
-- **#182** `bug` — ✅ shipped v1.91.0 (native loading honoured, subagents read rules); open: resolver dedupe. Every emitted `.claude/rules/*.md` loads natively, always,
-  in the main thread (Claude Code 2.1 reads pathless rules at session start:
-  emeq-hub 32 files / 14.3k words ≈ 19k tokens per session, planny-app-mobile
-  27 / 12.6k) and none reach any subagent — builder/reviewer/verifier judge
-  with CLAUDE.md + AGENT.md only, no Skill tool either. Inverts #144/#148:
-  the withheld injection hook is moot under the native loader. Direction:
-  emit `paths:` from `applies_to` for non-universal rules so the host does
-  the selection, count pathless rules in `context-lean`, one AGENT.md line so
-  writing/judging agents read the rules whose `paths` cover their files.
-  Measured with a headless sentinel probe, 2026-09-19.
 - **#178** `bug` — `dedupe` reported `total: 0` on 12 repos + personal scope that
   held 200+ duplicates: it reads only `~/.claude/skills`, never `~/.agents/skills`
   / `~/.cursor/skills` (84 plugin symlinks, 16 gsd remnants lived there), no
@@ -53,7 +36,7 @@ _Last reconciled: 2026-10-10 against 47 open issues (#140, #184, #185 closed; ea
   naschool / emeq-app), `block-env-edits`, `block-lockfile-edits`,
   `gitleaks-scan`, `docs-drift-check` (2 each), `large-diff-warn`,
   `format-on-edit`; stack-scoped `flutter-analyze-check` (#176), pint / phpstan /
-  tsc. Same `bin/hooks/` + `apply-*-hook.sh` shape as the four that already ship;
+  tsc. Same `bin/hooks/` + `workflow/hooks/hooks.json` shape as the plugin hooks that already ship;
   doctor then reports "drifted from shipped".
 
 - **#148** `bug` — rule injection gates on `weight: high` and then fills
@@ -117,21 +100,6 @@ _Last reconciled: 2026-10-10 against 47 open issues (#140, #184, #185 closed; ea
   already written for cold pickup. Either `to-issues` emits the brief itself — it has
   the material, it wrote the body — or it stops applying the label and leaves that to
   `triage`. Doing neither keeps the two skills disagreeing.
-- **#117** `enhancement · primitive:hook` — surface `graph-fresh` in the
-  search-delegation hook, where the damage actually happens. `/ai:docs-sync`
-  catches a stale graphify graph once per session; the hook fires on *every* Bash
-  call and routes the agent to `graphify query` — pointing it at a map of code
-  that has already moved. Open question is cost (a `git diff` per Bash call) →
-  cache the verdict per HEAD, or warn once per session. Must reuse
-  `ai-kit-docs-sync-graph-fresh.sh`'s "candidate, not proof" semantics, not
-  re-derive them.
-- **#118** `enhancement` — `graph-fresh` cannot check umbrella repos. emeq's root
-  is not a git repo; it holds `admin/`, `system/`, `emeq-app/` as separate repos
-  with graphify indexing across all three, so there is no single HEAD to compare.
-  The check skips cleanly — but that leaves the project *most* likely to drift
-  (three repos moving independently) with no drift signal at all. Cheapest fix
-  needs nothing upstream: record a composite `{repo: HEAD}` stamp in
-  `graphify-out/.ai-kit-graph-verified`.
 - **#116** `bug · primitive:plugin` — a plugin skill silently shadows a same-named
   project skill: `bootstrap-project.sh` merges ai-kit skills with `ln -sfn`, which
   overwrites on name collision while the echo claims "custom entries preserved".
@@ -161,22 +129,18 @@ _Last reconciled: 2026-10-10 against 47 open issues (#140, #184, #185 closed; ea
   `jq '.a > 1'`; tokenise instead of regex. Live `agent_id` check pending. 2026-10-10.
 - **#200** `enhancement` — `ai-kit-heavy.sh`: one shared machine-load gate (check / wait / start / done via claim) replacing per-lead ps greps; 37/57 briefs lacked one, 2 overlaps + 1 Pest/simulator clash. 2026-10-10.
 - **#202** `bug` — lead-guard denies every `/ai:setup` write step in a role=lead session; 3 of 4 leads flipped to role=build. Recommended: setup/upgrade skills spawn an agent for write steps. 2026-10-10.
-- **#203** `bug` — recommend-tools: `graphify claude install` adds 2 absolute-path hooks, a duplicate CLAUDE.md block and a settings backup; skip the install step. 2026-10-10.
 - **#204** `enhancement` — bootstrap templates filtered by detected stack (editorconfig, gitattributes, graphifyignore, board workflows, renovate); ~490 cuttable lines in an Expo repo. 2026-10-10.
 - **#206** `bug` — build-delegation hook counts writes outside the project (memory files under `~/.claude`); skip paths outside `$CLAUDE_PROJECT_DIR` and memo paths. 2026-10-10.
 - **#207** `bug` — kit scripts hang on interactive mv/rm aliases (2 subagents hung during setup); `command mv -f` sweep over 15 scripts. 2026-10-10.
 - **#208** `bug` — `recommend-rules.sh --json` has no sources/quorum field the skill's "(sources: N/M verified)" annotation needs. 2026-10-10.
 - **#209** `enhancement` — memory-audit warns when a `MEMORY.md` index exceeds the host load limit (28.8 KB vs ~24 KB seen, silent truncation). 2026-10-10.
-- **#212** `enhancement` — lead-nudge hints `model: sonnet` on general-purpose spawns without a model (advisory, no deny). 2026-10-11.
 - **#213** `enhancement` — trim plugins and MCP tools per project: ai-kit loads 92 skills plus ~190 deferred MCP tool names every turn (97% of tokens were cache reads, 10-05..14). Deferred until `/context` gives the block size in ai-kit, system and planny; then a per-project `enabledPlugins` recommendation. 2026-10-14.
 - **#215** `enhancement` — PreToolUse hook on SendMessage to block acks and cap message rate (1,767 calls in 10 days, still 170 to 230 per day after the 2026-10-10 rule). Deferred: needs a grill on block criteria, and v2.6.0 measured first (around 2026-10-18). 2026-10-14.
 - **#216** `enhancement` — `model:` frontmatter on read-only agents (ai:explore, ai:qa-runner); 827 of 1,362 spawns had no model and ran on Opus. Deferred: quality risk, needs a grill and a before/after check on real explore tasks. 2026-10-14.
 - **#217** `enhancement` — `design-to-code`: scaffold new Pencil designs as `brand.lib.pen` (variables, themes, logo, brand assets as components) plus surface files that import it (`website.pen`, `mobile.pen`, `marketing.pen`; `tablet.pen`/`watch.pen` on demand). The user's convention, not Pencil's. Deferred: first test in the Pencil app whether a `.lib.pen` can hold non-component frames. 2026-10-14.
 - **#218** `enhancement` — to-prd Defer mode expects a `## What's next` heading; this roadmap uses `## P1`/`## P2`/`## P3`, so the #213 to #216 capture stalled. Append to the section matching the priority label instead. Deferred: batch with the v2.7.0 skill changes and test on a downstream roadmap. 2026-10-14.
-- **#225** `enhancement` — `/ai:validate-idea`: research a new product idea (sourced brief, verifier refutes the 5 key numbers) and end in a recorded go/no-go with a measurable stop rule, so ideas stop costing a build before they cost a test. 2026-10-23.
 - **#229** `enhancement` — **Multi-host: Cursor and GitHub Copilot**, the PRD for running ai-kit on client machines that have only Cursor or only Copilot, and on the own laptop alongside the Claude Code plugin. ADR-0019 (proposed) supersedes 0006 and 0010. 2026-10-25.
 - **#230** `enhancement` — Live check of four Cursor and Copilot behaviours before building, slice of #229. Checks 2 and 3 done 2026-10-27; checks 1 and 4 (Cursor) open. 2026-10-25.
-- **#231** `enhancement` — Host paths table and install on machines without Claude Code, slice of #229. Copilot part parked: Copilot lists the skills but not the 11 commands, which install only to Claude Code and Cursor; decided 2026-10-27 to convert them into skills. 2026-10-25.
 - **#232** `enhancement` — Convert the 11 plugin-root commands to skills that find the root via ~/.config/ai-kit/root, slice of #229. 2026-10-25.
 - **#233** `enhancement` — Fallbacks for autonomous, setup and docs-sync on hosts without subagents or AskUserQuestion, slice of #229. 2026-10-25.
 - **#234** `enhancement` — Prefer-plugin links ~/.agents/skills to the plugin's current skills, slice of #229. 2026-10-25.
@@ -193,10 +157,24 @@ _Last reconciled: 2026-10-10 against 47 open issues (#140, #184, #185 closed; ea
 
 ## P3 — backlog
 
+- **#117** `enhancement · primitive:hook` — surface `graph-fresh` in the
+  search-delegation hook, where the damage actually happens. `/ai:docs-sync`
+  catches a stale graphify graph once per session; the hook fires on *every* Bash
+  call and routes the agent to `graphify query` — pointing it at a map of code
+  that has already moved. Open question is cost (a `git diff` per Bash call) →
+  cache the verdict per HEAD, or warn once per session. Must reuse
+  `ai-kit-docs-sync-graph-fresh.sh`'s "candidate, not proof" semantics, not
+  re-derive them.
+- **#118** `enhancement` — `graph-fresh` cannot check umbrella repos. emeq's root
+  is not a git repo; it holds `admin/`, `system/`, `emeq-app/` as separate repos
+  with graphify indexing across all three, so there is no single HEAD to compare.
+  The check skips cleanly — but that leaves the project *most* likely to drift
+  (three repos moving independently) with no drift signal at all. Cheapest fix
+  needs nothing upstream: record a composite `{repo: HEAD}` stamp in
+  `graphify-out/.ai-kit-graph-verified`.
 - **#249** `enhancement` — doctor reports clone-linked skills as shadowed: `aikit_skill_link` only knows plugin and cache links, so a plugin plus source-mode install-global shows every clone-linked skill in ~/.agents/skills as shadowed (`workflow/bin/ai-kit-doctor.sh` near line 198). 2026-10-27.
 - **#250** `enhancement` — dead source-mode links stay in ~/.cursor/skills: `prune_cursor_global_skills` cannot resolve a dead link, so a link into a moved clone survives. Harmless clutter; Cursor ignores it. 2026-10-27.
 - **#251** `enhancement` — `install_dir_to` reaps any dead link matching `*/ai-kit/*`, which can remove a user's own dangling link with an /ai-kit/ path segment. No content loss. 2026-10-27.
-- **#252** `enhancement` — install and doctor on a machine without Claude Code: sandbox-HOME install creates no ~/.claude/*, doctor exits 0 with one installed/missing line per host, and hook plus bootstrap link ~/.agents/skills when only a Copilot host is present. Build when a real machine without Claude Code shows up. 2026-10-27.
 - **#253** `enhancement` — release.sh duplicates the top section when CHANGELOG already has `## Unreleased`: rename it to `## X.Y.Z — date` instead of prepending, and never touch a later stray `## Unreleased`. 2026-10-27.
 - **#254** `enhancement` — stale ~/.cursor/commands stay after cursor is removed from hosts: prune only ai-kit's own entries there when cursor is not chosen. 2026-10-27.
 - **#223** `enhancement` — quarterly idea-source check: distilled sources (mattpocock/skills, gstack, superpowers) have no drift signal. Due on or after 2027-01-15; adopt as pattern, never resync; drop the cadence if it yields 2 ideas or fewer. 2026-10-17.
@@ -429,10 +407,6 @@ _Last reconciled: 2026-10-10 against 47 open issues (#140, #184, #185 closed; ea
   footprint cost (ADR-0006). No pain with graphify today.
 - **#83** `enhancement` — `audit-architecture-flutter`: 8 Flutter 3.27 / Dart 3.6
   heuristics + helper-script, mirroring the existing per-stack audit extensions.
-- **#47** `enhancement · needs-info` — optional Tier-B EOD-email branch for AFK
-  autonomous runs. Sequence after #19's setup-mode opt-in pattern stabilises.
-- **#31** `enhancement · primitive:* · needs-info` — structured per-claim validation
-  as a cheap tech-debt surfacer; proposes 3 primitives. Stays needs-info till scoped.
 - **#15** `enhancement · ready-for-human` — brainstorm a second plugin under
   `yusufkaracaburun/marketplace`. Marketplace shape only pays off at N ≥ 2.
 - **#221** `enhancement` — search-delegation hint: subagents may use up the once-per-session

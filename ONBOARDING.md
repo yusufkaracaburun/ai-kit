@@ -1,16 +1,16 @@
 # Onboarding — ai-kit
 
 **Audience:** new contributor or agent (full-stack generic).
-**Last refreshed:** 2026-05-23
+**Last refreshed:** 2026-10-27
 
 ## 1. What this project is
 
 ai-kit is the agile lifecycle expressed as Claude Code + Cursor primitives.
 Stack-agnostic. Pure Bash + Markdown. One canonical source emits skills,
-subagents, slash commands, hooks, and rules to both hosts — no per-host
-duplication, no runtime daemon, no network calls, no telemetry.
+slash commands and rules to both hosts, and subagents and hooks to Claude
+Code. No per-host duplication, no runtime daemon, no network calls, no telemetry.
 
-Today (v1.89.0): **35 skills · 6 subagents · 11 slash commands · 2 hooks ·
+Today (v2.12.0): **35 skills · 6 subagents · 11 slash commands · 10 plugin-wired hooks ·
 46 canonical mini-rules · 24 curated MCP servers · 28 curated hook recipes ·
 23 curated plugins · 5 baseline repo templates.**
 
@@ -19,7 +19,7 @@ Today (v1.89.0): **35 skills · 6 subagents · 11 slash commands · 2 hooks ·
 ```bash
 git clone git@github.com:yusufkaracaburun/ai-kit.git
 cd ai-kit
-./tests/bin/run-all.sh          # 408 tests, ~90s wall (JOBS=4)
+./tests/bin/run-all.sh          # full suite, parallel (JOBS=4 default)
 ./tests/bin/eval-structure.sh   # SKILL.md structural checks
 shellcheck bin/**/*.sh tests/bin/*.sh
 ```
@@ -42,17 +42,18 @@ curl -fsSL https://raw.githubusercontent.com/yusufkaracaburun/ai-kit/master/inst
 ## 3. The shape of the codebase
 
 - `workflow/` — the canonical primitives that ship to hosts.
-  - `skills/<name>/SKILL.md` (27) · `agents/<name>.md` (3) ·
-    `commands/<name>.md` (8) · `hooks/` (2) ·
+  - `skills/<name>/SKILL.md` (35) · `agents/<name>.md` (6) ·
+    `commands/<name>.md` (11) · `hooks/` (10 hooks + `hooks.json`) ·
     `.claude-plugin/plugin.json` (manifest).
 - `standards/rules/` — agent-agnostic mini-rules; `bin/emit-rules.sh`
   fans them out to per-host conventions.
 - `bin/` — Bash scripts the skills/commands shell out to. `bin/lib/` for
-  shared helpers. Mirrored to `workflow/bin/` by `bin/sync-plugin-bin.sh`
-  so the plugin install is self-contained.
+  shared helpers. The repo-root `bin/` is a symlink to `workflow/bin/`
+  (ADR-0016), so the plugin install is self-contained.
 - `context/templates/` — drop-in templates (repo hygiene + agent docs).
 - `tests/bin/` — harness (`run-all.sh`, `lib/harness.sh`) and case files
-  (`cases/<group>.sh`). `tests/eval/` — fixtures + structural checker.
+  (`cases/<group>.sh`), plus the structural checker `eval-structure.sh`.
+  `tests/eval/` — fixtures, goldens and results.
 - `docs/` — architecture, mental-model, install-plugin, roadmap, ADRs.
 
 See [docs/architecture.md](docs/architecture.md) for the full diagram.
@@ -79,10 +80,11 @@ See [docs/architecture.md](docs/architecture.md) for the full diagram.
 - **Commits:** Conventional Commits (`feat(scope): subject`).
 - **CHANGELOG.md:** Keep a Changelog; every release entry under its
   version header.
-- **Releases:** VERSION bump + `vX.Y.Z` tag + `git push --tags` in one
-  commit. Marketplace ref is pinned to `master` so downstream
-  `/plugin update` picks up new tags automatically.
-- **Tests:** `./tests/bin/run-all.sh` must stay green (408 currently).
+- **Releases:** `bin/release.sh` commits the VERSION bump + CHANGELOG entry
+  and tags `vX.Y.Z`. The marketplace pins `source.ref` to that tag;
+  `--bump-marketplace` pushes and bumps it so downstream `/plugin update`
+  picks it up.
+- **Tests:** `./tests/bin/run-all.sh` must stay green.
   Count assertions in `structure.sh` and `release-install.sh` are the
   usual culprits when adding skills/commands/rules.
 - **Eval fixtures:** every skill needs ≥1 fixture under
@@ -94,13 +96,14 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the full checklist.
 ## 6. Load-bearing decisions
 
 - [ADR-0001](docs/adr/0001-setup-modes.md) — `/ai:setup` four-mode model
-  (solo-both / solo-global / project-only / brownfield).
+  (solo-both / solo-global / project-only / brownfield). Superseded by
+  [ADR-0012](docs/adr/0012-setup-mode-decomposition.md).
 - [ADR-0002](docs/adr/0002-skill-eval-approach.md) — fixtures + golden
   responses + structural checks as the evaluation triangle.
 - [ADR-0003](docs/adr/0003-merge-security-audit-into-review.md) — single
   `/ai:review` instead of a separate security skill.
-- [ADR-0004](docs/adr/0004-aikit-skill-prefix.md) — `/ai:*` namespace to
-  avoid collisions with host-bundled skills.
+- [ADR-0004](docs/adr/0004-aikit-skill-prefix.md) — `aikit-` skill prefix
+  to avoid collisions. Superseded: the plugin namespace gives `/ai:*`.
 - [ADR-0005](docs/adr/0005-monorepo-boost-context-drift.md) — monorepo
   + Laravel Boost handling in `/ai:setup`.
 - [ADR-0006](docs/adr/0006-scope-claude-code-cursor-only.md) — drop
@@ -111,23 +114,24 @@ Read these before proposing structural changes.
 ## 7. Surface area for first contribution
 
 - **Add a curated MCP / hook / plugin** — edit the matching JSON under
-  `context/recommendations/` and re-run `tests/bin/cases/recommend.sh`.
+  `standards/external/` (`mcp-servers.json`, `hooks-patterns.json`,
+  `plugins.json`) and re-run `tests/bin/cases/recommend.sh`.
   Lowest-risk way to learn the project layout.
 - **Add a stack-specific mini-rule** — drop a new `*.mini.md` under
-  `standards/rules/`, set `universal: false` + `stack:` frontmatter,
+  `standards/rules/`, set `universal: false` + `applies_to:` and `paths:` frontmatter,
   re-run `tests/bin/cases/bootstrap-emit.sh`.
 - **Add a starter skill** — copy an existing `workflow/skills/<x>/SKILL.md`
   as template, add a fixture under `tests/eval/prompts/<new>/`, bump
-  the skill count in `structure.sh` + `release-install.sh` + README +
-  `plugin.json` description + `docs/{architecture,mental-model,install-plugin}.md`.
+  the skill count in `structure.sh` + `release-install.sh`, then fix every
+  doc site `bin/count-primitives.sh --check` reports.
 - **Fix an open `good-first-issue`** — `gh issue list --label good-first-issue`.
 
 ## 8. Footguns
 
-- **Skill count drift.** Adding a skill without bumping all five count
-  sites breaks `structure.sh`. The CHANGELOG of v1.10.2 lists every site.
-- **`workflow/bin/` is a mirror.** Edit `bin/` and run
-  `bash bin/sync-plugin-bin.sh`; the `--check` mode is gated in CI.
+- **Skill count drift.** Adding a skill without bumping the counts breaks
+  `structure.sh`; `bin/count-primitives.sh --check` lists every doc site.
+- **`workflow/hooks/` is a copy.** Edit `bin/hooks/` and run
+  `bash bin/sync-plugin-hooks.sh`; its `--check` mode catches drift.
 - **Marker JSON.** `bin/write-setup-marker.sh` only writes fields that
   were passed — never silently defaults. If your new Tier B branch
   doesn't show up in `.ai-kit-setup`, you forgot the `--<branch>=...`

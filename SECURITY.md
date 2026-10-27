@@ -10,14 +10,26 @@ ai-kit ships **Bash scripts and Markdown only**. No runtime daemon, no network l
 | ---- | ---- | ---- |
 | `.ai-kit-setup` (per project) | `/ai:setup` runs | Setup mode + branch choices. No paths outside the project. |
 | `~/.config/ai-kit/root` | `install-global.sh` | Absolute path to the ai-kit clone. |
+| `~/.config/ai-kit/hosts` | `/ai:setup` or `install-global.sh` asks once | Comma-separated host names (`claude,cursor,...`). |
+| `~/.config/ai-kit/plugin-current` | plugin scripts and hooks | Symlink to the newest plugin version dir. |
+| Links in `~/.claude/{skills,agents,commands}`, `~/.agents/skills`, `~/.cursor/commands` | `install-global.sh`, plugin SessionStart/SessionEnd hook | Symlinks into ai-kit; foreign entries are skipped. |
+| `~/.claude/rules/ai-kit` | plugin SessionStart/SessionEnd hook | Symlink to the plugin's `rules/` dir. |
+| `~/.config/ai-kit/claims/<session_id>.md` | plugin SessionStart hook, `ai-kit-claim.sh` | Repo, cwd and role of each live session. |
+| `~/.local/state/ai-kit/session-reap.log` | plugin SessionStart/SessionEnd hook | One line per process it killed. |
+| `~/.config/ai-kit/{no-globals,prefer-plugin,no-global-rules}` | only when you toggle them | Empty opt-out markers. |
+| `~/.cache/ai-kit/recommend-rules/` | `/ai:recommend-rules` | Cached web results. |
+| `~/.claude/.backups/<ts>/` | before `rename-housekeeping` or caveman/ponytail cleanup edits a file | Copies of the files it edits. |
+| `~/.claude/CLAUDE.md`, `~/.claude/*.md`, `~/.claude/rules/**/*.md`, `~/.claude/projects/*/memory/**/*.md`, `~/.cursor/**/*.md`, `~/.codex/**/*.md`, `~/.gemini/**/*.md` | only when you run `/ai:rename-housekeeping` | Stale absolute repo paths rewritten. |
+| `~/.claude/hooks/rename-detector.sh`, its `~/.claude/settings.json` entry, `~/.claude/known-projects.json` | only when you run `install-rename-hook.sh` | The opt-in rename hook and its project registry. |
+| `~/.claude/settings.json` | only when you run caveman/ponytail cleanup | Duplicate standalone hook entries removed. |
 | `~/.local/state/ai-kit/usage.jsonl` | only when `AI_KIT_USAGE=1` | One JSON line per skill invocation: `ts`, `skill`, `event`, `project` (basename), `cwd_hash` (sha1). **No absolute paths, no prompt contents, no file contents.** |
 
 The usage log is **opt-in via `AI_KIT_USAGE=1`** and never leaves the machine. There is no telemetry, analytics, or remote sync. Run `bin/usage-purge.sh` to wipe it.
 
 ### Auto-log via the Claude Code `PostToolUse` hook
 
-ai-kit ships a `PostToolUse` hook (`bin/hooks/post-skill-log.sh`) wired in its own
-`.claude/settings.json`. With `AI_KIT_USAGE=1` set, each Skill invocation auto-writes
+ai-kit ships a `PostToolUse` hook (`bin/hooks/post-skill-log.sh`) wired in the
+plugin's `workflow/hooks/hooks.json` (ADR-0018). With `AI_KIT_USAGE=1` set, each Skill invocation auto-writes
 a `done` event — no per-skill plumbing. The hook is silent and no-op without the env
 var. To add it to a downstream project, copy this into its `.claude/settings.json`:
 
