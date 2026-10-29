@@ -76,26 +76,18 @@ assert "recommend: score is integer" 'echo "$JSON_REC" | python3 -c "import json
 assert "recommend: results sorted desc" 'echo "$JSON_REC" | python3 -c "import json,sys; d=json.load(sys.stdin); s=[r[\"score\"] for r in d[\"recommendations\"]]; assert s == sorted(s, reverse=True)"'
 rm -rf "$REC_TMP"
 
-# design-leads: a *.pen design file at the root (or under .pencil/) is the `pencil`
-# framework signal; the rule is non-universal so without it it never surfaces.
-PEN_TMP=$(mktemp -d)
-: > "$PEN_TMP/design.pen"
-JSON_PEN="$("$AIKIT/bin/recommend-rules.sh" "$PEN_TMP" --json)"
-assert "recommend: design.pen surfaces design-leads rule" \
-  'echo "$JSON_PEN" | python3 -c "import json,sys; d=json.load(sys.stdin); r=[x for x in d[\"recommendations\"] if x[\"name\"]==\"design-leads\"]; assert r and \"framework match: pencil\" in r[0][\"reason\"], d"'
+# design-leads: .pen files are an archive (Paper replaced Pencil), so they no
+# longer yield a framework. A UI framework is what surfaces the rule.
+PEN_TMP=$(mktemp -d); mkdir "$PEN_TMP/.pencil"; : > "$PEN_TMP/design.pen"; : > "$PEN_TMP/.pencil/app.pen"
+assert "detect: .pen files yield no pencil framework" \
+  '"$AIKIT/bin/detect-tooling.sh" "$PEN_TMP" --json | python3 -c "import json,sys; d=json.load(sys.stdin); assert \"pencil\" not in d[\"frameworks\"], d"'
+assert "recommend: .pen files do not surface design-leads" \
+  '"$AIKIT/bin/recommend-rules.sh" "$PEN_TMP" --json | python3 -c "import json,sys; d=json.load(sys.stdin); assert not any(x[\"name\"]==\"design-leads\" for x in d[\"recommendations\"]), d"'
 rm -rf "$PEN_TMP"
-PEN_TMP2=$(mktemp -d); mkdir "$PEN_TMP2/.pencil"; : > "$PEN_TMP2/.pencil/app.pen"
-assert "recommend: .pencil/*.pen also surfaces design-leads" \
-  '"$AIKIT/bin/recommend-rules.sh" "$PEN_TMP2" --json | python3 -c "import json,sys; d=json.load(sys.stdin); assert any(x[\"name\"]==\"design-leads\" for x in d[\"recommendations\"])"'
-rm -rf "$PEN_TMP2"
-PEN_TMP3=$(mktemp -d); mkdir "$PEN_TMP3/design"; : > "$PEN_TMP3/design/x.pen"
-assert "recommend: nested design/x.pen surfaces design-leads" \
-  '"$AIKIT/bin/recommend-rules.sh" "$PEN_TMP3" --json | python3 -c "import json,sys; d=json.load(sys.stdin); assert any(x[\"name\"]==\"design-leads\" for x in d[\"recommendations\"])"'
-rm -rf "$PEN_TMP3"
-PEN_TMP4=$(mktemp -d); mkdir -p "$PEN_TMP4/node_modules/pkg"; : > "$PEN_TMP4/node_modules/pkg/x.pen"
-assert "recommend: .pen only under node_modules does not surface design-leads" \
-  '"$AIKIT/bin/recommend-rules.sh" "$PEN_TMP4" --json | python3 -c "import json,sys; d=json.load(sys.stdin); assert not any(x[\"name\"]==\"design-leads\" for x in d[\"recommendations\"])"'
-rm -rf "$PEN_TMP4"
+UI_TMP=$(mktemp -d); echo '{"dependencies":{"react":"^19.0.0"}}' > "$UI_TMP/package.json"
+assert "recommend: react project surfaces design-leads" \
+  '"$AIKIT/bin/recommend-rules.sh" "$UI_TMP" --json | python3 -c "import json,sys; d=json.load(sys.stdin); r=[x for x in d[\"recommendations\"] if x[\"name\"]==\"design-leads\"]; assert r and \"framework match: react\" in r[0][\"reason\"], d"'
+rm -rf "$UI_TMP"
 
 
 echo "=== recommend-tools ==="

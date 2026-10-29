@@ -19,6 +19,8 @@ _Last reconciled: 2026-10-27 against 97 open issues (#31, #47, #182, #191, #192,
   docs scaffold = recorded setup choice; `/ai:upgrade` removes the generated
   universal copies. Two releases: global channel first, then setup/bootstrap.
   Closes #149 with it.
+- **#263** `bug` — quoted frontmatter lists never match in recommend-rules, and
+  the `frontend`/`backend` architecture values no detector emits. 2026-10-29.
 
 ## P2 — next up
 
