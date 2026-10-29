@@ -137,7 +137,6 @@ _Last reconciled: 2026-10-27 against 97 open issues (#31, #47, #182, #191, #192,
 - **#213** `enhancement` — trim plugins and MCP tools per project: ai-kit loads 92 skills plus ~190 deferred MCP tool names every turn (97% of tokens were cache reads, 10-05..14). Deferred until `/context` gives the block size in ai-kit, system and planny; then a per-project `enabledPlugins` recommendation. 2026-10-14.
 - **#215** `enhancement` — PreToolUse hook on SendMessage to block acks and cap message rate (1,767 calls in 10 days, still 170 to 230 per day after the 2026-10-10 rule). Deferred: needs a grill on block criteria, and v2.6.0 measured first (around 2026-10-18). 2026-10-14.
 - **#216** `enhancement` — `model:` frontmatter on read-only agents (ai:explore, ai:qa-runner); 827 of 1,362 spawns had no model and ran on Opus. Deferred: quality risk, needs a grill and a before/after check on real explore tasks. 2026-10-14.
-- **#217** `enhancement` — `design-to-code`: scaffold new Pencil designs as `brand.lib.pen` (variables, themes, logo, brand assets as components) plus surface files that import it (`website.pen`, `mobile.pen`, `marketing.pen`; `tablet.pen`/`watch.pen` on demand). The user's convention, not Pencil's. Deferred: first test in the Pencil app whether a `.lib.pen` can hold non-component frames. 2026-10-14.
 - **#218** `enhancement` — to-prd Defer mode expects a `## What's next` heading; this roadmap uses `## P1`/`## P2`/`## P3`, so the #213 to #216 capture stalled. Append to the section matching the priority label instead. Deferred: batch with the v2.7.0 skill changes and test on a downstream roadmap. 2026-10-14.
 - **#229** `enhancement` — **Multi-host: Cursor and GitHub Copilot**, the PRD for running ai-kit on client machines that have only Cursor or only Copilot, and on the own laptop alongside the Claude Code plugin. ADR-0019 (proposed) supersedes 0006 and 0010. 2026-10-25.
 - **#230** `enhancement` — Live check of four Cursor and Copilot behaviours before building, slice of #229. Checks 2 and 3 done 2026-10-27; checks 1 and 4 (Cursor) open. 2026-10-25.
@@ -154,6 +153,7 @@ _Last reconciled: 2026-10-27 against 97 open issues (#31, #47, #182, #191, #192,
 - **#242** `enhancement` — Accept ADR-0019 and sweep the two-host wording, slice of #229. 2026-10-25.
 - **#247** `bug` — tests: the docs-sync case in `tests/bin/run-all.sh` fails on machine git state (a local branch with no commits of its own such as `epic/multi-host` counts as merged); the fixture run must ignore the host repo's branches. 2026-10-26.
 - **#248** `bug` — `bin/release.sh` ignores a `## Unreleased` CHANGELOG section: it prepends the new version and leaves Unreleased, duplicating lines. Fold Unreleased into the new version heading, with a fixture test. 2026-10-26.
+- **#258** `enhancement` — Replace Pencil with Paper across design-to-code, designer, design-leads, detect-lib, lead-guard, session-coordination, catalog and docs; supersedes the closed Pencil items. 2026-10-29.
 
 ## P3 — backlog
 
@@ -212,14 +212,6 @@ _Last reconciled: 2026-10-27 against 97 open issues (#31, #47, #182, #191, #192,
   `.pen` only, Astro-coupled page resolution, `design-map.json` as contract.
   Ships only behind a `tests/` fixture (tiny `.pen` + `dist/` + map) the suite
   scores deterministically. Deferred from the v1.89.0 harvest.
-- **#181** `enhancement` — `design-to-code`: promote planny-app-mobile's
-  `pencil-design-gate` (the mobile fase-gate wrapper: three-step verify on two
-  device densities + cumulative progress table in `.pencil/PLANNY_PROGRESS.md`,
-  plus `tool/design_wiring_score.py`) into the kit behind the mobile signal.
-  Method and contract already landed as `design-to-code` prove/batch and the
-  `design-leads` rule; the wrapper stays project-local — copied per worktree
-  today — until a second mobile app adopts ai-kit (Yusuf, 2026-09-19). Same
-  cluster as #176.
 - **#176** `enhancement` — `/ai:ship` Flutter branch: route to `/release-ios` +
   `/release-android`, refuse a store build without a review marker (the
   `pubspec.yaml` bump is the trigger, nothing checks it), opt-in changelog-line
@@ -417,7 +409,6 @@ _Last reconciled: 2026-10-27 against 97 open issues (#31, #47, #182, #191, #192,
   re-measurement. Route /ai:harvest from theorieplek, validate in emeq-web, then generalise.
   marketingskills is a pattern source only, its plugin stays excluded. 2026-10-15.
 - **#226** `enhancement` — `/ai:design-to-code` from-reference step: reference URL → tokens + section patterns → own brand in Pencil → build, harvested after one real run in a marketing site. 2026-10-23.
-- **#227** `enhancement` — `perf(detect)`: `.pen` detection in `detect-lib.sh` walks the whole tree with `find` (6.0 s on naschool); use `git ls-files -co --exclude-standard '*.pen'` in git repos, keep `find` as fallback, add a vendor-ignored test. 2026-10-23.
 - **#228** `enhancement · catalog-candidate` — `cloudflare/security-audit-skill` (MIT) as a person-scope repo-wide security-audit companion; ai-kit only has diff-scoped review. Catalog only after one real full-audit run in emeq/system or planny produces confirmed findings (harvest-only-proven). VETTING #8 passes after manual triage (skillspector 14/14 false positives, see #111). 2026-10-23.
 - **#243** `enhancement` — reference research before designing a new site: a fixed step that goes through a curated source list (inspora.design, collectui.com, 60fps.design, cta.gallery, footer.design) and collects concrete references per section before the first design, instead of fine-tuning over many rounds. Shape open (step in `design-to-code`, section in an existing skill, or own skill). Deferred until the hazarfan.nl session's reference research has shaped a real design and shows which sources earned their place (harvest-only-proven). Requested by Yusuf via the hazarfan.nl session. 2026-10-25.
 - **#244** `enhancement` — AI image generation for site visuals, harvested from hazarfan.nl: generate, plausibility-check, place and credit objects-only images via OpenRouter (key from Keychain, never exported), site only. Deferred until hazarfan.nl PR 1 is on main with credits and a credits check; opt-in per app (theorieplek bans AI images). 2026-10-25.
