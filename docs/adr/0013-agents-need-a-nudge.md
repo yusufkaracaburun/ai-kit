@@ -51,6 +51,8 @@ of reaching, will be forgotten no matter how good its prompt is.
 5. **`designer`** is promoted, paired with a new `design-to-code` skill
    (#106) — designer is the build worker, verifier the prove worker. The
    Pencil MCP stays an optional companion surfaced via `recommend-tools`.
+   (Superseded by [ADR-0020](0020-paper-replaces-pencil.md): Paper replaces
+   Pencil.)
 6. **`planner` and `architect` are not ported.** Claude Code's built-in
    Plan agent covers the first; `/ai:audit-architecture` covers the second.
 7. **`debugger` is not ported.** `diagnose` keeps its loop inline by design

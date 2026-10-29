@@ -188,10 +188,20 @@ allow "curl -o f https://example.com"
 
 echo "=== lead-guard: design + browser ==="
 # section: lead-guard-mcp
+PAPER_WRITES=$(grep -oE 'mcp__paper__[a-z_]+' "$HOOK" | sort -u | tr '\n' ' ')
+assert "lead-guard lists the 16 Paper write tools" '[ "$(wc -w <<<"$PAPER_WRITES")" -eq 16 ]'
+for t in $PAPER_WRITES; do
+  OUT=$(fire lead1 "$t" '{}')
+  assert "$t is denied" '[ -n "$OUT" ]'
+done
+OUT=$(fire lead1 mcp__paper__write_html '{}')
+assert "paper deny names Paper and ai:designer" 'grep -q "Paper" <<<"$OUT" && grep -q "ai:designer" <<<"$OUT"'
+for t in get_screenshot get_basic_info get_computed_styles get_jsx get_tokens export finish_working_on_nodes; do
+  OUT=$(fire lead1 "mcp__paper__$t" '{}')
+  assert "paper $t is silent" '[ -z "$OUT" ]'
+done
 OUT=$(fire lead1 mcp__pencil__execute '{}')
-assert "pencil execute is denied" '[ -n "$OUT" ]'
-OUT=$(fire lead1 mcp__pencil__get_app_state '{}')
-assert "pencil get_app_state is silent" '[ -z "$OUT" ]'
+assert "pencil execute is no longer guarded" '[ -z "$OUT" ]'
 OUT=$(fire lead1 mcp__claude-in-chrome__computer '{}')
 assert "chrome computer is denied" '[ -n "$OUT" ]'
 OUT=$(fire lead1 mcp__claude-in-chrome__read_page '{}')
@@ -217,13 +227,15 @@ echo "=== lead-guard: plugin delivery ==="
 HOOKS_JSON="$AIKIT/workflow/hooks/hooks.json"
 assert "hooks.json registers lead-guard on PreToolUse for every guarded tool" \
   'python3 -c "
-import json, re
+import json, re, sys
 d = json.load(open(\"$HOOKS_JSON\"))
 b = [b for b in d[\"hooks\"][\"PreToolUse\"] if any(h[\"command\"] == \"\${CLAUDE_PLUGIN_ROOT}/hooks/lead-guard.sh\" for h in b[\"hooks\"])]
 assert len(b) == 1, b
-for t in [\"Edit\", \"Write\", \"MultiEdit\", \"NotebookEdit\", \"Bash\", \"mcp__pencil__execute\", \"mcp__claude-in-chrome__computer\"]:
+for t in [\"Edit\", \"Write\", \"MultiEdit\", \"NotebookEdit\", \"Bash\", \"mcp__claude-in-chrome__computer\"] + sys.argv[1:]:
     assert re.fullmatch(b[0][\"matcher\"], t), t
-"'
+for t in [\"mcp__pencil__execute\", \"mcp__paper__get_screenshot\"]:
+    assert not re.fullmatch(b[0][\"matcher\"], t), t
+" $PAPER_WRITES'
 assert "sync-plugin-hooks --check clean" 'bash "$AIKIT/bin/sync-plugin-hooks.sh" --check >/dev/null 2>&1'
 
 print_summary_and_exit

@@ -136,7 +136,11 @@ case "$tool" in
     esac
     ;;
   Bash) is_work_command "$(read_field '.tool_input.command')" || exit 0 ;;
-  mcp__pencil__execute) ;;
+  mcp__paper__create_file|mcp__paper__rename_resource|mcp__paper__create_page|mcp__paper__update_pages|\
+  mcp__paper__arrange_pages|mcp__paper__set_comment_thread_status|mcp__paper__write_html|\
+  mcp__paper__create_artboard|mcp__paper__delete_nodes|mcp__paper__set_text_content|mcp__paper__rename_nodes|\
+  mcp__paper__update_styles|mcp__paper__duplicate_nodes|mcp__paper__move_nodes|mcp__paper__create_tokens|\
+  mcp__paper__set_tokens) ;;
   mcp__claude-in-chrome__computer|mcp__claude-in-chrome__form_input|mcp__claude-in-chrome__navigate|\
   mcp__claude-in-chrome__javascript_tool|mcp__claude-in-chrome__shortcuts_execute|\
   mcp__claude-in-chrome__file_upload|mcp__claude-in-chrome__upload_image|\
@@ -145,7 +149,7 @@ case "$tool" in
   *) exit 0 ;;
 esac
 
-msg="lead-guard: this session is lead (claim role=lead). The lead dispatches, it never executes. $tool is work: hand it to a subagent (ai:builder for code, ai:designer for .pen/UI, general-purpose for CLI, browser and store consoles; the subagent default model applies; pass model only when another one fits the task). The lead keeps file reads, status commands, MCP reads, peer messages, claims and memos; browser actions and package runners count as work. Not the lead for this repo? \`ai-kit-claim.sh set role=build\`."
+msg="lead-guard: this session is lead (claim role=lead). The lead dispatches, it never executes. $tool is work: hand it to a subagent (ai:builder for code, ai:designer for Paper designs and UI, general-purpose for CLI, browser and store consoles; the subagent default model applies; pass model only when another one fits the task). The lead keeps file reads, status commands, MCP reads, peer messages, claims and memos; browser actions and package runners count as work. Not the lead for this repo? \`ai-kit-claim.sh set role=build\`."
 
 if command -v jq >/dev/null 2>&1; then
   jq -n --arg r "$msg" \

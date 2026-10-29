@@ -154,6 +154,10 @@ _Last reconciled: 2026-10-27 against 97 open issues (#31, #47, #182, #191, #192,
 - **#247** `bug` — tests: the docs-sync case in `tests/bin/run-all.sh` fails on machine git state (a local branch with no commits of its own such as `epic/multi-host` counts as merged); the fixture run must ignore the host repo's branches. 2026-10-26.
 - **#248** `bug` — `bin/release.sh` ignores a `## Unreleased` CHANGELOG section: it prepends the new version and leaves Unreleased, duplicating lines. Fold Unreleased into the new version heading, with a fixture test. 2026-10-26.
 - **#258** `enhancement` — Replace Pencil with Paper across design-to-code, designer, design-leads, detect-lib, lead-guard, session-coordination, catalog and docs; supersedes the closed Pencil items. 2026-10-29.
+- **#259** `enhancement` — feat(lead-guard): treat Paper MCP writes as work, record Paper in an ADR, slice of #258. 2026-10-29.
+- **#260** `enhancement` — feat(detect): drop .pen detection, make design-leads tool-neutral, slice of #258. 2026-10-29.
+- **#261** `enhancement` — feat(design-to-code): Paper design path, drop Pencil flow, slice of #258. 2026-10-29.
+- **#262** `enhancement` — docs: replace Pencil wording with Paper across rules, catalog and docs, slice of #258. 2026-10-29.
 
 ## P3 — backlog
 
