@@ -1055,7 +1055,7 @@ apps, and every app with an iOS and Android target needs store screenshots at
 each release. The reversal is recorded in `plugins-excluded.json` `reversed[]`.
 A POC the same day at the pinned SHA rendered a 6-slide 1320x2868 deck from
 planny-app-mobile goldens. It is the fallback route; apps with a `.pen` source
-use the design-to-code store flow (#192). Detection checked by hand: fires on
+use the design-to-code store flow (#192). Superseded by ADR-0020 (2026-10-29): Paper replaced Pencil, and store screenshots go through this companion until mobile is designed in Paper. Detection checked by hand: fires on
 planny-app-mobile, silent on emeq-app, emeq-hub, emeq-web and ai-kit.
 
 ```

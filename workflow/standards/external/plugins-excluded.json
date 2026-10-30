@@ -344,7 +344,7 @@
       "was": "Ignore (2026-09-02, re-checked 2026-09-27)",
       "now": "Wire. companions.json, mobile-gated, fallback route for store screenshots (2026-09-27)",
       "reason": "The Ignore rested on one-off marketing tooling with no per-project value. The user reversed it on 2026-09-27: ai-kit will serve more mobile apps, so store screenshots are a recurring ship-phase step for every app with an iOS and Android target, like the release skills. A POC the same day at the pinned SHA rendered a 6-slide 1320x2868 deck from planny-app-mobile goldens. The earlier concern that it scaffolds a whole Next.js app stays true and moved into the entry risk: scaffold in a sibling folder, never inside the app repo.",
-      "consequence": "Gated on a mobile signal (`ios/` and `android/`, or a Flutter `pubspec.yaml` plus one of them), so web-only repos never see it. The primary route is the Pencil flow in design-to-code (#192); this companion is for apps without a `.pen` source. See VETTING.md.",
+      "consequence": "Gated on a mobile signal (`ios/` and `android/`, or a Flutter `pubspec.yaml` plus one of them), so web-only repos never see it. The primary route is the Pencil flow in design-to-code (#192); this companion is for apps without a `.pen` source. See VETTING.md. Superseded by ADR-0020 (2026-10-29): Paper replaced Pencil, and store screenshots go through this companion until mobile is designed in Paper.",
       "pinned_sha": "7faf7fcd62238df12c1d7f0578191bcc73cff07c"
     },
     {
