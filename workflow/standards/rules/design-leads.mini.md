@@ -51,27 +51,28 @@ Name these in the report instead of "fixing" them:
 ## Done-marker on the canvas
 
 - When a screen is in code **and** the user said OK, mark the frame on the
-  canvas itself: a ✅ in the label plus a node holding the source path. A
+  canvas itself: a ✅ in the label, and the label holds the source path. A
   status table in a doc drifts; the canvas is what the next person opens.
 - Keep the progress doc short: archive closed phases to a sibling file. A
   thousand-line progress doc is read by every session and by nobody.
 - Done is derived from artefacts, not declared: the code names its frame where
-  a grep can find it, the check that passed is pinned to the hash of the frame
-  it ran against, and an exemption has a reason, an owner and an expiry.
+  a grep can find it, the check that passed is pinned to the frame id plus a
+  sha of that frame's computed styles (in Paper, `get_computed_styles`), and
+  an exemption has a reason, an owner and an expiry.
   A permanent exemption is a lie with a config key.
 
 ## Editing the design
 
-- Reuse before redraw: an element that has a master is an instance, never a
-  loose copy; a structure repeated on two screens gets a master first.
+- Reuse before redraw: a design element on the components page is reused,
+  never copied loose; a structure repeated on two screens becomes an element
+  there first.
 - A component's debut on a real screen is a test, not a wiring step. If it
-  does not fit its neighbours, choose out loud: change the master, promote a
-  named variant, or fix the layout around it — never an instance-only
-  override.
+  does not fit its neighbours, choose out loud: change the element, promote a
+  named variant, or fix the layout around it, never a one-screen override.
 - A visual "could be better" proposal goes on the canvas as a sibling frame
   next to the current one so the user compares at true size; the loser is
-  deleted. A copy pass is reviewed as the design file's diff plus a change
-  list — a sibling per line drowns the canvas.
+  deleted. A copy pass is reviewed as a screenshot of each changed artboard
+  plus a change list; a sibling per line drowns the canvas.
 - After changing a token, read it back and confirm the exact name changed.
   A typo creates an orphan token beside the real one and nothing rebinds.
 

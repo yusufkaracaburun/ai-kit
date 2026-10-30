@@ -36,7 +36,7 @@ assert "builder frontmatter name" 'head -5 "$AIKIT/workflow/agents/builder.md" |
 assert "builder frontmatter tools" 'head -5 "$AIKIT/workflow/agents/builder.md" | grep -q "^tools:"'
 assert "designer frontmatter name" 'head -5 "$AIKIT/workflow/agents/designer.md" | grep -q "^name: designer$"'
 assert "designer frontmatter has no model pin" '! head -5 "$AIKIT/workflow/agents/designer.md" | grep -q "^model:"'
-# No tools: line on purpose — designer inherits the Pencil MCP tools when the host has them.
+# No tools: line on purpose — designer inherits the Paper MCP tools when the host has them.
 assert "designer frontmatter has no tools list" '! head -5 "$AIKIT/workflow/agents/designer.md" | grep -q "^tools:"'
 
 
@@ -72,6 +72,8 @@ assert "design-to-code skill has a Run mode block" 'grep -q "^## Run mode" "$AIK
 assert "design-to-code skill delegates to designer" 'grep -q "subagent_type=ai:designer" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
 assert "design-to-code skill delegates to verifier" 'grep -q "subagent_type=ai:verifier" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
 assert "design-to-code skill has a store flow with its fallback" 'grep -q "^### store" "$AIKIT/workflow/skills/design-to-code/SKILL.md" && grep -q "app-store-screenshots" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "design-to-code skill has a Paper rules section" 'grep -q "^## Paper rules" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "design-to-code and designer carry no Pencil text" '! grep -rqiE "pencil|\.pen\b" "$AIKIT/workflow/skills/design-to-code" "$AIKIT/workflow/agents/designer.md"'
 
 
 echo "=== plugin-manifest ==="
