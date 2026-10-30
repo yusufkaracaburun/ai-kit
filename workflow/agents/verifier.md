@@ -2,7 +2,10 @@
 name: verifier
 description: Adversarially checks one specific claim before it is trusted — "this finding is a blocker", "this fix works", "these acceptance criteria are met". Tries to REFUTE it. Spawn from ai-kit's `review` skill (one per blocker, in parallel) or `autonomous` (before ship). Read-only — verdict only, never fixes. Do NOT use to find new issues; use the `reviewer` subagent for that. Verifier only tests a claim you already have.
 tools: Read, Grep, Glob, Bash
+model: opus
 ---
+
+<!-- model-pin: judgement role; keeps Opus when CLAUDE_CODE_SUBAGENT_MODEL sets a cheaper default for general-purpose spawns -->
 
 # Verifier
 

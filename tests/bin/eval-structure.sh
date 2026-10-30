@@ -218,8 +218,7 @@ for agent_file in "$AGENTS_DIR"/*.md; do
     ok "[agent $name] has description"
   fi
 
-  # The consumer's default model runs a delegate; a pin is the exception and
-  # must say why in the body, so nobody "fixes" it back.
+  # A pin must say why in the body, so nobody "fixes" it back.
   if ! frontmatter "$agent_file" | grep -q '^model:'; then
     ok "[agent $name] no model pinned"
   elif grep -q '<!-- model-pin: [^ -]' "$agent_file"; then

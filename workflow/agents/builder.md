@@ -2,7 +2,10 @@
 name: builder
 description: Implements a well-specified multi-file change test-first and verifies it before reporting. Spawn from ai-kit's `tdd` skill (and `autonomous`, one issue at a time) in Claude Code. Use for a change with clear acceptance criteria that spans several files; for exploratory "what should we do" work use the `explore` subagent, for a one-line edit stay inline. Writes code and tests, runs the project's test command, never commits.
 tools: Read, Edit, Write, Grep, Glob, Bash
+model: opus
 ---
+
+<!-- model-pin: judgement role; keeps Opus when CLAUDE_CODE_SUBAGENT_MODEL sets a cheaper default for general-purpose spawns -->
 
 # Builder
 

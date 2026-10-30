@@ -54,6 +54,11 @@ The rule existed and was skipped. More prose would be skipped the same way.
       `to-prd` and `diagnose` through their `model: fable` frontmatter. That
       key holds for the turn the skill loads; a multi-turn grill falls back to
       the session model from the next user prompt on.
+      Amended 2026-10-30: `CLAUDE_CODE_SUBAGENT_MODEL` sets the default for
+      general-purpose spawns (Sonnet). `builder`, `reviewer`, `designer` and
+      `verifier` pin Opus and `explore` pins Sonnet in their `model:`
+      frontmatter, which beats the env var (Claude Code v2.1.251 and later).
+      This supersedes the Opus-default sentence of item 8.
 2. **Enforcement is a hook, not more prose.** `workflow/hooks/lead-guard.sh`
    (PreToolUse, plugin-bundled) denies Edit/Write on repo files, mutating or
    heavy Bash, `mcp__pencil__execute` and Chrome write tools. The switch is
@@ -66,6 +71,9 @@ The rule existed and was skipped. More prose would be skipped the same way.
    run on the consumer's default. A frontmatter `model:` pin is allowed only
    with a `<!-- model-pin: <reason> -->` line, which `eval-structure.sh`
    checks. `explore` is the one pin (`sonnet`, a bounded read-only role).
+   Amended 2026-10-30: the env default is Sonnet for general-purpose spawns,
+   so `builder`, `reviewer`, `designer` and `verifier` pin `opus`, each with a
+   `model-pin` reason. `explore` keeps its `sonnet` pin; `qa-runner` has none.
 4. **The rule body stays within its 14-line budget.** The contract replaced
    and merged bullets rather than adding a section.
 

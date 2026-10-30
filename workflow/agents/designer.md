@@ -1,7 +1,10 @@
 ---
 name: designer
 description: Builds UI (a screen, a component, a layout pass) from a design frame so it looks like it belongs in this product, not in a component-library demo. Spawn from ai-kit's `design-to-code` skill (build flow, one per unit, in parallel across independent frames). Reads the project's tokens and best existing components first, the design via the Paper MCP when present (or the caller's screenshot), writes code, renders to verify, never commits. Do NOT use for backend logic, data-model work, or choosing a visual direction.
+model: opus
 ---
+
+<!-- model-pin: judgement role; keeps Opus when CLAUDE_CODE_SUBAGENT_MODEL sets a cheaper default for general-purpose spawns -->
 
 # Designer
 

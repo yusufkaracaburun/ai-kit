@@ -2,7 +2,10 @@
 name: reviewer
 description: Pre-merge code review against the base branch. Spawn from ai-kit's `review` skill in Claude Code. Read-only — produces a markdown report with blockers, security findings, suggestions, and a verdict. Never writes, never commits.
 tools: Read, Grep, Glob, Bash
+model: opus
 ---
+
+<!-- model-pin: judgement role; keeps Opus when CLAUDE_CODE_SUBAGENT_MODEL sets a cheaper default for general-purpose spawns -->
 
 # Reviewer
 
