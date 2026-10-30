@@ -429,3 +429,4 @@ _Last reconciled: 2026-10-27 against 97 open issues (#31, #47, #182, #191, #192,
 - **#246** `bug` — lead-guard: Bash appends to the memory index are blocked while Write works; make the guard message say "use Write", and keep agent briefs/hooks off interactive `rm` aliases (`command rm -f`). Low severity, workarounds exist. 2026-10-26.
 - **#257** `enhancement` — harvest emeq-reui POC findings: SSR forms with sensitive fields use `method="post"`, never print `.env`, lead briefs ban `git add -N` and need unfiltered exit codes (proven, do first); grid-wrapper and design-to-code notes wait for a 2nd app (Paper chosen in #258). 2026-10-29.
 - **#268** `enhancement` — git-hygiene: commit briefs tick DoD boxes before closing; the DoD workflow reopens issues with unticked boxes. 2026-10-30.
+- **#272** `enhancement` — offer ReUI Pro registry in recommend-tools for React+shadcn projects (components.json); parked until a Pro block ships in emeq-reui. 2026-10-30.
