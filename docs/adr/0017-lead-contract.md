@@ -4,6 +4,8 @@
 
 Accepted. Extends decision 3 of ADR-0014 (one lead per repo).
 
+Lead-guard tool list superseded by [ADR-0020](0020-paper-replaces-pencil.md), 2026-10-29.
+
 ## Context
 
 ADR-0014 made one session per repo the lead, and its 2026-09-29 amendment

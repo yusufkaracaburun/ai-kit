@@ -49,7 +49,7 @@ Start: "I want to add X to ai-kit"
 │  │  │     Nudged: PreToolUse hook at the moment of reaching
 │  │  │       (pattern: bin/hooks/search-delegation-check.sh)
 │  │  │     Tools: pin `tools:` — except when the agent must reach an
-│  │  │       optional MCP (designer inherits, so Pencil works when present)
+│  │  │       optional MCP (designer inherits, so Paper works when present)
 │  │  │
 │  │  └─ NO → SKILL
 │  │         Source: workflow/skills/<name>/SKILL.md

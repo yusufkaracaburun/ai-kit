@@ -6,7 +6,7 @@
 #
 #   name, repo, cwd, branch      where the session works (hook writes these)
 #   role                         lead | build | design | e2e | review
-#   owns                         [paths, .pen frames, devices]
+#   owns                         [paths, Paper frames, devices]
 #   provides                     [api version, plugin release, ...]
 #   depends_on                   [repos, resources]
 #   updated                      ISO-8601, set on every write

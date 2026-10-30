@@ -55,7 +55,7 @@ Two facts found on the machine while building this shaped the mechanism:
    peer only on four triggers: (1) same repo with branch/file overlap; (2) its
    work touches something the peer claims as a dependency (kit release, API
    contract, deploy); (3) a shared-resource clash (emulator, device, port, DB,
-   `.pen` frame); (4) relaying a user decision that affects the peer's claimed
+   Paper frame); (4) relaying a user decision that affects the peer's claimed
    area. Anything else: read, don't send.
 3. **One lead per repo, designated by the user.** The lead owns push/merge
    order; non-leads commit locally and report to the lead. No lead named → the

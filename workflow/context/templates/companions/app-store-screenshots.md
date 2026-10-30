@@ -1,12 +1,11 @@
-## app-store-screenshots (store screenshots, fallback route)
+## app-store-screenshots (store screenshots)
 
 [ParthJadhav/app-store-screenshots](https://github.com/ParthJadhav/app-store-screenshots)
 is a skill that scaffolds a local Next.js editor and renders App Store and Play
 Store screenshot decks with device frames and themes.
 
-- **Pencil first.** If this project has a `.pen` design source, make store
-  screenshots with the `design-to-code` store flow instead. This skill is for
-  apps without one.
+- **The store route for now.** Make store screenshots with this skill until
+  mobile is designed in Paper. Then the `design-to-code` store flow takes over.
 - **Sibling folder, never the app repo.** The skill copies its template into the
   working directory and runs a dev server whose API routes write to disk
   (`/api/project`, `/api/upload`, `/api/upload-font`). Scaffold it next to the

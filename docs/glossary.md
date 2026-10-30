@@ -89,7 +89,7 @@ The one session per repo, named by the user, that owns push/merge order and the 
 
 ### Lead-guard
 
-The plugin's PreToolUse hook `workflow/hooks/lead-guard.sh`. For a session with *claim role* `lead`, it denies Edit/Write on repo files, mutating or heavy Bash, Pencil execute and Chrome write tools on the main thread. Subagents and memo or scratch paths pass (ADR-0017).
+The plugin's PreToolUse hook `workflow/hooks/lead-guard.sh`. For a session with *claim role* `lead`, it denies Edit/Write on repo files, mutating or heavy Bash, Paper write tools and Chrome write tools on the main thread. Subagents and memo or scratch paths pass (ADR-0017).
 
 ### Lead-nudge
 

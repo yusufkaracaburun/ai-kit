@@ -214,9 +214,10 @@ _Last reconciled: 2026-10-27 against 97 open issues (#31, #47, #182, #191, #192,
 - **#177** `enhancement` — `design-to-code`: ship a web design-fidelity script
   (texts 45 · tokens 30 · hex 15 · icons 10, per component ≥ 90) as the
   reference impl of the audit flow's four measurements. Source is theorieplek's
-  `scripts/check-fidelity.mjs`, which has never run outside theorieplek: plain-JSON
-  `.pen` only, Astro-coupled page resolution, `design-map.json` as contract.
-  Ships only behind a `tests/` fixture (tiny `.pen` + `dist/` + map) the suite
+  `scripts/check-fidelity.mjs`, which has never run outside theorieplek: its
+  design-file input pending #258 (Paper), Astro-coupled page resolution,
+  `design-map.json` as contract.
+  Ships only behind a `tests/` fixture (tiny design input + `dist/` + map) the suite
   scores deterministically. Deferred from the v1.89.0 harvest.
 - **#176** `enhancement` — `/ai:ship` Flutter branch: route to `/release-ios` +
   `/release-android`, refuse a store build without a review marker (the
@@ -414,10 +415,10 @@ _Last reconciled: 2026-10-27 against 97 open issues (#31, #47, #182, #191, #192,
   part has a measured result there (proven-only rule, 2026-10-15). First checkpoint: 2026-11-05
   re-measurement. Route /ai:harvest from theorieplek, validate in emeq-web, then generalise.
   marketingskills is a pattern source only, its plugin stays excluded. 2026-10-15.
-- **#226** `enhancement` — `/ai:design-to-code` from-reference step: reference URL → tokens + section patterns → own brand in Pencil → build, harvested after one real run in a marketing site. 2026-10-23.
+- **#226** `enhancement` — `/ai:design-to-code` from-reference step: reference URL → tokens + section patterns → own brand in Paper → build, harvested after one real run in a marketing site. 2026-10-23.
 - **#228** `enhancement · catalog-candidate` — `cloudflare/security-audit-skill` (MIT) as a person-scope repo-wide security-audit companion; ai-kit only has diff-scoped review. Catalog only after one real full-audit run in emeq/system or planny produces confirmed findings (harvest-only-proven). VETTING #8 passes after manual triage (skillspector 14/14 false positives, see #111). 2026-10-23.
 - **#243** `enhancement` — reference research before designing a new site: a fixed step that goes through a curated source list (inspora.design, collectui.com, 60fps.design, cta.gallery, footer.design) and collects concrete references per section before the first design, instead of fine-tuning over many rounds. Shape open (step in `design-to-code`, section in an existing skill, or own skill). Deferred until the hazarfan.nl session's reference research has shaped a real design and shows which sources earned their place (harvest-only-proven). Requested by Yusuf via the hazarfan.nl session. 2026-10-25.
 - **#244** `enhancement` — AI image generation for site visuals, harvested from hazarfan.nl: generate, plausibility-check, place and credit objects-only images via OpenRouter (key from Keychain, never exported), site only. Deferred until hazarfan.nl PR 1 is on main with credits and a credits check; opt-in per app (theorieplek bans AI images). 2026-10-25.
 - **#245** `enhancement` — grill skills: after recommending several design choices, check the combination still produces the source pattern's visual effect (seen: white header + pill nav made a white pill invisible). Deferred until a second occurrence fixes the wording. 2026-10-26.
 - **#246** `bug` — lead-guard: Bash appends to the memory index are blocked while Write works; make the guard message say "use Write", and keep agent briefs/hooks off interactive `rm` aliases (`command rm -f`). Low severity, workarounds exist. 2026-10-26.
-- **#257** `enhancement` — harvest emeq-reui POC findings: SSR forms with sensitive fields use `method="post"`, never print `.env`, lead briefs ban `git add -N` and need unfiltered exit codes (proven, do first); grid-wrapper and design-to-code notes wait for a 2nd app and the Paper vs Pencil call. 2026-10-29.
+- **#257** `enhancement` — harvest emeq-reui POC findings: SSR forms with sensitive fields use `method="post"`, never print `.env`, lead briefs ban `git add -N` and need unfiltered exit codes (proven, do first); grid-wrapper and design-to-code notes wait for a 2nd app (Paper chosen in #258). 2026-10-29.

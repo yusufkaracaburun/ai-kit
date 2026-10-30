@@ -104,9 +104,9 @@ assert "payload without session_id exits 0 silent" '[ "$NOSID_RC" -eq 0 ] && [ -
 
 echo "=== ai-kit-claim: set / show / release round-trip ==="
 # section: claim-roundtrip
-"$CLAIM" --session own-1 set role=lead owns="lib/home/*, .pen:Q501VT" depends_on=planny >/dev/null
+"$CLAIM" --session own-1 set role=lead owns="lib/home/*, paper:Q501VT" depends_on=planny >/dev/null
 assert "set writes role" 'grep -q "^role: lead$" "$CLAIMS/own-1.md"'
-assert "set writes owns as a list" 'grep -q "^owns: \[lib/home/\*, .pen:Q501VT\]$" "$CLAIMS/own-1.md"'
+assert "set writes owns as a list" 'grep -q "^owns: \[lib/home/\*, paper:Q501VT\]$" "$CLAIMS/own-1.md"'
 assert "set keeps skeleton fields" 'grep -q "^repo: planny-app-mobile$" "$CLAIMS/own-1.md"'
 assert "set refreshes updated" 'grep -q "^updated: 20" "$CLAIMS/own-1.md"'
 
