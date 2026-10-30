@@ -1,5 +1,29 @@
 # Changelog
 
+## 2.13.0 — 2026-10-30
+
+### Changed
+
+- Paper replaces Pencil as the design tool in every project (ADR-0020, #258). Existing `.pen` files stay as a read-only archive.
+- `design-to-code` and the `designer` agent work from a Paper design through the Paper MCP: open the file, check the app tokens, read with `get_screenshot` and `get_computed_styles`. `get_jsx` output never becomes app code. Paper is for new design only; Paper Free allows about 100 MCP calls a week (#261).
+- Prove pins a check to the frame id plus a sha of its computed styles. The done marker is one `rename_nodes` call that puts the checkmark and the source path in the artboard name (#261).
+- lead-guard denies the 16 Paper MCP write tools for a lead session; reads stay allowed (#259).
+- `design-leads` is tool-neutral: it applies to react, vue, nextjs, astro and flutter projects and does not apply without a design source (#260).
+- Store screenshots go through the `app-store-screenshots` companion until mobile is designed in Paper (#261, #262).
+- Docs drift fixed across README, SECURITY and docs/ (d6f3b46). README has a quickstart and demo GIF (7883c60).
+
+### Removed
+
+- `pencil` framework detection for `*.pen` files, including its whole-tree `find` walk (#260, #227).
+- `design-to-code/pencil-sweep.md` and the Pencil structural sweep (#261).
+- The `mcp__pencil__execute` entry in lead-guard and the plugin hook matcher (#259).
+- The `brand.lib.pen` file split in `design-leads` (#260).
+
+### Fixed
+
+- Standard MIT LICENSE text plus NOTICE (#255).
+- `cursor-global-skills` test reads the inode with GNU `stat` first (d901356).
+
 ## 2.12.0 — 2026-10-27
 
 ### Added
