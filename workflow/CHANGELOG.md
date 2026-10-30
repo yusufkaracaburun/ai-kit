@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.14.0 — 2026-10-30
+
+### Changed
+
+- `builder`, `reviewer`, `designer` and `verifier` pin `model: opus` in their frontmatter, each with a `model-pin` reason. They keep Opus when `CLAUDE_CODE_SUBAGENT_MODEL` moves general-purpose spawns to Sonnet. Agent frontmatter beats the env var from Claude Code v2.1.251. `explore` keeps its Sonnet pin; `qa-runner` stays unpinned on purpose.
+- `CLAUDE_CODE_SUBAGENT_MODEL` is now meant for Sonnet: it sets the default for general-purpose spawns only.
+- ADR-0017 amended (items 1 and 3); `session-coordination` rule and `docs/mental-model.md` match.
+- `structure.sh` asserts the four Opus pins and the unpinned `qa-runner`.
+
 ## 2.13.0 — 2026-10-30
 
 ### Changed
