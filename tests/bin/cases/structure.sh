@@ -18,13 +18,14 @@ assert "rename-housekeeping skill exists" '[ -f "$AIKIT/workflow/skills/rename-h
 echo "=== agents ==="
 # section: agents
 AGENT_COUNT=$(find "$AIKIT/workflow/agents" -maxdepth 1 -name "*.md" | wc -l | tr -d ' ')
-assert "6 subagents present" '[ "$AGENT_COUNT" -eq 6 ]'
+assert "7 subagents present" '[ "$AGENT_COUNT" -eq 7 ]'
 assert "explore exists" '[ -f "$AIKIT/workflow/agents/explore.md" ]'
 assert "reviewer exists" '[ -f "$AIKIT/workflow/agents/reviewer.md" ]'
 assert "qa-runner exists" '[ -f "$AIKIT/workflow/agents/qa-runner.md" ]'
 assert "verifier exists" '[ -f "$AIKIT/workflow/agents/verifier.md" ]'
 assert "builder exists" '[ -f "$AIKIT/workflow/agents/builder.md" ]'
 assert "designer exists" '[ -f "$AIKIT/workflow/agents/designer.md" ]'
+assert "judge exists" '[ -f "$AIKIT/workflow/agents/judge.md" ]'
 assert "explore frontmatter name" 'head -5 "$AIKIT/workflow/agents/explore.md" | grep -q "^name: explore$"'
 assert "explore frontmatter tools" 'head -5 "$AIKIT/workflow/agents/explore.md" | grep -q "^tools:"'
 assert "reviewer frontmatter name" 'head -5 "$AIKIT/workflow/agents/reviewer.md" | grep -q "^name: reviewer$"'
@@ -41,6 +42,9 @@ assert "designer frontmatter name" 'head -5 "$AIKIT/workflow/agents/designer.md"
 assert "designer frontmatter pins opus" 'head -5 "$AIKIT/workflow/agents/designer.md" | grep -qx "model: opus"'
 # No tools: line on purpose — designer inherits the Paper MCP tools when the host has them.
 assert "designer frontmatter has no tools list" '! head -5 "$AIKIT/workflow/agents/designer.md" | grep -q "^tools:"'
+assert "judge frontmatter name" 'head -5 "$AIKIT/workflow/agents/judge.md" | grep -q "^name: judge$"'
+assert "judge frontmatter pins opus" 'head -5 "$AIKIT/workflow/agents/judge.md" | grep -qx "model: opus"'
+assert "judge frontmatter is read-only" 'head -5 "$AIKIT/workflow/agents/judge.md" | grep -qx "tools: Read, Grep, Glob, Bash"'
 
 
 echo "=== slash-commands ==="
@@ -74,9 +78,23 @@ assert "autonomous skill names builder as the per-issue worker" 'grep -q "subage
 assert "design-to-code skill has a Run mode block" 'grep -q "^## Run mode" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
 assert "design-to-code skill delegates to designer" 'grep -q "subagent_type=ai:designer" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
 assert "design-to-code skill delegates to verifier" 'grep -q "subagent_type=ai:verifier" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "design-to-code skill delegates scoring to judge" 'grep -q "subagent_type=ai:judge" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "design-to-code skill caps fix rounds at 2" 'grep -q "round 2 of 2" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+for item in "Render vs Paper" "Layout" "Breakpoints" "Theme" "No overflow"; do
+  assert "design-to-code checklist has render item: $item" "grep -q \"\\*\\*$item\\*\\*\" \"\$AIKIT/workflow/skills/design-to-code/SKILL.md\""
+done
+for item in "text" "tokens" "no hardcoded values" "icons and states"; do
+  assert "design-to-code checklist has code item: $item" "grep -q \"\\*\\*$item\\*\\*\" \"\$AIKIT/workflow/skills/design-to-code/SKILL.md\""
+done
+assert "design-to-code ends every run with AskUserQuestion" 'grep -q "AskUserQuestion" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "judge gives no partial credit" 'grep -q "No partial credit" "$AIKIT/workflow/agents/judge.md"'
+assert "judge scores the lowest component" 'grep -q "lowest component" "$AIKIT/workflow/agents/judge.md"'
+assert "judge stops at the round cap" 'grep -qF "STOP (cap reached, ask user)" "$AIKIT/workflow/agents/judge.md"'
+assert "judge stops at round 2 or later" 'grep -qF "round 2 or later" "$AIKIT/workflow/agents/judge.md"'
+assert "judge and design-to-code pin untracked files" 'grep -q "git ls-files -o" "$AIKIT/workflow/agents/judge.md" && grep -q "git ls-files -o" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
 assert "design-to-code skill has a store flow with its fallback" 'grep -q "^### store" "$AIKIT/workflow/skills/design-to-code/SKILL.md" && grep -q "app-store-screenshots" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
 assert "design-to-code skill has a Paper rules section" 'grep -q "^## Paper rules" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
-assert "design-to-code and designer carry no Pencil text" '! grep -rqiE "pencil|\.pen\b" "$AIKIT/workflow/skills/design-to-code" "$AIKIT/workflow/agents/designer.md"'
+assert "design-to-code, designer and judge carry no Pencil text" '! grep -rqiE "pencil|\.pen\b" "$AIKIT/workflow/skills/design-to-code" "$AIKIT/workflow/agents/designer.md" "$AIKIT/workflow/agents/judge.md"'
 
 
 echo "=== plugin-manifest ==="

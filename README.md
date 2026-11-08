@@ -24,7 +24,7 @@ Cursor and other hosts: see [Install](#install).
 | Primitive | Count | Reaches |
 | --------- | -----:| ------- |
 | Skills | 35 | Claude Code · Cursor |
-| Subagents | 6 | Claude Code |
+| Subagents | 7 | Claude Code |
 | Slash commands | 11 | Claude Code · Cursor |
 | Hooks | 10 plugin-wired (`workflow/hooks/hooks.json`) | Claude Code |
 | Rules | 46 canonical mini-rules | Cursor · Claude Code (via emitter) |

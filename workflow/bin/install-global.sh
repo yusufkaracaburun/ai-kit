@@ -123,7 +123,7 @@ if [ "$CLAUDE_HOST" = true ]; then
   echo ""
   if [ "$PREFER_PLUGIN" = true ]; then
     echo "=== Claude Code subagents — skipped (prefer-plugin marker) ==="
-    echo "  Install via /plugin install ai@yusufkaracaburun to get explore/reviewer/qa-runner/verifier/builder/designer."
+    echo "  Install via /plugin install ai@yusufkaracaburun to get explore/reviewer/qa-runner/verifier/judge/builder/designer."
   else
     echo "=== Claude Code subagents (~/.claude/agents) ==="
     install_files_to "$PRIMITIVES/agents" "${HOME}/.claude/agents"

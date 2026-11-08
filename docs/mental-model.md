@@ -1,6 +1,6 @@
 # Mental model
 
-How the 35 skills fit together, plus the 6 subagents and 11 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
+How the 35 skills fit together, plus the 7 subagents and 11 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
 
 For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossary.md). For "I want to add X — which primitive?" see [primitives.md](primitives.md).
 
@@ -58,6 +58,7 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
 | `review` skill on Claude Code | `reviewer` (full pre-merge review with structured markdown report; pinned to `opus` with a `model-pin` reason) |
 | `qa` skill on Claude Code | `qa-runner` (full QA pass, web only — Playwright/CLI tests, structured findings report; large browser output stays isolated) |
 | A blocker from `review`, or the "acceptance criteria met" claim before `autonomous` ships | `verifier` (adversarial check of one claim — REFUTED / CONFIRMED / UNTESTABLE, verdict only; pinned to `opus` with a `model-pin` reason) |
+| `design-to-code` audit, after each build or fix round | `judge` (scores a deliverable against a fixed yes/no checklist with evidence per item, lowest component is the score, at most 2 fix rounds, verdict and fix list only; pinned to `opus` with a `model-pin` reason) |
 | `tdd` skill on Claude Code, change spans ≥3 files; `autonomous` per issue | `builder` (whole red→green→refactor pass against the acceptance criteria; returns a Changed/Tests report opening with the diff stat and the verbatim test count, takes heavy runs only when the brief grants them, never commits or discards work; pinned to `opus` with a `model-pin` reason) |
 | `design-to-code` build flow, one per frame | `designer` (UI from a design frame against the project's own tokens and components; Design sources / Changed / States / Verified report, never commits; Paper design mode when the brief makes the Paper design the deliverable; pinned to `opus` with a `model-pin` reason) |
 | Codebase walk from `diagnose`, `to-issues` | `explore` (read-only sweeps, ≤300 lines, structured return; pinned to `sonnet` with a `model-pin` reason) |
