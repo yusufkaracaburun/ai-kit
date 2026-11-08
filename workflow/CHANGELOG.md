@@ -4,10 +4,9 @@
 
 ### Added
 
-- `judge` agent: judges a built screen against its Paper frame and returns a verdict. It pins `model: opus`, so the agent count is now 7.
-- `bin/design-pin.sh`: pins a design check to a frame id for the prove step.
-- `design-to-code` judge checklist: tokens, clicks and visibility rules for the judge.
-- `design-to-code` 2-round cap: the build and judge loop stops after two rounds.
+- `judge` agent (read-only, pins `model: opus`; agent count now 7): scores a design-to-code unit against a fixed yes/no checklist with evidence. The score is passed over total checks, and the bar defaults to 100. It returns PASS, FIX or STOP. The reference is a Paper frame, a screenshot with values (`image`), or `open`.
+- `bin/design-pin.sh <unit-id> <measure.json> [computed-styles-file]`: prints the pin line, which holds hashes of the reference, values, HEAD, worktree, overlay and measure. The judge recomputes the pin and refuses to score on a mismatch, so two judges on the same pin score the same input.
+- `design-to-code`: the checklist goes into the designer brief before the build. The project overlay lives at `.agents/design-to-code.overlay.json`. Scoring is one judge spawn. There are at most 2 fix rounds, then STOP, and every run ends with an AskUserQuestion to the user.
 
 ### Changed
 
