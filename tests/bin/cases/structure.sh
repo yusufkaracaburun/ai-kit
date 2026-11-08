@@ -80,7 +80,7 @@ assert "design-to-code skill delegates to designer" 'grep -q "subagent_type=ai:d
 assert "design-to-code skill delegates to verifier" 'grep -q "subagent_type=ai:verifier" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
 assert "design-to-code skill delegates scoring to judge" 'grep -q "subagent_type=ai:judge" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
 assert "design-to-code skill caps fix rounds at 2" 'grep -q "round 2 of 2" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
-for item in "Render vs Paper" "Layout" "Breakpoints" "Theme" "No overflow"; do
+for item in "Render vs reference" "Layout" "Breakpoints" "Theme" "No overflow"; do
   assert "design-to-code checklist has render item: $item" "grep -q \"\\*\\*$item\\*\\*\" \"\$AIKIT/workflow/skills/design-to-code/SKILL.md\""
 done
 for item in "text" "tokens" "no hardcoded values" "icons and states"; do
@@ -92,6 +92,34 @@ assert "judge scores the lowest component" 'grep -q "lowest component" "$AIKIT/w
 assert "judge stops at the round cap" 'grep -qF "STOP (cap reached, ask user)" "$AIKIT/workflow/agents/judge.md"'
 assert "judge stops at round 2 or later" 'grep -qF "round 2 or later" "$AIKIT/workflow/agents/judge.md"'
 assert "judge and design-to-code pin untracked files" 'grep -q "git ls-files -o" "$AIKIT/workflow/agents/judge.md" && grep -q "git ls-files -o" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "design-to-code checklist has UX item: Clicks" 'grep -q "\*\*Clicks\*\*" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "judge and design-to-code support image reference mode" 'grep -q "\`image\`" "$AIKIT/workflow/agents/judge.md" && grep -q "\`image\`" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "design-to-code names the overlay file" 'grep -q "\.agents/design-to-code\.overlay\.json" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+for key in bar tolerance breakpoints themes undesigned_states tasks units; do
+  assert "design-to-code overlay lists key: $key" "grep -qF '\"$key\":' \"\$AIKIT/workflow/skills/design-to-code/SKILL.md\""
+done
+assert "missing overlay key fails as not configured" 'grep -q "not configured" "$AIKIT/workflow/agents/judge.md" && grep -q "not configured" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "design-to-code requires a list_resources call to succeed" 'grep -q "\`list_resources\` call succeeds" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "default bar is 100 in judge and design-to-code" 'grep -q "default 100" "$AIKIT/workflow/agents/judge.md" && grep -q "every component ≥ 100" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "judge stops on a pin error without using a round" 'grep -q "no round used" "$AIKIT/workflow/agents/judge.md"'
+assert "design-to-code guards against a self-referencing reference" 'grep -q "never under the unit.s \`paths\`" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "design-to-code names the only does-not-apply cases" 'grep -qF "Only \`themes\` with one entry, \`mask\` or \`undesigned_states\` empty, and no task naming this unit mean does not apply; any other empty value is FAIL not configured." "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "design-to-code fixes the Clicks evidence line format" 'grep -qF "<n>. click <selector> → <url>" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "judge and design-to-code accept an approved snapshot" 'grep -q "approved_at" "$AIKIT/workflow/agents/judge.md" && grep -q "approved_at" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "design-to-code skips Render vs reference when unchanged since approval" 'grep -q "unchanged since approval" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "judge checks the approved commit exists" 'grep -qF "git cat-file -e <approved_at>^{commit}" "$AIKIT/workflow/agents/judge.md"'
+assert "design-to-code overlay tasks name their unit" 'grep -qF '"'"'"unit":'"'"' "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "design-to-code counts the mouse-only click path" 'grep -q "mouse-only path" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "judge and design-to-code hash several reference images in order" 'grep -qF "shasum <files in listed order> | shasum" "$AIKIT/workflow/agents/judge.md" && grep -qF "shasum <files in listed order> | shasum" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "design-to-code overlay units can mask volatile fields" 'grep -qF '"'"'"mask": []'"'"' "$AIKIT/workflow/skills/design-to-code/SKILL.md" && grep -q "CSS selectors" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "judge and design-to-code pin unmasked reference files" 'grep -q "unmasked" "$AIKIT/workflow/agents/judge.md" && grep -q "unmasked" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "approved-snapshot diff sees the working tree" '! grep -qF "<approved_at> HEAD" "$AIKIT/workflow/agents/judge.md" && ! grep -qF "<approved_at> HEAD" "$AIKIT/workflow/skills/design-to-code/SKILL.md" && grep -qF "git diff <approved_at> -- <paths>" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "design-to-code template has no empty approved_at" '! grep -qF '"'"'"approved_at": ""'"'"' "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "Clicks does not apply when no task names the unit" 'grep -qF "No task names this unit: Clicks does not apply" "$AIKIT/workflow/skills/design-to-code/SKILL.md" && grep -qF "select(.unit==" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "only the user's accept sets approval, references or masks" 'grep -qF "Only the user'"'"'s accept in the closing \`AskUserQuestion\` sets \`approved_at\`" "$AIKIT/workflow/skills/design-to-code/SKILL.md" && grep -qi "only the user.s accept" "$AIKIT/workflow/agents/judge.md"'
+assert "undesigned_states is a closed list" 'grep -qF "\`hover\`, \`focus\`, \`active\`, \`loading\`" "$AIKIT/workflow/skills/design-to-code/SKILL.md" && grep -qF '"'"'["hover", "focus"]'"'"' "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "multi-image sha runs from the repo root" 'grep -q "run from the repo root" "$AIKIT/workflow/agents/judge.md" && grep -q "run from the repo root" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
+assert "judge and design-to-code pin the overlay" 'grep -qF "jq -S '"'"'del(.units[].pin)'"'"'" "$AIKIT/workflow/agents/judge.md" && grep -qF "jq -S '"'"'del(.units[].pin)'"'"'" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
 assert "design-to-code skill has a store flow with its fallback" 'grep -q "^### store" "$AIKIT/workflow/skills/design-to-code/SKILL.md" && grep -q "app-store-screenshots" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
 assert "design-to-code skill has a Paper rules section" 'grep -q "^## Paper rules" "$AIKIT/workflow/skills/design-to-code/SKILL.md"'
 assert "design-to-code, designer and judge carry no Pencil text" '! grep -rqiE "pencil|\.pen\b" "$AIKIT/workflow/skills/design-to-code" "$AIKIT/workflow/agents/designer.md" "$AIKIT/workflow/agents/judge.md"'
