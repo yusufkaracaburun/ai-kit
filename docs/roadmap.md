@@ -430,3 +430,4 @@ _Last reconciled: 2026-10-27 against 97 open issues (#31, #47, #182, #191, #192,
 - **#257** `enhancement` — harvest emeq-reui POC findings: SSR forms with sensitive fields use `method="post"`, never print `.env`, lead briefs ban `git add -N` and need unfiltered exit codes (proven, do first); grid-wrapper and design-to-code notes wait for a 2nd app (Paper chosen in #258). 2026-10-29.
 - **#268** `enhancement` — git-hygiene: commit briefs tick DoD boxes before closing; the DoD workflow reopens issues with unticked boxes. 2026-10-30.
 - **#272** `enhancement` — offer ReUI Pro registry in recommend-tools for React+shadcn projects (components.json); parked until a Pro block ships in emeq-reui. 2026-10-30.
+- **#273** `enhancement` — design-to-code judge: `mask` takes CSS selectors, so a Paper frame or block thumbnail (no DOM) cannot mask a changing value; add mask-by-position only when an app needs it. 2026-11-08.
