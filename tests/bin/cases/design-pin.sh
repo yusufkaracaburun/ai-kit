@@ -99,6 +99,15 @@ echo 'not part of src/[id]' > src/i
 D2=$(pin dyn ref/measure.json)
 assert "a src/[id] path does not pull in src/i" '[ "$D1" = "$D2" ]'
 
+echo "=== open mode ==="
+overlay_set '.units.inv.reference = {"mode": "open", "values": "ref/tokens.css"}'
+PO=$(pin inv ref/measure.json)
+assert "open mode has no ref sha and hashes the values source" 'grep -qE "^open - · values $(shasum < ref/tokens.css | cut -d" " -f1) · HEAD [0-9a-f]{40} · worktree [0-9a-f]{40} · overlay [0-9a-f]{40} · measure [0-9a-f]{40}$" <<<"$PO"'
+
+overlay_set '.units.inv.reference = {"mode": "open"}'
+RC=0; pin inv ref/measure.json >/dev/null 2>&1 || RC=$?
+assert "open mode without values exits 2" '[ "$RC" -eq 2 ]'
+
 echo "=== paper mode and errors ==="
 overlay_set '.units.inv.reference = {"mode": "paper", "frame": "F1"}'
 echo '{"width": 375}' > ref/styles.json

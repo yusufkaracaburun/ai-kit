@@ -4,6 +4,7 @@
 # Usage: design-pin.sh <unit-id> <measure.json> [computed-styles-file]
 #   image mode: hashes reference.files in listed order and reference.values.
 #   paper mode: hashes the computed-styles file given as the third argument.
+#   open mode:  no reference yet; hashes reference.values only.
 # Output: <mode> <ref sha> · values <sha> · HEAD <sha> · worktree <sha> · overlay <sha> · measure <sha>
 set -euo pipefail
 # Unit paths such as src/[id] are literal directories, never glob patterns.
@@ -40,12 +41,18 @@ case "$mode" in
     ref="$(shasum "${files[@]}" | sha)"
     vals="$(sha < "$values")"
     ;;
+  open)
+    values="$(field '.reference.values // empty')"
+    [ -n "$values" ] || die "units.$UNIT.reference.values is not set"
+    ref="-"
+    vals="$(sha < "$values")"
+    ;;
   paper)
     [ -n "$STYLES" ] || die "paper mode needs the computed-styles file as the third argument"
     ref="$(sha < "$STYLES")"
     vals="-"
     ;;
-  *) die "units.$UNIT.reference.mode is '$mode', expected image or paper" ;;
+  *) die "units.$UNIT.reference.mode is '$mode', expected image, paper or open" ;;
 esac
 
 head_sha="$(git rev-parse HEAD)"
