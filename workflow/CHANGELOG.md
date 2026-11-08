@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.15.1 — 2026-11-08
+
+### Changed
+
+- Lead contract: one change gets one ship brief (commit, PR, merge, deploy in one subagent, stopping at the first red check or an unapproved deploy).
+- Lead contract: the lead does one lookup itself before sending a builder on a suspected bug.
+
 ## 2.15.0 — 2026-11-08
 
 ### Added
