@@ -162,7 +162,6 @@ _Last reconciled: 2026-10-27 against 97 open issues (#31, #47, #182, #191, #192,
 - **#260** `enhancement` — feat(detect): drop .pen detection, make design-leads tool-neutral, slice of #258. 2026-10-29.
 - **#261** `enhancement` — feat(design-to-code): Paper design path, drop Pencil flow, slice of #258. 2026-10-29.
 - **#262** `enhancement` — docs: replace Pencil wording with Paper across rules, catalog and docs, slice of #258. 2026-10-29.
-- **#265** `bug` — rule `strip-comments-before-commit` names `bin/check-added-comments.sh`; no ai-kit source ships the rule or script. Drop the script step or ship it. 2026-10-30.
 - **#267** `bug` — builder in an `isolation: "worktree"` has git refused (no diff-stat). No ai-kit hook matches; likely permission layer. Needs exact denial text. Related #246, #207. 2026-10-30.
 - **#270** `bug` — `model: fable` skill frontmatter announced ("powered by Fable 5.1") but audit shows 0 Fable requests in 58999 since 2026-10-14. Headless repro on CC 2.1.314 (default and auto) did use Fable, so not P1; needs interactive re-measure, else harness bug plus fork workaround for to-issues/to-prd/diagnose. 2026-10-30.
 - **#271** `enhancement` — lead-guard denies `ai-kit-claim.sh set role=build` from the main thread unless the latest user prompt asks for it (UserPromptSubmit marker). 37 self-switches in 26 sessions. 2026-10-30.
