@@ -63,7 +63,7 @@ Score: <passed>/<total> = <n>
 <lowest component score> (<component>)
 
 ## Verdict
-PASS (≥ bar) | FIX (round N of 2) | STOP (cap reached, ask user) [· render open: user decides]
+PASS (≥ bar) | FIX (round <N+1> of 2) | STOP (cap reached, ask user) [· render open: user decides]
 
 ## Fix list
 - <component> · <item>: <what is wrong, what the evidence shows, what it must be>
