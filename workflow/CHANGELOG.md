@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.15.0 — 2026-11-08
+
+### Added
+
+- `judge` agent: judges a built screen against its Paper frame and returns a verdict. It pins `model: opus`, so the agent count is now 7.
+- `bin/design-pin.sh`: pins a design check to a frame id for the prove step.
+- `design-to-code` judge checklist: tokens, clicks and visibility rules for the judge.
+- `design-to-code` 2-round cap: the build and judge loop stops after two rounds.
+
+### Changed
+
+- Judge round placeholder aligned; ADR-0017 and `session-coordination` list the judge among the Opus pins.
+
 ## 2.14.0 — 2026-10-30
 
 ### Changed
