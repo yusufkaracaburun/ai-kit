@@ -11,6 +11,8 @@ _Last reconciled: 2026-10-27 against 97 open issues (#31, #47, #182, #191, #192,
 
 ## P1 — broken in the wild
 
+- **#277** `enhancement` — hooks: review-gate PreToolUse hook denies `git commit`/`git push` unless `/ai:review` recorded APPROVE for the exact staged tree (`git write-tree`, marker per worktree git-dir); no env escape, `--approve --skip "<reason>"` logs to gate-log; closes #276. From the 2026-11-13 workflow audit. 2026-11-13.
+- **#278** `enhancement` — review: reviewer checklist gains design principles (new `quality-floor.mini.md`), per-criterion spec evidence, Out-of-scope check and sibling-parity sweep; one Agent Brief shape for builder, designer and reviewer; grill writes `docs/decisions.md` as the "Decisions in force" source; closes #267. 2026-11-13.
 - **#171** `bug` — `/ai:setup` on a plugin-served repo still emits 29 rules ×2 hosts
   + docs scaffold (68 files in planny, reverted by hand; theorieplek again
   2026-09-19). **Grilled 2026-09-19 → ADR-0015:** all 23 universal rules go
@@ -26,6 +28,10 @@ _Last reconciled: 2026-10-27 against 97 open issues (#31, #47, #182, #191, #192,
 
 ## P2 — next up
 
+- **#279** `enhancement` — skills: `/ai:workflow-audit` reruns the idea-to-release audit (three explore briefs) and writes `docs/audits/workflow-audit-<date>.md` with a delta against the previous run; >30-day nudge in checkpoint and next; baseline 2026-11-13 committed with it. 2026-11-13.
+- **#280** `bug` — models: `model: fable` not honoured interactively (#270), qa-runner unpinned, explore pin untested, `CLAUDE_CODE_SUBAGENT_MODEL` only in user settings; fix or document, pin qa-runner to Sonnet, doctor warns, ADR-0017 confirms Opus lead; closes #270. 2026-11-13.
+- **#281** `bug` — hooks: lead-guard misses perl -pi, python3 -c, git switch/tag/revert, wrangler deploy, pytest and more (#199); solo sessions get no session-coordination injection; delegation hooks fire inside subagents; project rules lack a description line; Cursor emitter drops `paths:`; closes #199. 2026-11-13.
+- **#282** `bug` — workflow: to-issues/to-prd label ready-for-agent without the Agent Brief comment triage and autonomous need; autonomous hardcodes the label and has a dead security exit; review/qa/diagnose let the lead fix inline; no reviewer on designer diffs; design-leads vs design-to-code tie-break conflict; grill-first table incomplete. Blocked by #278. 2026-11-13.
 - **#174** `bug` — hygiene `test-ci` does not recognise Dart/Flutter projects as having a
   test runner; planny-app-mobile reports "no test runner" with a full Patrol suite. Labelled
   P2 on 2026-09-19.
@@ -168,6 +174,7 @@ _Last reconciled: 2026-10-27 against 97 open issues (#31, #47, #182, #191, #192,
 
 ## P3 — backlog
 
+- **#283** `documentation` — quality: add a "Downstream outcomes" dimension to `docs/score.md` (owner-found defects per week, corrections per 100 prompts, share of commits with review marker), reconcile roadmap and P-labels (#264 missing, #258-#262 stale), fix stale refs in ADR-0014/0015, autonomous, retro, builder.md, review, qa; run or drop the correction-loop re-check. Blocked by #279. 2026-11-13.
 - **#117** `enhancement · primitive:hook` — surface `graph-fresh` in the
   search-delegation hook, where the damage actually happens. `/ai:docs-sync`
   catches a stale graphify graph once per session; the hook fires on *every* Bash
@@ -432,4 +439,4 @@ _Last reconciled: 2026-10-27 against 97 open issues (#31, #47, #182, #191, #192,
 - **#273** `enhancement` — design-to-code judge: `mask` takes CSS selectors, so a Paper frame or block thumbnail (no DOM) cannot mask a changing value; add mask-by-position only when an app needs it. 2026-11-08.
 - **#274** `enhancement` — design-pin.sh and judge hardening: `--` before shasum paths, exit 2 on missing inputs, git-config-proof worktree diff, one source for the overlay path list, shellcheck on `tests/bin/cases`, `set_by` per user-only overlay key, measure.json per width and theme. 2026-11-08.
 - **#275** `enhancement` — hooks: PreToolUse Bash hook denies a second heavy test run (pest, paratest, phpunit, playwright, patrol, maestro, xcodebuild, gradle) when `ps -Ao args` already shows one; queueing and cross-machine locks out of scope. 2026-11-08.
-- **#276** `enhancement` — hooks: the global ponytail-review commit/push gate reads the marker only from the cwd repo, so a marketplace bump in a scratch clone was denied twice and needed `git -C <clone> commit`; the same hole lets a marker in one repo clear `git -C` commits in any other. Deferred until the gate is harvested into ai-kit; fix is to resolve the repo the git command targets, or let `bin/release.sh --bump-marketplace` bump an already-released version so no ad-hoc clone is needed. 2026-11-13.
+- **#276** `enhancement` — hooks: the global ponytail-review commit/push gate reads the marker only from the cwd repo, so a marketplace bump in a scratch clone was denied twice and needed `git -C <clone> commit`; the same hole lets a marker in one repo clear `git -C` commits in any other. Deferred until the gate is harvested into ai-kit; fix is to resolve the repo the git command targets, or let `bin/release.sh --bump-marketplace` bump an already-released version so no ad-hoc clone is needed. 2026-11-13. Superseded by #277, which binds the marker to the target repo's git-dir.
