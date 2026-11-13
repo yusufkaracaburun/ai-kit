@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.17.0 — 2026-11-13
+
+### Added
+
+- `review-gate` hook (PreToolUse on Bash): denies `git commit` and `git push` unless `/ai:review` recorded an APPROVE for exactly the tree being shipped. The review skill runs `review-gate.sh --approve` after the verify pass; the marker holds the `git write-tree` id in the target repo's own git-dir, so an approval in one worktree never unlocks another (closes #276). `git commit -a`, `-i`, `-o` or a pathspec is denied outright. The only override is the user running `review-gate.sh --approve --skip "<reason>"`, logged to `ai-kit/gate-log`. Opt out per project with `--review-gate-hook=skipped`; `/ai:setup` asks once.
+- When the hook cannot tell which tree ships to which repo it denies and names the plain form: a quoted or variable `-C`/`cd` target, `GIT_DIR`/`--git-dir`/`--work-tree`, a `bash -c` wrapper, or `git add` (or another index change) earlier in the same command. `git commit … && git push` in one command passes when the commit passed; a push after a rebase, pull or merge in the same command is denied.
+- Known holes: scripts that commit internally (`bin/release.sh`) and a `!git commit` passthrough never reach the hook. Cursor ships no hooks, so it has no gate. `--approve` is an honour system: any agent can run it and only `--skip` is logged; a non-lead subagent can also write the marker file directly. A push compares HEAD only, so other refspecs, `--all` and `--tags` are not checked. `/ponytail-review` does not unlock a commit.
+
+### Changed
+
+- `/ai:review` step 5 sends blockers to a builder brief; the lead never fixes them.
+- `quality-floor` loads only when code files are touched; ai-kit CLAUDE.md points to the global rules instead of copying them.
+
 ## 2.16.0 — 2026-11-13
 
 ### Added
