@@ -7,6 +7,7 @@ applies_to:
   architectures: []
 universal: true
 default_mode: always-on
+paths: ["**/*.sh", "**/*.bash", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.php", "**/*.dart", "**/*.py", "**/*.vue", "**/*.astro", "**/*.svelte", "**/*.go", "**/*.rs", "**/*.swift", "**/*.kt", "**/*.rb", "**/*.sql"]
 weight: high
 repo_age_min_years: 0
 ---

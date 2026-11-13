@@ -1,3 +1,6 @@
+---
+paths: ["**/*.sh", "**/*.bash", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.php", "**/*.dart", "**/*.py", "**/*.vue", "**/*.astro", "**/*.svelte", "**/*.go", "**/*.rs", "**/*.swift", "**/*.kt", "**/*.rb", "**/*.sql"]
+---
 <!-- ai-kit global rule (ADR-0015): Design checks every diff must pass, each a yes/no test; SOLID, DRY, YAGNI, deep modules, nearest-sibling parity -->
 <!-- Source: standards/rules/quality-floor.mini.md — re-stamp with bin/sync-plugin-rules.sh -->
 
