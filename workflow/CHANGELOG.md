@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.15.2 — 2026-11-13
+
+### Changed
+
+- Lead contract: the status block is now a fixed template in a yaml fence, so the keys render in colour.
+
 ## 2.15.1 — 2026-11-08
 
 ### Changed
