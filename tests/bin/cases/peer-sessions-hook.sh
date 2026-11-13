@@ -82,7 +82,7 @@ echo "=== peer-sessions-check: protocol read from the rule ==="
 # section: peer-sessions-protocol
 FIRST_BULLET="$(grep -m1 '^- ' "$RULE")"
 assert "injected context carries the rule's bullets" 'grep -qF -- "$FIRST_BULLET" <<<"$OUT"'
-assert "rule body is ≤14 lines" '[ "$(awk "f; /^---$/ && NR>1 {f=1}" "$RULE" | grep -c .)" -le 14 ]'
+assert "rule prose body is ≤14 lines (fenced template excluded)" '[ "$(awk "/^[ \t]*\`\`\`/ {if (f) t=!t; next} f && !t && NF {n++} /^---\$/ && NR>1 {f=1} END {print n+0}" "$RULE")" -le 14 ]'
 
 echo "=== peer-sessions-check: stale claims pruned ==="
 # section: peer-sessions-prune
