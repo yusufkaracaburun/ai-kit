@@ -14,6 +14,7 @@ Read `CONTEXT.md` and relevant ADRs first; they're cached truth. See [`context-d
 - **Claude Code (preferred):** delegate the full review pass to the `reviewer` subagent via the Task tool with `subagent_type=ai:reviewer`. Pass: the Agent Brief (issue number or brief text, in the shape of [`triage/AGENT-BRIEF.md`](../triage/AGENT-BRIEF.md)) and the builder's report when present (its `## Criteria` lines are claims to check), base branch, target ref (default `HEAD`), mode (`daily` or `comprehensive`), security depth (`default` or `deep`). Run the verify pass below, return the adjusted report to the user, then discuss the verdict.
 - **Cursor / hosts without subagents:** run the inline checklist below in the main context. The checklist below is the canonical source of truth — `reviewer`'s system prompt mirrors it.
 - **Verify pass (Claude Code):** after `reviewer` returns and before you surface the verdict, spawn one `verifier` per item under **Blockers** and per high-severity item under **Security** — all in parallel, one Task call each with `subagent_type=ai:verifier`. Claim: "`<file:line>` — <finding> is a blocker"; pass the report excerpt as evidence. REFUTED → move the item to **Suggestions**, appending the verifier's one-line basis. CONFIRMED → stays. UNTESTABLE → stays, annotated "(verifier: untestable — <residual doubt>)". Then re-derive the verdict (APPROVE only with zero Blockers and zero high-severity Security items). Hosts without subagents: skip the pass and say so under Scope.
+- **Approve (Claude Code):** only when the verify pass re-derives APPROVE, run `bash "${CLAUDE_PLUGIN_ROOT:-$HOME/.config/ai-kit/plugin-current}/hooks/review-gate.sh" --approve [<worktree>]`. It records the staged tree, and the `review-gate` hook denies `git commit` and `git push` for any other tree. Stage exactly what was reviewed first. `--approve --skip "<reason>"` is a user-only override, logged to the git-dir's `ai-kit/gate-log`; never run it yourself. Cursor ships no hooks, so it has no gate.
 
 For wide cross-file impact analysis where you don't need a full verdict, prefer `explore` (read-only sweep) over inline grepping.
 
@@ -33,7 +34,7 @@ For wide cross-file impact analysis where you don't need a full verdict, prefer 
    - Design floor — a quality-floor violation is a finding that cites the rule section (`quality-floor: <section>`); its severity follows the rule's Severity line
    - Parity sweep — name the nearest existing sibling screen or module and list each deviation from its pattern; severity follows the quality-floor Severity line
 4. **Report** — blockers first, then suggestions. Be specific (file + line).
-5. **Fix** — only fix blockers if the user asks; otherwise list them.
+5. **Fix** — send blockers to a builder brief (`subagent_type=ai:builder`); the lead never fixes them. Re-review the new diff before approving.
 
 ## Security deep pass
 

@@ -56,6 +56,7 @@ Ask once: **Fast (Tier A, ~5 min)** or **Full (Tier B)**?
 | 2e | Universal companions | auto-prompt each `universal: true` companion not yet handled |
 | 2f | Phase-check hook | auto-apply, no question (below) |
 | 2g | Secrets scan | auto-run once, conditional question on findings (below) |
+| 2h | Review gate hook | one question (below), default `wired` |
 
 Then:
 
@@ -68,6 +69,7 @@ $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" \
   --universal-mcps-prompted=context7,... \
   --universal-companions-prompted=caveman,... \
   --search-delegation-hook=wired --build-delegation-hook=wired --phase-check-hook=wired \
+  --review-gate-hook=wired|skipped \
   --secrets-scan=clean|findings-acknowledged|findings-issue-filed|skipped-no-binary|skipped-not-git|error \
   --docker=skipped --tracker=skipped --workflow=skipped \
   --domain-docs=skipped --architecture=skipped --sandcastle=false --context-drift-hook=skipped
@@ -382,6 +384,22 @@ so blocking on work that provably cannot happen in this run would just make
 the repos with real findings the only ones unable to onboard. See #120/#124
 for the full rationale.
 
+### Branch 2h — Review gate hook (one question)
+
+A `PreToolUse(Bash)` hook in the plugin's `hooks/hooks.json` that denies
+`git commit` and `git push` until `/ai:review` has recorded an APPROVE for
+exactly the tree being shipped. Unlike 2d and 2f it blocks, so ask once:
+
+> Gate commits and pushes on an `/ai:review` APPROVE for the staged tree?
+> [1] Yes (Recommended) → `wired`
+> [2] No → `skipped`
+
+**Default:** `wired`; a marker without the key counts as `wired`. The only
+override is the user running `review-gate.sh --approve --skip "<reason>"`,
+which is logged. Re-runs keep the recorded answer and do not ask again.
+Claude Code only: Cursor ships no hooks, so it has no gate. Record
+`--review-gate-hook=wired|skipped`.
+
 ## Tier B branches (optional)
 
 | # | Branch | Default brownfield |
@@ -618,6 +636,7 @@ $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" \
   --universal-mcps-prompted=context7,... \
   --universal-companions-prompted=caveman,... \
   --search-delegation-hook=wired --build-delegation-hook=wired --phase-check-hook=wired \
+  --review-gate-hook=wired|skipped \
   --secrets-scan=clean|findings-acknowledged|findings-issue-filed|skipped-no-binary|skipped-not-git|error \
   --docker=... --tracker=... --workflow=... \
   --domain-docs=scaffolded|filled|skipped \
@@ -649,6 +668,7 @@ $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict
     "search_delegation_hook": "wired",
     "build_delegation_hook": "wired",
     "phase_check_hook": "wired",
+    "review_gate_hook": "wired",
     "secrets_scan": "clean",
     "docker": "skipped",
     "issue_tracker": "skipped",
