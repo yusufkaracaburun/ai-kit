@@ -1,20 +1,5 @@
 # Changelog
 
-## Unreleased
-
-### Added
-
-- `quality-floor` always-on rule: SOLID, DRY and YAGNI, deep modules, parity with the nearest sibling, and one Severity line.
-
-### Changed
-
-- `reviewer` checks every acceptance criterion (met / not met / unverified), Out of scope, quality-floor and a parity sweep. Its report gains `## Criteria` and `## Parity` sections.
-- One Agent Brief shape (`AGENT-BRIEF.md`, with Test command and Decisions in force), passed by `tdd`, `autonomous`, `design-to-code` and `review`.
-- `builder` report gains `## Criteria` with per-criterion evidence (closes #267).
-- `grill-me` and `grill-with-docs` append decisions to `docs/decisions.md`.
-- `tdd` always delegates to the builder when role=lead.
-- `tdd` and `builder` point at the right `refactoring.md` again.
-
 ## 2.15.2 — 2026-11-13
 
 ### Changed
