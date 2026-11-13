@@ -5,7 +5,7 @@ AIKIT="$(cd "$(dirname "$0")/../../.." && pwd)"
 source "$AIKIT/tests/bin/lib/harness.sh"
 
 HOOK="$AIKIT/bin/hooks/lead-nudge.sh"
-LINE='Lead reply: open with Doing / Where / Needs-you (count) / Advice; the recommendation goes in the same turn as any question; invoke the phase skill, do not name it; after the first lookup, lookups go to an agent; briefs carry "Decisions in force"; general-purpose spawns for CLI, browser or mechanical work pass model "sonnet".'
+LINE='Lead reply: open with the status block in a ```yaml fence, keys Doing / Where / Needs-you (count) / Advice; the recommendation goes in the same turn as any question; invoke the phase skill, do not name it; after the first lookup, lookups go to an agent; briefs carry "Decisions in force"; general-purpose spawns for CLI, browser or mechanical work pass model "sonnet".'
 
 TMP_H=$(mktemp -d)
 export HOME="$TMP_H"
@@ -22,6 +22,7 @@ echo "=== lead-nudge: lead prompts ==="
 # section: lead-nudge-fires
 OUT=$(fire lead1 "wat is de status van de PR")
 assert "lead + normal prompt prints the line" '[ "$OUT" = "$LINE" ]'
+assert "nudge names the yaml fence" '[[ "$OUT" == *'"'"'```yaml'"'"'* ]]'
 for p in "/ai:tdd" "!git status" "<cross-session-message from=\"p\">x</cross-session-message>" \
   "<agent-message from=\"b\">x</agent-message>" "<task-notification>x</task-notification>"; do
   OUT=$(fire lead1 "$p")
