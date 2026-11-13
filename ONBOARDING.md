@@ -11,7 +11,7 @@ slash commands and rules to both hosts, and subagents and hooks to Claude
 Code. No per-host duplication, no runtime daemon, no network calls, no telemetry.
 
 Today (v2.12.0): **35 skills · 7 subagents · 11 slash commands · 10 plugin-wired hooks ·
-46 canonical mini-rules · 24 curated MCP servers · 28 curated hook recipes ·
+47 canonical mini-rules · 24 curated MCP servers · 28 curated hook recipes ·
 23 curated plugins · 5 baseline repo templates.**
 
 ## 2. How to run it locally

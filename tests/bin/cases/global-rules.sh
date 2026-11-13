@@ -26,6 +26,15 @@ assert "paths: frontmatter passes through" 'head -2 "$RULES/semver.md" | grep -q
 assert "pathless rule has no frontmatter" '! head -1 "$RULES/pre-write-discipline.md" | grep -q "^---"'
 assert "header carries the description" 'head -4 "$RULES/pre-write-discipline.md" | grep -q "ai-kit global rule (ADR-0015): Four gates"'
 assert "no ai-kit frontmatter keys leak" '! grep -l "^universal:\|^default_mode:\|^weight:" "$RULES"/*.md | grep -q .'
+QF="$AIKIT/standards/rules/quality-floor.mini.md"
+assert "quality-floor exists in at most 60 lines" '[ -f "$QF" ] && [ "$(wc -l < "$QF")" -le 60 ]'
+assert "quality-floor is universal, always-on and pathless" 'grep -qx "universal: true" "$QF" && grep -qx "default_mode: always-on" "$QF" && ! grep -q "^paths:" "$QF"'
+assert "quality-floor is in the global payload" '[ -f "$RULES/quality-floor.md" ]'
+assert "quality-floor states severity once" '[ "$(grep -c "is a Blocker unless" "$QF")" -eq 1 ]'
+assert "quality-floor pins the Severity sentence" 'grep -qF "**Severity.** A failed check is a Blocker unless the diff or the report states a reason for it; with a stated reason it is a Suggestion." "$QF"'
+assert "quality-floor leaves room under the 60-line cap" '[ "$(wc -l < "$QF")" -le 57 ]'
+assert "quality-floor has no duplicate one-caller item" '! grep -qF "One caller, one interface" "$QF"'
+assert "quality-floor has a See also line" 'grep -q "^## See also" "$QF" && grep -A3 "^## See also" "$QF" | grep -q "aposd" && grep -A3 "^## See also" "$QF" | grep -q "code-audit"'
 
 echo "=== global-rules-link hook ==="
 # section: global-rules-hook

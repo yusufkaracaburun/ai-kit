@@ -177,6 +177,47 @@ assert "design-to-code skill has a Paper rules section" 'grep -q "^## Paper rule
 assert "design-to-code, designer and judge carry no Pencil text" '! grep -rqiE "pencil|\.pen\b" "$AIKIT/workflow/skills/design-to-code" "$AIKIT/workflow/agents/designer.md" "$AIKIT/workflow/agents/judge.md"'
 
 
+echo "=== agent-brief ==="
+# section: agent-brief
+SK="$AIKIT/workflow/skills"
+AG="$AIKIT/workflow/agents"
+for s in tdd autonomous design-to-code review; do
+  assert "$s skill names triage/AGENT-BRIEF.md as the brief" "grep -qF 'triage/AGENT-BRIEF.md' \"\$SK/$s/SKILL.md\""
+done
+assert "builder Inputs list the full Agent Brief" 'sed -n "/^## Inputs from caller/,/^## Process/p" "$AG/builder.md" | grep -qF "triage/AGENT-BRIEF.md"'
+for a in builder reviewer designer; do
+  assert "$a names quality-floor as a mandatory read" "grep -qiF 'mandatory read: \`~/.claude/rules/ai-kit/quality-floor.md\`' \"\$AG/$a.md\""
+done
+assert "builder no longer points at refactoring.md next to this skill" '! grep -qF "refactoring.md\` next to this skill" "$AG/builder.md"'
+assert "builder report gives per-criterion evidence" 'grep -q "^## Criteria" "$AG/builder.md"'
+for f in "$SK/review/SKILL.md" "$AG/reviewer.md"; do
+  for item in '"not met" (a blocker)' 'outside the brief' 'quality-floor violation' 'Parity sweep'; do
+    assert "${f##*/workflow/} checklist: $item" "grep -qF '$item' \"$f\""
+  done
+  assert "${f##*/workflow/} criteria have an unverified state" "grep -qF 'unverified (caller checks)' \"$f\""
+  assert "${f##*/workflow/} severity points at quality-floor, not either-or" "! grep -qF 'Suggestion or Blocker per quality-floor' \"$f\""
+  assert "${f##*/workflow/} takes the builder's report" "grep -qF \"the builder's report when present\" \"$f\""
+  for h in '## Criteria' '## Parity'; do
+    assert "${f##*/workflow/} output has $h before Blockers" "awk '/^$h\$/{h=NR} /^## Blockers\$/{b=NR} END{exit !(h && b && h<b)}' \"$f\""
+  done
+done
+assert "AGENT-BRIEF example brief carries Test command and Decisions in force" '[ "$(grep -cF "**Test command:**" "$SK/triage/AGENT-BRIEF.md")" -ge 2 ] && [ "$(grep -cF "**Decisions in force:**" "$SK/triage/AGENT-BRIEF.md")" -ge 2 ]'
+assert "review Pass line carries the Agent Brief" 'grep -q "Pass:.*Agent Brief" "$SK/review/SKILL.md"'
+assert "reviewer reads the brief" 'sed -n "/^## Process/,/^## /p" "$AG/reviewer.md" | grep -q "Agent Brief"'
+assert "tdd delegates for any size when role=lead" 'grep -qF "role=lead" "$SK/tdd/SKILL.md"'
+assert "tdd names lead-guard as the role=lead enforcement" 'grep "role=lead" "$SK/tdd/SKILL.md" | grep -qF "lead-guard"'
+assert "review Pass line pins the builder's report" 'grep -qF "and the builder'"'"'s report when present (its \`## Criteria\` lines are claims to check)" "$SK/review/SKILL.md"'
+assert "reviewer Inputs pin the builder's report" 'grep -qF "**Builder'"'"'s report** — the builder'"'"'s report when present" "$AG/reviewer.md"'
+for f in "$SK/review/SKILL.md" "$AG/reviewer.md"; do
+  assert "${f##*/workflow/} Scope item names its severity" 'grep "Scope — any change outside the brief" "'"$f"'" | grep -qF "severity per the quality-floor Severity line"'
+done
+assert "reviewer falls back to the PR or issue text" 'grep -qF "review against the PR or issue text" "$AG/reviewer.md"'
+assert "AGENT-BRIEF has Test command and Decisions in force" 'grep -qF "**Test command:**" "$SK/triage/AGENT-BRIEF.md" && grep -qF "**Decisions in force:**" "$SK/triage/AGENT-BRIEF.md" && grep -qF "docs/decisions.md" "$SK/triage/AGENT-BRIEF.md"'
+for g in grill-me grill-with-docs; do
+  assert "$g appends decisions to docs/decisions.md" "grep -qF 'docs/decisions.md' \"\$SK/$g/SKILL.md\""
+done
+
+
 echo "=== plugin-manifest ==="
 # section: plugin-manifest
 PLUGIN_JSON="$AIKIT/workflow/.claude-plugin/plugin.json"

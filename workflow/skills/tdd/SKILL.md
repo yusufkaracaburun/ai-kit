@@ -11,7 +11,7 @@ Apply [`grill-first.mini.md`](../../../standards/rules/grill-first.mini.md) **be
 
 ## Run mode
 
-- **Claude Code:** when the change spans ≥3 files, or the caller wants the main context kept clean for review, delegate the whole red→green→refactor pass to the `builder` subagent via the Task tool with `subagent_type=ai:builder`. Pass: the acceptance criteria agreed in Planning and the project's test command. It returns a `## Changed` / `## Tests` report — read it here, then continue with Review.
+- **Claude Code:** when the change spans ≥3 files, or the caller wants the main context kept clean for review, delegate the whole red→green→refactor pass to the `builder` subagent via the Task tool with `subagent_type=ai:builder`. When this session's own claim says `role=lead` (the `role:` line in the frontmatter of `~/.config/ai-kit/claims/<session>.md`, read the way `lead-guard.sh` reads it), always delegate, whatever the file count: lead-guard denies inline Edit and Write for that role. Pass: the full Agent Brief in the shape of [`triage/AGENT-BRIEF.md`](../triage/AGENT-BRIEF.md) (summary, current and desired behaviour, key interfaces, the acceptance criteria agreed in Planning, Out of scope, test command and run budget, Decisions in force), never only the criteria and the test command. It returns a `## Changed` / `## Tests` report — read it here, then continue with Review.
 - **Hosts without subagents:** run the loop below inline. The loop below is the canonical source of truth — `builder`'s system prompt mirrors it.
 
 ## Philosophy
@@ -100,7 +100,7 @@ Rules:
 
 ### 4. Refactor
 
-After all tests pass, look for refactor candidates (`refactoring.md` next to this skill):
+After all tests pass, look for refactor candidates (the tdd skill's `refactoring.md` in the ai-kit plugin):
 
 - [ ] Extract duplication
 - [ ] Deepen modules (move complexity behind simple interfaces)

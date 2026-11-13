@@ -34,6 +34,14 @@ The agent needs to know when it's done. Every agent brief must have concrete, te
 
 State what is out of scope. This prevents the agent from gold-plating or making assumptions about adjacent features.
 
+### Decisions quoted, not paraphrased
+
+Decisions in force are lines copied from the project's `docs/decisions.md`, which `grill-me` and `grill-with-docs` append to. Quote only the lines that bear on this issue. No file or no relevant line → write "none".
+
+### One brief for every worker
+
+This template is the only brief shape. `tdd`, `autonomous` and `design-to-code` pass the whole brief to `builder` and `designer`, and `review` passes the same brief to `reviewer`, which checks every acceptance criterion and the Out of scope list against the diff.
+
 ## Template
 
 ```markdown
@@ -63,6 +71,12 @@ Be specific about edge cases and error conditions.
 **Out of scope:**
 - Thing that should NOT be changed or addressed in this issue
 - Adjacent feature that might seem related but is separate
+
+**Test command:**
+`pnpm test` (or the project's own command), plus any run budget: which heavy runs are granted
+
+**Decisions in force:**
+- YYYY-MM-DD: <decision copied verbatim from docs/decisions.md> (source: <grill topic/issue>)
 ```
 
 ## Examples
@@ -100,6 +114,12 @@ and append "..." to indicate truncation.
 **Out of scope:**
 - Changing the 1024 char limit itself
 - Multi-line description support
+
+**Test command:**
+`./tests/bin/run-all.sh`; full suite granted
+
+**Decisions in force:**
+- none
 ```
 
 ### Good agent brief (enhancement)

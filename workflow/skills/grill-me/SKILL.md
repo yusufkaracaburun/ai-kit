@@ -31,6 +31,8 @@ For each branch:
 
 If the user gives a vague answer, ask the smallest follow-up that pins it down — usually "what would make you choose differently?" or "what does failure look like?".
 
+When a branch settles a decision, append one line to the project's `docs/decisions.md` right then: `- YYYY-MM-DD: <decision> (source: <grill topic or issue>)`. Append only, never edit an earlier line; create the file if it is absent. Agent Briefs quote these lines under Decisions in force.
+
 ### Phase 3 — Converge and write back
 
 When all branches are settled, write a short summary (5–15 bullets) of the decisions and their rationale, and ask: "Anything that feels wrong now that you see it written down?" Surprises here are common and cheap to fix; ignore at the user's peril.

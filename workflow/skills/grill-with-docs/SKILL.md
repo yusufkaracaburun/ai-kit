@@ -76,6 +76,10 @@ When a term is resolved, update `CONTEXT.md` right there. Don't batch these up â
 
 `CONTEXT.md` should be totally devoid of implementation details. Do not treat `CONTEXT.md` as a spec, a scratch pad, or a repository for implementation decisions. It is a glossary and nothing else.
 
+### Append decisions to docs/decisions.md
+
+When a decision settles, append one line to the project's `docs/decisions.md` right there: `- YYYY-MM-DD: <decision> (source: <grill topic or issue>)`. Append only, never edit an earlier line; create the file if it is absent. Agent Briefs quote these lines under Decisions in force. Terms go to `CONTEXT.md`, decisions go here.
+
 ### Offer ADRs sparingly
 
 Only offer to create an ADR when all three are true:

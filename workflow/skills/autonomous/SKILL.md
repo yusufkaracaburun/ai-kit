@@ -153,9 +153,10 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
    branch. Fail-fast if dirty working tree.
 5. **TDD.** Invoke `tdd` against the Agent Brief's acceptance
    criteria. The per-issue worker is the `builder` subagent
-   (`subagent_type=ai:builder`, fed the brief's acceptance criteria and
-   the project's test command) — that is the fresh context per
-   issue. The brief passes the hard cap (≤3 attempts per red→green
+   (`subagent_type=ai:builder`, fed the full Agent Brief in the shape
+   of `triage/AGENT-BRIEF.md`: summary, key interfaces, acceptance
+   criteria, Out of scope, test command and Decisions in force) — that
+   is the fresh context per issue. The brief passes the hard cap (≤3 attempts per red→green
    cycle) to builder, whose report carries a `## Cycles` block
    (`<C-id> attempts=<n> result=<pass|fail>` per cycle); after it
    returns, write from that block one

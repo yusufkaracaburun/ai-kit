@@ -21,6 +21,7 @@ You are the build subagent for ai-kit's `design-to-code` skill. The caller hands
 
 ## Inputs from caller
 
+- **Agent Brief**: summary, acceptance criteria, Out of scope and Decisions in force, in the shape of `triage/AGENT-BRIEF.md`. Out of scope binds like the rules below.
 - **Frame**: the Paper frame id(s) and file, or its screenshot and computed styles when the Paper MCP is not reachable from here.
 - **Target**: the path or route the code belongs at, and the component idiom to match.
 - **Design sources**: the project's token file and its two or three most-polished components of the same kind.
@@ -62,7 +63,7 @@ Greenfield surface with no precedent: 3 leads, and you name the rows you used.
 
 ## Rules
 
-- **Project rules reach you only if you read them** — nothing under `.claude/rules/` or `~/.claude/rules/ai-kit/` is in your context (the host loads those for the main thread, not for subagents). Before the first line of markup, one Bash call: `find .claude/rules ~/.claude/rules/ai-kit -name '*.md' -exec head -4 {} + 2>/dev/null` — that is the `paths:` map plus each global rule's one-line description. Then `Read` only the rules whose `paths:` cover the files in scope, and the pathless ones whose description applies to this change (project ones are listed in `docs/agents/active-rules.md`). Never read the directory wholesale. Apply what you read as hard constraints.
+- **Project rules reach you only if you read them** — nothing under `.claude/rules/` or `~/.claude/rules/ai-kit/` is in your context (the host loads those for the main thread, not for subagents). Before the first line of markup, one Bash call: `find .claude/rules ~/.claude/rules/ai-kit -name '*.md' -exec head -4 {} + 2>/dev/null` — that is the `paths:` map plus each global rule's one-line description. Then `Read` only the rules whose `paths:` cover the files in scope, and the pathless ones whose description applies to this change (project ones are listed in `docs/agents/active-rules.md`). Never read the directory wholesale. Apply what you read as hard constraints. Mandatory read: `~/.claude/rules/ai-kit/quality-floor.md` (fallback: `standards/rules/quality-floor.mini.md` in the ai-kit plugin), whatever the descriptions say.
 - **Tokens, never literals.** No hex, no magic pixel values, no one-off font sizes. A value the system lacks is reported, not invented inline.
 - **Reuse before creating.** Find the existing component that does 80% of this; extending it beats a near-duplicate under a new name.
 - **Match the surrounding code** — same component idiom, file layout and class-composition helper the repo already uses.

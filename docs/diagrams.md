@@ -13,7 +13,7 @@ flowchart LR
     SA["workflow/skills · agents<br/>35 skills + 7 subagents"]
     CB["workflow/commands + bin/ai-kit-*.sh<br/>11 slash commands + CLI"]
     H["bin/hooks/*.sh + hooks.json<br/>10 hooks on 5 events"]
-    R["standards/rules/*.mini.md<br/>46 agent-agnostic rules"]
+    R["standards/rules/*.mini.md<br/>47 agent-agnostic rules"]
   end
 
   subgraph DIST["Distribution layer"]
