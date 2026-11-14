@@ -229,6 +229,8 @@ cross-cue nudge and go to the confirm print:
 bash "${CLAUDE_PLUGIN_ROOT}/bin/ai-kit-docs-sync-nudge.sh" "<project_path>" --context=checkpoint
 ```
 
+Only in the ai-kit repo (`workflow/skills/workflow-audit/` exists): when the date in the newest `docs/audits/workflow-audit-<date>.md` filename is over 30 days old, print one line: `last workflow audit N days ago, run /ai:workflow-audit`; when no such file exists, print `no workflow audit yet, run /ai:workflow-audit`.
+
 **`--also-housekeeping`** — run both checks read-only and capture the
 output, applying the same applicability gates the nudge used:
 
@@ -243,6 +245,7 @@ bash "${CLAUDE_PLUGIN_ROOT}/bin/ai-kit-docs-sync.sh" "<project_path>" --no-promp
 run nothing and omit the `## Housekeeping` section.) Fold the results into the
 memo's `## Housekeeping` section (§4): the hygiene `Score: N/100`, a one-line
 summary per check, and an explicit **Applied** vs **Needs approval** split.
+Also print the workflow-audit line from the default branch above when it applies.
 
 - **`--also-housekeeping`:** apply the safe, idempotent fixes now —
   dead-link removal from `MEMORY.md`, empty-dir `rmdir`, finished-work branch

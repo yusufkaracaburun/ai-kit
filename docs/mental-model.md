@@ -1,6 +1,6 @@
 # Mental model
 
-How the 35 skills fit together, plus the 7 subagents and 11 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
+How the 36 skills fit together, plus the 7 subagents and 11 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
 
 For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossary.md). For "I want to add X — which primitive?" see [primitives.md](primitives.md).
 
@@ -19,7 +19,7 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
    │   DEPLOYMENT    (project release procedure)
    │      │
    │      ▼
-   │   OPS & REVIEW  retro · checkpoint
+   │   OPS & REVIEW  retro · checkpoint · workflow-audit
    │      │
    └──────┘
 
@@ -42,6 +42,7 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
 | Smoke-test a running web app | `qa` |
 | Hunt a hard bug or perf regression | `diagnose` |
 | Close a sprint or cycle | `retro` |
+| Audit the kit workflow and compare with the previous run | `workflow-audit` |
 | Transfer briefing to another machine / agent / teammate | `checkpoint --to tmp` |
 | Configure ai-kit in a new repo | `setup` |
 | Save session state for `/clear`, resume later | `checkpoint` ↔ `resume` |

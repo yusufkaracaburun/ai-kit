@@ -23,7 +23,7 @@ Cursor and other hosts: see [Install](#install).
 
 | Primitive | Count | Reaches |
 | --------- | -----:| ------- |
-| Skills | 35 | Claude Code · Cursor |
+| Skills | 36 | Claude Code · Cursor |
 | Subagents | 7 | Claude Code |
 | Slash commands | 11 | Claude Code · Cursor |
 | Hooks | 10 plugin-wired (`workflow/hooks/hooks.json`) | Claude Code |
@@ -80,7 +80,7 @@ First moves:
 
 ## The agile lifecycle
 
-35 skills covering one loop — idea to retro:
+36 skills covering one loop — idea to retro:
 
 | Phase | Skills |
 | ----- | ------ |
@@ -88,7 +88,7 @@ First moves:
 | Development | `to-issues` → `triage` → `tdd` · `design-to-code` · `clone-website` |
 | Testing | `review` · `qa` · `diagnose` |
 | Deployment | project release procedure (see `deployment-on-demand` rule) |
-| Ops & review | `retro` · `feedback` |
+| Ops & review | `retro` · `feedback` · `workflow-audit` |
 | Session continuity | `checkpoint` ↔ `resume` |
 | Cross-cutting | `setup` · `setup-gh-workflow` · `recommend-rules` · `recommend-tools` · `audit-architecture` |
 | Automation | `autonomous` (AFK queue drainer — wraps `tdd` → `review` → PR) |

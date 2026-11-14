@@ -48,6 +48,8 @@ The top item drives the recommendation:
 - **Setup-deferred** → re-run `/ai:setup` and pick `change` on the relevant branch.
 - **Generic open GH issue** → `/ai:to-issues` to break into vertical slices, or `/ai:tdd` to implement.
 
+Only in the ai-kit repo (`workflow/skills/workflow-audit/` exists): when the date in the newest `docs/audits/workflow-audit-<date>.md` filename is over 30 days old, add one line under the list: `last workflow audit N days ago, run /ai:workflow-audit`; when no such file exists, `no workflow audit yet, run /ai:workflow-audit`.
+
 ## Not this skill
 
 - **`/ai:status`** — single project's setup-marker + version, not a backlog.

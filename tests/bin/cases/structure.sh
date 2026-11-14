@@ -8,11 +8,20 @@ source "$AIKIT/tests/bin/lib/harness.sh"
 echo "=== skills-count ==="
 # section: skills-count
 SKILL_COUNT=$(find "$AIKIT/workflow/skills" -name SKILL.md | wc -l | tr -d ' ')
-assert "35 skills" '[ "$SKILL_COUNT" -eq 35 ]'
+assert "36 skills" '[ "$SKILL_COUNT" -eq 36 ]'
 assert "plugin payload carries the changelog" '[ -f "$AIKIT/workflow/CHANGELOG.md" ]'
 assert "checkpoint skill exists" '[ -f "$AIKIT/workflow/skills/checkpoint/SKILL.md" ]'
 assert "resume skill exists" '[ -f "$AIKIT/workflow/skills/resume/SKILL.md" ]'
 assert "rename-housekeeping skill exists" '[ -f "$AIKIT/workflow/skills/rename-housekeeping/SKILL.md" ]'
+WA="$AIKIT/workflow/skills/workflow-audit"
+for f in SKILL.md brief-chain.md brief-delivery.md brief-evidence.md; do
+  assert "workflow-audit has $f" "[ -f \"$WA/$f\" ]"
+done
+assert "workflow-audit spawns ai:explore" 'grep -q "subagent_type=ai:explore" "$WA/SKILL.md"'
+assert "workflow-audit has no model pin" '! head -5 "$WA/SKILL.md" | grep -q "^model:"'
+for s in checkpoint next; do
+  assert "$s nudges a stale workflow audit" "grep -qF 'last workflow audit N days ago, run /ai:workflow-audit' \"$AIKIT/workflow/skills/$s/SKILL.md\""
+done
 
 
 echo "=== agents ==="

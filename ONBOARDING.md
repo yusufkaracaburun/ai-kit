@@ -10,7 +10,7 @@ Stack-agnostic. Pure Bash + Markdown. One canonical source emits skills,
 slash commands and rules to both hosts, and subagents and hooks to Claude
 Code. No per-host duplication, no runtime daemon, no network calls, no telemetry.
 
-Today (v2.12.0): **35 skills · 7 subagents · 11 slash commands · 10 plugin-wired hooks ·
+Today (v2.12.0): **36 skills · 7 subagents · 11 slash commands · 10 plugin-wired hooks ·
 47 canonical mini-rules · 24 curated MCP servers · 28 curated hook recipes ·
 23 curated plugins · 5 baseline repo templates.**
 
