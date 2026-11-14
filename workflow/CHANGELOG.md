@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.20.0 — 2026-11-14
+
+### Added
+
+- Ship brief (`workflow/skills/triage/SHIP-BRIEF.md`, next to the Agent Brief): one subagent runs commit, PR, merge and deploy in order and stops at the first red check or an unapproved deploy. It needs a `/ai:review` APPROVE on the staged tree and stages nothing beyond the reviewed paths. `to-prd` Defer mode, `autonomous`, `harvest` and `diagnose` hand their git steps to it.
+- Agent Brief § Posting: create the issue, post the `## Agent Brief` comment, then add the label, so no issue carries `ready-for-agent` without its brief.
+
+### Changed
+
+- `to-issues` and `to-prd` post the `## Agent Brief` comment with the `ready-for-agent` label. Before this, `autonomous` exited `brief-thin` on every issue they created.
+- `autonomous` and `bin/autonomous-queue.sh` read the label string from `docs/agents/triage-labels.md` (fallback `ready-for-agent`, inner spaces kept); the skill folds the `security` exit into `review-blocked`, no longer runs `git switch -c` or `gh pr create` itself, and passes its verifier the untracked files along with the diff.
+- `qa` fix loop and `diagnose` Phase 5 send fixes to a builder brief. The lead never fixes.
+- `harvest` and `to-prd` Defer mode run `review` on the staged change before they hand it to the ship brief, so the review gate no longer blocks them.
+- `design-to-code` runs `reviewer` on every designer diff (working tree vs HEAD, untracked files included) before the judge, also inline on hosts without subagents, fixes drift frame first and then code (the design-leads tie-break), and drops the Paper quota line and the "Mobile is not designed in Paper yet" line. `designer` drops the same quota line.
+- The `grill-first` phase table and the phase-check hook list `validate-idea`, `grill-me` and `design-to-code`, and the rule names the real deployment-on-demand path.
+- `review`: in a `role=lead` session a subagent stages the reviewed paths, the builder's new files included, before the lead runs `--approve`.
+
 ## 2.19.0 — 2026-11-14
 
 ### Added
