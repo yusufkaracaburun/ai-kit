@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.21.1 — 2026-11-14
+
+### Changed
+
+- The ai-kit repo now carries its own `.ai-kit-setup` (lifecycle production), written by `write-setup-marker.sh`. The plugin's review-gate, phase-check, build-delegation and context-drift hooks fire in the kit itself, so an agent's `git commit` or `git push` here needs an `/ai:review` APPROVE first (#285).
+- `bin/release.sh` sets `ai_kit_version` in the kit's `.ai-kit-setup` to the new version, leaves every other key alone, and stages it into the release commit, so doctor reports no marker drift after a release. Without a marker the script runs as before.
+- `ai-kit-status.sh` on the kit tree no longer says the kit carries no marker.
+- `review-gate-hook.sh` unsets `CLAUDE_PROJECT_DIR`, so a session opened in the kit repo cannot gate its fixtures. It also asserts that the kit's own marker turns review-gate on. `release-install.sh` runs a real release in a throwaway clone, with and without a marker.
+- CONTRIBUTING.md: `bin/release.sh` commits and pushes inside the script, so the hook never sees those calls. A separate `git push` after it is gated.
+
 ## 2.21.0 — 2026-11-14
 
 ### Changed
