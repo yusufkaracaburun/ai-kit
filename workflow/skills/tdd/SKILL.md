@@ -113,8 +113,8 @@ After all tests pass, look for refactor candidates (the tdd skill's `refactoring
 ## 5. Review (required)
 
 Before opening a PR, a human reviewer reads the diff. This step is **not
-optional**. ai-kit defaults assume ≥2 devs (one writer, one reviewer) per
-ai-kit issue #52 — the rule applies even when the project has only one
+optional**. The defaults assume ≥2 devs (one writer, one reviewer); the
+rule applies even when the project has only one
 human contributor; solo-human-with-AI-writer still reads every diff before
 merge. Route review through `/ai:review` (or its equivalent) so blockers
 and security findings ≥ high surface before ship.

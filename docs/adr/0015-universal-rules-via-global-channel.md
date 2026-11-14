@@ -29,7 +29,7 @@ Catalog: 17 universal always-on pathless rules (5,239 words) + 6 universal
 
 ## Decision
 
-1. **All 23 universal always-on rules are global.** The plugin ships them pre-emitted
+1. **All universal always-on rules are global.** The plugin ships them pre-emitted
    (same Claude Code emitter, checked in, CI drift-tested like emitted
    agents). The plugin `SessionStart` hook keeps
    `~/.claude/rules/ai-kit → $CLAUDE_PLUGIN_ROOT/rules` current with one
@@ -40,6 +40,8 @@ Catalog: 17 universal always-on pathless rules (5,239 words) + 6 universal
    Amended 2026-10-10 (#205): the hook runs at SessionStart and SessionEnd
    and points the link at the newest version dir in the plugin cache, so the
    session after a `/plugin update` starts on the new rules. No one-session lag.
+   Count at v2.20.0: 22 files in `workflow/rules/`, 12 pathless and 10
+   `paths:`-scoped.
 2. **Per-repo `.claude/rules/` = stack rules only**, the ones
    `recommend-rules` detects, `paths:`-scoped. Universal rules are emitted
    per repo only when `global_channel_available=false` (project-only

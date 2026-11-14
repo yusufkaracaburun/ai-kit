@@ -7,7 +7,7 @@ description: Sprint or cycle retrospective — what shipped, what blocked, stake
 
 Close the agile loop: review what happened, capture learnings, plan the next cycle.
 
-See `docs/agents/workflow.md` for Scrum vs Kanban context.
+The project's `docs/agents/workflow.md`, written by `/ai:setup`, says whether it runs Scrum or Kanban; without it, ask.
 
 ## Process
 

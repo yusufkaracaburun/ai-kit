@@ -25,8 +25,8 @@ assert "doctor lint scans workflow/commands/**/*.md" \
   'grep -qE "workflow/commands" "$DOCTOR"'
 assert "doctor lint excludes setup_mode= lines" \
   'grep -qE "setup_mode" "$DOCTOR"'
-assert "doctor lint references parent #52 in its message" \
-  'grep -qE "issue #52|ai-kit #52|#52" "$DOCTOR"'
+assert "doctor lint message states the 2-dev default" \
+  'grep -qF "the defaults assume 2 devs: one writer, one reviewer" "$DOCTOR"'
 
 # Behaviour — baseline run from inside this ai-kit repo must be drift-free.
 set +e

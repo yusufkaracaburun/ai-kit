@@ -316,7 +316,7 @@ else
     ok "no team-size solo/single-dev token in workflow/skills + workflow/commands"
   else
     _count="$(printf '%s\n' "$_hits" | wc -l | tr -d ' ')"
-    warn "team-size solo/single-dev string in workflow/ ($_count hit$([ "$_count" = 1 ] || echo s) — see ai-kit issue #52 for the 2-dev default rationale)"
+    warn "team-size solo/single-dev string in workflow/ ($_count hit$([ "$_count" = 1 ] || echo s) — the defaults assume 2 devs: one writer, one reviewer)"
     # Surface up to 3 hits so the user can see where to look without grep-ing.
     printf '%s\n' "$_hits" | head -3 | while IFS= read -r line; do
       info "    $line"

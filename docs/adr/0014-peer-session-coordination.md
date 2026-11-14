@@ -86,9 +86,10 @@ Two facts found on the machine while building this shaped the mechanism:
    this repo a deploy notice: commit range plus the consumer-relevant changes
    in ≤5 bullets.
 7. **The rule** (`standards/rules/session-coordination.mini.md`) is universal
-   but `on-demand`/`medium`, so `session-rules-inject.sh` never injects it
-   unconditionally; the hook is the only pusher on Claude Code, and Cursor has
-   no peer messaging to coordinate.
+   but `on-demand`/`medium`, so the rule-injection hook (deleted by ADR-0015)
+   never injected it unconditionally; the peer-sessions SessionStart hook is
+   the only pusher on Claude Code, and Cursor has no peer messaging to
+   coordinate.
 
 ## Consequences
 

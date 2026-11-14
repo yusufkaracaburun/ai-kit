@@ -324,8 +324,8 @@ The next iteration reads this cold — no in-context memory required.
 - **Agent is the writer; the reviewer is human.** This skill produces
   code on behalf of dev #1; dev #2 (human) must read the diff before
   merge. The rule holds even when the project has only one human
-  contributor — solo-human-with-autonomous still reads every PR. ai-kit
-  defaults assume ≥2 devs per ai-kit issue #52; the writer/reviewer
+  contributor — solo-human-with-autonomous still reads every PR. The
+  defaults assume ≥2 devs; the writer/reviewer
   split is the load-bearing invariant, not a CI/branch-protection
   consequence. See also the triage ↔ autonomous Agent Brief contract
   for how the writer's input arrives cold.
@@ -339,14 +339,11 @@ The next iteration reads this cold — no in-context memory required.
 - **Never escalate `exit-handoff` to `exit-error`.** A user-initiated
   stop is a deliberate handover, not a failure. See Handoff protocol.
 
-## Limitations (spike-stage)
+## Limitations
 
 - No parallel iteration (out of scope per #17).
 - No automatic queue re-triage when `exit-gate` fires.
 - No resume-from-last-pick on stale `progress.txt` (manual cleanup).
-- Not yet wired into `setup`. Hand-install only.
-- Not yet validated on a real `ready-for-agent` issue. First production
-  drain unblocks promotion from spike → released.
 
 ## Usage guard (opt-in)
 

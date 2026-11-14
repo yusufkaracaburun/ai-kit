@@ -367,7 +367,7 @@ EOF"
   log ""
   log "    $fallback_cmd"
   log ""
-  log "  See ai-kit issue #52 for the 2-dev default rationale."
+  log "  The defaults assume 2 devs: one writer, one reviewer."
   return 0
 }
 

@@ -5,7 +5,7 @@ description: Pre-merge code review on the current branch diff. Checks correctnes
 
 # Code Review
 
-Review the diff against the base branch before merge. Inspired by [gstack /ai:review](https://github.com/garrytan/gstack), stripped of gstack-specific tooling.
+Review the diff against the base branch before merge.
 
 Read `CONTEXT.md` and relevant ADRs first; they're cached truth. See [`context-discipline.mini.md`](../../../standards/rules/context-discipline.mini.md).
 

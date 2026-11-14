@@ -22,8 +22,7 @@ cold. Acceptance criteria must be inline and machine-checkable where
 possible. The atomic `## Agent Brief` comment is the contract surface; the
 linked issue body is context, not specification.
 
-Rationale: ai-kit defaults assume ≥2 devs (one writer, one reviewer), per
-ai-kit issue #52. Issues prepared for cold-pickup keep that invariant
+Rationale: the defaults assume ≥2 devs (one writer, one reviewer). Issues prepared for cold-pickup keep that invariant
 honest even when the second dev is part-time or AI. If the brief cannot
 stand on its own, route to `needs-info` instead.
 

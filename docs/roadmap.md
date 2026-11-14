@@ -7,12 +7,10 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-10-27 against 97 open issues (#31, #47, #182, #191, #192, #203, #212, #225, #231, #252 closed; #256 closed as duplicate of #232; #117, #118 moved to P3 to match their labels; earlier reconciliation notes live in [roadmap-archive.md](roadmap-archive.md#reconciliation-notes))._
+_Last reconciled: 2026-11-14 against 109 open issues (#276-#283 done, #283 with this reconcile; #199, #258-#262 and #267 closed and removed; #270 closed by #280; #216 partly done in v2.19.0; rows added for #264, #284, #285, #286, #287; #257, #263 and #264 labelled P3, P1 and P3 to match their sections; earlier reconciliation notes live in [roadmap-archive.md](roadmap-archive.md#reconciliation-notes))._
 
 ## P1 — broken in the wild
 
-- **#277** `enhancement` — hooks: review-gate PreToolUse hook denies `git commit`/`git push` unless `/ai:review` recorded APPROVE for the exact staged tree (`git write-tree`, marker per worktree git-dir); no env escape, `--approve --skip "<reason>"` logs to gate-log; closes #276. From the 2026-11-13 workflow audit. 2026-11-13.
-- **#278** `enhancement` — review: reviewer checklist gains design principles (new `quality-floor.mini.md`), per-criterion spec evidence, Out-of-scope check and sibling-parity sweep; one Agent Brief shape for builder, designer and reviewer; grill writes `docs/decisions.md` as the "Decisions in force" source; closes #267. 2026-11-13.
 - **#171** `bug` — `/ai:setup` on a plugin-served repo still emits 29 rules ×2 hosts
   + docs scaffold (68 files in planny, reverted by hand; theorieplek again
   2026-09-19). **Grilled 2026-09-19 → ADR-0015:** all 23 universal rules go
@@ -28,10 +26,7 @@ _Last reconciled: 2026-10-27 against 97 open issues (#31, #47, #182, #191, #192,
 
 ## P2 — next up
 
-- **#279** `enhancement` — skills: `/ai:workflow-audit` reruns the idea-to-release audit (three explore briefs) and writes `docs/audits/workflow-audit-<date>.md` with a delta against the previous run; >30-day nudge in checkpoint and next; baseline 2026-11-13 committed with it. 2026-11-13.
-- **#280** `bug` — models: `model: fable` not honoured interactively (#270), qa-runner unpinned, explore pin untested, `CLAUDE_CODE_SUBAGENT_MODEL` only in user settings; fix or document, pin qa-runner to Sonnet, doctor warns, ADR-0017 confirms Opus lead; closes #270. 2026-11-13.
-- **#281** `bug` — hooks: lead-guard misses perl -pi, python3 -c, git switch/tag/revert, wrangler deploy, pytest and more (#199); solo sessions get no session-coordination injection; delegation hooks fire inside subagents; project rules lack a description line; Cursor emitter drops `paths:`; closes #199. 2026-11-13.
-- **#282** `bug` — workflow: to-issues/to-prd label ready-for-agent without the Agent Brief comment triage and autonomous need; autonomous hardcodes the label and has a dead security exit; review/qa/diagnose let the lead fix inline; no reviewer on designer diffs; design-leads vs design-to-code tie-break conflict; grill-first table incomplete. Blocked by #278. 2026-11-13.
+- **#285** `enhancement` — setup: the ai-kit repo has no `.ai-kit-setup`, so the plugin hooks (phase-check, build-delegation, context-drift, review-gate) never fire in the kit and the kit does not dogfood its own commit gate. Decide on a marker; check that tests, bootstrap and doctor do not misread it. 2026-11-13.
 - **#174** `bug` — hygiene `test-ci` does not recognise Dart/Flutter projects as having a
   test runner; planny-app-mobile reports "no test runner" with a full Patrol suite. Labelled
   P2 on 2026-09-19.
@@ -135,8 +130,6 @@ _Last reconciled: 2026-10-27 against 97 open issues (#31, #47, #182, #191, #192,
   marker, refuses `checkout --`/`reset`/`stash`/`clean`. One agent discarded a peer's file. 2026-10-10.
 - **#197** `enhancement` — PreCompact hook: write peer answers and decisions verbatim to the
   checkpoint memo before compaction; lead invented a spec after one. 2026-10-10.
-- **#199** `bug` — lead-guard misses `pkill`, `git -C … commit`, `echo x>f` and denies
-  `jq '.a > 1'`; tokenise instead of regex. Live `agent_id` check pending. 2026-10-10.
 - **#200** `enhancement` — `ai-kit-heavy.sh`: one shared machine-load gate (check / wait / start / done via claim) replacing per-lead ps greps; 37/57 briefs lacked one, 2 overlaps + 1 Pest/simulator clash. 2026-10-10.
 - **#202** `bug` — lead-guard denies every `/ai:setup` write step in a role=lead session; 3 of 4 leads flipped to role=build. Recommended: setup/upgrade skills spawn an agent for write steps. 2026-10-10.
 - **#204** `enhancement` — bootstrap templates filtered by detected stack (editorconfig, gitattributes, graphifyignore, board workflows, renovate); ~490 cuttable lines in an Expo repo. 2026-10-10.
@@ -146,7 +139,7 @@ _Last reconciled: 2026-10-27 against 97 open issues (#31, #47, #182, #191, #192,
 - **#209** `enhancement` — memory-audit warns when a `MEMORY.md` index exceeds the host load limit (28.8 KB vs ~24 KB seen, silent truncation). 2026-10-10.
 - **#213** `enhancement` — trim plugins and MCP tools per project: ai-kit loads 92 skills plus ~190 deferred MCP tool names every turn (97% of tokens were cache reads, 10-05..14). Deferred until `/context` gives the block size in ai-kit, system and planny; then a per-project `enabledPlugins` recommendation. 2026-10-14.
 - **#215** `enhancement` — PreToolUse hook on SendMessage to block acks and cap message rate (1,767 calls in 10 days, still 170 to 230 per day after the 2026-10-10 rule). Deferred: needs a grill on block criteria, and v2.6.0 measured first (around 2026-10-18). 2026-10-14.
-- **#216** `enhancement` — `model:` frontmatter on read-only agents (ai:explore, ai:qa-runner); 827 of 1,362 spawns had no model and ran on Opus. Deferred: quality risk, needs a grill and a before/after check on real explore tasks. 2026-10-14.
+- **#216** `enhancement` — `model:` frontmatter on read-only agents (ai:explore, ai:qa-runner); 827 of 1,362 spawns had no model and ran on Opus. Partly done in v2.19.0: explore and qa-runner pin Sonnet (#280). Open: the before/after quality check on real explore tasks. 2026-10-14.
 - **#218** `enhancement` — to-prd Defer mode expects a `## What's next` heading; this roadmap uses `## P1`/`## P2`/`## P3`, so the #213 to #216 capture stalled. Append to the section matching the priority label instead. Deferred: batch with the v2.7.0 skill changes and test on a downstream roadmap. 2026-10-14.
 - **#229** `enhancement` — **Multi-host: Cursor and GitHub Copilot**, the PRD for running ai-kit on client machines that have only Cursor or only Copilot, and on the own laptop alongside the Claude Code plugin. ADR-0019 (proposed) supersedes 0006 and 0010. 2026-10-25.
 - **#230** `enhancement` — Live check of four Cursor and Copilot behaviours before building, slice of #229. Checks 2 and 3 done 2026-10-27; checks 1 and 4 (Cursor) open. 2026-10-25.
@@ -163,18 +156,10 @@ _Last reconciled: 2026-10-27 against 97 open issues (#31, #47, #182, #191, #192,
 - **#242** `enhancement` — Accept ADR-0019 and sweep the two-host wording, slice of #229. 2026-10-25.
 - **#247** `bug` — tests: the docs-sync case in `tests/bin/run-all.sh` fails on machine git state (a local branch with no commits of its own such as `epic/multi-host` counts as merged); the fixture run must ignore the host repo's branches. 2026-10-26.
 - **#248** `bug` — `bin/release.sh` ignores a `## Unreleased` CHANGELOG section: it prepends the new version and leaves Unreleased, duplicating lines. Fold Unreleased into the new version heading, with a fixture test. 2026-10-26.
-- **#258** `enhancement` — Replace Pencil with Paper across design-to-code, designer, design-leads, detect-lib, lead-guard, session-coordination, catalog and docs; supersedes the closed Pencil items. 2026-10-29.
-- **#259** `enhancement` — feat(lead-guard): treat Paper MCP writes as work, record Paper in an ADR, slice of #258. 2026-10-29.
-- **#260** `enhancement` — feat(detect): drop .pen detection, make design-leads tool-neutral, slice of #258. 2026-10-29.
-- **#261** `enhancement` — feat(design-to-code): Paper design path, drop Pencil flow, slice of #258. 2026-10-29.
-- **#262** `enhancement` — docs: replace Pencil wording with Paper across rules, catalog and docs, slice of #258. 2026-10-29.
-- **#267** `bug` — builder in an `isolation: "worktree"` has git refused (no diff-stat). No ai-kit hook matches; likely permission layer. Needs exact denial text. Related #246, #207. 2026-10-30.
-- **#270** `bug` — `model: fable` skill frontmatter announced ("powered by Fable 5.1") but audit shows 0 Fable requests in 58999 since 2026-10-14. Headless repro on CC 2.1.314 (default and auto) did use Fable, so not P1; needs interactive re-measure, else harness bug plus fork workaround for to-issues/to-prd/diagnose. 2026-10-30.
 - **#271** `enhancement` — lead-guard denies `ai-kit-claim.sh set role=build` from the main thread unless the latest user prompt asks for it (UserPromptSubmit marker). 37 self-switches in 26 sessions. 2026-10-30.
 
 ## P3 — backlog
 
-- **#283** `documentation` — quality: add a "Downstream outcomes" dimension to `docs/score.md` (owner-found defects per week, corrections per 100 prompts, share of commits with review marker), reconcile roadmap and P-labels (#264 missing, #258-#262 stale), fix stale refs in ADR-0014/0015, autonomous, retro, builder.md, review, qa; run or drop the correction-loop re-check. Blocked by #279. 2026-11-13.
 - **#117** `enhancement · primitive:hook` — surface `graph-fresh` in the
   search-delegation hook, where the damage actually happens. `/ai:docs-sync`
   catches a stale graphify graph once per session; the hook fires on *every* Bash
@@ -439,4 +424,7 @@ _Last reconciled: 2026-10-27 against 97 open issues (#31, #47, #182, #191, #192,
 - **#273** `enhancement` — design-to-code judge: `mask` takes CSS selectors, so a Paper frame or block thumbnail (no DOM) cannot mask a changing value; add mask-by-position only when an app needs it. 2026-11-08.
 - **#274** `enhancement` — design-pin.sh and judge hardening: `--` before shasum paths, exit 2 on missing inputs, git-config-proof worktree diff, one source for the overlay path list, shellcheck on `tests/bin/cases`, `set_by` per user-only overlay key, measure.json per width and theme. 2026-11-08.
 - **#275** `enhancement` — hooks: PreToolUse Bash hook denies a second heavy test run (pest, paratest, phpunit, playwright, patrol, maestro, xcodebuild, gradle) when `ps -Ao args` already shows one; queueing and cross-machine locks out of scope. 2026-11-08.
-- **#276** `enhancement` — hooks: the global ponytail-review commit/push gate reads the marker only from the cwd repo, so a marketplace bump in a scratch clone was denied twice and needed `git -C <clone> commit`; the same hole lets a marker in one repo clear `git -C` commits in any other. Deferred until the gate is harvested into ai-kit; fix is to resolve the repo the git command targets, or let `bin/release.sh --bump-marketplace` bump an already-released version so no ad-hoc clone is needed. 2026-11-13. Superseded by #277, which binds the marker to the target repo's git-dir.
+- **#264** — design-to-code: first Paper setup in emeq-reui cost 20 MCP calls and found 7 mismatches between skill, guide and practice (per-group `write_html` against the Free-tier budget, design brief versus app tokens first, no light/dark token modes, `.` not allowed in token names, no file-choice or `create_file` step, `rename_nodes` truncates at 50 characters). 2026-10-30.
+- **#284** `bug` — hooks: lead-guard misses `git -C <dir> commit|push|tag|switch`, because its patterns expect `git <verb>` directly; found in the #281 review. 2026-11-13.
+- **#286** `enhancement` — upgrade: `/ai:upgrade` writes `env.CLAUDE_CODE_SUBAGENT_MODEL=sonnet` into `.claude/settings.json` for projects set up before v2.19.0; no-op when the key is set, leaves malformed JSON untouched. 2026-11-14.
+- **#287** `enhancement` — skills: lead-executes seams left after #282: design-leads (one screen at a time) versus design-to-code Batch (parallel), diagnose Phase 4 instrumentation and triage reproduce run by the lead, design-to-code `measure.json` and evidence produced by the lead. 2026-11-14.

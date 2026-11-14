@@ -24,8 +24,7 @@ acceptance criteria, and an explicit *blocked by* list. The `## Agent Brief`
 comment is the contract surface and the issue body its context; conversation
 context is neither.
 
-Rationale: ai-kit defaults assume ≥2 devs (one writer, one reviewer), per
-ai-kit issue #52. The to-issues template enforces this structure — never
+Rationale: the defaults assume ≥2 devs (one writer, one reviewer). The to-issues template enforces this structure — never
 emit an issue that drops acceptance criteria or the parent pointer. If a
 slice cannot be specified cold from current context, keep grilling before
 publishing.

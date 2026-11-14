@@ -7,8 +7,7 @@ Configured via `/ai:setup`. Framework preference for this repo.
 ai-kit defaults assume a **2-dev minimum** (human reviewers, or human+agent
 with the human as reviewer). PRs ship with a reviewer; opting out of that
 gate is deliberate, never assumed. We default to "we" / imperative voice in
-agent-facing templates so the second reviewer reads with full context. See
-ai-kit issue #52.
+agent-facing templates so the second reviewer reads with full context.
 
 ## Framework
 

@@ -5,7 +5,7 @@ description: QA a web app at a given URL — smoke test critical paths, report b
 
 # QA Pass
 
-Systematically test a web application and report findings. Inspired by [gstack /ai:qa](https://github.com/garrytan/gstack) — stripped of gstack-specific tooling.
+Systematically test a web application and report findings.
 
 Browser/console output is large; quote only salient lines back into this context. Filter console logs with patterns instead of dumping all output. See [`context-discipline.mini.md`](../../../standards/rules/context-discipline.mini.md).
 

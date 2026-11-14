@@ -1,4 +1,4 @@
-<!-- ai-kit PR template — installed by bin/setup-gh-workflow.sh. See ai-kit issue #52. -->
+<!-- ai-kit PR template — installed by bin/setup-gh-workflow.sh. Defaults assume 2 devs: one writer, one reviewer. -->
 
 ## Summary
 
