@@ -53,6 +53,9 @@ assert "Grep with path is silent (already scoped)" '[ -z "$OUT" ]'
 OUT=$(fire "$TMP_H" '{"tool_name":"Glob","tool_input":{"pattern":"**/*.ts"}}')
 assert "Glob without path fires" '[ -n "$OUT" ]'
 
+OUT=$(fire "$TMP_H" '{"tool_name":"Grep","agent_id":"x","tool_input":{"pattern":"x"}}')
+assert "inside a subagent (agent_id set) is silent" '[ -z "$OUT" ]'
+
 set +e
 bash "$HOOK" </dev/null >/dev/null 2>&1
 EMPTY_RC=$?

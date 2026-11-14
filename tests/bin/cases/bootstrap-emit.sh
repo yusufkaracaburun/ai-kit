@@ -68,6 +68,15 @@ assert "emit-rules: never-emitted skill cross-refs unlinked (#105)" \
 "$AIKIT/bin/emit-rules.sh" "$EMIT_TMP" >/dev/null
 assert "emit-rules: idempotent (no duplicate rows)" \
   '[ "$(grep -c "^| git-hygiene " "$EMIT_TMP/docs/agents/active-rules.md")" = "1" ]'
+# Workers pick pathless rules by `head -4`, so the description must sit there.
+"$AIKIT/bin/emit-rules.sh" "$EMIT_TMP" --rules quality-floor,git-hygiene >/dev/null
+for R in quality-floor git-hygiene; do
+  DESC="$(sed -n 's/^description: //p' "$AIKIT/standards/rules/$R.mini.md" | head -1)"
+  assert "emit-rules: $R description in the first four lines" 'head -4 "$EMIT_TMP/.claude/rules/$R.md" | grep -qF -- "$DESC"'
+done
+assert "emit-rules: cursor maps paths: to globs:" \
+  'grep -qx "globs: \*\*/\*.sh, \*\*/\*.bash, .*\*\*/\*.sql" "$EMIT_TMP/.cursor/rules/quality-floor.mdc"'
+assert "emit-rules: cursor rule with globs is not alwaysApply" 'grep -qx "alwaysApply: false" "$EMIT_TMP/.cursor/rules/quality-floor.mdc"'
 "$AIKIT/bin/emit-rules.sh" "$EMIT_TMP" --rules legacy-code,ddd-distilled --agents cursor >/dev/null
 assert "emit-rules: --rules emits only requested" '[ -f "$EMIT_TMP/.cursor/rules/legacy-code.mdc" ]'
 assert "emit-rules: --agents limits dispatch (no new claude file)" \

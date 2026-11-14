@@ -44,20 +44,28 @@ print(json.loads(raw)["hookSpecificOutput"]["additionalContext"])' 2>/dev/null |
 }
 OWN='{"session_id":"own-1","cwd":"'"$REPO"'","hook_event_name":"SessionStart","source":"startup"}'
 
-echo "=== peer-sessions-check: solo is silent ==="
+YAML_LINE='  Doing:     <stream> · <owner> · <state>'
+
+echo "=== peer-sessions-check: solo gets a pointer, solo lead the protocol ==="
 # section: peer-sessions-solo
 registry "$LIVE_PID" own-1 ai-kit-99 "$REPO"
 OUT=$(fire "$OWN")
-assert "only own session live -> silent" '[ -z "$OUT" ]'
+assert "solo without role -> one line pointing at the rule" '[ "$(wc -l <<<"$OUT")" -eq 1 ] && grep -q "session-coordination.mini.md" <<<"$OUT"'
+assert "solo pointer says role=lead plus next SessionStart brings the full block" 'grep -q "set role=lead" <<<"$OUT" && grep -q "next SessionStart" <<<"$OUT"'
+assert "solo pointer sets no role" '! grep -q "^role:" "$CLAIMS/own-1.md"'
 assert "skeleton claim written for own session" '[ -f "$CLAIMS/own-1.md" ]'
 assert "skeleton records repo" 'grep -q "^repo: planny-app-mobile$" "$CLAIMS/own-1.md"'
 assert "skeleton records branch" 'grep -q "^branch: feat/home-skeleton$" "$CLAIMS/own-1.md"'
+"$CLAIM" --session own-1 set role=lead >/dev/null
+OUT=$(fire "$OWN")
+assert "solo with role=lead -> full protocol incl. the yaml template" 'grep -qF -- "$YAML_LINE" <<<"$OUT" && grep -qF "\`\`\`yaml" <<<"$OUT"'
+"$CLAIM" --session own-1 release
 
 echo "=== peer-sessions-check: live peer fires ==="
 # section: peer-sessions-fires
 registry 99999999 peer-dead planny-old /x/planny
 OUT=$(fire "$OWN")
-assert "peer with dead pid -> silent" '[ -z "$OUT" ]'
+assert "peer with dead pid -> no peers table" '! grep -q "planny-old" <<<"$OUT"'
 
 registry "$PPID" peer-1 planny-7f /x/planny
 OUT=$(fire "$OWN")
@@ -82,6 +90,7 @@ echo "=== peer-sessions-check: protocol read from the rule ==="
 # section: peer-sessions-protocol
 FIRST_BULLET="$(grep -m1 '^- ' "$RULE")"
 assert "injected context carries the rule's bullets" 'grep -qF -- "$FIRST_BULLET" <<<"$OUT"'
+assert "peer context carries the yaml template" 'grep -qF -- "$YAML_LINE" <<<"$OUT"'
 assert "rule prose body is ≤14 lines (fenced template excluded)" '[ "$(awk "/^[ \t]*\`\`\`/ {if (f) t=!t; next} f && !t && NF {n++} /^---\$/ && NR>1 {f=1} END {print n+0}" "$RULE")" -le 14 ]'
 
 echo "=== peer-sessions-check: stale claims pruned ==="

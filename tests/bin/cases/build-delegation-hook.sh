@@ -40,6 +40,11 @@ OUT=$(fire s2 Edit /p/same.ts)
 OUT=$(fire s2 Edit /p/same.ts)
 assert "same path 3x does not fire" '[ -z "$OUT" ]'
 
+for f in a b c; do
+  OUT=$(CLAUDE_PROJECT_DIR="$PROJ" TMPDIR="$TMP_STATE" bash "$HOOK" <<<"{\"session_id\":\"sa\",\"agent_id\":\"x\",\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"/p/$f.ts\"}}")
+done
+assert "inside a subagent (agent_id set) never fires" '[ -z "$OUT" ]'
+
 OUT=$(fire s3 Bash /p/a.ts)
 OUT=$(fire s3 Bash /p/b.ts)
 OUT=$(fire s3 Bash /p/c.ts)

@@ -5,6 +5,7 @@
 # work tool calls from the lead's main thread (no agent_id) are denied, naming
 # the subagent to hand them to. Memo and temp-dir writes pass.
 # Override: `ai-kit-claim.sh set role=build`.
+# shortcut: mkdir/touch/ln are denied even under $TMPDIR; carve out temp paths if leads need scratch dirs.
 # Always exits 0. Fails open (silent) without jq or python3, on purpose.
 # Wired for the plugin in workflow/hooks/hooks.json.
 
@@ -62,7 +63,7 @@ segment_is_work() {
   local httpie_item='^[A-Za-z0-9_.-]+(=[^=]|=$|:=|@)'
   while IFS= read -r seg; do
     seg="${seg%%[)\`]*}"
-    if [[ $seg =~ ${lead}(npx|npm|pnpm|yarn)([[:space:]]+(.*))?$ ]]; then
+    if [[ $seg =~ ${lead}(npx|npm|pnpm|yarn|wrangler)([[:space:]]+(.*))?$ ]]; then
       read -r -a args <<<"${BASH_REMATCH[5]}"
       [[ ${BASH_REMATCH[3]} == npx && ${#args[@]} -gt 0 && ${args[0]} != -* ]] && args=("${args[@]:1}")
       [[ ${#args[@]} -eq 1 && " --help --version -h -v " == *" ${args[0]} "* ]] && continue
@@ -98,17 +99,19 @@ is_work_command() {
   local end='($|[[:space:];&|)`])'
   re+="|git (commit|push|merge|rebase|cherry-pick|reset|restore|clean|add)|git checkout (\.|--)"
   re+="|git stash([[:space:]]+(push|pop|drop|apply|clear|save|branch|store|create))?[[:space:]]*($|[;&|)])"
-  re+="|git branch (-[dD]|--delete)|git worktree remove"
-  re+="|rm|sed -i|tee|mv|cp|chmod"
-  re+="|jest|vitest|playwright"
+  re+="|git branch (-[dD]|--delete)|git worktree remove|git (switch|revert|am)"
+  re+="|git tag[[:space:]]+(-[adfsmu]|--(annotate|delete|force|sign|message|file)|[^-[:space:];&|])[^[:space:];&|]*"
+  re+="|rm|sed -i|tee|mv|cp|chmod|touch|mkdir|ln"
+  re+="|jest|vitest|playwright|pytest|python3? -m pytest|cargo (build|test|run|publish|install)|go test"
   re+="|pest|paratest|phpunit|php artisan|composer (install|update|require)|make"
   re+="|flutter (test|build|run|pub)|dart|patrol|maestro|xcodebuild|xcrun simctl boot|gradlew?|eas"
   re+="|gh (pr|issue|release|repo) (create|edit|merge|close|delete)|gh pr (comment|review)|gh issue comment"
   re+="|gh api [^;&|]*(-X|--method)|open -a|kill|pkill|killall"
   re="${head}(${re#|})${end}"
 
-  # App Store Connect: reads pass, everything else writes
-  local asc="${head}asc " asc_read="${head}asc .* (get|list|read)"
+  # App Store Connect and Google Play CLIs: reads pass, everything else writes
+  local asc="${head}(asc|gplay) " asc_read="${head}(asc|gplay) .* (get|list|read)"
+  local apply="${head}git apply" apply_read="${head}git apply[^;&|]*--(check|stat|numstat|summary)"
   # redirect to a file; /dev/null, fd merges, temp-dir and memo targets are stripped first
   local redirect='(>>|[[:space:]]>)' stripped="$cmd"
   [ -n "${TMPDIR:-}" ] && stripped="${stripped//"$TMPDIR"//tmp/}"
@@ -120,9 +123,17 @@ is_work_command() {
   unquoted="$(sed -E "s/'[^']*'/''/g; s/\"[^\"]*\"/\"\"/g" <<<"$cmd")"
 
   segment_is_work "$unquoted" && return 0
+  # in-place perl edits; case-sensitive so `perl -Ilib` stays a read
+  [[ $unquoted =~ ${head}perl[[:space:]]+(-[^[:space:]]+[[:space:]]+)*-[0-9lnpasw]*i ]] && return 0
+  # inline interpreter code passes unless its script names a write, delete or process call
+  local inline="(python[0-9.]*|node|perl)[[:space:]]+([^;&|'\"]*[[:space:]])?(-[A-Za-z]*[ce]|--eval)[[:space:]]*('[^']*'|\"[^\"]*\")"
+  local write_call="write|append|unlink|remove|rmtree|rmdir|rename|os\.replace|(^|[^A-Za-z_])rm(Sync)?\(|mkdir|makedirs|touch|truncate|chmod|symlink|copy|move|system\(|subprocess|popen|exec(Sync|File|FileSync|v|ve|vp|l|lp)?\(|spawn|child_process|open\([^)]*,[[:space:]]*['\"][wax+]"
+  [[ $unquoted =~ ${head}(python[0-9.]*|node|perl)[[:space:]] ]] && [[ $cmd =~ $inline ]] &&
+    [[ ${BASH_REMATCH[4]} =~ $write_call ]] && return 0
   shopt -s nocasematch
   [[ $unquoted =~ $re ]] && return 0
   [[ $cmd =~ $asc ]] && ! [[ $cmd =~ $asc_read ]] && return 0
+  [[ $unquoted =~ $apply ]] && ! [[ $unquoted =~ $apply_read ]] && return 0
   [[ $stripped =~ $redirect ]] && return 0
   return 1
 }

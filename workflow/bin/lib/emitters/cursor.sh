@@ -4,8 +4,9 @@
 emit_cursor() {
   local target="$1" rule_path="$2" rule_name="$3" mode="$4" aikit_version="$5"
   local dest="$target/.cursor/rules/${rule_name}.mdc"
-  local always="false"
-  [ "$mode" = "always-on" ] && always="true"
+  local always="false" globs
+  globs="$(_emitter_extract_meta "$rule_path" paths | tr -d '[]"')"
+  [ "$mode" = "always-on" ] && [ -z "$globs" ] && always="true"
 
   local description
   description="$(_emitter_extract_meta "$rule_path" description)"
@@ -15,7 +16,7 @@ emit_cursor() {
   {
     echo "---"
     echo "description: ${description}"
-    echo "globs:"
+    echo "globs:${globs:+ $globs}"
     echo "alwaysApply: ${always}"
     echo "---"
     echo ""

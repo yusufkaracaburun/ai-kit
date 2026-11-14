@@ -1,38 +1,4 @@
 {
-  "hooks": {
-    "PreToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/build-delegation-check.sh"
-          }
-        ],
-        "matcher": "Edit|Write|MultiEdit"
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/phase-check.sh"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/context-drift-check.sh"
-          }
-        ],
-        "matcher": "Edit|Write|MultiEdit"
-      }
-    ]
-  },
   "enabledPlugins": {
     "skill-creator@claude-plugins-official": true,
     "claude-md-management@claude-plugins-official": true,

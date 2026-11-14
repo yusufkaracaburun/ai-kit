@@ -27,6 +27,8 @@
 #      cavecrew-investigator when the caveman plugin is enabled), so the raw
 #      output lands in the sub-agent's context, not this one.
 #
+# Silent inside a subagent (agent_id set): it is already the delegate.
+#
 # Advisory only: emits additionalContext, never blocks, always exits 0.
 #
 # Wired for the plugin in workflow/hooks/hooks.json.
@@ -69,6 +71,7 @@ print(cur if isinstance(cur, str) else "")' "$1" <<<"$payload" 2>/dev/null
   fi
 }
 
+[ -n "$(read_field '.agent_id')" ] && exit 0
 tool="$(read_field '.tool_name')"
 [ -z "$tool" ] && exit 0
 

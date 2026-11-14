@@ -13,7 +13,7 @@ repo_age_min_years: 0
 
 # Session coordination
 
-Other Claude Code sessions may be live on this machine (`ListAgents`). The peer-sessions hook injects this only when peers exist — solo, there is nothing to coordinate.
+Other Claude Code sessions may be live on this machine (`ListAgents`). The peer-sessions hook injects this when peers exist or your claim says role=lead; a solo session gets a one-line pointer here. Solo and want the full block: `ai-kit-claim.sh set role=lead`, and the next SessionStart (resume, compact) injects it.
 
 - Register a claim at start and refresh it when your scope changes: `ai-kit-claim.sh set role=<lead|build|design|e2e|review> owns=<paths, Paper frames, devices> provides=<api version, release> depends_on=<repos, resources>`.
 - One lead per repo, named by the user. The lead owns push/merge order; non-leads commit locally and report to the lead. No lead named → the first session on the repo is lead and says so in its claim.

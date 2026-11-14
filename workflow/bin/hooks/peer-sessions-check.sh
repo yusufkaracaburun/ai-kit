@@ -17,14 +17,15 @@
 # still visible to the others, and prunes claims whose session is gone.
 #
 # With peers: ONE additionalContext — the peers table, the coordination
-# protocol (the bullets of standards/rules/session-coordination.mini.md,
-# read at fire time so the rule has one home), and the instruction to call
-# `ListAgents` once and register a claim. Without peers: nothing, so a solo
-# session pays zero context for this.
+# protocol (standards/rules/session-coordination.mini.md from its first
+# bullet on, read at fire time so the rule has one home), and the instruction
+# to call `ListAgents` once and register a claim. Solo with a role=lead claim
+# (resume, compact): the protocol alone. Solo otherwise: one line pointing at
+# the rule, so a solo session pays one line, and no role is set.
 #
 # Silent by design — a hook must never break a session. Missing registry,
 # malformed payload, helper not found: exit 0, no output. Rule file not
-# found: peers table without the protocol block.
+# found: peers table without the protocol block, nothing when solo.
 #
 # Peers are machine-wide, so this ships in the plugin's own manifest
 # (workflow/hooks/hooks.json) — every session gets it, no /ai:setup needed.
@@ -77,11 +78,23 @@ for cand in "$HOOK_DIR/../bin/ai-kit-claim.sh" "$HOOK_DIR/../ai-kit-claim.sh"; d
   [ -x "$cand" ] && { claim="$(cd "$(dirname "$cand")" && pwd)/ai-kit-claim.sh"; break; }
 done
 [ -n "$claim" ] || exit 0
-protocol=""
+protocol="" rule=""
 for cand in "$HOOK_DIR/../standards/rules/session-coordination.mini.md" \
             "$HOOK_DIR/../../standards/rules/session-coordination.mini.md"; do
-  [ -f "$cand" ] && { protocol="$(sed -n '/^- /p' "$cand")"; break; }
+  [ -f "$cand" ] && { rule="$(cd "$(dirname "$cand")" && pwd)/${cand##*/}"; protocol="$(sed -n '/^- /,$p' "$cand")"; break; }
 done
+
+emit() {
+  if command -v jq >/dev/null 2>&1; then
+    jq -n --arg ctx "$1" \
+      '{hookSpecificOutput: {hookEventName: "SessionStart", additionalContext: $ctx}}'
+  else
+    local esc="${1//\\/\\\\}"
+    esc="${esc//\"/\\\"}"
+    esc="${esc//$'\n'/\\n}"
+    printf '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"%s"}}\n' "$esc"
+  fi
+}
 
 export AI_KIT_SESSION_ID="$sid"
 "$claim" prune >/dev/null 2>&1 || true
@@ -90,7 +103,19 @@ branch="$(git -C "$cwd" symbolic-ref --short HEAD 2>/dev/null || true)"
 [ -n "${CLAUDE_ENV_FILE:-}" ] && echo "export AI_KIT_SESSION_ID=$sid" >> "$CLAUDE_ENV_FILE" 2>/dev/null
 
 peers="$("$claim" show 2>/dev/null || true)"
-[ -n "$peers" ] || exit 0
+if [ -z "$peers" ]; then
+  [ -n "$rule" ] || exit 0
+  if grep -qx 'role: lead' "$HOME/.config/ai-kit/claims/$sid.md" 2>/dev/null; then
+    ctx="ai-kit: this session is lead (claim role=lead), no peers live.
+
+Protocol (session-coordination rule):
+$protocol"
+  else
+    ctx="ai-kit: no peer sessions live. For the lead contract and its status-block template, set role=lead (the next SessionStart injects it) or read $rule."
+  fi
+  emit "$ctx"
+  exit 0
+fi
 role_hint="role=lead (no other session on this repo: you are lead)"
 awk -F'|' -v r="$(basename "$cwd")" 'NR>2 { gsub(/^ +| +$/, "", $3); if ($3 == r) f=1 } END { exit !f }' <<<"$peers" && role_hint="role=…"
 
@@ -103,13 +128,5 @@ $protocol
 }
 Do now: call \`ListAgents\` once, then register with \`$claim set $role_hint owns=… depends_on=…\` (AI_KIT_SESSION_ID=$sid is exported for this session; your skeleton claim already records repo, cwd and branch)."
 
-if command -v jq >/dev/null 2>&1; then
-  jq -n --arg ctx "$ctx" \
-    '{hookSpecificOutput: {hookEventName: "SessionStart", additionalContext: $ctx}}'
-else
-  esc="${ctx//\\/\\\\}"
-  esc="${esc//\"/\\\"}"
-  esc="${esc//$'\n'/\\n}"
-  printf '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"%s"}}\n' "$esc"
-fi
+emit "$ctx"
 exit 0
