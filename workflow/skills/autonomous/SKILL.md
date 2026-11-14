@@ -23,7 +23,7 @@ context per iteration. Pattern is adapted from Geoffrey Huntley's
 | `triage` | Produces the queue (`ready-for-agent` label) |
 | `tdd` | Inner loop per issue |
 | `review` | Pre-merge verification per issue |
-| `gh pr create` | PR open + (project-policy) merge |
+| [ship brief](../triage/SHIP-BRIEF.md) | Branch, commit and PR open in one subagent |
 | `autonomous` | **This skill** — orchestrates the above across N issues |
 
 ## Relationship to `/loop`
@@ -85,11 +85,15 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
      AI_KIT_ROOT=<that>` for the rest of the run; if absent, leave the
      existing resolver alone (`${HOME}/.config/ai-kit/root` fallback).
      Log `preflight-ai-kit-root-pinned <path>`.
-   - **Triage labels exist** (P6 preflight). Verify the project tracker
-     carries the labels the queue depends on:
+   - **Triage labels exist** (P6 preflight). Read the label string the
+     project maps to the `ready-for-agent` role from
+     `docs/agents/triage-labels.md` (written by `/ai:setup`), then verify
+     the project tracker carries it:
      ```bash
+     READY_LABEL=$(awk -F'|' '$2 ~ /`ready-for-agent`/ {gsub(/^ +| +$|`/, "", $3); print $3}' docs/agents/triage-labels.md 2>/dev/null)
+     [ -n "$READY_LABEL" ] || { echo 'exit-gate triage-labels-missing docs/agents/triage-labels.md' >> .ai-kit/autonomous/progress.txt; exit 1; }
      gh label list --repo "$(gh repo view --json nameWithOwner -q .nameWithOwner)" --json name --jq '.[].name' \
-       | grep -qx ready-for-agent || { echo 'exit-gate triage-labels-missing ready-for-agent' >> .ai-kit/autonomous/progress.txt; exit 1; }
+       | grep -qxF "$READY_LABEL" || { echo "exit-gate triage-labels-missing $READY_LABEL" >> .ai-kit/autonomous/progress.txt; exit 1; }
      ```
      Log `preflight-triage-labels-ok` on success.
    - **Detect merge policy** (P5 modification). Resolve in this order
@@ -130,7 +134,7 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
     5-hour block by its end, not a hard Anthropic-reported limit — ccusage
     has no API for the account's real cap, so the guard is a user-chosen
     dollar ceiling, not a universal threshold. Silent no-op when unset.
-2. **Pick next issue.** `gh issue list --label ready-for-agent --json number,title,updatedAt --jq 'sort_by(.updatedAt) | .[0]'`. Oldest first. Queue empty → write `exit-empty`, stop.
+2. **Pick next issue.** `gh issue list --label "$READY_LABEL" --json number,title,updatedAt --jq 'sort_by(.updatedAt) | .[0]'`. Oldest first. Queue empty → write `exit-empty`, stop.
 3. **Read Agent Brief.** `gh issue view <n> --comments` — find the
    comment whose header is the literal `## Agent Brief`. If missing or
    thin (no acceptance criteria inline), write `exit-gate brief-thin`
@@ -145,12 +149,12 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
      issue needs human triage before any agent can pick it up.
    Never read linked file paths from the comment; the brief is a
    cold-start contract.
-4. **Branch.** If step 0 confirmed the cwd is already on the brief's
-   `target_branch` inside a worktree, **skip `git switch -c`** — the
-   work happens on the existing feature branch (per the brief's
-   "Eén commit-bundle on `<branch>`" or equivalent). Otherwise,
-   `git switch -c agent/issue-<n>-<slug>` from the project's default
-   branch. Fail-fast if dirty working tree.
+4. **Branch.** Fail fast on a dirty working tree (`git status
+   --porcelain` non-empty → `exit-error dirty-tree`). Name the branch:
+   the brief's `target_branch` when step 0 confirmed the cwd is already
+   on it inside a worktree, otherwise `agent/issue-<n>-<slug>` from the
+   project's default branch. The skill does not create it; the ship
+   brief in step 7 does, and builder's uncommitted work carries over.
 5. **TDD.** Invoke `tdd` against the Agent Brief's acceptance
    criteria. The per-issue worker is the `builder` subagent
    (`subagent_type=ai:builder`, fed the full Agent Brief in the shape
@@ -169,12 +173,22 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
    → `exit-gate review-blocked`, leave branch for human.
 6a. **Verify.** Spawn `verifier` (Task tool, `subagent_type=ai:verifier`)
     on the claim "the acceptance criteria in the Agent Brief are met by
-    this branch"; pass the brief and `git diff <default-branch>...HEAD`.
+    this branch"; pass the brief, `git diff <default-branch>`, and from
+    `git status --porcelain` the builder's new files, staged (`A`) or
+    untracked (`??`), both lists, with the instruction to read each of
+    them. Step 4 left the tree clean, so every new file is builder's
+    work.
     REFUTED → `exit-gate verify-refuted <counter-evidence line>`, leave
     branch for human. CONFIRMED or UNTESTABLE → `verify-pass`, continue.
-7. **Ship.** Open a PR with `gh pr create` (title in Conventional Commits form, body: summary + test plan). **Never auto-merge.**
+7. **Ship.** Spawn one ship brief ([`triage/SHIP-BRIEF.md`](../triage/SHIP-BRIEF.md)):
+   branch from step 4, the paths builder changed, a Conventional
+   Commits title, PR body summary + test plan + `Fixes #<n>`, merge
+   `none`, deploy `none`, and after: the default branch (or `stay` on a
+   pinned `target_branch`), so the next lap starts clean. Merge policy
+   `direct` sets PR `none` and branch `none`. **Never auto-merge.**
    The project's merge policy (CI, approval, branch protection) is
-   the safety net.
+   the safety net. The ship brief reports a stop → `exit-gate
+   git-conflict <stop line>`, leave the tree for human.
 8. **Log.** Append `ship-ok` line to `progress.txt`. Loop continues
    (mode `drain`) or exits (mode `one`).
 
@@ -211,13 +225,12 @@ Always exit with a one-line `exit-*` entry in `progress.txt`:
 | HEAD branch ≠ brief's target_branch | `exit-gate branch-mismatch <detail>` | `git switch <target_branch> && /ai:autonomous one` |
 | Brief missing / thin | `exit-gate brief-thin <detail>` | Human re-triage (`detail` ∈ `header-mismatch`, `body-not-promoted`, `no-brief`) |
 | TDD cap (≤3 attempts per cycle) | `exit-gate tdd-stuck` | Human implementation |
-| Review blockers | `exit-gate review-blocked` | Human review |
-| Security ≥ high | `exit-gate security` | Human review |
+| Review blockers or security ≥ high | `exit-gate review-blocked` | Human review |
 | Verifier refutes "acceptance criteria met" | `exit-gate verify-refuted <counter-evidence>` | Human review |
 | Triage labels missing on tracker | `exit-gate triage-labels-missing <label>` | `gh label create <label>`; re-run |
 | Merge policy disagreement (brief vs project config) | `exit-gate merge-policy-mismatch <detail>` | Align brief or project config; re-run |
 | Projected 5-hour cost ≥ `AI_KIT_AUTONOMOUS_USAGE_GUARD_USD` (opt-in) | `exit-gate usage-cap <projected-vs-guard>` | Wait for the block to roll (`ccusage blocks --active` shows `remainingMinutes`), then re-invoke |
-| Push needs force / conflict resolution | `exit-gate git-conflict` | Human resolution |
+| Ship brief stopped (red check, push needs force, conflict) | `exit-gate git-conflict` | Human resolution |
 | User explicit stop OR harness instability skill cannot remediate | `exit-handoff <reason>` | Human drives remaining gates (see Handoff protocol) |
 | `max_iterations` reached | `exit-cap` | User re-invokes |
 | Unexpected error | `exit-error <reason>` | Inspect log |

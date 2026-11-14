@@ -229,6 +229,40 @@ for g in grill-me grill-with-docs; do
 done
 
 
+echo "=== chain-seams ==="
+# section: chain-seams
+assert "AGENT-BRIEF has a Posting section" 'grep -q "^## Posting" "$SK/triage/AGENT-BRIEF.md"'
+for s in to-issues to-prd; do
+  assert "$s posts the Agent Brief comment with the label" "grep -qF 'post the \`## Agent Brief\` comment with the label' \"\$SK/$s/SKILL.md\" && grep -qF 'AGENT-BRIEF.md' \"\$SK/$s/SKILL.md\""
+done
+assert "ship brief sits next to the Agent Brief" '[ -f "$SK/triage/SHIP-BRIEF.md" ] && [ ! -d "$SK/_shared" ]'
+for s in to-prd autonomous harvest diagnose; do
+  assert "$s references the ship brief" "grep -qF 'triage/SHIP-BRIEF.md' \"\$SK/$s/SKILL.md\""
+done
+AUTO="$SK/autonomous/SKILL.md"
+assert "autonomous reads the label from triage-labels.md" 'grep -qF "docs/agents/triage-labels.md" "$AUTO" && grep -qF -- "--label \"\$READY_LABEL\"" "$AUTO"'
+assert "autonomous verifier gets staged and untracked new files" 'grep -qF "staged (\`A\`) or" "$AUTO" && grep -qF "untracked (\`??\`)" "$AUTO"'
+assert "ship brief requires a review APPROVE on the staged tree" 'grep -qF "stage nothing beyond the reviewed paths" "$SK/triage/SHIP-BRIEF.md"'
+assert "review: role=lead staging goes to a subagent" 'grep -qF "a subagent stages by explicit path" "$SK/review/SKILL.md"'
+assert "autonomous has no exit-gate security row" '! grep -qF "exit-gate security" "$AUTO"'
+assert "autonomous runs no git switch -c or gh pr create itself" '! grep -qF "git switch -c" "$AUTO" && ! grep -qF "gh pr create" "$AUTO"'
+for s in review qa diagnose; do
+  assert "$s names the builder brief" "grep -qF 'builder brief' \"\$SK/$s/SKILL.md\" && grep -qF 'subagent_type=ai:builder' \"\$SK/$s/SKILL.md\""
+done
+assert "qa has no inline fix-and-commit step" '! grep -qF "fix one issue, commit" "$SK/qa/SKILL.md" && ! grep -qF "run the fix loop here" "$SK/qa/SKILL.md"'
+assert "diagnose has no inline apply-the-fix step" '! grep -qE "^[0-9]+\. Apply the fix" "$SK/diagnose/SKILL.md"'
+D2C="$SK/design-to-code/SKILL.md"
+assert "design-to-code runs reviewer on designer diffs before the judge" 'grep -qF "subagent_type=ai:reviewer" "$D2C" && grep -qF "before its judge" "$D2C"'
+assert "design-to-code reviewer targets the uncommitted working tree" 'grep -qF "target \"working tree vs HEAD\"" "$D2C" && grep -qF "run build, review, score and prove inline" "$D2C"'
+assert "design-to-code fixes drift frame first, then code" 'grep -qF "frame first, then code" "$D2C" && grep -qF "Drift is fixed frame-first." "$AIKIT/standards/rules/design-leads.mini.md"'
+assert "design-to-code drops the stale mobile and quota lines" '! grep -qF "Mobile is not designed in Paper yet" "$D2C" && ! grep -qF "100 MCP calls per week" "$D2C" "$AG/designer.md"'
+GF="$AIKIT/standards/rules/grill-first.mini.md"
+for s in grill-me validate-idea design-to-code; do
+  assert "grill-first phase table lists $s" "grep -E '^ +\\|' \"\$GF\" | grep -qF '\`$s\`'"
+done
+assert "grill-first names the real deployment-on-demand path" 'p=standards/rules/feedback/deployment-on-demand.mini.md; grep -qF "$p" "$GF" && [ -f "$AIKIT/$p" ]'
+
+
 echo "=== plugin-manifest ==="
 # section: plugin-manifest
 PLUGIN_JSON="$AIKIT/workflow/.claude-plugin/plugin.json"

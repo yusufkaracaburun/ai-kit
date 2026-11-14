@@ -43,7 +43,6 @@ A repo-local skill that governs UI work — a design-system skill, a design→co
 - **App tokens first.** The app's tokens (for example from `src/styles.css`) are set up in the Paper file before you design or build. `open_file` returns the file's tokens; call `get_tokens` only when they are missing from that answer. A design on other tokens drifts from the app.
 - **Read with `get_basic_info`, `get_screenshot` and `get_computed_styles`.** Read only the assigned frame, one screenshot per frame.
 - **`get_jsx` output never becomes app code.** It gives fixed px values, Paper-file tokens instead of app tokens, plain divs with no components, and loses layer names.
-- **Budget.** Paper Free allows 100 MCP calls per week, and a new screen costs about 5 plus iterations. Count your calls and report them under Verified.
 - No Paper MCP here → work from the screenshot and values the caller passed; say so under Verified.
 
 ## Paper design mode

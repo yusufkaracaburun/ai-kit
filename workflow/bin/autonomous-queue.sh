@@ -7,7 +7,8 @@ usage() {
   cat <<EOF >&2
 Usage: $0 next [--json] [--repo OWNER/REPO]
 
-Print the oldest open issue labeled "ready-for-agent".
+Print the oldest open issue labeled with the ready-for-agent label
+(read from docs/agents/triage-labels.md, default "ready-for-agent").
 
 Output (default):  <issue#>\\t<title>
 Output (--json):   {"issue": <n>, "title": "..."}  or  null
@@ -36,8 +37,12 @@ done
 command -v gh >/dev/null 2>&1 \
   || { echo "gh CLI not found in PATH" >&2; exit 3; }
 
+# Same lookup as the autonomous skill: the tracker string mapped to the role.
+READY_LABEL="$(awk -F'|' '$2 ~ /`ready-for-agent`/ {gsub(/^ +| +$|`/, "", $3); print $3}' docs/agents/triage-labels.md 2>/dev/null || true)"
+READY_LABEL="${READY_LABEL:-ready-for-agent}"
+
 # shellcheck disable=SC2054  # `number,title,updatedAt` is a gh --json arg value, not a bash array literal.
-GH_ARGS=(issue list --label ready-for-agent --state open --json number,title,updatedAt)
+GH_ARGS=(issue list --label "$READY_LABEL" --state open --json number,title,updatedAt)
 [ -n "$REPO" ] && GH_ARGS+=(--repo "$REPO")
 
 RAW="$(gh "${GH_ARGS[@]}")"

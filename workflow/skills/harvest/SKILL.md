@@ -101,7 +101,7 @@ bash bin/sync-plugin-rules.sh                        # universal always-on → w
 
 The rule total did not move, so the count guard stays silent and the `--list` assertion is untouched — do not go looking for either. What still applies: the merged bullets carry the mechanism and the silent failure, not a summary of the source repo, and the host rule's scope must actually reach the repos that supplied the evidence. If it does not, the merge is wrong and it wants its own rule.
 
-**From another repo:** open a PR against `yusufkaracaburun/ai-kit` on branch `harvest/<name>` adding the rule file, with a body that states the three bar criteria and the evidence for each. Show the user the full rule and PR body before any `gh` write call.
+**From another repo:** open a PR against `yusufkaracaburun/ai-kit` on branch `harvest/<name>` adding the rule file, with a body that states the three bar criteria and the evidence for each. Show the user the full rule and PR body before any `gh` write call, then run `review` on the staged rule and hand branch, commit and PR to one ship brief ([`triage/SHIP-BRIEF.md`](../triage/SHIP-BRIEF.md)) with merge and deploy `none`. Inside the ai-kit clone the same ship brief lands the rule once the checks above are green and `review` approves.
 
 ## Hard rules
 

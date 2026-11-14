@@ -20,8 +20,9 @@ Every issue this skill produces must contain enough context that a **second
 dev** — teammate, AFK agent, or returning maintainer — who has never seen
 the conversation can act on it cold. Each issue gets a parent reference, a
 behavioral *what to build* description, inline machine-checkable
-acceptance criteria, and an explicit *blocked by* list. The issue body is
-the contract surface; conversation context is not.
+acceptance criteria, and an explicit *blocked by* list. The `## Agent Brief`
+comment is the contract surface and the issue body its context; conversation
+context is neither.
 
 Rationale: ai-kit defaults assume ≥2 devs (one writer, one reviewer), per
 ai-kit issue #52. The to-issues template enforces this structure — never
@@ -91,7 +92,7 @@ Iterate until the user approves the breakdown.
 
 ### 5. Publish the issues to the issue tracker
 
-For each approved slice, publish a new issue to the issue tracker. Use the issue body template below. These issues are considered ready for AFK agents, so publish them with the correct triage label unless instructed otherwise.
+For each approved slice, publish a new issue to the issue tracker. Use the issue body template below. These issues are considered ready for AFK agents, so publish them with the correct triage label unless instructed otherwise, and post the `## Agent Brief` comment with the label, in the order [`triage/AGENT-BRIEF.md`](../triage/AGENT-BRIEF.md) § Posting gives. The brief restates the slice in that template's shape: its acceptance criteria inline, Out of scope, the test command and the Decisions in force.
 
 Publish issues in dependency order (blockers first) so you can reference real issue identifiers in the "Blocked by" field.
 

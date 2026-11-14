@@ -41,6 +41,24 @@ AQ_JSON_POP="$(PATH="$TMP_AQ/stubs:$PATH" "$AIKIT/bin/autonomous-queue.sh" next 
 assert "populated --json includes issue #" 'echo "$AQ_JSON_POP" | grep -q "\"issue\": 18"'
 assert "populated --json includes title"   'echo "$AQ_JSON_POP" | grep -q "\"title\": \"older one\""'
 
+# Label comes from docs/agents/triage-labels.md; ready-for-agent without it.
+cat > "$TMP_AQ/stubs/gh" <<'STUB'
+#!/usr/bin/env bash
+echo "$*" > "$GH_ARGS_LOG"
+echo "[]"
+STUB
+mkdir -p "$TMP_AQ/repo/docs/agents"
+(cd "$TMP_AQ/repo" && GH_ARGS_LOG="$TMP_AQ/args" PATH="$TMP_AQ/stubs:$PATH" "$AIKIT/bin/autonomous-queue.sh" next >/dev/null)
+assert "no triage-labels.md: queries ready-for-agent" 'grep -q -- "--label ready-for-agent " "$TMP_AQ/args"'
+sed 's/| `ready-for-agent`    | Fully/| `afk-ready`          | Fully/' \
+  "$AIKIT/workflow/context/templates/docs/agents/triage-labels.md" > "$TMP_AQ/repo/docs/agents/triage-labels.md"
+(cd "$TMP_AQ/repo" && GH_ARGS_LOG="$TMP_AQ/args" PATH="$TMP_AQ/stubs:$PATH" "$AIKIT/bin/autonomous-queue.sh" next >/dev/null)
+assert "triage-labels.md maps the label: queries afk-ready" 'grep -q -- "--label afk-ready " "$TMP_AQ/args"'
+sed 's/| `ready-for-agent`    | Fully/| `ready for agent`    | Fully/' \
+  "$AIKIT/workflow/context/templates/docs/agents/triage-labels.md" > "$TMP_AQ/repo/docs/agents/triage-labels.md"
+(cd "$TMP_AQ/repo" && GH_ARGS_LOG="$TMP_AQ/args" PATH="$TMP_AQ/stubs:$PATH" "$AIKIT/bin/autonomous-queue.sh" next >/dev/null)
+assert "label with inner spaces keeps them" 'grep -q -- "--label ready for agent --state" "$TMP_AQ/args"'
+
 # Stub 3: bad JSON from gh.
 cat > "$TMP_AQ/stubs/gh" <<'STUB'
 #!/usr/bin/env bash
@@ -201,8 +219,8 @@ for lbl in needs-triage needs-info ready-for-agent ready-for-human wontfix \
   assert "catalog ships label '$lbl'" 'echo " $CATALOG_NAMES " | grep -q " '"$lbl"' "'
 done
 
-assert "autonomous-queue filters on a catalogued label" \
-  'grep -q "label ready-for-agent" "$AIKIT/bin/autonomous-queue.sh" && echo " $CATALOG_NAMES " | grep -q " ready-for-agent "'
+assert "autonomous-queue falls back to a catalogued label" \
+  'grep -qF "READY_LABEL:-ready-for-agent" "$AIKIT/bin/autonomous-queue.sh" && echo " $CATALOG_NAMES " | grep -q " ready-for-agent "'
 
 # Every P-label in the catalog must satisfy the auto-promote regex /^P[0-3]-/,
 # otherwise a correctly-labelled issue never promotes Todo -> Ready.

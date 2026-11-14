@@ -42,6 +42,16 @@ Decisions in force are lines copied from the project's `docs/decisions.md`, whic
 
 This template is the only brief shape. `tdd`, `autonomous` and `design-to-code` pass the whole brief to `builder` and `designer`, and `review` passes the same brief to `reviewer`, which checks every acceptance criterion and the Out of scope list against the diff.
 
+## Posting
+
+Any skill that sets `ready-for-agent` (`triage`, `to-issues`, `to-prd`) posts the brief in this order, so no issue ever carries the label without its brief:
+
+1. `gh issue create` without the label, or use the existing issue.
+2. `gh issue comment <n> --body-file <brief.md>`, the comment starting with the literal `## Agent Brief`.
+3. `gh issue edit <n> --add-label <label>`, the label string `docs/agents/triage-labels.md` maps to the role.
+
+A brief that cannot be written from the context at hand means no label: route the issue to `needs-info` instead.
+
 ## Template
 
 ```markdown

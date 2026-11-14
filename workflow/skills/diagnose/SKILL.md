@@ -12,7 +12,7 @@ When exploring the codebase, use the project's domain glossary to get a clear me
 
 ## Run mode
 
-- **Claude Code:** when you need to map the bug's code area — find callers, trace a data path, locate the seam a fix would sit at — delegate that read to the `explore` subagent via the Task tool with `subagent_type=ai:explore`, and work from its ≤300-line summary. Keeps wide file dumps out of the diagnosis loop. The loop itself (Phases 1–6) stays in this context — it is iterative and checkpoints with the user.
+- **Claude Code:** when you need to map the bug's code area — find callers, trace a data path, locate the seam a fix would sit at — delegate that read to the `explore` subagent via the Task tool with `subagent_type=ai:explore`, and work from its ≤300-line summary. Keeps wide file dumps out of the diagnosis loop. The loop itself stays in this context — it is iterative and checkpoints with the user — except the Phase 5 fix, which goes to `builder` and then a ship brief.
 - **Hosts without subagents:** read the files inline, filtered per [`context-discipline.mini.md`](../../../standards/rules/context-discipline.mini.md).
 
 ## Phase 1 — Build a feedback loop
@@ -104,13 +104,15 @@ A correct seam is one where the test exercises the **real bug pattern** as it oc
 
 **If no correct seam exists, that itself is the finding.** Note it. The codebase architecture is preventing the bug from being locked down. Flag this for the next phase.
 
-If a correct seam exists:
+If a correct seam exists, write a builder brief (`subagent_type=ai:builder`, in the shape of [`triage/AGENT-BRIEF.md`](../triage/AGENT-BRIEF.md)): the confirmed hypothesis as Desired behavior, the seam under Key interfaces, and the Phase 1 loop command under Test command. The lead never applies the fix. The brief asks the builder, in order:
 
 1. Turn the minimised repro into a failing test at that seam.
-2. Watch it fail. If you forced the red by mutating code or a fixture, `diff` against a pristine copy to prove the mutation landed before you trust it.
-3. Apply the fix.
+2. Watch it fail. If the red was forced by mutating code or a fixture, `diff` against a pristine copy to prove the mutation landed before trusting it.
+3. Make the fix.
 4. Watch it pass.
-5. Re-run the Phase 1 feedback loop against the original (un-minimised) scenario.
+5. Re-run the Phase 1 feedback loop against the original (un-minimised) scenario and quote its result.
+
+Once the builder reports green and `review` approves, hand the commit and PR to one ship brief ([`triage/SHIP-BRIEF.md`](../triage/SHIP-BRIEF.md)); its commit or PR body states the hypothesis that turned out correct.
 
 A try/catch, retry, null-guard or sleep is not a fix unless that IS the correct behaviour — it hides the cause and the same incident recurs.
 

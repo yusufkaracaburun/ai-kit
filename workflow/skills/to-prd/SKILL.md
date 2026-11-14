@@ -108,9 +108,9 @@ N. **<lead, title cased>** (#<issue-number>) — <one-paragraph
 
 If the agent cannot find a `## What's next` heading, **do not invent one** — surface to the user and ask where to place the entry.
 
-#### 6. Commit + report
+#### 6. Ship + report
 
-Per [git-hygiene rule](../../../standards/rules/git-hygiene.mini.md). One commit:
+Run `review` on the staged `docs/roadmap.md` change, then hand the commit to one ship brief ([`triage/SHIP-BRIEF.md`](../triage/SHIP-BRIEF.md)), per the [git-hygiene rule](../../../standards/rules/git-hygiene.mini.md): paths `docs/roadmap.md`, deploy `none`, branch, PR and merge as the project's own git policy says. One commit:
 
 ```
 chore(defer): capture #<N> in roadmap
@@ -118,9 +118,7 @@ chore(defer): capture #<N> in roadmap
 <one-line context — what prompted the deferral>
 ```
 
-Commit directly to `master` (ai-kit policy). For other repos, branch only if the repo's `git-hygiene` says so.
-
-Single-line report:
+Single-line report, once the ship brief reports the commit:
 
 ```
 Captured: <issue URL> + docs/roadmap.md § What's next entry N.
@@ -157,7 +155,7 @@ A deep module (as opposed to a shallow module) is one which encapsulates a lot o
 
 Check with the user that these modules match their expectations. Check with the user which modules they want tests written for.
 
-4. Write the PRD using the template below, then publish it to the project issue tracker. Apply the `ready-for-agent` triage label — no need for additional triage.
+4. Write the PRD using the template below, then publish it to the project issue tracker. Apply the `ready-for-agent` triage label — no need for additional triage — and post the `## Agent Brief` comment with the label, in the order [`triage/AGENT-BRIEF.md`](../triage/AGENT-BRIEF.md) § Posting gives. The brief distils the PRD into that template's shape, with the acceptance criteria inline.
 
 <prd-template>
 

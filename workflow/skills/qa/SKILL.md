@@ -11,7 +11,7 @@ Browser/console output is large; quote only salient lines back into this context
 
 ## Run mode
 
-- **Claude Code (preferred):** delegate the full QA pass to the `qa-runner` subagent via the Task tool with `subagent_type=ai:qa-runner`. Pass: target URL, environment (`local`/`staging`), critical flows, tier (`quick`/`standard`/`exhaustive`, optionally `personas` with its lenses). The subagent drives Playwright / CLI checks so the large browser and console output stays out of this context; it returns the markdown report below. Surface that report to the user, then run the fix loop here if asked.
+- **Claude Code (preferred):** delegate the full QA pass to the `qa-runner` subagent via the Task tool with `subagent_type=ai:qa-runner`. Pass: target URL, environment (`local`/`staging`), critical flows, tier (`quick`/`standard`/`exhaustive`, optionally `personas` with its lenses). The subagent drives Playwright / CLI checks so the large browser and console output stays out of this context; it returns the markdown report below. Surface that report to the user, then route fixes through the fix loop below if asked.
 - **Browser-MCP interactive QA, or hosts without subagents:** run the process below inline. The process below is the canonical source of truth — `qa-runner`'s system prompt mirrors it.
 
 ## Process
@@ -20,7 +20,7 @@ Browser/console output is large; quote only salient lines back into this context
 2. **Smoke test** — load the app, check console errors, verify primary flows work.
 3. **Deep test** — edge cases, form validation, auth boundaries, error states.
 4. **Report** each issue with: severity (critical/high/medium/low), steps to reproduce, expected vs actual.
-5. **Fix loop** (only if asked) — fix one issue, commit, re-test that path. A personas finding counts as fixed only with a regression test in the project's own test framework (unit or e2e, not necessarily Playwright).
+5. **Fix loop** (only if asked) — send each issue to a builder brief (`subagent_type=ai:builder`, in the shape of [`triage/AGENT-BRIEF.md`](../triage/AGENT-BRIEF.md)) with its repro as the first failing test; the lead never fixes. Re-test that path once the builder reports green. A personas finding counts as fixed only with a regression test in the project's own test framework (unit or e2e, not necessarily Playwright).
 
 Use Playwright E2E tests in the project when they exist. Prefer extending tests over one-off manual checks for regressions.
 

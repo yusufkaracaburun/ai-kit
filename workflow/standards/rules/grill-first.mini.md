@@ -27,10 +27,10 @@ Any of: an issue number / URL / spec path is passed · "implement this", "pak je
 
    | Phase | Skill |
    | ----- | ----- |
-   | Ideation — scope, requirements | `grill-with-docs`, `to-prd` |
-   | Development — backlog → build | `to-issues` → `triage` → `tdd` |
+   | Ideation — scope, requirements | `validate-idea`, `grill-me`, `grill-with-docs`, `to-prd` |
+   | Development — backlog → build | `to-issues` → `triage` → `tdd`; `design-to-code` for screens with a design |
    | Testing — test & fix | `tdd`, `review`, `qa`, `diagnose` |
-   | Deployment — release | the project's release procedure (deployment-on-demand rule) |
+   | Deployment — release | the project's release procedure (`deployment-on-demand` rule, `standards/rules/feedback/deployment-on-demand.mini.md`) |
    | Ops — feedback, retrospective | `retro` |
 
    Check `/ai:next` before opening a new issue; `/ai:which` when unsure of the skill.
