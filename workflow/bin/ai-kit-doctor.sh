@@ -108,6 +108,21 @@ for h in claude cursor copilot codex gemini; do
 done
 CLAUDE_HOST=false
 grep -qx claude <<<"$HOSTS" && CLAUDE_HOST=true
+
+# A plugin cannot set env, so unset here means general-purpose subagents run on
+# the lead's model (Opus) for every sweep.
+subagent_model_in() {
+  python3 -c 'import json,sys; sys.exit(0 if (json.load(open(sys.argv[1])).get("env") or {}).get("CLAUDE_CODE_SUBAGENT_MODEL") else 1)' "$1" 2>/dev/null
+}
+if [ "$CLAUDE_HOST" = true ]; then
+  if [ -n "${CLAUDE_CODE_SUBAGENT_MODEL:-}" ] || subagent_model_in "$HOME/.claude/settings.json" \
+    || { [ -n "$TARGET" ] && { subagent_model_in "$TARGET/.claude/settings.json" \
+      || subagent_model_in "$TARGET/.claude/settings.local.json"; }; }; then
+    ok "CLAUDE_CODE_SUBAGENT_MODEL set"
+  else
+    warn "CLAUDE_CODE_SUBAGENT_MODEL unset, general-purpose subagents run on the lead's model; run /ai:setup or add \"env\": {\"CLAUDE_CODE_SUBAGENT_MODEL\": \"sonnet\"} to .claude/settings.json"
+  fi
+fi
 echo ""
 
 # Decide whether to check globals.

@@ -2,7 +2,10 @@
 name: qa-runner
 description: Runs a QA pass against a web app — Playwright / CLI smoke and deep tests, returns a structured findings report. Web only; mobile simulator or emulator runs are not covered. Spawn from ai-kit's `qa` skill in Claude Code. Read-only on the codebase; never commits. Large browser and console output stays in the subagent context.
 tools: Read, Grep, Glob, Bash
+model: sonnet
 ---
+
+<!-- model-pin: read-only test runner that filters output into a report; same bounded role as explore, so do not drop this back to the default -->
 
 # QA Runner
 

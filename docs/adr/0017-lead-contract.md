@@ -59,6 +59,24 @@ The rule existed and was skipped. More prose would be skipped the same way.
       `judge` and `verifier` pin Opus and `explore` pins Sonnet in their `model:`
       frontmatter, which beats the env var (Claude Code v2.1.251 and later).
       This supersedes the Opus-default sentence of item 8.
+      Amended 2026-11-13: the lead runs on Opus, confirmed. The user sets
+      the session default with `/model`; the kit never sets it. `qa-runner`
+      pins Sonnet like `explore`. A subagent's model resolves in this order:
+      the per-call `model`, then the agent's `model:` frontmatter, then
+      `CLAUDE_CODE_SUBAGENT_MODEL`, then the main session's model (source:
+      https://code.claude.com/docs/en/sub-agents.md). A plugin
+      cannot set env, so `/ai:setup` writes `CLAUDE_CODE_SUBAGENT_MODEL` into
+      the project's `.claude/settings.json` and `ai-kit-doctor.sh` warns when
+      it is unset.
+      Skill `model:` frontmatter (#270) is weaker than it looked. It applies
+      for the current turn only, and Claude Code skips it without a message
+      in auto mode when auto mode does not support that model, and when the
+      model is outside an org `availableModels` allowlist (source:
+      https://code.claude.com/docs/en/skills.md). That is the likely
+      reason `npx ccusage@latest session` showed 0 Fable requests since
+      2026-10-14; likely, untested. Until a run shows Fable requests there,
+      treat every prep-skill turn as Opus. A Fable measurement needs the user
+      to switch the session with `/model` for the run.
 2. **Enforcement is a hook, not more prose.** `workflow/hooks/lead-guard.sh`
    (PreToolUse, plugin-bundled) denies Edit/Write on repo files, mutating or
    heavy Bash, `mcp__pencil__execute` and Chrome write tools. The switch is
@@ -74,6 +92,8 @@ The rule existed and was skipped. More prose would be skipped the same way.
    Amended 2026-10-30: the env default is Sonnet for general-purpose spawns,
    so `builder`, `reviewer`, `designer` and `verifier` pin `opus`, each with a
    `model-pin` reason. `explore` keeps its `sonnet` pin; `qa-runner` has none.
+   Amended 2026-11-13: `qa-runner` pins `sonnet` too, a read-only runner
+   like `explore`. `structure.sh` asserts both pins.
 4. **The rule body stays within its 14-line budget.** The contract replaced
    and merged bullets rather than adding a section.
 

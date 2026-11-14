@@ -60,7 +60,7 @@ assert "foreign entries in ~/.cursor/skills untouched" '[ -L "$H/.cursor/skills/
 
 echo "=== doctor / verify-setup / status do not flag the absent project .cursor/skills ==="
 # section: cursor-global-reporting
-DOC="$(HOME="$H" bash "$V1/bin/ai-kit-doctor.sh" "$P" --project-only 2>&1 || true)"
+DOC="$(HOME="$H" CLAUDE_CODE_SUBAGENT_MODEL=sonnet bash "$V1/bin/ai-kit-doctor.sh" "$P" --project-only 2>&1 || true)"
 assert "doctor: no .cursor/skills absent warning" '! grep -q "\.cursor/skills absent (run bootstrap-project.sh)" <<<"$DOC"'
 assert "doctor: names ~/.agents/skills as the served dir" 'grep -q "served by ~/.agents/skills" <<<"$DOC"'
 assert "doctor: reports review as shadowed on an info line" 'grep -q "info .*review shadowed" <<<"$DOC"'

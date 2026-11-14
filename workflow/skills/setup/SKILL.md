@@ -57,6 +57,7 @@ Ask once: **Fast (Tier A, ~5 min)** or **Full (Tier B)**?
 | 2f | Phase-check hook | auto-apply, no question (below) |
 | 2g | Secrets scan | auto-run once, conditional question on findings (below) |
 | 2h | Review gate hook | one question (below), default `wired` |
+| 2i | Subagent model default | auto-apply, no question (below) |
 
 Then:
 
@@ -399,6 +400,23 @@ override is the user running `review-gate.sh --approve --skip "<reason>"`,
 which is logged. Re-runs keep the recorded answer and do not ask again.
 Claude Code only: Cursor ships no hooks, so it has no gate. Record
 `--review-gate-hook=wired|skipped`.
+
+### Branch 2i — Subagent model default (auto-apply)
+
+Without `CLAUDE_CODE_SUBAGENT_MODEL` every general-purpose subagent runs on
+the lead's model (Opus). A plugin cannot set env, so write the key into the
+project's `.claude/settings.json` when it is missing. The merge keeps every
+other key, leaves a value the user already set alone, and leaves a malformed
+file untouched:
+
+```bash
+f=.claude/settings.json; mkdir -p .claude; [ -f "$f" ] || echo '{}' > "$f"
+jq -e '.env.CLAUDE_CODE_SUBAGENT_MODEL' "$f" >/dev/null 2>&1 || { tmp="$(mktemp)"; jq '.env.CLAUDE_CODE_SUBAGENT_MODEL = "sonnet"' "$f" > "$tmp" && cat "$tmp" > "$f"; rm -f "$tmp"; }
+```
+
+Claude Code only. Agents with a `model:` pin (`builder`, `reviewer`,
+`explore`, ...) are not affected. `ai-kit-doctor.sh` warns while the key is
+unset. Nothing goes in the marker.
 
 ## Tier B branches (optional)
 
