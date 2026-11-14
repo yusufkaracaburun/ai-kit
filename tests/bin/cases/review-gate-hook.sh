@@ -5,6 +5,8 @@ AIKIT="$(cd "$(dirname "$0")/../../.." && pwd)"
 source "$AIKIT/tests/bin/lib/harness.sh"
 
 HOOK="$AIKIT/bin/hooks/review-gate.sh"
+# The kit repo carries its own marker; a session's project dir must not gate these fixtures.
+unset CLAUDE_PROJECT_DIR
 
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
@@ -260,6 +262,11 @@ OUT=$(lead Bash '{"command": "echo x > .git/ai-kit/review-ok"}')
 assert "lead may not write the marker by redirect" '[ -n "$OUT" ]'
 OUT=$(lead Write '{"file_path": "/repo/.git/ai-kit/review-ok"}')
 assert "lead may not Write under .git/" '[ -n "$OUT" ]'
+
+echo "=== review-gate: the kit dogfoods the gate ==="
+# section: review-gate-kit-repo
+assert "the kit's own marker enables review-gate" \
+  '[ -f "$AIKIT/.ai-kit-setup" ] && (. "$AIKIT/bin/lib/setup-marker.sh" && marker_hook_on "$AIKIT" review-gate wired)'
 
 echo "=== review-gate: plugin delivery ==="
 # section: review-gate-plugin

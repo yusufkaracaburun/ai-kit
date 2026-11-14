@@ -58,6 +58,8 @@ The full set of branch/commit/PR conventions lives in [`standards/rules/git-hygi
 
 Maintainers only, via `bin/release.sh`: `VERSION` + CHANGELOG entry in one commit, then a tag; `--bump-marketplace` also pushes and bumps the marketplace catalog; CHANGELOG.md follows Keep a Changelog conventions.
 
+The kit's own `.ai-kit-setup` turns on the plugin hooks here, so an agent's `git commit` or `git push` in this repo needs an `/ai:review` APPROVE of that tree first. `bin/release.sh` re-stamps that marker into the release commit, and commits and pushes inside the script, which the review-gate hook never sees; a separate `git push` after it is gated on the release commit's tree.
+
 Cadence: at most one release per working day. Commits stack on master; one `chore(release)` at the end of the day. A patch release ships only after one consumer repo has run the minor it patches (1.94.0 → .1 → .2 within hours is the failure mode this rule prevents).
 
 Quality score: [docs/score.md](docs/score.md) holds the rubric and the last measured score. A ship summary reports a score only when it comes from that rubric.

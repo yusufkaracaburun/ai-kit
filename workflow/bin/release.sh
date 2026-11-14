@@ -129,6 +129,7 @@ if [ "$DRY_RUN" = true ]; then
   echo "[dry-run] Would write VERSION = $NEW_VERSION"
   echo "[dry-run] Would prepend CHANGELOG entry:"
   printf '%s\n' "$NEW_ENTRY" | sed 's/^/  | /'
+  [ -f .ai-kit-setup ] && echo "[dry-run] Would re-stamp .ai-kit-setup to $NEW_VERSION"
   echo "[dry-run] Would commit: 'chore(release): v$NEW_VERSION'"
   [ "$DO_TAG" = true ] && echo "[dry-run] Would tag: v$NEW_VERSION"
   if [ "$BUMP_MARKETPLACE" = true ]; then
@@ -156,6 +157,19 @@ bash "$SCRIPT_BIN/sync-plugin-version.sh"
 bash "$SCRIPT_BIN/sync-plugin-hooks.sh"
 # Keep the plugin-bundled global rules (ADR-0015) stamped from standards/rules/.
 bash "$SCRIPT_BIN/sync-plugin-rules.sh"
+# The kit's own marker gates the plugin hooks here; keep its version in step.
+if [ -f .ai-kit-setup ]; then
+  python3 - "$NEW_VERSION" <<'PY'
+import json, sys
+with open(".ai-kit-setup") as f:
+    data = json.load(f)
+data["ai_kit_version"] = sys.argv[1]
+with open(".ai-kit-setup", "w") as f:
+    json.dump(data, f, indent=2)
+    f.write("\n")
+PY
+  git add .ai-kit-setup
+fi
 
 git add VERSION workflow/CHANGELOG.md workflow/.claude-plugin/plugin.json \
   workflow/hooks workflow/rules

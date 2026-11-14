@@ -33,6 +33,30 @@ set -e
 assert "release: rejects same version" '[ "$SAME_EXIT" -ne 0 ]'
 assert "release: --no-tag dry-run skips tag mention" '! "$AIKIT/bin/release.sh" 9.9.8 --notes-file="$TMP_NOTES" --no-tag --dry-run 2>&1 | grep -q "Would tag"'
 
+echo "=== release-sh: kit marker ==="
+# section: release-sh-marker
+# A real release in a throwaway clone; the working tree's release.sh is the code under test.
+REL_TMP="$(mktemp -d)"
+trap 'rm -rf "$REL_TMP"' EXIT
+REL="$REL_TMP/kit"
+git clone --quiet "$AIKIT" "$REL"
+cp "$AIKIT/bin/release.sh" "$REL/bin/release.sh"
+git config --file "$REL_TMP/gitconfig" user.email t@t
+git config --file "$REL_TMP/gitconfig" user.name t
+relgit() { GIT_CONFIG_GLOBAL="$REL_TMP/gitconfig" git -C "$REL" "$@"; }
+rm -f "$REL/.ai-kit-setup"
+relgit add -A && relgit commit --quiet --allow-empty -m fixture
+GIT_CONFIG_GLOBAL="$REL_TMP/gitconfig" bash "$REL/bin/release.sh" 9.9.8 --notes-file="$TMP_NOTES" --no-tag >/dev/null 2>&1 || true
+assert "release: works without a marker" '[ "$(relgit log -1 --format=%s)" = "chore(release): v9.9.8" ] && [ ! -f "$REL/.ai-kit-setup" ]'
+AI_KIT_ROOT="$REL" bash "$REL/bin/write-setup-marker.sh" "$REL" --lifecycle=production --review-gate-hook=wired >/dev/null
+relgit add .ai-kit-setup && relgit commit --quiet -m marker
+GIT_CONFIG_GLOBAL="$REL_TMP/gitconfig" bash "$REL/bin/release.sh" 9.9.9 --notes-file="$TMP_NOTES" --no-tag >/dev/null 2>&1 || true
+assert "release: re-stamps the kit marker to the new version" '[ "$(jq -r .ai_kit_version "$REL/.ai-kit-setup")" = 9.9.9 ]'
+assert "release: keeps the marker's branch choices" '[ "$(jq -r .branches.review_gate_hook "$REL/.ai-kit-setup")" = wired ]'
+assert "release: the release commit carries the marker" 'relgit show --name-only --format= HEAD | grep -qx .ai-kit-setup'
+assert "release: leaves a clean tree" '[ -z "$(relgit status --porcelain)" ]'
+rm -rf "$REL_TMP"
+
 rm -f "$TMP_NOTES"
 
 

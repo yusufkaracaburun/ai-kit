@@ -31,10 +31,10 @@ echo "ai-kit @ $AIKIT (v$KIT_VERSION)"
 echo "project   $TARGET"
 echo ""
 
-# The kit's own source tree is not a consumer: it never carries a marker or
-# linked primitives, and bootstrapping it would emit its rules into itself.
+# The kit's own source tree is not a consumer: its marker only gates the plugin
+# hooks, it has no linked primitives, and bootstrapping it would emit its rules into itself.
 if [ -f "$TARGET/bin/emit-rules.sh" ] && [ -d "$TARGET/standards/rules" ] && [ -d "$TARGET/workflow/skills" ]; then
-  echo "This is the ai-kit source tree — no marker or bootstrap expected here."
+  echo "This is the ai-kit source tree — no bootstrap expected here."
   echo "Run /ai:status from a consuming project instead."
   exit 0
 fi
