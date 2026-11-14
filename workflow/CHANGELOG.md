@@ -1,5 +1,28 @@
 # Changelog
 
+## 2.19.0 — 2026-11-14
+
+### Added
+
+- `ai-kit-doctor.sh` warns when `CLAUDE_CODE_SUBAGENT_MODEL` is not set anywhere. It checks the environment and the `env` block of `~/.claude/settings.json`, the project's `.claude/settings.json` and `.claude/settings.local.json`. Without the variable, general-purpose subagents run on the lead's model.
+- `/ai:setup` branch 2i writes `env.CLAUDE_CODE_SUBAGENT_MODEL=sonnet` into the project's `.claude/settings.json` when the key is missing. It merges with `jq`, so other keys stay as they are. A plugin cannot set env itself.
+
+### Changed
+
+- `lead-guard` now denies these for `role=lead`:
+  - `git switch|revert|am`, plus `git tag` when it creates or deletes a tag
+  - `git apply`, except `--check`, `--stat`, `--numstat` and `--summary`
+  - `touch|mkdir|ln`, `perl -i`, `pytest`, `cargo build|test|run|publish|install` and `go test`
+  - `wrangler` verbs other than read verbs, and `gplay` commands other than `get`, `list` or `read`
+  - inline `python|node|perl -c/-e` scripts that name a write, delete or process call; it checks only the script text (#281, closes #199)
+- `peer-sessions-check` keeps the yaml status-block template in the injected protocol. A solo session with `role=lead` gets the full block; a solo session without a role gets a one-line pointer to the rule.
+- `build-delegation-check` and `search-delegation-check` stay silent inside subagents.
+- Project rules emitted for Claude Code carry the rule description in their header line. The Cursor emitter maps `paths:` to `globs:`, with `alwaysApply: false`.
+- The kit's own `.claude/settings.json` no longer wires stale hook copies (ADR-0018 item 4).
+- `qa-runner` pins `model: sonnet` with a `model-pin` reason. `structure.sh` asserts the `explore` and `qa-runner` Sonnet pins.
+- ADR-0017 and `session-coordination` confirm the Opus lead, which the user sets with `/model`. Both state the subagent model order: per-call `model`, then frontmatter, then `CLAUDE_CODE_SUBAGENT_MODEL`, then the main model.
+- ADR-0017 records when a skill's `model:` is not applied. It holds for one turn only. It is skipped without a message in auto mode when auto mode does not support that model, or when the model is outside an org `availableModels` allowlist. This is the likely, untested cause of 0 Fable requests (#270).
+
 ## 2.18.0 — 2026-11-14
 
 ### Added
