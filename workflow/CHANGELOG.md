@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.21.0 — 2026-11-14
+
+### Changed
+
+- `docs/score.md` gains a Downstream outcomes dimension worth 15 points, taken from the other five (Works 26, Structure 17, Catalog 17, Docs honesty 13, Process 12). Its baseline: emeq-reui had at least 4 owner-found defects in 2026-11-10..11-13; the review gate is wired in all five downstream repos (plugin ≥2.17.0, `review_gate_hook` at default) but not yet observed: 0 approvals and 0 skips recorded, and emeq-reui made 8 commits after the install with no `review-ok`, likely from a session started before the plugin update; corrections per 100 prompts is not measured. No new score row, because one of the three measures has no value (#283).
+- Roadmap reconciled on 2026-11-14 against 109 open issues: rows for #199, #258 to #262, #267, #270 and #276 to #283 removed, rows added for #264, #284, #285, #286 and #287, #216 marked partly done in v2.19.0 (#283).
+- autonomous, tdd, to-issues and triage, the `docs/agents/workflow.md` and PR templates, the `setup-gh-workflow.sh` fallback message and the doctor solo-lint warning no longer cite "ai-kit issue #52"; they state the 2-dev default directly; autonomous drops its "spike-stage" limitations that contradicted its stable status; review and qa drop the gstack line (credit stays in the README); retro reads `docs/agents/workflow.md` as the file `/ai:setup` writes, and asks when it is missing (#283).
+- ADR-0014 no longer names the deleted `session-rules-inject.sh`; ADR-0015 drops the stale count of 23 rules and records the v2.20.0 count: 22 files, 12 pathless and 10 path-scoped (#283).
+
 ## 2.20.0 — 2026-11-14
 
 ### Added
