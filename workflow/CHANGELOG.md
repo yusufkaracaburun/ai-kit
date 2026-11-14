@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.18.0 — 2026-11-14
+
+### Added
+
+- `/ai:workflow-audit`: three read-only `explore` agents audit the skill chain, agent and hook delivery, and real-use evidence, then write `docs/audits/workflow-audit-<date>.md` in fixed sections with a delta against the previous report (closes #279). Each key figure is new, worse, better, stable or not measured. Stable when |Δ| ≤ max(1, 10% of the previous value); for percentages, |Δ| ≤ 5 percentage points. A stable figure gets no slice. `/ai:checkpoint` (with or without `--also-housekeeping`) and `/ai:next` print `last workflow audit N days ago, run /ai:workflow-audit` in the ai-kit repo once the newest report is over 30 days old, or `no workflow audit yet, run /ai:workflow-audit` when none exists.
+- `docs/audits/workflow-audit-2026-11-13.md`: the baseline the next run compares against.
+
 ## 2.17.0 — 2026-11-13
 
 ### Added
