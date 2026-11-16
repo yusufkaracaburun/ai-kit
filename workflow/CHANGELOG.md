@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.22.0 — 2026-11-16
+
+### Added
+
+- `ai-kit-heavy-run.sh` wrapper: a machine-wide mkdir lock for full test suites. If another run holds the lock, it exits 75 at once. A dead holder is taken over.
+- PreToolUse Bash hook `heavy-run-gate`: it denies full suites run without the wrapper (pest, paratest, phpunit, vitest, jest, playwright, patrol, maestro, xcodebuild, gradle, `npm|pnpm|yarn|bun [run] test`, `composer test`, `php artisan test`). Filtered and single-file runs stay free. It fires in every repo with the plugin, not only marked ones (#288, #275).
+
+### Changed
+
+- The builder and designer agents, the qa-runner agent and the qa skill now say to run full suites through the wrapper.
+
 ## 2.21.1 — 2026-11-14
 
 ### Changed
