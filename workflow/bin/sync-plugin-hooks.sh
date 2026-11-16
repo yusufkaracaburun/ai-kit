@@ -39,6 +39,7 @@ PAIRS=(
   "bin/hooks/build-delegation-check.sh|workflow/hooks/build-delegation-check.sh"
   "bin/hooks/context-drift-check.sh|workflow/hooks/context-drift-check.sh"
   "bin/hooks/review-gate.sh|workflow/hooks/review-gate.sh"
+  "bin/hooks/heavy-run-gate.sh|workflow/hooks/heavy-run-gate.sh"
 )
 
 MODE="stamp"

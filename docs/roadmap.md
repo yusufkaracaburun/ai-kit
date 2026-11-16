@@ -7,7 +7,7 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-11-14 against 109 open issues (#276-#283 done, #283 with this reconcile; #199, #258-#262 and #267 closed and removed; #270 closed by #280; #216 partly done in v2.19.0; rows added for #264, #284, #285, #286, #287; #257, #263 and #264 labelled P3, P1 and P3 to match their sections; earlier reconciliation notes live in [roadmap-archive.md](roadmap-archive.md#reconciliation-notes))._
+_Last reconciled: 2026-11-14 against 109 open issues (#275 and #288 done 2026-11-16, closed by the heavy-run lock slice; #276-#283 done, #283 with this reconcile; #199, #258-#262 and #267 closed and removed; #270 closed by #280; #216 partly done in v2.19.0; rows added for #264, #284, #285, #286, #287; #257, #263 and #264 labelled P3, P1 and P3 to match their sections; earlier reconciliation notes live in [roadmap-archive.md](roadmap-archive.md#reconciliation-notes))._
 
 ## P1 — broken in the wild
 
@@ -423,7 +423,6 @@ _Last reconciled: 2026-11-14 against 109 open issues (#276-#283 done, #283 with 
 - **#272** `enhancement` — offer ReUI Pro registry in recommend-tools for React+shadcn projects (components.json); parked until a Pro block ships in emeq-reui. 2026-10-30.
 - **#273** `enhancement` — design-to-code judge: `mask` takes CSS selectors, so a Paper frame or block thumbnail (no DOM) cannot mask a changing value; add mask-by-position only when an app needs it. 2026-11-08.
 - **#274** `enhancement` — design-pin.sh and judge hardening: `--` before shasum paths, exit 2 on missing inputs, git-config-proof worktree diff, one source for the overlay path list, shellcheck on `tests/bin/cases`, `set_by` per user-only overlay key, measure.json per width and theme. 2026-11-08.
-- **#275** `enhancement` — hooks: PreToolUse Bash hook denies a second heavy test run (pest, paratest, phpunit, playwright, patrol, maestro, xcodebuild, gradle) when `ps -Ao args` already shows one; queueing and cross-machine locks out of scope. 2026-11-08.
 - **#264** — design-to-code: first Paper setup in emeq-reui cost 20 MCP calls and found 7 mismatches between skill, guide and practice (per-group `write_html` against the Free-tier budget, design brief versus app tokens first, no light/dark token modes, `.` not allowed in token names, no file-choice or `create_file` step, `rename_nodes` truncates at 50 characters). 2026-10-30.
 - **#284** `bug` — hooks: lead-guard misses `git -C <dir> commit|push|tag|switch`, because its patterns expect `git <verb>` directly; found in the #281 review. 2026-11-13.
 - **#286** `enhancement` — upgrade: `/ai:upgrade` writes `env.CLAUDE_CODE_SUBAGENT_MODEL=sonnet` into `.claude/settings.json` for projects set up before v2.19.0; no-op when the key is set, leaves malformed JSON untouched. 2026-11-14.
