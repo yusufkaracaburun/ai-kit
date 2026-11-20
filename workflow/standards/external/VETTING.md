@@ -1047,6 +1047,32 @@ modern-web-guidance · category=web-platform · added 2026-09-19
                     design-intelligence one; it never picks a direction)
 ```
 
+Re-check 2026-11-20 (`/ai:should-i-use
+https://github.com/GoogleChrome/modern-web-guidance-src`). The `-src` repo is
+the authoring tree (guides, evals, build), HEAD
+`e53cb7b6e8713c2903786735f251521679380b18`; its README says it is the source
+for `GoogleChrome/modern-web-guidance`. Nothing to wire from it: consumers
+install the package, which this entry already covers. Changes since the
+first pass: npm is now `1.0.1` (2026-11-18, out of 0.0.x preview), the
+`-src` README lists Mozilla and MDN as stewards next to Chrome and Edge, and
+the CLI gained `legacy-scan <dir>` (present in 1.0.1's `modern-web.mjs`,
+absent from 0.0.194). The `DISABLE_TELEMETRY=1` opt-out is still honoured:
+`isTelemetryEnabled()` in 1.0.1's `modern-web.mjs` returns false for `1` or
+`true` (Confirmed by reading the code).
+
+Source switch, decided by the user the same day: `claude-plugins-official`
+pins this plugin at `b31dc0a` (0.0.194), so `claude plugin update` cannot
+reach 1.0.1. The upstream repo `GoogleChrome/modern-web-guidance` ships its
+own marketplace `googlechrome` at 1.0.1. The catalog entry now installs
+`modern-web-guidance@googlechrome`; add that marketplace first with
+`claude plugin marketplace add GoogleChrome/modern-web-guidance` and turn on
+its `autoUpdate`. The first-pass install path above is superseded. Local
+install moved the same day (user scope, 1.0.1).
+
+First real run: `legacy-scan .` on theorieplek gave 0 findings from 38 guides
+and wrote no files. Still **Untested**: the per-session token cost the first
+entry asked theorieplek to measure around 2026-09-26; no result is recorded.
+
 ### `app-store-screenshots`, added 2026-09-27 (companions.json)
 
 Excluded by `/should-i-use` on 2026-09-02 and 2026-09-27 as one-off marketing
