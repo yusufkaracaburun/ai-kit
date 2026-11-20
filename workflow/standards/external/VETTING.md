@@ -1070,8 +1070,24 @@ its `autoUpdate`. The first-pass install path above is superseded. Local
 install moved the same day (user scope, 1.0.1).
 
 First real run: `legacy-scan .` on theorieplek gave 0 findings from 38 guides
-and wrote no files. Still **Untested**: the per-session token cost the first
-entry asked theorieplek to measure around 2026-09-26; no result is recorded.
+and wrote no files.
+
+Token cost, measured 2026-11-20 from theorieplek transcripts
+(`~/.claude/projects/-Users-yusufkaracaburun-Sites-localhost-github-com-theorieplek/`).
+Transcripts only go back to 2026-10-21; 2026-09-19 to 2026-10-20 is gone.
+In the 33 top-level transcript files from 2026-10-21 to 2026-11-19: 0
+`modern-web-guidance` Skill calls and 0 `search`/`retrieve`/`legacy-scan`
+calls (**Confirmed**, grep over all 33 files and their subagent
+transcripts). Always-on cost is the two skill names in the roster, about 20
+tokens per session. The description text is not carried. Cheap, and unused.
+
+The usage pointer never reached the agent. theorieplek's
+`npx modern-web-guidance search` line sits in `AGENTS.md:67-68`, which
+Claude Code does not load next to `CLAUDE.md`, and `CLAUDE.md` does not
+`@import` it. The string appears in 0 of the 33 transcripts. So this
+measures an undelivered instruction, not an agent ignoring one. Whether the
+agent uses the plugin once told stays **Untested** until the pointer is in
+`CLAUDE.md` or imported. Keep the catalog entry; it costs almost nothing.
 
 ### `app-store-screenshots`, added 2026-09-27 (companions.json)
 
