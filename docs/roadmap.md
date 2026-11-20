@@ -156,6 +156,7 @@ _Last reconciled: 2026-11-20 against 115 open issues (#285 closed by v2.21.1 and
 - **#247** `bug` — tests: the docs-sync case in `tests/bin/run-all.sh` fails on machine git state (a local branch with no commits of its own such as `epic/multi-host` counts as merged); the fixture run must ignore the host repo's branches. 2026-10-26.
 - **#248** `bug` — `bin/release.sh` ignores a `## Unreleased` CHANGELOG section: it prepends the new version and leaves Unreleased, duplicating lines. Fold Unreleased into the new version heading, with a fixture test. 2026-10-26.
 - **#271** `enhancement` — lead-guard denies `ai-kit-claim.sh set role=build` from the main thread unless the latest user prompt asks for it (UserPromptSubmit marker). 37 self-switches in 26 sessions. 2026-10-30.
+- **#298** `enhancement` — git-hygiene: cut worktree branches from `origin/<main>` after `git fetch`, never from local `<main>`; a naschool worktree inherited 5 unpushed commits and PR #436 mislabelled them. Rule edit in `standards/rules/git-hygiene.mini.md` plus the session-coordination worktree bullet. 2026-11-20.
 
 ## P3 — backlog
 
