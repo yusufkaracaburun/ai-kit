@@ -328,6 +328,12 @@
       "name": "canary-trick (agentsroom.dev blog, 2026-06-18)",
       "reason": "Prompt pattern, not a tool: one CLAUDE.md/AGENTS.md line (\"Begin every response with the name X\"); a missing name signals context rot. Ignored for the kit and for downstream repos. (1) Already covered by a deterministic signal, Confirmed: ~/.claude/hooks/statusline.sh prints context_window.used_percentage as \"ctx N%\", and context-discipline.mini.md already routes a full window to /compact. A canary is a noisy proxy for a number we already display. (2) Already covered by a behavioural canary in lead sessions, Confirmed: session-coordination.mini.md requires every lead reply to open with a status block, so a dropped block is the same tripwire. A second \"open every reply with X\" line competes with it and with caveman rule 9 (no prefixes). (3) The core claim, that the name vanishes one or two turns before hallucinations start, has no data in the article, Untested: it needs a seeded long-session eval we do not have. (4) Weak in this setup, Untested: UserPromptSubmit hooks re-inject caveman/phase context every turn, so the freshest instructions are not the ones that rot first, and /compact reloads CLAUDE.md, which resets the canary. (5) Scope is person, not project: a repo should not carry a line that changes every reply for every contributor. Article doubles as an AgentsRoom ad; its built-in version is a per-turn status line, the same idea as our lead status block.",
       "alternative": "Watch ctx N% in the status line and /compact per context-discipline. If a behavioural canary is ever wanted, put it in ~/.claude/CLAUDE.md (personal), never in a project. Retest only with data: a long-session run where canary loss and a first wrong fact are both logged per turn."
+    },
+    {
+      "name": "mattpocock/skills (selected skips only)",
+      "pinned_sha": "abeeaf95660ba9e8b7c753eb38f441ca707a8823",
+      "reason": "mattpocock/skills at abeeaf95660ba9e8b7c753eb38f441ca707a8823 (v1.3.2, MIT). Every other upstream skill is tracked for merge in the parent issue (merge mattpocock/skills v1.3.2 ideas); only these are skipped. (1) ask-meta: ask-matt, covered by the grill-first phase table and context-discipline. (2) domain-modeling, grill-with-docs and grill-me wrappers: already in ai-kit grill-with-docs; CONTEXT.md naming is a recorded choice. (3) setup-matt-pocock-skills: ai-kit setup supersedes it; it is GitHub-only. (4) teach, scaffold-exercises, writing-beats, writing-fragments, writing-shape: course and blog authoring. (5) migrate-to-shoehorn: no TS test signal yet; revisit if `as unknown as` shows up in tests. (6) chief-of-staff, loop-me, software-factory: overlap autonomous and the lead contract; revisit when a remote runner is chosen. (7) wayfinder: revisit when an effort exceeds one epic. Untested. (8) implement-spec parallel worktrees only: conflicts with the heavy-run lock (v2.22.0); its frontier ordering is merged. (9) no-noise gate 2026-11-20: no app signal yet, would add catalog weight: to-questionnaire, wait-what, research, claude-handoff, setup-ts-deep-modules.",
+      "alternative": "Use ai-kit own lifecycle skills; merge work tracked in the parent issue; retro idea in #290; drift tracking in #291."
     }
   ],
   "reversed": [
@@ -354,6 +360,13 @@
       "reason": "The Ignore rested on one open objection: an untested collision between rtk's PreToolUse Bash rewrite and ai-kit's additionalContext hook on the same Bash call. A live test on 2026-10-14 showed the rtk rewrite and the ai-kit additionalContext both applied to one Bash call, which settles it.",
       "consequence": "/ai:recommend-tools offers the rtk hook only. The proxy, delegate-reads and telemetry options stay declined.",
       "pinned_sha": "4ef8730cf3a0dea11c8d64a9b90bc0616fe52100"
+    },
+    {
+      "name": "mattpocock/skills (rest of the repo)",
+      "was": "Ignore, blanket (2026-11-20)",
+      "now": "Merge every upstream release; only the listed skips stay excluded (2026-11-20)",
+      "reason": "User decision 2026-11-20: ai-kit is built on mattpocock/skills, so upstream releases are merged (use, port, improve), not ignored. Distilled skills stay divergent.",
+      "pinned_sha": "abeeaf95660ba9e8b7c753eb38f441ca707a8823"
     }
   ]
 }

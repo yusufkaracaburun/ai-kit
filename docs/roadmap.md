@@ -7,7 +7,7 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-11-14 against 109 open issues (#275 and #288 done 2026-11-16, closed by the heavy-run lock slice; #276-#283 done, #283 with this reconcile; #199, #258-#262 and #267 closed and removed; #270 closed by #280; #216 partly done in v2.19.0; rows added for #264, #284, #285, #286, #287; #257, #263 and #264 labelled P3, P1 and P3 to match their sections; earlier reconciliation notes live in [roadmap-archive.md](roadmap-archive.md#reconciliation-notes))._
+_Last reconciled: 2026-11-20 against 115 open issues (#285 closed by v2.21.1 and removed; #289-#297 rows added; #275 and #288 done 2026-11-16, closed by the heavy-run lock slice; #276-#283 done, #283 with this reconcile; #199, #258-#262 and #267 closed and removed; #270 closed by #280; #216 partly done in v2.19.0; rows added for #264, #284, #286, #287; #257, #263 and #264 labelled P3, P1 and P3 to match their sections; earlier reconciliation notes live in [roadmap-archive.md](roadmap-archive.md#reconciliation-notes))._
 
 ## P1 — broken in the wild
 
@@ -26,7 +26,6 @@ _Last reconciled: 2026-11-14 against 109 open issues (#275 and #288 done 2026-11
 
 ## P2 — next up
 
-- **#285** `enhancement` — setup: the ai-kit repo has no `.ai-kit-setup`, so the plugin hooks (phase-check, build-delegation, context-drift, review-gate) never fire in the kit and the kit does not dogfood its own commit gate. Decide on a marker; check that tests, bootstrap and doctor do not misread it. 2026-11-13.
 - **#174** `bug` — hygiene `test-ci` does not recognise Dart/Flutter projects as having a
   test runner; planny-app-mobile reports "no test runner" with a full Patrol suite. Labelled
   P2 on 2026-09-19.
@@ -427,3 +426,12 @@ _Last reconciled: 2026-11-14 against 109 open issues (#275 and #288 done 2026-11
 - **#284** `bug` — hooks: lead-guard misses `git -C <dir> commit|push|tag|switch`, because its patterns expect `git <verb>` directly; found in the #281 review. 2026-11-13.
 - **#286** `enhancement` — upgrade: `/ai:upgrade` writes `env.CLAUDE_CODE_SUBAGENT_MODEL=sonnet` into `.claude/settings.json` for projects set up before v2.19.0; no-op when the key is set, leaves malformed JSON untouched. 2026-11-14.
 - **#287** `enhancement` — skills: lead-executes seams left after #282: design-leads (one screen at a time) versus design-to-code Batch (parallel), diagnose Phase 4 instrumentation and triage reproduce run by the lead, design-to-code `measure.json` and evidence produced by the lead. 2026-11-14.
+- **#289** `enhancement` — hooks: close heavy-run-gate gaps left after v2.22.0: suites that bypass the wrapper (`if`/`while` prefixes, `nohup`, `env -i`, `sudo -u`, backticks, `yarn workspace`, `bash -c`), false denies (`gradle tasks`, `vitest related`, `pnpm --filter web vitest`), the stale-lock takeover race, unguarded native builds and `expo run`, no Cursor/Codex wiring. Decide scope in a grill first. 2026-11-16.
+- **#290** `enhancement` — retro: add an agent-environment retro mode over session transcripts, adopted as a pattern from mattpocock/skills `skills/engineering/retro` (abeeaf9, MIT): a mechanical review finding becomes a lint/pre-commit/CI check, a prose rule only for judgement calls. Prove it first in emeq-reui on one real feature; workflow-audit forbids reading `*.jsonl` today. Refs #223. 2026-11-20.
+- **#291** `enhancement` — drift: track mattpocock/skills releases (pin v1.3.2 / abeeaf9) in `bin/ai-kit-upstream-drift.sh` with a new `distilled` manifest kind; session-start notice in the ai-kit repo lists changed upstream SKILL.md paths. Replaces the quarterly cadence of #223. 2026-11-20.
+- **#292** `enhancement` — hooks: ask-first guard `bin/hooks/destructive-git-guard.sh` for reset --hard, clean -f, branch -D, checkout ., restore ., push --force; reuses review-gate.sh parsing, never blocks plain push. Port of upstream git-guardrails-claude-code. 2026-11-20.
+- **#293** `enhancement` — review: split into Standards and Spec axes with a fixed-point ref and early fail on bad ref or empty diff (`workflow/skills/review/SKILL.md`, `workflow/agents/reviewer.md`). Upstream engineering/code-review. 2026-11-20.
+- **#294** `enhancement` — wizard: port the wizard skill for human-only setup steps, with a shellcheck-clean `template.sh`; secrets never in argv. Upstream engineering/wizard. 2026-11-20. Parked until an app needs it.
+- **#295** `enhancement` — prototype: port the logic prototype (single HTML state-model driver), LOGIC branch only. Upstream engineering/prototype/LOGIC.md. 2026-11-20. Parked until an app needs it.
+- **#296** `enhancement` — setup: pre-commit branch per stack (Husky v9 + lint-staged, Pint, dart format/analyze), no full suite. Upstream misc/setup-pre-commit. 2026-11-20. Parked until an app needs it.
+- **#297** `enhancement` — skills: merge mattpocock/skills v1.3.2 ideas into existing skills (tdd, audit-architecture, to-issues, to-prd, diagnose, grill-me, checkpoint, doc-to-skill, git-hygiene PR template, autonomous, small ports). Related #291-#296, #290. 2026-11-20.

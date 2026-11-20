@@ -26,7 +26,7 @@ Cursor and other hosts: see [Install](#install).
 | Skills | 36 | Claude Code · Cursor |
 | Subagents | 7 | Claude Code |
 | Slash commands | 11 | Claude Code · Cursor |
-| Hooks | 10 plugin-wired (`workflow/hooks/hooks.json`) | Claude Code |
+| Hooks | 14 plugin-wired entries over 12 scripts (`workflow/hooks/hooks.json`) | Claude Code |
 | Rules | 47 canonical mini-rules | Cursor · Claude Code (via emitter) |
 | Curated companions | 24 MCP servers · 28 hook recipes · 23 plugins | Recommend-only — never auto-installed |
 | Repo templates | 5 baseline files (`.editorconfig`, `.gitattributes`, `CODEOWNERS`, `renovate.json`, `.envrc`) | Drop-in via `/ai:setup` |
