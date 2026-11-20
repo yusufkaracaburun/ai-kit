@@ -1,6 +1,6 @@
 ---
-id: api-only-fixture-scan
-skill: audit-architecture-laravel
+id: laravel-api-only-fixture-scan
+skill: audit-architecture
 expects:
   - detects api-only mode via routes/api.php non-empty + no Inertia/Blade
   - emits report header line `**Laravel mode:** api-only`

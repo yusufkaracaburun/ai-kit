@@ -1,6 +1,6 @@
 ---
-id: fixture-scan
-skill: audit-architecture-react
+id: react-fixture-scan
+skill: audit-architecture
 expects:
   - surfaces all 8 heuristics R1-R8 as dimension-keyed findings
   - flags R6 (RSC boundary leak) as 🔴 when a `'use client'` file imports a server-only module

@@ -10,7 +10,7 @@ strictness: default
 
 # Audit Architecture — shadcn/ui extension
 
-Per-stack tuning for [`audit-architecture`](../audit-architecture/SKILL.md). Adds 6 shadcn/ui-specific heuristics under the canonical 9 dimensions from [`code-audit.mini.md`](../../../standards/rules/code-audit.mini.md). **Never introduces a new dimension.**
+Per-stack tuning for [`audit-architecture`](../SKILL.md). Adds 6 shadcn/ui-specific heuristics under the canonical 9 dimensions from [`code-audit.mini.md`](../../../standards/rules/code-audit.mini.md). **Never introduces a new dimension.**
 
 Auto-loaded by `bin/audit-extension-loader.sh` when `components.json` exists at the project root and declares `"$schema": "https://ui.shadcn.com/schema.json"`. Loads alongside the React extension; ownership boundary below. Skip with `AI_KIT_AUDIT_NO_EXTEND=1`.
 
@@ -18,7 +18,7 @@ Auto-loaded by `bin/audit-extension-loader.sh` when `components.json` exists at 
 
 This extension owns **shadcn/ui-shaped** smells: `cn()` merge discipline, `cva()` variant patterns, `React.forwardRef` contract on copy-paste primitives, import-path drift away from the `components.json`-declared alias, primitives leaking outside `components/ui/`, drift between `components.json` config and on-disk reality.
 
-The [`audit-architecture-react`](../audit-architecture-react/SKILL.md) extension owns **React-shaped** smells (god-component, props-bloat, RSC boundary). The [`audit-architecture-typescript`](../audit-architecture-typescript/SKILL.md) extension owns **language-level** TypeScript smells.
+The [`audit-architecture-react`](react.md) extension owns **React-shaped** smells (god-component, props-bloat, RSC boundary). The [`audit-architecture-typescript`](typescript.md) extension owns **language-level** TypeScript smells.
 
 Each finding row appears exactly once across `[shadcn]`, `[react]`, `[nextjs]`, and `[typescript]` prefixes.
 
@@ -79,8 +79,8 @@ When invoked after the core walk:
 
 ## Related
 
-- [`audit-architecture`](../audit-architecture/SKILL.md) — core stack-agnostic skill.
-- [`audit-architecture-react`](../audit-architecture-react/SKILL.md) — React-shaped smells (god-component, RSC boundary).
-- [`audit-architecture-typescript`](../audit-architecture-typescript/SKILL.md) — TypeScript-language smells.
+- [`audit-architecture`](../SKILL.md) — core stack-agnostic skill.
+- [`audit-architecture-react`](react.md) — React-shaped smells (god-component, RSC boundary).
+- [`audit-architecture-typescript`](typescript.md) — TypeScript-language smells.
 - [`code-audit-shadcn.mini.md`](../../../standards/rules/code-audit-shadcn.mini.md) — 6 heuristics with evidence patterns.
 - [`standards/contracts/audit-architecture-extension.contract.md`](../../../standards/contracts/audit-architecture-extension.contract.md) — extension contract.

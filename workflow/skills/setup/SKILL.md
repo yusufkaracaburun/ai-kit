@@ -77,7 +77,7 @@ $AI_KIT_ROOT/bin/write-setup-marker.sh "$(pwd)" \
 $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict --minimal
 ```
 
-**Tier B — on demand:** branches 3–9 below. Skip any the user does not need.
+**Tier B — on demand:** branches 3–14 below. Skip any the user does not need.
 
 ## Branch 0 — Setup mode (fact + conditional question, ADR-0012)
 
@@ -151,26 +151,19 @@ Tier-A behaviour, one prompt per universal MCP not yet handled by this project:
 1. **Read catalog.** Filter `recommendations` for `universal: true`.
 2. **Read marker.** Load `.ai-kit-setup` if it exists; collect
    `branches.universal_mcps_prompted` as the already-handled list.
-3. **Detect already-installed.** For each candidate, run the detection from
-   the catalog entry — typically:
-   ```bash
-   claude mcp list 2>/dev/null | grep -qi <name> || claude plugin list 2>/dev/null | grep -qi <name>
-   ```
+3. **Detect already-installed.** Run the entry's `install_paths.detection`
+   (`/ai:recommend-tools` Phase 1 runs the same check).
 4. **Prompt per candidate** that is neither in the prompted-list nor already
    installed:
 
    > Optional: install `<name>` MCP user-scope (~/.claude.json)?
    > `<value-blurb from catalog>`
-   > [1] Yes, install now → run `claude mcp add ...` and record
+   > [1] Yes, install now → run the install command and record
    > [2] No thanks       → record skipped, never re-prompt
 
-5. **On Yes:** run the install command from the catalog entry. For context7
-   today that is `install_paths.fallback_user_scope`:
-   ```bash
-   claude mcp add --scope user context7 -- npx -y @upstash/context7-mcp
-   ```
-   Prefer the plugin path (`install_paths.preferred`) when the user already has
-   the marketplace wired; the catalog notes the conflict cases.
+5. **On Yes:** run `install_paths.preferred` when the user has that
+   marketplace wired, otherwise `install_paths.fallback_user_scope`. The
+   entry's `conflict_note` says why the order matters.
 6. **Record outcome.** Append the candidate name to the prompted-list and pass
    it through `--universal-mcps-prompted=` on the marker write at the end of
    Tier-A. The marker writer stores the union of CSV input and any names
@@ -233,52 +226,26 @@ the already-handled list:
 1. **Read catalog.** Filter `recommendations` for `universal: true`.
 2. **Read marker.** Collect `branches.universal_companions_prompted`.
 3. **Detect already-installed.** Run the entry's `detection.status` when it has
-   one — for caveman: `$AI_KIT_ROOT/bin/apply-caveman.sh --status`. For rtk,
-   run `detection.settings` (`grep -qE 'rtk hook|rtk-rewrite' ~/.claude/settings.json`);
-   a match means the hook is registered, so skip the prompt.
+   one (caveman, ponytail). For rtk, run `detection.settings`
+   (`grep -qE 'rtk hook|rtk-rewrite' ~/.claude/settings.json`); a match means
+   the hook is registered, so skip the prompt.
 4. **Prompt per candidate** that is neither in the prompted-list nor already
-   installed. For caveman:
+   installed: the entry's `value`, then its `risk` in bold, because each one
+   changes every project on this machine, not just this one. Default yes when
+   the entry has an `install.applier`. ponytail also injects at
+   `SubagentStart`, so reviewer and planner subagents inherit its
+   shortest-diff bias; say so. For rtk, say that
+   `rtk init -g` patches the machine-wide `~/.claude/settings.json`.
 
-   > Optional: install + activate `caveman` (machine-wide)?
-   > ~65% fewer output tokens — drops articles, filler, hedging; technical
-   > content and code stay intact. Ships the `cavecrew-*` sub-agents, whose
-   > compressed returns keep raw search output out of your main context.
-   > **This changes the agent's output style in every project on this machine,
-   > not just this one.**
-   > [1] Yes, install + activate (default) → `bin/apply-caveman.sh`
-   > [2] No thanks → record skipped, never re-prompt
-
-   For ponytail:
-
-   > Optional: install + activate `ponytail` (machine-wide)?
-   > A YAGNI ladder before the agent writes code — reuse what exists, stdlib and
-   > native platform features before dependencies, one line before fifty.
-   > Security, validation, error handling and accessibility are never cut.
-   > It injects at `SessionStart` **and `SubagentStart`**, so subagents that write
-   > code inherit it too — including reviewer and planner surfaces, where the
-   > "shortest diff" bias is not always what you want.
-   > **This changes how the agent writes code in every project on this machine,
-   > not just this one.**
-   > [1] Yes, install + activate (default) → `bin/apply-ponytail.sh`
-   > [2] No thanks → record skipped, never re-prompt
-
-   For rtk:
-
-   > Optional: install `rtk` (machine-wide)?
-   > A PreToolUse Bash hook rewrites commands like `git status` so the agent
-   > reads a compacted form of the output.
-   > **`rtk init -g` patches the machine-wide `~/.claude/settings.json`, so the
-   > hook runs in every project on this machine, not just this one.**
-   > [1] Yes → you run the install steps from `/ai:recommend-tools` Phase 3 rtk
+   > Optional: install + activate `<name>` (machine-wide)?
+   > `<value>` **`<risk>`**
+   > [1] Yes → run the applier (rtk: you run the install steps)
    > [2] No thanks → record skipped, never re-prompt
 
 5. **On Yes:** run the entry's `install.applier`
-   (`$AI_KIT_ROOT/bin/apply-caveman.sh`). It adds the marketplace, installs the
-   plugin via the official `claude plugin` CLI, writes caveman's own
-   `defaultMode`, and strips the duplicate hooks that caveman's standalone
-   installer leaves behind. Idempotent — safe to re-run. rtk has no applier.
-   Hand the user the steps in
-   [`recommend-tools/SKILL.md`](../recommend-tools/SKILL.md) Phase 3 rtk, which
+   (`$AI_KIT_ROOT/bin/apply-caveman.sh`, `bin/apply-ponytail.sh`); what it
+   does is in [`recommend-tools/SKILL.md`](../recommend-tools/SKILL.md)
+   Phase 3. rtk has no applier: hand the user the Phase 3 rtk steps, which
    they run in an interactive terminal.
 6. **Record outcome.** Append the name to `--universal-companions-prompted=`
    on the Tier-A marker write. Yes and No both record, so a second `/ai:setup`
@@ -422,17 +389,19 @@ unset. Nothing goes in the marker.
 
 | # | Branch | Default brownfield |
 | - | ------ | ------------------ |
-| 3 | Docker | use detect `docker.recommendation` |
+| 3 | Docker ([guide](./docker-guide.md)) | use detect `docker.recommendation` |
 | 4 | Issue tracker | use detect `issue_tracker.recommendation` |
 | 5 | Triage labels | map to existing |
 | 6 | Domain docs | skip if no CONTEXT yet |
-| 7 | Architecture | skip simple CRUD; else document-existing |
+| 7 | Architecture ([guide](./architecture-guide.md)) | skip simple CRUD; else document-existing |
 | 8 | Sandcastle | skip brownfield |
 | 9 | Agile workflow | 2-dev default (informal review gate; ≥1 reviewer + PR-per-feature, per ai-kit #52) |
 | 10 | Automation recommender | propose-but-defer (brownfield default: skipped) |
 | 11 | Context-drift hook | offer if `CONTEXT.md` or `docs/adr/` exist |
+| 11b | Rename detector | machine-wide, ask once; skip if the hook is installed |
 | 12 | Rule recommendation | offer if `detect-tooling` finds a framework |
 | 13 | Repo templates | offer per-file; default skip per file when one already exists |
+| 14 | Tool / MCP / hook recommendation | offer if `detect-tooling` finds a framework or `deploy.shape=self-host` |
 
 ### Branch 6 — Domain docs (optional)
 

@@ -10,12 +10,12 @@ echo "=== loader-exists ==="
 assert "loader script exists + executable" '[ -x "$LOADER" ]'
 
 # Build an isolated fake skills directory so test is independent of any real
-# extensions that ship in workflow/skills/.
+# extensions that ship in workflow/skills/audit-architecture/extensions/.
 FAKE_ROOT=$(mktemp -d)
 trap 'rm -rf "$FAKE_ROOT"' EXIT
 
-mkdir -p "$FAKE_ROOT/workflow/skills/audit-architecture-laravel"
-cat > "$FAKE_ROOT/workflow/skills/audit-architecture-laravel/SKILL.md" <<'SKILL_EOF'
+mkdir -p "$FAKE_ROOT/workflow/skills/audit-architecture/extensions"
+cat > "$FAKE_ROOT/workflow/skills/audit-architecture/extensions/laravel.md" <<'SKILL_EOF'
 ---
 name: audit-architecture-laravel
 description: fake laravel ext
@@ -27,8 +27,7 @@ applies_to:
 fake body
 SKILL_EOF
 
-mkdir -p "$FAKE_ROOT/workflow/skills/audit-architecture-react"
-cat > "$FAKE_ROOT/workflow/skills/audit-architecture-react/SKILL.md" <<'SKILL_EOF'
+cat > "$FAKE_ROOT/workflow/skills/audit-architecture/extensions/react.md" <<'SKILL_EOF'
 ---
 name: audit-architecture-react
 description: fake react ext
@@ -41,8 +40,7 @@ fake body
 SKILL_EOF
 
 # Orphan extension: extends field missing.
-mkdir -p "$FAKE_ROOT/workflow/skills/audit-architecture-orphan"
-cat > "$FAKE_ROOT/workflow/skills/audit-architecture-orphan/SKILL.md" <<'SKILL_EOF'
+cat > "$FAKE_ROOT/workflow/skills/audit-architecture/extensions/orphan.md" <<'SKILL_EOF'
 ---
 name: audit-architecture-orphan
 description: missing extends field on purpose
@@ -54,8 +52,7 @@ fake body
 SKILL_EOF
 
 # Bad extends: not pointing at audit-architecture.
-mkdir -p "$FAKE_ROOT/workflow/skills/audit-architecture-imposter"
-cat > "$FAKE_ROOT/workflow/skills/audit-architecture-imposter/SKILL.md" <<'SKILL_EOF'
+cat > "$FAKE_ROOT/workflow/skills/audit-architecture/extensions/imposter.md" <<'SKILL_EOF'
 ---
 name: audit-architecture-imposter
 description: extends points at the wrong skill
@@ -89,9 +86,9 @@ echo "=== AC1-match-laravel ==="
 # Laravel-shaped target -> loader should emit the laravel extension path.
 OUTPUT=$(AI_KIT_AUDIT_SKILLS_DIR="$FAKE_ROOT/workflow/skills" "$LOADER" "$TARGET_LARAVEL" 2>/dev/null || true)
 assert "matches audit-architecture-laravel on laravel target" \
-  'echo "$OUTPUT" | grep -q "audit-architecture-laravel/SKILL.md$"'
+  'echo "$OUTPUT" | grep -q "audit-architecture/extensions/laravel.md$"'
 assert "does NOT match audit-architecture-react on laravel target" \
-  '! echo "$OUTPUT" | grep -q "audit-architecture-react/SKILL.md$"'
+  '! echo "$OUTPUT" | grep -q "audit-architecture/extensions/react.md$"'
 assert "imposter (bad extends) NOT in output" \
   '! echo "$OUTPUT" | grep -q "audit-architecture-imposter"'
 assert "orphan (missing extends) NOT in output" \
@@ -125,8 +122,7 @@ rm -f "$STDERR_FILE"
 echo "=== stable-order ==="
 # Multiple matches must come back in stable filename-sorted order.
 # Add a second laravel-matching extension so we can assert the ordering.
-mkdir -p "$FAKE_ROOT/workflow/skills/audit-architecture-aaa-laravel-extra"
-cat > "$FAKE_ROOT/workflow/skills/audit-architecture-aaa-laravel-extra/SKILL.md" <<'SKILL_EOF'
+cat > "$FAKE_ROOT/workflow/skills/audit-architecture/extensions/aaa-laravel-extra.md" <<'SKILL_EOF'
 ---
 name: audit-architecture-aaa-laravel-extra
 description: sorted first by filename
@@ -139,13 +135,12 @@ SKILL_EOF
 OUTPUT_ORDERED=$(AI_KIT_AUDIT_SKILLS_DIR="$FAKE_ROOT/workflow/skills" "$LOADER" "$TARGET_LARAVEL" 2>/dev/null)
 FIRST_LINE=$(echo "$OUTPUT_ORDERED" | head -1)
 assert "filename-sorted: aaa-laravel-extra comes first" \
-  'echo "$FIRST_LINE" | grep -q "audit-architecture-aaa-laravel-extra/SKILL.md$"'
+  'echo "$FIRST_LINE" | grep -q "audit-architecture/extensions/aaa-laravel-extra.md$"'
 
 echo "=== AC1-match-languages ==="
 # Language-keyed extension (TypeScript): matches on tsconfig.json presence
 # even when no framework is detected.
-mkdir -p "$FAKE_ROOT/workflow/skills/audit-architecture-typescript"
-cat > "$FAKE_ROOT/workflow/skills/audit-architecture-typescript/SKILL.md" <<'SKILL_EOF'
+cat > "$FAKE_ROOT/workflow/skills/audit-architecture/extensions/typescript.md" <<'SKILL_EOF'
 ---
 name: audit-architecture-typescript
 description: language-keyed
@@ -157,8 +152,7 @@ applies_to:
 SKILL_EOF
 
 # Block-list YAML form (regression guard for the parser supporting it).
-mkdir -p "$FAKE_ROOT/workflow/skills/audit-architecture-flutter"
-cat > "$FAKE_ROOT/workflow/skills/audit-architecture-flutter/SKILL.md" <<'SKILL_EOF'
+cat > "$FAKE_ROOT/workflow/skills/audit-architecture/extensions/flutter.md" <<'SKILL_EOF'
 ---
 name: audit-architecture-flutter
 description: language-keyed block-list form
@@ -178,7 +172,7 @@ JSON
 
 OUTPUT_TS=$(AI_KIT_AUDIT_SKILLS_DIR="$FAKE_ROOT/workflow/skills" "$LOADER" "$TS_TARGET" 2>/dev/null || true)
 assert "ts-keyed extension matches on tsconfig.json target" \
-  'echo "$OUTPUT_TS" | grep -q "audit-architecture-typescript/SKILL.md$"'
+  'echo "$OUTPUT_TS" | grep -q "audit-architecture/extensions/typescript.md$"'
 
 DART_TARGET=$(mktemp -d)
 cat > "$DART_TARGET/pubspec.yaml" <<'YAML'
@@ -189,7 +183,7 @@ YAML
 
 OUTPUT_DART=$(AI_KIT_AUDIT_SKILLS_DIR="$FAKE_ROOT/workflow/skills" "$LOADER" "$DART_TARGET" 2>/dev/null || true)
 assert "block-list dart-keyed extension matches on pubspec.yaml target" \
-  'echo "$OUTPUT_DART" | grep -q "audit-architecture-flutter/SKILL.md$"'
+  'echo "$OUTPUT_DART" | grep -q "audit-architecture/extensions/flutter.md$"'
 
 rm -rf "$TS_TARGET" "$DART_TARGET"
 
@@ -200,7 +194,7 @@ echo "=== default-skills-dir ==="
 # row at minimum. Other matching extensions may also appear in stable order.
 OUTPUT_DEFAULT=$("$LOADER" "$TARGET_LARAVEL" 2>/dev/null || true)
 assert "default loader returns audit-architecture-laravel on laravel target" \
-  'echo "$OUTPUT_DEFAULT" | grep -q "audit-architecture-laravel/SKILL.md$"'
+  'echo "$OUTPUT_DEFAULT" | grep -q "audit-architecture/extensions/laravel.md$"'
 
 rm -rf "$EMPTY_TARGET" "$TARGET_LARAVEL"
 

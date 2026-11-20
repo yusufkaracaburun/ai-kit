@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Discover audit-architecture extensions that apply to a given project.
 #
-# Globs workflow/skills/audit-architecture-*/SKILL.md, parses frontmatter,
+# Globs workflow/skills/audit-architecture/extensions/*.md, parses frontmatter,
 # intersects each candidate's applies_to.frameworks against the framework
-# array from bin/detect-tooling.sh --json. Prints matched SKILL.md paths
+# array from bin/detect-tooling.sh --json. Prints matched extension paths
 # (one per line, filename-sorted).
 #
 # Env:
@@ -50,7 +50,7 @@ if [ ! -d "$SKILLS_DIR" ]; then
 fi
 
 shopt -s nullglob
-CANDIDATES=("$SKILLS_DIR"/audit-architecture-*/SKILL.md)
+CANDIDATES=("$SKILLS_DIR"/audit-architecture/extensions/*.md)
 shopt -u nullglob
 
 if [ "${#CANDIDATES[@]}" -eq 0 ]; then
@@ -77,8 +77,7 @@ DETECTED_LANGUAGES=""
 DETECTED_LANGUAGES="$(printf '%s\n' "$DETECTED_LANGUAGES" | sed '/^$/d')"
 
 for candidate in "${SORTED[@]}"; do
-  ext_dir="$(dirname "$candidate")"
-  ext_name="$(basename "$ext_dir")"
+  ext_name="audit-architecture-$(basename "$candidate" .md)"
 
   parsed="$(python3 "$PARSER" "$candidate" 2>/dev/null || true)"
   if [ -z "$parsed" ]; then

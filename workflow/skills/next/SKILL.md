@@ -40,7 +40,7 @@ Highest score first. Tie-broken by recency.
 
 ## When to use which next-step suggestion
 
-The top item drives the recommendation:
+The top item drives the recommendation. Propose it; do not run it. The user picks.
 
 - **`status:in-progress`** → continue the existing branch / WIP. Do not start anything new.
 - **`ready-for-agent`** → `/ai:autonomous` to drain the queue (or hand the issue # to a fresh chat).

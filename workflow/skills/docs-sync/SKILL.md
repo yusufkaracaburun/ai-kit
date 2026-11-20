@@ -1,6 +1,6 @@
 ---
 name: docs-sync
-description: "Content-drift checks for the current project — dead markdown links today; repo-hygiene + finished-work cleanup added in follow-up issues. Standalone counterpart to /ai:hygiene (install + catalog health). Use when wrapping up a session, after a rename or refactor, before opening a PR, or on 'check docs', 'are the links still good', 'is anything stale'. Reports only; never auto-edits files."
+description: "Content-drift checks for the current project: dead markdown links, repo hygiene (empty dirs, broken symlinks), finished work (merged branches, closable issues) and graphify freshness. Standalone counterpart to /ai:hygiene (install + catalog health). Use when wrapping up a session, after a rename or refactor, before opening a PR, or on 'check docs', 'are the links still good', 'is anything stale'. Reports first; every fix waits for a y/N prompt, and markdown is never edited."
 allowed-tools: Bash
 ---
 
@@ -11,7 +11,7 @@ Standalone content-drift surface for ai-kit. Stays focused on *content correctne
 ## How it runs
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/bin/ai-kit-docs-sync.sh" [path] [--skip-dead-links] [--skip-graph-fresh] [--no-prompt]
+bash "${CLAUDE_PLUGIN_ROOT}/bin/ai-kit-docs-sync.sh" [path] [--skip-dead-links] [--skip-repo-hygiene] [--skip-finished-work] [--skip-graph-fresh] [--no-prompt]
 ```
 
 The driver runs each section in order, prints a per-section header, and exits with the max section exit code (`0 clean` / `1 findings`).
@@ -93,11 +93,11 @@ Skips silently when the project has no `graphify-out/graph.json` (most projects)
 5. **Structure-convention checks.** `docs/README.md` as authoritative index is one project's convention, not universal.
 6. **Code-comment-as-doc parsing.** The graph stays inside `docs/` + `*.md` files; framework never reaches into source comments.
 
-Scope-bounds for v1's checks:
+Scope bounds for the checks:
 
 - **Dead links.** Inline `[text](path)` only. No HTML `<a href>`. No bare URLs (link-rot belongs to a different tool). No anchor (`#section`) validation. No reference-style links.
-- *(Future)* Repo-hygiene = `find`-based mechanical checks only. No AST. No dead-code detection.
-- *(Future)* Finished-work cleanup = `--merged master/main` branches only, strict `closes #N / fixes #N / resolves #N` regex for issue close-candidates. No fuzzy matching.
+- Repo-hygiene = `find`-based mechanical checks only. No AST. No dead-code detection.
+- Finished-work cleanup = `--merged master/main` branches only, strict `closes #N / fixes #N / resolves #N` regex for issue close-candidates. No fuzzy matching.
 
 ## Working with project-local docs-sync skills
 

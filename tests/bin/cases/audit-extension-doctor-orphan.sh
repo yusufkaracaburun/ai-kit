@@ -5,8 +5,8 @@ AIKIT="$(cd "$(dirname "$0")/../../.." && pwd)"
 source "$AIKIT/tests/bin/lib/harness.sh"
 
 echo "=== doctor-orphan-extension ==="
-# Doctor must flag an audit-architecture-<stack>/ extension folder that exists
-# without the core audit-architecture/ skill present. Sandbox: build a fake
+# Doctor must flag an audit-architecture/extensions/<stack>.md file that exists
+# without the core audit-architecture/SKILL.md present. Sandbox: build a fake
 # AI_KIT_ROOT with the orphan layout and point the doctor at it.
 
 FAKE_ROOT=$(mktemp -d)
@@ -18,10 +18,9 @@ cp -R "$AIKIT/workflow/standards" "$FAKE_ROOT/standards"
 cp -R "$AIKIT/workflow/context" "$FAKE_ROOT/context"
 cp "$AIKIT/VERSION" "$FAKE_ROOT/VERSION"
 
-# Orphan layout: extension folder present, core audit-architecture/ MISSING.
-mkdir -p "$FAKE_ROOT/workflow/skills"
-mkdir -p "$FAKE_ROOT/workflow/skills/audit-architecture-laravel"
-cat > "$FAKE_ROOT/workflow/skills/audit-architecture-laravel/SKILL.md" <<'SKILL_EOF'
+# Orphan layout: extension file present, core audit-architecture/SKILL.md MISSING.
+mkdir -p "$FAKE_ROOT/workflow/skills/audit-architecture/extensions"
+cat > "$FAKE_ROOT/workflow/skills/audit-architecture/extensions/laravel.md" <<'SKILL_EOF'
 ---
 name: audit-architecture-laravel
 description: orphan extension — core missing
@@ -41,7 +40,6 @@ assert "doctor surfaces orphan extension warning" \
   'grep -qE "orphan.*audit-architecture-laravel|audit-architecture-laravel.*orphan" /tmp/doctor-orphan.out'
 
 # Healthy layout: both core skill + extension present. Doctor must NOT warn.
-mkdir -p "$FAKE_ROOT/workflow/skills/audit-architecture"
 cat > "$FAKE_ROOT/workflow/skills/audit-architecture/SKILL.md" <<'SKILL_EOF'
 ---
 name: audit-architecture

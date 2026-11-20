@@ -114,3 +114,7 @@ Some stacks have orthogonal modes that change which heuristics apply. Laravel's 
 - Contract spec: `standards/contracts/audit-architecture-extension.contract.md`.
 - Loader: `bin/audit-extension-loader.sh`.
 - Core skill: `workflow/skills/audit-architecture/SKILL.md`.
+
+## Amendment (2026-11-21)
+
+Extensions moved from `workflow/skills/audit-architecture-<stack>/SKILL.md` to `workflow/skills/audit-architecture/extensions/<stack>.md`, so they no longer appear in the skill index. The core skill now reads and applies them directly instead of invoking them through the Skill tool. This amendment supersedes the old layout described on lines 21, 35 and 43; the original text stays as written.

@@ -18,9 +18,9 @@ assert "deferral sentence removed" \
 assert "step 3 calls audit-extension-loader.sh" \
   'grep -q "audit-extension-loader.sh" "$CORE"'
 
-# Step 4 must mention invoking matched extensions via Skill tool.
-assert "step 4 mentions extension invocation via Skill tool" \
-  'grep -qE "invoke (each |matched |the )?extension.*Skill tool|Skill tool.*extension" "$CORE"'
+# Extensions are files, not skills: step 4 must Read them, never route through the Skill tool.
+assert "step 4 reads each matched extension file" \
+  'grep -qE "matched extension.*Read its file" "$CORE"'
 
 # Step 6 must specify the merge rule with [stack] prefix.
 assert "step 6 specifies [stack] tag prefix on merged findings" \

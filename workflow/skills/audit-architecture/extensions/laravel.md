@@ -10,7 +10,7 @@ strictness: strict
 
 # Audit Architecture — Laravel extension
 
-Per-stack tuning for [`audit-architecture`](../audit-architecture/SKILL.md). The core skill walks the 9 canonical dimensions from [`code-audit.mini.md`](../../../standards/rules/code-audit.mini.md); this extension adds 22 Laravel-specific heuristics under those same dimensions. **Never introduces a new dimension.**
+Per-stack tuning for [`audit-architecture`](../SKILL.md). The core skill walks the 9 canonical dimensions from [`code-audit.mini.md`](../../../standards/rules/code-audit.mini.md); this extension adds 22 Laravel-specific heuristics under those same dimensions. **Never introduces a new dimension.**
 
 Loaded automatically by `bin/audit-extension-loader.sh` when `bin/detect-tooling.sh --json` reports `laravel` in the `frameworks` array. Skip with `AI_KIT_AUDIT_NO_EXTEND=1`.
 
@@ -117,7 +117,7 @@ Tool absence is never fatal. Format tools (Pint) and security scanners (Snyk / c
 
 ## Related
 
-- [`audit-architecture`](../audit-architecture/SKILL.md) — core stack-agnostic skill (invokes this extension).
+- [`audit-architecture`](../SKILL.md) — core stack-agnostic skill (loads this extension).
 - [`code-audit-laravel.mini.md`](../../../standards/rules/code-audit-laravel.mini.md) — 22 heuristics with evidence patterns.
 - [`bin/audit-laravel-helpers.sh`](../../../bin/audit-laravel-helpers.sh) — mode-detect + tool-gate helpers.
 - [`standards/contracts/audit-architecture-extension.contract.md`](../../../standards/contracts/audit-architecture-extension.contract.md) — extension contract spec.

@@ -1,6 +1,6 @@
 ---
-id: fixture-scan
-skill: audit-architecture-shadcn
+id: shadcn-fixture-scan
+skill: audit-architecture
 expects:
   - surfaces the 6 heuristics S1-S6 as dimension-keyed findings
   - flags S6 (components.json alias drift) as 🔴 when alias points at non-existent path

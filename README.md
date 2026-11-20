@@ -23,9 +23,9 @@ Cursor and other hosts: see [Install](#install).
 
 | Primitive | Count | Reaches |
 | --------- | -----:| ------- |
-| Skills | 36 | Claude Code · Cursor |
+| Skills | 32 | Claude Code · Cursor |
 | Subagents | 7 | Claude Code |
-| Slash commands | 11 | Claude Code · Cursor |
+| Slash commands | 9 | Claude Code · Cursor |
 | Hooks | 14 plugin-wired entries over 12 scripts (`workflow/hooks/hooks.json`) | Claude Code |
 | Rules | 47 canonical mini-rules | Cursor · Claude Code (via emitter) |
 | Curated companions | 24 MCP servers · 28 hook recipes · 23 plugins | Recommend-only — never auto-installed |
@@ -80,7 +80,7 @@ First moves:
 
 ## The agile lifecycle
 
-36 skills covering one loop — idea to retro:
+32 skills covering one loop — idea to retro:
 
 | Phase | Skills |
 | ----- | ------ |
@@ -93,7 +93,7 @@ First moves:
 | Cross-cutting | `setup` · `setup-gh-workflow` · `recommend-rules` · `recommend-tools` · `audit-architecture` |
 | Automation | `autonomous` (AFK queue drainer — wraps `tdd` → `review` → PR) |
 
-11 slash commands: `/ai:setup` · `/ai:doctor` · `/ai:dedupe` · `/ai:status` · `/ai:which` · `/ai:next` · `/ai:upgrade` · `/ai:no-globals` · `/ai:prefer-plugin` · `/ai:hygiene` · `/ai:docs-sync`.
+9 slash commands: `/ai:doctor` · `/ai:dedupe` · `/ai:status` · `/ai:which` · `/ai:upgrade` · `/ai:no-globals` · `/ai:prefer-plugin` · `/ai:hygiene` · `/ai:phase`.
 
 See [docs/mental-model.md](docs/mental-model.md) for the "which skill, when" table and lifecycle diagram.
 

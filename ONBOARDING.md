@@ -10,7 +10,7 @@ Stack-agnostic. Pure Bash + Markdown. One canonical source emits skills,
 slash commands and rules to both hosts, and subagents and hooks to Claude
 Code. No per-host duplication, no runtime daemon, no network calls, no telemetry.
 
-Today: **36 skills · 7 subagents · 11 slash commands · 14 plugin-wired hook entries ·
+Today: **32 skills · 7 subagents · 9 slash commands · 14 plugin-wired hook entries ·
 47 canonical mini-rules · 24 curated MCP servers · 28 curated hook recipes ·
 23 curated plugins · 5 baseline repo templates.**
 
@@ -65,7 +65,7 @@ See [docs/architecture.md](docs/architecture.md) for the full diagram.
 - **Subagent** — a `workflow/agents/<name>.md` a skill can delegate to. 7 exist:
   `explore`, `reviewer`, `qa-runner`, `verifier`, `judge`, `builder`, `designer`.
 - **Slash command** — a `workflow/commands/<name>.md` resolving to a
-  bash script. 11 exist (`ls workflow/commands/`).
+  bash script. 9 exist (`ls workflow/commands/`).
 - **Mini-rule** — agent-agnostic rule book under `standards/rules/`,
   emitted per host by `bin/emit-rules.sh`.
 - **Marker** — `.ai-kit-setup` JSON written by `/ai:setup` to record

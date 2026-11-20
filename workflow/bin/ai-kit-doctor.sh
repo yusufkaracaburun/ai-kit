@@ -260,8 +260,8 @@ fi
 echo ""
 
 echo "Audit-architecture extensions"
-# Orphan-extension check: if an audit-architecture-<stack>/ folder is on
-# disk without the core audit-architecture/ skill present, the extension
+# Orphan-extension check: if an audit-architecture/extensions/<stack>.md is
+# on disk without the core audit-architecture/SKILL.md present, the extension
 # loader will never see it (or worse — load it against a missing core).
 # Warn so the install can be repaired before the next audit run.
 # Use resolve_primitives_root so plugin-mode installs (skills at AIKIT/skills)
@@ -274,13 +274,13 @@ if [ -d "$_audit_ext_root" ]; then
   while IFS= read -r ext_skill; do
     [ -z "$ext_skill" ] && continue
     _ext_count=$((_ext_count + 1))
-    _ext_name="$(basename "$(dirname "$ext_skill")")"
+    _ext_name="audit-architecture-$(basename "$ext_skill" .md)"
     if [ "$_core_present" = false ]; then
       warn "orphan extension: $_ext_name present but core audit-architecture/ skill missing"
     fi
-  done < <(find "$_audit_ext_root" -mindepth 2 -maxdepth 2 -type f -name SKILL.md -path '*/audit-architecture-*/SKILL.md' 2>/dev/null)
+  done < <(find "$_audit_ext_root/audit-architecture/extensions" -mindepth 1 -maxdepth 1 -type f -name '*.md' 2>/dev/null)
   if [ "$_ext_count" -eq 0 ]; then
-    info "no audit-architecture-* extensions bundled"
+    info "no audit-architecture extensions bundled"
   elif [ "$_core_present" = true ]; then
     ok "audit-architecture core + $_ext_count extension(s) present"
   fi

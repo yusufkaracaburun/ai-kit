@@ -46,17 +46,17 @@ echo "=== integration ==="
 # actual /ai:audit-architecture invocation is LLM-driven and not
 # deterministically scriptable here, so we assert the contract surface:
 #
-#   (a) Both extensions exist and declare the boundary in their SKILL.md.
+#   (a) Both extensions exist and declare the boundary in their extension file.
 #   (b) The loader returns both extensions when run against the overlap
 #       fixture (it's a tsconfig+react shape, so each extension applies).
 #   (c) Fixture-level non-overlap: the React-side file holds R* markers
 #       only, the TS-side file holds T* markers only. No file mixes.
-EXT_REACT="$AIKIT/workflow/skills/audit-architecture-react/SKILL.md"
-EXT_TS="$AIKIT/workflow/skills/audit-architecture-typescript/SKILL.md"
+EXT_REACT="$AIKIT/workflow/skills/audit-architecture/extensions/react.md"
+EXT_TS="$AIKIT/workflow/skills/audit-architecture/extensions/typescript.md"
 LOADER="$AIKIT/bin/audit-extension-loader.sh"
 
-assert "audit-architecture-react SKILL.md exists" '[ -f "$EXT_REACT" ]'
-assert "audit-architecture-typescript SKILL.md exists" '[ -f "$EXT_TS" ]'
+assert "react extension file exists" '[ -f "$EXT_REACT" ]'
+assert "typescript extension file exists" '[ -f "$EXT_TS" ]'
 assert "react SKILL.md declares boundary with typescript ext" \
   'grep -qE "audit-architecture-typescript|ownership boundary" "$EXT_REACT"'
 assert "typescript SKILL.md declares boundary with react ext" \
@@ -65,9 +65,9 @@ assert "typescript SKILL.md declares boundary with react ext" \
 # Loader returns both extensions when invoked against the overlap fixture.
 LOADER_OUT=$("$LOADER" "$FIXTURE" 2>/dev/null || true)
 assert "loader matches react extension on overlap fixture" \
-  'echo "$LOADER_OUT" | grep -q "audit-architecture-react/SKILL.md$"'
+  'echo "$LOADER_OUT" | grep -q "audit-architecture/extensions/react.md$"'
 assert "loader matches typescript extension on overlap fixture" \
-  'echo "$LOADER_OUT" | grep -q "audit-architecture-typescript/SKILL.md$"'
+  'echo "$LOADER_OUT" | grep -q "audit-architecture/extensions/typescript.md$"'
 
 # Fixture-level non-overlap: Dashboard.tsx has R* markers, NOT T* markers.
 assert "Dashboard.tsx has at least one R* marker" \

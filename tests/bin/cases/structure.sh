@@ -8,7 +8,7 @@ source "$AIKIT/tests/bin/lib/harness.sh"
 echo "=== skills-count ==="
 # section: skills-count
 SKILL_COUNT=$(find "$AIKIT/workflow/skills" -name SKILL.md | wc -l | tr -d ' ')
-assert "36 skills" '[ "$SKILL_COUNT" -eq 36 ]'
+assert "32 skills" '[ "$SKILL_COUNT" -eq 32 ]'
 assert "plugin payload carries the changelog" '[ -f "$AIKIT/workflow/CHANGELOG.md" ]'
 assert "checkpoint skill exists" '[ -f "$AIKIT/workflow/skills/checkpoint/SKILL.md" ]'
 assert "resume skill exists" '[ -f "$AIKIT/workflow/skills/resume/SKILL.md" ]'
@@ -61,11 +61,15 @@ assert "judge frontmatter is read-only" 'head -5 "$AIKIT/workflow/agents/judge.m
 echo "=== slash-commands ==="
 # section: slash-commands
 COMMAND_COUNT=$(find "$AIKIT/workflow/commands" -maxdepth 1 -name "*.md" | wc -l | tr -d ' ')
-assert "11 slash commands present" '[ "$COMMAND_COUNT" -eq 11 ]'
-for cmd in doctor which status no-globals upgrade next dedupe phase; do
+assert "9 slash commands present" '[ "$COMMAND_COUNT" -eq 9 ]'
+for cmd in doctor which status no-globals upgrade dedupe phase; do
   assert "$cmd command exists"     "[ -f \"$AIKIT/workflow/commands/$cmd.md\" ]"
   assert "$cmd has description"    "head -6 \"$AIKIT/workflow/commands/$cmd.md\" | grep -q '^description:'"
   assert "$cmd has allowed-tools"  "head -6 \"$AIKIT/workflow/commands/$cmd.md\" | grep -q '^allowed-tools:'"
+done
+for s in docs-sync next phase; do
+  assert "$s has one surface, not a skill and a command" \
+    "! { [ -f \"$AIKIT/workflow/skills/$s/SKILL.md\" ] && [ -f \"$AIKIT/workflow/commands/$s.md\" ]; }"
 done
 
 

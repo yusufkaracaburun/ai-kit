@@ -1,6 +1,6 @@
 ---
-id: fixture-scan
-skill: audit-architecture-typescript
+id: typescript-fixture-scan
+skill: audit-architecture
 expects:
   - surfaces all 8 heuristics T1-T8 as dimension-keyed findings
   - excludes test fixtures (*.test.ts / *.spec.ts) from T1 (`any`-past-boundary)

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Table-driven integration test for the three audit-architecture-* extensions
+# Table-driven integration test for the audit-architecture extensions
 # (react, typescript, laravel). Replaces audit-react-extension.sh,
 # audit-typescript-extension.sh and audit-laravel-extension.sh, which were
 # the same ~65-line file three times over with a marker letter and a handful
@@ -36,7 +36,7 @@ for KEY in react typescript laravel vue; do
 
   case "$KEY" in
     react)
-      SKILL="$AIKIT/workflow/skills/audit-architecture-react/SKILL.md"
+      SKILL="$AIKIT/workflow/skills/audit-architecture/extensions/react.md"
       RULE="$AIKIT/standards/rules/code-audit-react.mini.md"
       HELPER="$AIKIT/bin/audit-react-helpers.sh"
       MARKER=R
@@ -49,7 +49,7 @@ for KEY in react typescript laravel vue; do
       TOOL_GATE_CHECKS=("ESLint ✗")
       ;;
     typescript)
-      SKILL="$AIKIT/workflow/skills/audit-architecture-typescript/SKILL.md"
+      SKILL="$AIKIT/workflow/skills/audit-architecture/extensions/typescript.md"
       RULE="$AIKIT/standards/rules/code-audit-typescript.mini.md"
       HELPER="$AIKIT/bin/audit-typescript-helpers.sh"
       MARKER=T
@@ -62,7 +62,7 @@ for KEY in react typescript laravel vue; do
       TOOL_GATE_CHECKS=("tsc ✗" "ts-prune ✗")
       ;;
     laravel)
-      SKILL="$AIKIT/workflow/skills/audit-architecture-laravel/SKILL.md"
+      SKILL="$AIKIT/workflow/skills/audit-architecture/extensions/laravel.md"
       RULE="$AIKIT/standards/rules/code-audit-laravel.mini.md"
       HELPER="$AIKIT/bin/audit-laravel-helpers.sh"
       MARKER=L
@@ -90,7 +90,7 @@ for KEY in react typescript laravel vue; do
   esac
   echo "--- artifacts-exist ---"
   if [ -n "$SKILL" ]; then
-    assert "$KEY: SKILL.md exists" '[ -f "$SKILL" ]'
+    assert "$KEY: extension file exists" '[ -f "$SKILL" ]'
   fi
   assert "$KEY: rule file exists" '[ -f "$RULE" ]'
   assert "$KEY: helper-script exists + executable" '[ -x "$HELPER" ]'
@@ -113,10 +113,9 @@ for KEY in react typescript laravel vue; do
   printf '%s\n' "$TARGET_CONTENT" > "$TARGET/$TARGET_FILE"
   if [ -n "$SKILL" ]; then
     echo "--- loader-match ---"
-    EXT_NAME="$(basename "$(dirname "$SKILL")")"
     OUTPUT=$("$LOADER" "$TARGET" 2>/dev/null || true)
-    assert "$KEY: loader matches $EXT_NAME on $TARGET_FILE target" \
-      'echo "$OUTPUT" | grep -q "$EXT_NAME/SKILL.md$"'
+    assert "$KEY: loader matches extensions/$KEY.md on $TARGET_FILE target" \
+      'echo "$OUTPUT" | grep -q "audit-architecture/extensions/$KEY.md$"'
   fi
 
   echo "--- helper-tool-gate ---"

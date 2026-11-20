@@ -72,13 +72,13 @@ Run `bash "$AI_KIT_ROOT/bin/detect-tooling.sh" <project-path> --json` to capture
 - Skip dimensions that don't apply (e.g. "design patterns" on a 200-LOC shell-script repo).
 - Decide whether per-stack extensions should fire.
 
-Then run `bash "$AI_KIT_ROOT/bin/audit-extension-loader.sh" <project-path>` to discover bundled per-stack extensions (`audit-architecture-laravel`, `audit-architecture-react`, `audit-architecture-shadcn`, `audit-architecture-typescript`, …). The loader returns the SKILL.md paths of every matching extension in stable filename-sorted order. Honours `AI_KIT_AUDIT_NO_EXTEND=1` as an opt-out (returns empty → vanilla baseline audit). See [`standards/contracts/audit-architecture-extension.contract.md`](../../../standards/contracts/audit-architecture-extension.contract.md) for the contract every extension must satisfy.
+Then run `bash "$AI_KIT_ROOT/bin/audit-extension-loader.sh" <project-path>` to discover bundled per-stack extensions (`audit-architecture-laravel`, `audit-architecture-react`, `audit-architecture-shadcn`, `audit-architecture-typescript`, …). The loader returns the paths of every matching extension file (`extensions/<stack>.md` next to this skill) in stable filename-sorted order. Honours `AI_KIT_AUDIT_NO_EXTEND=1` as an opt-out (returns empty → vanilla baseline audit). See [`standards/contracts/audit-architecture-extension.contract.md`](../../../standards/contracts/audit-architecture-extension.contract.md) for the contract every extension must satisfy.
 
-### 4. Walk per dimension (+ invoke each matched extension via the Skill tool)
+### 4. Walk per dimension (+ apply each matched extension)
 
 For each of the 9 dimensions in `code-audit.mini.md`, surface concrete findings with `path:line` evidence. Skip a dimension only when it's genuinely out-of-scope for this codebase — say so explicitly in the report ("covered, no findings" or "skipped: <reason>").
 
-For each matched extension from step 3, invoke it via the Skill tool with structured input (audit scope + detected framework versions). The extension returns markdown blocks dimension-keyed per the contract spec (`## Per-stack findings — <stack>` + optional `## Per-stack appendix — <stack>`). Hold the extension output until step 6 (Write the report) — do not interleave with the core walk.
+For each matched extension from step 3, Read its file and apply it to the audit scope and detected framework versions. Extensions are not skills; never call them through the Skill tool. Write its findings as markdown blocks dimension-keyed per the contract spec (`## Per-stack findings — <stack>` + optional `## Per-stack appendix — <stack>`). Hold the extension output until step 6 (Write the report) — do not interleave with the core walk.
 
 De-duplicate by **root-cause**, not by **symptom**. One god-module appearing in 12 hotspots is one finding with 12 affected paths, not 12 findings.
 

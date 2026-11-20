@@ -2,8 +2,8 @@
 # Integration test for /ai:docs-sync — dead-links section (v1).
 #
 # Covers (per #92 acceptance criteria):
-#   - skill/command artefacts exist
-#   - command discoverable
+#   - skill artefacts exist; no command double
+#   - every --skip-* flag the driver accepts is documented in SKILL.md
 #   - broken-link fixture exits 1, reports both findings, names them correctly
 #   - clean fixture exits 0
 #   - HTML <a href>, bare URLs, anchor-only links, and code-fence links are NEVER counted
@@ -27,9 +27,13 @@ echo "=== artefacts-exist ==="
 assert "driver script exists + executable" '[ -x "$DRIVER" ]'
 assert "dead-links script exists + executable" '[ -x "$DEAD_LINKS" ]'
 assert "SKILL.md exists" '[ -f "$SKILL" ]'
-assert "command.md exists" '[ -f "$COMMAND" ]'
+assert "no command double next to the skill" '[ ! -f "$COMMAND" ]'
 assert "broken-link fixture dir exists" '[ -d "$FIX_BROKEN" ]'
 assert "clean fixture dir exists" '[ -d "$FIX_CLEAN" ]'
+
+for flag in $(grep -oE '^ +--skip-[a-z-]+\)' "$DRIVER" | tr -d ' )'); do
+  assert "SKILL.md documents $flag" 'grep -qF -- "$flag" "$SKILL"'
+done
 
 echo "=== skill-locks-non-goals ==="
 assert "SKILL.md frontmatter mentions content drift" \

@@ -4,13 +4,13 @@ Single source of truth for per-stack extensions that layer on top of the stack-a
 
 An extension adds stack-specific heuristics under the existing 9 audit dimensions (see [`code-audit.mini.md`](../rules/code-audit.mini.md)). Extensions never introduce a new dimension; new heuristics live under one of the 9.
 
-## Folder convention
+## File convention
 
 ```
-workflow/skills/audit-architecture-<stack>/SKILL.md
+workflow/skills/audit-architecture/extensions/<stack>.md
 ```
 
-`<stack>` is lower-case kebab — `laravel`, `react`, `typescript`, `flutter`, `vue`, `nextjs`, etc. The folder name doubles as a sanity check against the frontmatter `applies_to` field; a folder named `audit-architecture-laravel/` whose frontmatter declares `applies_to.frameworks: ["react"]` is a bug.
+`<stack>` is lower-case kebab — `laravel`, `react`, `typescript`, `flutter`, `vue`, `nextjs`, etc. Extensions are plain files next to the core skill, not skills of their own, so they stay out of the skill index and the `/ai:` autocomplete. The file name doubles as a sanity check against the frontmatter `applies_to` field; a file named `laravel.md` whose frontmatter declares `applies_to.frameworks: ["react"]` is a bug.
 
 Companion artifacts per extension:
 
@@ -19,7 +19,7 @@ Companion artifacts per extension:
 
 ## Frontmatter requirements
 
-Every extension SKILL.md MUST declare:
+Every extension file MUST declare:
 
 ```yaml
 ---
@@ -141,14 +141,14 @@ Rules:
 
 The core skill calls `bin/audit-extension-loader.sh <project-path>`, which:
 
-1. Globs `workflow/skills/audit-architecture-*/SKILL.md`.
+1. Globs `workflow/skills/audit-architecture/extensions/*.md`.
 2. Parses each candidate's frontmatter; rejects any whose `extends:` field is missing or not equal to `audit-architecture` (stderr warning, non-fatal skip).
 3. Runs `bin/detect-tooling.sh --json` against `<project-path>` for the framework array. Derives a minimal language set from the project shape (current heuristics: `tsconfig.json` → `typescript`; `pubspec.yaml` → `dart`). Future extensions can grow this heuristic without breaking the contract.
 4. Matches each extension on `applies_to.frameworks ∪ applies_to.languages` (either intersects → match). At least one of the two lists must be non-empty in the extension's frontmatter.
 5. Returns the matched extension paths (one per line on stdout), in stable filename-sorted order.
 6. Honours `AI_KIT_AUDIT_NO_EXTEND=1` by returning an empty list (opt-out path).
 
-The core skill is responsible for invoking each matched extension via the Skill tool, capturing the markdown output, and merging it per the rules above.
+The core skill is responsible for reading each matched extension file, applying it, and merging it per the rules above.
 
 ### Frontmatter list forms
 

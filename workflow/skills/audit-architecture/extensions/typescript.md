@@ -10,7 +10,7 @@ strictness: default
 
 # Audit Architecture — TypeScript extension
 
-Per-stack tuning for [`audit-architecture`](../audit-architecture/SKILL.md). Adds 8 TypeScript-specific heuristics under the canonical 9 dimensions from [`code-audit.mini.md`](../../../standards/rules/code-audit.mini.md). **Never introduces a new dimension.**
+Per-stack tuning for [`audit-architecture`](../SKILL.md). Adds 8 TypeScript-specific heuristics under the canonical 9 dimensions from [`code-audit.mini.md`](../../../standards/rules/code-audit.mini.md). **Never introduces a new dimension.**
 
 **Framework-agnostic.** Auto-loaded by `bin/audit-extension-loader.sh` whenever a `tsconfig.json` is present. Fires **alongside** the React / Vue / Next.js extensions, not instead of them.
 
@@ -86,8 +86,8 @@ Format tools (Prettier, dprint) and security scanners (npm audit, Snyk) are out 
 
 ## Related
 
-- [`audit-architecture`](../audit-architecture/SKILL.md) — core stack-agnostic skill.
-- [`audit-architecture-react`](../audit-architecture-react/SKILL.md) — React+TS-specific concerns (separate ownership).
+- [`audit-architecture`](../SKILL.md) — core stack-agnostic skill.
+- [`audit-architecture-react`](react.md) — React+TS-specific concerns (separate ownership).
 - [`code-audit-typescript.mini.md`](../../../standards/rules/code-audit-typescript.mini.md) — 8 heuristics with evidence patterns.
 - [`bin/audit-typescript-helpers.sh`](../../../bin/audit-typescript-helpers.sh) — tsc + ts-prune + ESLint gates.
 - [`standards/contracts/audit-architecture-extension.contract.md`](../../../standards/contracts/audit-architecture-extension.contract.md) — extension contract.

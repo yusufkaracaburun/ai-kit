@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Parse the frontmatter of an audit-architecture-* SKILL.md.
+# Parse the frontmatter of an audit-architecture extension (extensions/<stack>.md).
 # Stdout:
 #   EXTENDS=<value or empty>
 #   FRAMEWORKS=<comma-joined>

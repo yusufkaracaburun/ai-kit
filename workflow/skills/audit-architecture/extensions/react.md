@@ -10,7 +10,7 @@ strictness: default
 
 # Audit Architecture — React extension
 
-Per-stack tuning for [`audit-architecture`](../audit-architecture/SKILL.md). Adds 9 React-specific heuristics under the canonical 9 dimensions from [`code-audit.mini.md`](../../../standards/rules/code-audit.mini.md). **Never introduces a new dimension.**
+Per-stack tuning for [`audit-architecture`](../SKILL.md). Adds 9 React-specific heuristics under the canonical 9 dimensions from [`code-audit.mini.md`](../../../standards/rules/code-audit.mini.md). **Never introduces a new dimension.**
 
 Auto-loaded by `bin/audit-extension-loader.sh` when the project package.json declares `react`, `next`, or `@remix-run/*`. Skip with `AI_KIT_AUDIT_NO_EXTEND=1`.
 
@@ -18,7 +18,7 @@ Auto-loaded by `bin/audit-extension-loader.sh` when the project package.json dec
 
 This extension owns **React-shaped** smells: prop-bloat, component-size, hook usage, RSC boundary leaks, server-action typing, mechanism-named components.
 
-The [`audit-architecture-typescript`](../audit-architecture-typescript/SKILL.md) extension owns **language-level** TypeScript smells: `any` past module boundaries, `as` casts past edges, generic-component variance, etc.
+The [`audit-architecture-typescript`](typescript.md) extension owns **language-level** TypeScript smells: `any` past module boundaries, `as` casts past edges, generic-component variance, etc.
 
 Non-overlap enforced by the shared fixture `tests/fixtures/audit-react-ts-overlap/` and the contract-test under #79. Each finding row appears exactly once across `[react]` and `[typescript]` prefixes.
 
@@ -76,8 +76,8 @@ Format tools (Prettier) and security scanners (npm audit) are out of scope.
 
 ## Related
 
-- [`audit-architecture`](../audit-architecture/SKILL.md) — core stack-agnostic skill.
-- [`audit-architecture-typescript`](../audit-architecture-typescript/SKILL.md) — TypeScript-language smells (separate ownership).
+- [`audit-architecture`](../SKILL.md) — core stack-agnostic skill.
+- [`audit-architecture-typescript`](typescript.md) — TypeScript-language smells (separate ownership).
 - [`code-audit-react.mini.md`](../../../standards/rules/code-audit-react.mini.md) — 9 heuristics with evidence patterns.
 - [`bin/audit-react-helpers.sh`](../../../bin/audit-react-helpers.sh) — ESLint + tsc gates.
 - [`standards/contracts/audit-architecture-extension.contract.md`](../../../standards/contracts/audit-architecture-extension.contract.md) — extension contract.
