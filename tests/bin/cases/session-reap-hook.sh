@@ -152,9 +152,8 @@ for ev in SessionStart SessionEnd; do
 import json
 d = json.load(open(\"$HOOKS_JSON\"))
 cmds = [h[\"command\"] for b in d[\"hooks\"][\"$ev\"] for h in b[\"hooks\"]]
-assert \"\${CLAUDE_PLUGIN_ROOT}/hooks/session-reap.sh\" in cmds, cmds
+assert \"\${CLAUDE_PLUGIN_ROOT}/bin/hooks/session-reap.sh\" in cmds, cmds
 "'
 done
-assert "sync-plugin-hooks --check clean" 'bash "$AIKIT/bin/sync-plugin-hooks.sh" --check >/dev/null 2>&1'
 
 print_summary_and_exit

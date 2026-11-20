@@ -113,7 +113,7 @@ assert "hooks.json registers search-delegation on PreToolUse(Bash|Grep|Glob)" \
   'python3 -c "
 import json
 d = json.load(open(\"$AIKIT/workflow/hooks/hooks.json\"))
-b = [b for b in d[\"hooks\"][\"PreToolUse\"] if any(h[\"command\"] == \"\${CLAUDE_PLUGIN_ROOT}/hooks/search-delegation-check.sh\" for h in b[\"hooks\"])]
+b = [b for b in d[\"hooks\"][\"PreToolUse\"] if any(h[\"command\"] == \"\${CLAUDE_PLUGIN_ROOT}/bin/hooks/search-delegation-check.sh\" for h in b[\"hooks\"])]
 assert len(b) == 1 and b[0][\"matcher\"] == \"Bash|Grep|Glob\", b
 "'
 rm -rf "$NOMARK" "$SKIP"

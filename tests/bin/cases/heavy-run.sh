@@ -114,9 +114,9 @@ EMPTY_OUT=$(bash "$HOOK" </dev/null 2>&1)
 EMPTY_RC=$?
 set -e
 assert "empty payload exits 0 silent" '[ "$EMPTY_RC" -eq 0 ] && [ -z "$EMPTY_OUT" ]'
-PLUGIN_OUT=$(jq -n '{tool_input: {command: "pnpm test"}}' | bash "$AIKIT/workflow/hooks/heavy-run-gate.sh" |
+PLUGIN_OUT=$(jq -n '{tool_input: {command: "pnpm test"}}' | bash "$AIKIT/workflow/bin/hooks/heavy-run-gate.sh" |
   jq -r '.hookSpecificOutput.permissionDecisionReason // empty')
-assert "plugin copy resolves the wrapper next to it" \
+assert "plugin path resolves the wrapper in bin/" \
   'grep -qF "$AIKIT/workflow/bin/ai-kit-heavy-run.sh pnpm test" <<<"$PLUGIN_OUT"'
 
 echo "=== heavy-run: plugin delivery ==="
@@ -126,10 +126,9 @@ assert "hooks.json registers heavy-run-gate once, on PreToolUse matcher Bash" \
 import json
 d = json.load(open(\"$AIKIT/workflow/hooks/hooks.json\"))
 hits = [(ev, b[\"matcher\"]) for ev, bs in d[\"hooks\"].items() for b in bs for h in b[\"hooks\"]
-        if h[\"command\"] == \"\${CLAUDE_PLUGIN_ROOT}/hooks/heavy-run-gate.sh\"]
+        if h[\"command\"] == \"\${CLAUDE_PLUGIN_ROOT}/bin/hooks/heavy-run-gate.sh\"]
 assert hits == [(\"PreToolUse\", \"Bash\")], hits
 "'
-assert "plugin copy is the bin/hooks script" 'cmp -s "$HOOK" "$AIKIT/workflow/hooks/heavy-run-gate.sh"'
 assert "no agent or skill still carries the ps heavy-run check" \
   '! grep -rlE "ps -Ao args \| grep" "$AIKIT/workflow/agents" "$AIKIT/workflow/skills"'
 

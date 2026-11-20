@@ -97,7 +97,7 @@ assert "hooks.json registers phase-check on UserPromptSubmit" \
 import json
 d = json.load(open(\"$AIKIT/workflow/hooks/hooks.json\"))
 cmds = [h[\"command\"] for b in d[\"hooks\"][\"UserPromptSubmit\"] for h in b[\"hooks\"]]
-assert \"\${CLAUDE_PLUGIN_ROOT}/hooks/phase-check.sh\" in cmds, cmds
+assert \"\${CLAUDE_PLUGIN_ROOT}/bin/hooks/phase-check.sh\" in cmds, cmds
 "'
 rm -rf "$NOMARK" "$SKIP" "$PROJ"
 

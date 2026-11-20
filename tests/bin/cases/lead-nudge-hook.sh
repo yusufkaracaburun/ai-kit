@@ -59,8 +59,7 @@ assert "hooks.json registers lead-nudge on UserPromptSubmit" \
 import json
 d = json.load(open(\"$HOOKS_JSON\"))
 cmds = [h[\"command\"] for b in d[\"hooks\"][\"UserPromptSubmit\"] for h in b[\"hooks\"]]
-assert \"\${CLAUDE_PLUGIN_ROOT}/hooks/lead-nudge.sh\" in cmds, cmds
+assert \"\${CLAUDE_PLUGIN_ROOT}/bin/hooks/lead-nudge.sh\" in cmds, cmds
 "'
-assert "sync-plugin-hooks --check clean" 'bash "$AIKIT/bin/sync-plugin-hooks.sh" --check >/dev/null 2>&1'
 
 print_summary_and_exit

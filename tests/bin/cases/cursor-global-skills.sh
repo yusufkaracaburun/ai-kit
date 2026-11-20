@@ -173,9 +173,8 @@ echo "=== SessionEnd hook adds new and prunes dead ai-kit entries in ~/.agents/s
 # section: cursor-global-hook
 CACHE="$H/.claude/plugins/cache/yusufkaracaburun/ai"
 for v in 2.0.0 2.0.1; do
-  mkdir -p "$CACHE/$v/hooks" "$CACHE/$v/rules" "$CACHE/$v/bin"
+  mkdir -p "$CACHE/$v/rules" "$CACHE/$v/bin"
   cp -R "$AIKIT/bin/." "$CACHE/$v/bin/"
-  cp "$AIKIT/workflow/hooks/global-rules-link.sh" "$CACHE/$v/hooks/"
 done
 mkdir -p "$CACHE/2.0.0/skills/old-skill" "$CACHE/2.0.1/skills/new-skill"
 ln -sfn "$CACHE/2.0.0" "$H/.config/ai-kit/plugin-current"
@@ -183,7 +182,7 @@ ln -s "$H/.config/ai-kit/plugin-current/skills/old-skill/" "$H/.agents/skills/ol
 # Links v2.10.1 made in ~/.cursor/skills: one live, one dead.
 ln -s "$H/.config/ai-kit/plugin-current/skills/new-skill/" "$H/.cursor/skills/new-skill"
 ln -s "$H/.config/ai-kit/plugin-current/skills/old-skill/" "$H/.cursor/skills/old-skill"
-OUT="$(HOME="$H" bash "$CACHE/2.0.0/hooks/global-rules-link.sh" </dev/null)"
+OUT="$(HOME="$H" bash "$CACHE/2.0.0/bin/hooks/global-rules-link.sh" </dev/null)"
 assert "hook is silent" '[ -z "$OUT" ]'
 assert "new skill linked through plugin-current" \
   '[ "$(readlink "$H/.agents/skills/new-skill")" = "$H/.config/ai-kit/plugin-current/skills/new-skill/" ] && [ -d "$H/.agents/skills/new-skill" ]'
@@ -198,24 +197,24 @@ assert "migration: foreign entries in ~/.cursor/skills stay" '[ -L "$H/.cursor/s
 assert "rules link still made" '[ "$(readlink "$H/.claude/rules/ai-kit")" = "$(cd "$CACHE/2.0.1/rules" && pwd -P)" ]'
 
 H5=$(mktemp -d)
-HOME="$H5" bash "$CACHE/2.0.0/hooks/global-rules-link.sh" </dev/null >/dev/null
+HOME="$H5" bash "$CACHE/2.0.0/bin/hooks/global-rules-link.sh" </dev/null >/dev/null
 assert "hook without ~/.cursor and ~/.agents writes no skill dir" '[ ! -e "$H5/.agents" ] && [ ! -e "$H5/.cursor" ]'
 rm -rf "$H5"
 H7=$(mktemp -d)
 mkdir -p "$H7/.agents"
-HOME="$H7" bash "$CACHE/2.0.0/hooks/global-rules-link.sh" </dev/null >/dev/null
+HOME="$H7" bash "$CACHE/2.0.0/bin/hooks/global-rules-link.sh" </dev/null >/dev/null
 assert "hook with only ~/.agents creates ~/.agents/skills" '[ -L "$H7/.agents/skills/new-skill" ]'
 rm -rf "$H7"
 H8=$(mktemp -d)
 mkdir -p "$H8/.agents/skills" "$H8/.cursor"
 ln -s "$H8/.agents/skills" "$H8/.cursor/skills"
-HOME="$H8" bash "$CACHE/2.0.0/hooks/global-rules-link.sh" </dev/null >/dev/null
+HOME="$H8" bash "$CACHE/2.0.0/bin/hooks/global-rules-link.sh" </dev/null >/dev/null
 assert "hook keeps its own links when ~/.cursor/skills is a symlink to ~/.agents/skills" '[ -L "$H8/.agents/skills/new-skill" ] && [ -e "$H8/.agents/skills/new-skill" ]'
 rm -rf "$H8"
 
 echo "=== ~/.config/ai-kit/hosts, or detection, decides the ~/.agents/skills link set ==="
 # section: cursor-global-hosts
-run_hook() { HOME="$1" bash "$CACHE/2.0.0/hooks/global-rules-link.sh" </dev/null >/dev/null; }
+run_hook() { HOME="$1" bash "$CACHE/2.0.0/bin/hooks/global-rules-link.sh" </dev/null >/dev/null; }
 H9=$(mktemp -d)
 mkdir -p "$H9/.config/ai-kit"
 echo "claude,copilot" > "$H9/.config/ai-kit/hosts"

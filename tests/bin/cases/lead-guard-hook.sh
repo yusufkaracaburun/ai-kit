@@ -277,13 +277,12 @@ assert "hooks.json registers lead-guard on PreToolUse for every guarded tool" \
   'python3 -c "
 import json, re, sys
 d = json.load(open(\"$HOOKS_JSON\"))
-b = [b for b in d[\"hooks\"][\"PreToolUse\"] if any(h[\"command\"] == \"\${CLAUDE_PLUGIN_ROOT}/hooks/lead-guard.sh\" for h in b[\"hooks\"])]
+b = [b for b in d[\"hooks\"][\"PreToolUse\"] if any(h[\"command\"] == \"\${CLAUDE_PLUGIN_ROOT}/bin/hooks/lead-guard.sh\" for h in b[\"hooks\"])]
 assert len(b) == 1, b
 for t in [\"Edit\", \"Write\", \"MultiEdit\", \"NotebookEdit\", \"Bash\", \"mcp__claude-in-chrome__computer\"] + sys.argv[1:]:
     assert re.fullmatch(b[0][\"matcher\"], t), t
 for t in [\"mcp__pencil__execute\", \"mcp__paper__get_screenshot\"]:
     assert not re.fullmatch(b[0][\"matcher\"], t), t
 " $PAPER_WRITES'
-assert "sync-plugin-hooks --check clean" 'bash "$AIKIT/bin/sync-plugin-hooks.sh" --check >/dev/null 2>&1'
 
 print_summary_and_exit

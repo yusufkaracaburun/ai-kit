@@ -149,9 +149,8 @@ assert "hooks.json registers the hook on SessionStart" \
 import json
 d = json.load(open(\"$HOOKS_JSON\"))
 cmds = [h[\"command\"] for b in d[\"hooks\"][\"SessionStart\"] for h in b[\"hooks\"]]
-assert \"\${CLAUDE_PLUGIN_ROOT}/hooks/peer-sessions-check.sh\" in cmds, cmds
+assert \"\${CLAUDE_PLUGIN_ROOT}/bin/hooks/peer-sessions-check.sh\" in cmds, cmds
 "'
-assert "sync-plugin-hooks --check clean" 'bash "$AIKIT/bin/sync-plugin-hooks.sh" --check >/dev/null 2>&1'
 
 # ${CLAUDE_PLUGIN_ROOT} layout: hooks/, bin/ and standards/ are siblings.
 TMP_P=$(mktemp -d)

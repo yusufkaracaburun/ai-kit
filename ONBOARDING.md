@@ -10,7 +10,7 @@ Stack-agnostic. Pure Bash + Markdown. One canonical source emits skills,
 slash commands and rules to both hosts, and subagents and hooks to Claude
 Code. No per-host duplication, no runtime daemon, no network calls, no telemetry.
 
-Today (v2.12.0): **36 skills · 7 subagents · 11 slash commands · 10 plugin-wired hooks ·
+Today: **36 skills · 7 subagents · 11 slash commands · 14 plugin-wired hook entries ·
 47 canonical mini-rules · 24 curated MCP servers · 28 curated hook recipes ·
 23 curated plugins · 5 baseline repo templates.**
 
@@ -130,8 +130,8 @@ Read these before proposing structural changes.
 
 - **Skill count drift.** Adding a skill without bumping the counts breaks
   `structure.sh`; `bin/count-primitives.sh --check` lists every doc site.
-- **`workflow/hooks/` is a copy.** Edit `bin/hooks/` and run
-  `bash bin/sync-plugin-hooks.sh`; its `--check` mode catches drift.
+- **Hook scripts live in `bin/hooks/` only.** `workflow/hooks/hooks.json`
+  points at `${CLAUDE_PLUGIN_ROOT}/bin/hooks/`; register new hooks there.
 - **Marker JSON.** `bin/write-setup-marker.sh` only writes fields that
   were passed — never silently defaults. If your new Tier B branch
   doesn't show up in `.ai-kit-setup`, you forgot the `--<branch>=...`

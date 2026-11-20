@@ -32,19 +32,19 @@ set -uo pipefail
 
 [ -t 0 ] || cat >/dev/null 2>&1 || true   # drain the session payload; unused
 
-# Two layouts: plugin (hooks/ + rules/ side by side) or source (workflow/bin/hooks/).
+# This file sits at <plugin root>/bin/hooks/, so the version cache is three levels up.
 # pwd -P: source reaches this file via the root bin symlink (ADR-0016); `[ -d ]` resolves `..` physically, `cd` logically.
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd -P 2>/dev/null || true)"
-cache="$(cd "$HOOK_DIR/../.." && pwd -P)"
+cache="$(cd "$HOOK_DIR/../../.." && pwd -P)"
 newest="$(for d in "$cache"/*/rules; do v="${d%/rules}"; v="${v##*/}"; [[ -d $d && $v =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && echo "$v"; done | sort -t. -k1,1n -k2,2n -k3,3n | tail -1)"
 
 # Cursor and Copilot have no plugin channel: keep ~/.agents/skills in step with
 # the newest version (new skills linked, removed ones reaped) via plugin-current.
-lib="$HOOK_DIR/../bin/lib"
+lib="$HOOK_DIR/../lib"
 if [ -n "$newest" ] && [ -f "$lib/link-primitives.sh" ]; then
-  # shellcheck source=../bin/lib/ai-kit-root.sh
+  # shellcheck source=../lib/ai-kit-root.sh
   source "$lib/ai-kit-root.sh"
-  # shellcheck source=../bin/lib/link-primitives.sh
+  # shellcheck source=../lib/link-primitives.sh
   source "$lib/link-primitives.sh"
   if aikit_agents_skills_wanted; then
     sync_plugin_current_link "$cache/$newest"

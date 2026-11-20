@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/lead-guard.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/hooks/lead-guard.sh"
           }
         ]
       },
@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/search-delegation-check.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/hooks/search-delegation-check.sh"
           }
         ]
       },
@@ -24,7 +24,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/build-delegation-check.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/hooks/build-delegation-check.sh"
           }
         ]
       },
@@ -33,11 +33,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/review-gate.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/hooks/review-gate.sh"
           },
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/heavy-run-gate.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/hooks/heavy-run-gate.sh"
           }
         ]
       }
@@ -47,11 +47,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/lead-nudge.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/hooks/lead-nudge.sh"
           },
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/phase-check.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/hooks/phase-check.sh"
           }
         ]
       }
@@ -62,7 +62,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/post-skill-log.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/hooks/post-skill-log.sh"
           }
         ]
       },
@@ -71,7 +71,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/context-drift-check.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/hooks/context-drift-check.sh"
           }
         ]
       }
@@ -81,15 +81,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/peer-sessions-check.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/hooks/peer-sessions-check.sh"
           },
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/global-rules-link.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/hooks/global-rules-link.sh"
           },
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session-reap.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/hooks/session-reap.sh"
           }
         ]
       }
@@ -99,11 +99,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session-reap.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/hooks/session-reap.sh"
           },
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/global-rules-link.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/hooks/global-rules-link.sh"
           }
         ]
       }

@@ -16,8 +16,8 @@ Start: "I want to add X to ai-kit"
 │  │
 │  └─ YES → HOOK
 │           Source: bin/hooks/<name>.sh
-│           Registered in: workflow/hooks/hooks.json, which runs the copy
-│             bin/sync-plugin-hooks.sh makes in workflow/hooks/
+│           Registered in: workflow/hooks/hooks.json, which runs it from
+│             ${CLAUDE_PLUGIN_ROOT}/bin/hooks/
 │           Example: post-skill-log.sh fires on PostToolUse(Skill)
 │
 ├─ Is X a short prompt template the user will invoke explicitly

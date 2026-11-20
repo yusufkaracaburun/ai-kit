@@ -82,31 +82,30 @@ Bundled (via `workflow/.claude-plugin/plugin.json`):
 - All 36 skills (`workflow/skills/`)
 - All 7 subagents (`workflow/agents/explore`, `workflow/agents/reviewer`, `workflow/agents/qa-runner`, `workflow/agents/verifier`, `workflow/agents/judge`, `workflow/agents/builder`, `workflow/agents/designer`)
 - All 11 slash commands (`workflow/commands/*.md`)
-- The PostToolUse skill-logging hook (`workflow/hooks/post-skill-log.sh` +
-  `workflow/hooks/log-skill.sh`, wired by `workflow/hooks/hooks.json`).
+- The PostToolUse skill-logging hook (`workflow/bin/hooks/post-skill-log.sh` +
+  `workflow/bin/log-skill.sh`, wired by `workflow/hooks/hooks.json`).
   Opt-in: silent no-op unless `AI_KIT_USAGE=1` is set in the env. Resolves
   the bundled `log-skill.sh` via `${CLAUDE_PLUGIN_ROOT}`, no project paths
-  required. Source-of-truth lives at `bin/hooks/post-skill-log.sh` +
-  `bin/log-skill.sh`; `bin/sync-plugin-hooks.sh --check` enforces no drift.
-- The SessionStart peer-sessions hook (`workflow/hooks/peer-sessions-check.sh`,
+  required.
+- The SessionStart peer-sessions hook (`workflow/bin/hooks/peer-sessions-check.sh`,
   ADR-0014). Fires only when other Claude Code sessions are live on the
   machine; resolves `${CLAUDE_PLUGIN_ROOT}/bin/ai-kit-claim.sh` and reads the
   protocol from `${CLAUDE_PLUGIN_ROOT}/standards/rules/session-coordination.mini.md`.
 - The SessionStart and SessionEnd global-rules hook
-  (`workflow/hooks/global-rules-link.sh`, ADR-0015). Keeps
+  (`workflow/bin/hooks/global-rules-link.sh`, ADR-0015). Keeps
   `~/.claude/rules/ai-kit` pointing at the `rules/` dir of the newest version
   in the plugin cache. That dir holds every universal always-on rule,
   pre-emitted by `bin/sync-plugin-rules.sh`, so Claude Code loads them natively
   in every project on the machine. The session that ran `/plugin update`
   re-points the link when it ends, so the next session starts on the new
   rules. Opt out machine-wide: `bin/ai-kit-no-global-rules.sh on`.
-- The PreToolUse lead-guard hook (`workflow/hooks/lead-guard.sh`). In a
+- The PreToolUse lead-guard hook (`workflow/bin/hooks/lead-guard.sh`). In a
   session whose claim says `role=lead`, denies file edits, write/test/build
   Bash commands, Paper write tools and chrome actions on the main thread; memo
   and scratch paths (`~/.claude/`, `.agents/memory/`, `.planning/`, `/tmp`,
   `$TMPDIR`) and subagents pass. Turn it off with `ai-kit-claim.sh set
   role=build`. ADR-0017.
-- The UserPromptSubmit lead-nudge hook (`workflow/hooks/lead-nudge.sh`). In a
+- The UserPromptSubmit lead-nudge hook (`workflow/bin/hooks/lead-nudge.sh`). In a
   `role=lead` session, prints one line restating the lead reply contract before
   each user prompt; silent otherwise. ADR-0017.
 - The advisory project hooks: `search-delegation-check.sh` and
@@ -117,7 +116,7 @@ Bundled (via `workflow/.claude-plugin/plugin.json`):
   `/ai:upgrade` removes the copies older setups left in `.claude/hooks/`.
   ADR-0018.
 - The SessionStart and SessionEnd session-reap hook
-  (`workflow/hooks/session-reap.sh`). Kills detached processes an ended
+  (`workflow/bin/hooks/session-reap.sh`). Kills detached processes an ended
   session left running and logs each kill to
   `${XDG_STATE_HOME:-~/.local/state}/ai-kit/session-reap.log`.
 

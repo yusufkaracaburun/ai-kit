@@ -256,7 +256,7 @@ lead() {
   jq -n --arg t "$1" --argjson i "$2" '{session_id: "lead1", tool_name: $t, tool_input: $i}' |
     bash "$AIKIT/bin/hooks/lead-guard.sh" | jq -r '.hookSpecificOutput.permissionDecisionReason // empty' 2>/dev/null || true
 }
-OUT=$(lead Bash '{"command": "bash \"${CLAUDE_PLUGIN_ROOT:-$HOME/.config/ai-kit/plugin-current}/hooks/review-gate.sh\" --approve"}')
+OUT=$(lead Bash '{"command": "bash \"${CLAUDE_PLUGIN_ROOT:-$HOME/.config/ai-kit/plugin-current}/bin/hooks/review-gate.sh\" --approve"}')
 assert "lead may run review-gate.sh --approve" '[ -z "$OUT" ]'
 OUT=$(lead Bash '{"command": "echo x > .git/ai-kit/review-ok"}')
 assert "lead may not write the marker by redirect" '[ -n "$OUT" ]'
@@ -275,10 +275,8 @@ assert "hooks.json registers review-gate once, on PreToolUse matcher Bash" \
 import json
 d = json.load(open(\"$AIKIT/workflow/hooks/hooks.json\"))
 hits = [(ev, b[\"matcher\"]) for ev, bs in d[\"hooks\"].items() for b in bs for h in b[\"hooks\"]
-        if h[\"command\"] == \"\${CLAUDE_PLUGIN_ROOT}/hooks/review-gate.sh\"]
+        if h[\"command\"] == \"\${CLAUDE_PLUGIN_ROOT}/bin/hooks/review-gate.sh\"]
 assert hits == [(\"PreToolUse\", \"Bash\")], hits
 "'
-assert "sync-plugin-hooks --check clean" 'bash "$AIKIT/bin/sync-plugin-hooks.sh" --check >/dev/null 2>&1'
-assert "plugin copy is the bin/hooks script" 'cmp -s "$HOOK" "$AIKIT/workflow/hooks/review-gate.sh"'
 
 print_summary_and_exit

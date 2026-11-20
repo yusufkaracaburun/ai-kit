@@ -40,3 +40,6 @@ plugin path (`workflow/` as root) is unchanged. `sync-plugin-rules.sh`
 - `workflow/hooks/` is still a five-file copy of `bin/hooks/` plus
   `log-skill.sh`; making those symlinks would depend on the plugin cache
   preserving symlinks, which is unverified. Left as is.
+- 2026-11-20: the hook copy is gone. `bin/` already lives inside `workflow/`,
+  so `hooks.json` runs `${CLAUDE_PLUGIN_ROOT}/bin/hooks/*.sh` directly and
+  `sync-plugin-hooks.sh` is deleted; no symlink was needed.

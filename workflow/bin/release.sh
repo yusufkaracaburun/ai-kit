@@ -153,8 +153,6 @@ PY
 
 # Keep plugin manifest in lockstep with VERSION.
 bash "$SCRIPT_BIN/sync-plugin-version.sh"
-# Keep plugin-bundled hook scripts byte-identical to bin/ source-of-truth.
-bash "$SCRIPT_BIN/sync-plugin-hooks.sh"
 # Keep the plugin-bundled global rules (ADR-0015) stamped from standards/rules/.
 bash "$SCRIPT_BIN/sync-plugin-rules.sh"
 # The kit's own marker gates the plugin hooks here; keep its version in step.

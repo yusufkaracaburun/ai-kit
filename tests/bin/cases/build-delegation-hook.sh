@@ -102,7 +102,7 @@ assert "hooks.json registers build-delegation on PreToolUse(Edit|Write|MultiEdit
   'python3 -c "
 import json
 d = json.load(open(\"$AIKIT/workflow/hooks/hooks.json\"))
-b = [b for b in d[\"hooks\"][\"PreToolUse\"] if any(h[\"command\"] == \"\${CLAUDE_PLUGIN_ROOT}/hooks/build-delegation-check.sh\" for h in b[\"hooks\"])]
+b = [b for b in d[\"hooks\"][\"PreToolUse\"] if any(h[\"command\"] == \"\${CLAUDE_PLUGIN_ROOT}/bin/hooks/build-delegation-check.sh\" for h in b[\"hooks\"])]
 assert len(b) == 1 and b[0][\"matcher\"] == \"Edit|Write|MultiEdit\", b
 "'
 rm -rf "$TMP_STATE" "$NOMARK" "$SKIP" "$PROJ"

@@ -18,7 +18,7 @@ Read `~/.claude/settings.json` (keys `model`, `env.CLAUDE_CODE_SUBAGENT_MODEL`),
 
 ## Part 4: claim versus hook
 
-List every sentence in `workflow/standards/rules/session-coordination.mini.md` and `docs/adr/0017-lead-contract.md` that says something "denies", "blocks", "gates", "is required" or "always". For each, find the hook in `workflow/hooks/` that enforces it and quote the matching line. Verdict per claim: enforced, partly enforced (name the gap: a command form, a tool, a channel the hook does not see), or prompt only.
+List every sentence in `workflow/standards/rules/session-coordination.mini.md` and `docs/adr/0017-lead-contract.md` that says something "denies", "blocks", "gates", "is required" or "always". For each, find the hook in `workflow/bin/hooks/` that enforces it and quote the matching line. Verdict per claim: enforced, partly enforced (name the gap: a command form, a tool, a channel the hook does not see), or prompt only.
 
 ## Part 5: test coverage
 

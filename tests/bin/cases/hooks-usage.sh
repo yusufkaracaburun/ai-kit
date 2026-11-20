@@ -68,15 +68,15 @@ rm -rf "$HOOK_STATE"
 
 echo "=== hook-post-skill-log-via-plugin-layout ==="
 # section: hook-post-skill-log-via-plugin-layout
-# Simulate the Claude Code plugin install — only the workflow/hooks/ tree is
-# reachable from the hook's POV. The script must locate the sibling
-# log-skill.sh (not the bin/ copy) and still log correctly.
+# Simulate the Claude Code plugin install — only the workflow/ tree is
+# reachable from the hook's POV. The script must locate log-skill.sh in the
+# plugin's own bin/ and still log correctly.
 PLUGIN_ROOT=$(mktemp -d)
-mkdir -p "$PLUGIN_ROOT/hooks"
-cp "$AIKIT/workflow/hooks/post-skill-log.sh" "$PLUGIN_ROOT/hooks/"
-cp "$AIKIT/workflow/hooks/log-skill.sh" "$PLUGIN_ROOT/hooks/"
-chmod +x "$PLUGIN_ROOT/hooks/"*.sh
-PLUGIN_HOOK="$PLUGIN_ROOT/hooks/post-skill-log.sh"
+mkdir -p "$PLUGIN_ROOT/bin/hooks"
+cp "$AIKIT/workflow/bin/hooks/post-skill-log.sh" "$PLUGIN_ROOT/bin/hooks/"
+cp "$AIKIT/workflow/bin/log-skill.sh" "$PLUGIN_ROOT/bin/"
+chmod +x "$PLUGIN_ROOT/bin/hooks/post-skill-log.sh" "$PLUGIN_ROOT/bin/log-skill.sh"
+PLUGIN_HOOK="$PLUGIN_ROOT/bin/hooks/post-skill-log.sh"
 PLUGIN_STATE=$(mktemp -d)
 
 unset AI_KIT_USAGE
@@ -94,9 +94,9 @@ for line in open(\"$PLUGIN_STATE/ai-kit/usage.jsonl\"):
     json.loads(line)
 "'
 
-# The hook MUST resolve its sibling log-skill.sh, not the bin/ copy — prove
-# it by removing the sibling and asserting the next invocation no-ops.
-rm "$PLUGIN_ROOT/hooks/log-skill.sh"
+# The hook MUST resolve the plugin's own log-skill.sh, not the repo's — prove
+# it by removing that copy and asserting the next invocation no-ops.
+rm "$PLUGIN_ROOT/bin/log-skill.sh"
 rm -f "$PLUGIN_STATE/ai-kit/usage.jsonl"
 echo '{"tool_name":"Skill","tool_input":{"skill":"diagnose","args":""}}' \
   | AI_KIT_USAGE=1 XDG_STATE_HOME="$PLUGIN_STATE" "$PLUGIN_HOOK"
@@ -238,13 +238,13 @@ assert "context-drift silent when the marker has no context_drift_hook" '[ -z "$
 OUT_G="$(echo "$CD_G_PAYLOAD" | CLAUDE_PROJECT_DIR="$CD_G" "$CD_HOOK")"
 assert "context-drift silent when marker says skipped" '[ -z "$OUT_G" ]'
 "$AIKIT/bin/write-setup-marker.sh" "$CD_G" --context-drift-hook=wired >/dev/null
-OUT_G="$(echo "$CD_G_PAYLOAD" | CLAUDE_PROJECT_DIR="$CD_G" "$AIKIT/workflow/hooks/context-drift-check.sh")"
+OUT_G="$(echo "$CD_G_PAYLOAD" | CLAUDE_PROJECT_DIR="$CD_G" "$AIKIT/workflow/bin/hooks/context-drift-check.sh")"
 assert "plugin copy fires when marker says wired" 'echo "$OUT_G" | grep -q "CONTEXT.md"'
 assert "hooks.json registers context-drift on PostToolUse(Edit|Write|MultiEdit)" \
   'python3 -c "
 import json
 d = json.load(open(\"$AIKIT/workflow/hooks/hooks.json\"))
-b = [b for b in d[\"hooks\"][\"PostToolUse\"] if any(h[\"command\"] == \"\${CLAUDE_PLUGIN_ROOT}/hooks/context-drift-check.sh\" for h in b[\"hooks\"])]
+b = [b for b in d[\"hooks\"][\"PostToolUse\"] if any(h[\"command\"] == \"\${CLAUDE_PLUGIN_ROOT}/bin/hooks/context-drift-check.sh\" for h in b[\"hooks\"])]
 assert len(b) == 1 and b[0][\"matcher\"] == \"Edit|Write|MultiEdit\", b
 "'
 rm -rf "$CD_G"
@@ -252,7 +252,7 @@ rm -rf "$CD_G"
 
 echo "=== privacy ==="
 # section: privacy
-NET_HITS="$(grep -REn 'curl|wget|/dev/tcp|nc ' "$AIKIT/bin/log-skill.sh" "$AIKIT/bin/usage-stats.sh" "$AIKIT/bin/usage-purge.sh" "$AIKIT/bin/hooks/post-skill-log.sh" "$AIKIT/workflow/hooks/post-skill-log.sh" "$AIKIT/workflow/hooks/log-skill.sh" || true)"
+NET_HITS="$(grep -REn 'curl|wget|/dev/tcp|nc ' "$AIKIT/bin/log-skill.sh" "$AIKIT/bin/usage-stats.sh" "$AIKIT/bin/usage-purge.sh" "$AIKIT/bin/hooks/post-skill-log.sh" || true)"
 assert "no network calls in usage scripts" '[ -z "$NET_HITS" ]'
 
 print_summary_and_exit

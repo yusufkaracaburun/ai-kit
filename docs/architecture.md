@@ -21,7 +21,7 @@ three layers, including every path each distribution channel writes to.
 | Subagent | `workflow/agents/<name>.md` | same symlink pass + plugin manifest | `~/.claude/agents/` · `<proj>/.claude/agents/` |
 | Slash command | `workflow/commands/<name>.md` | same symlink pass (files, not dirs) + plugin manifest | `~/.claude/commands/` · `~/.cursor/commands/` · `<proj>/.claude/commands/` |
 | Rule | `standards/rules/<name>.mini.md` | **emitter** (`bin/emit-rules.sh`) at `/ai:setup` time — converts to host format | `<proj>/.cursor/rules/*.mdc` (Cursor) · `<proj>/.claude/rules/*.md` (Claude Code) |
-| Hook | `bin/hooks/*.sh` + `workflow/hooks/hooks.json` | plugin manifest (ADR-0018); `bin/sync-plugin-hooks.sh` copies `bin/hooks/*.sh` into `workflow/hooks/`, which `hooks.json` runs | plugin hooks (Claude Code) |
+| Hook | `bin/hooks/*.sh` + `workflow/hooks/hooks.json` | plugin manifest (ADR-0018); `hooks.json` runs `${CLAUDE_PLUGIN_ROOT}/bin/hooks/*.sh` directly | plugin hooks (Claude Code) |
 
 ## Two design choices that keep the kit coherent
 

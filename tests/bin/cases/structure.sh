@@ -332,13 +332,9 @@ assert "the repo manifest was never mutated" \
 rm -rf "$TMP_PLUGIN_ROOT"
 
 
-echo "=== sync-plugin-hooks-bundled-hook-scripts- ==="
-# section: sync-plugin-hooks-bundled-hook-scripts-
-BUNDLED_POST="$AIKIT/workflow/hooks/post-skill-log.sh"
-BUNDLED_LOG="$AIKIT/workflow/hooks/log-skill.sh"
+echo "=== plugin-hooks-resolve ==="
+# section: plugin-hooks-resolve
 BUNDLED_JSON="$AIKIT/workflow/hooks/hooks.json"
-assert "bundled post-skill-log.sh exists + executable" '[ -x "$BUNDLED_POST" ]'
-assert "bundled log-skill.sh exists + executable" '[ -x "$BUNDLED_LOG" ]'
 assert "bundled hooks.json exists" '[ -f "$BUNDLED_JSON" ]'
 assert "hooks.json is valid JSON" 'python3 -c "import json; json.load(open(\"$BUNDLED_JSON\"))"'
 assert "hooks.json has PostToolUse Skill matcher" 'python3 -c "
@@ -346,11 +342,16 @@ import json
 d=json.load(open(\"$BUNDLED_JSON\"))
 e=d[\"hooks\"][\"PostToolUse\"][0]
 assert e[\"matcher\"]==\"^Skill\$\"
-assert e[\"hooks\"][0][\"command\"]==\"\${CLAUDE_PLUGIN_ROOT}/hooks/post-skill-log.sh\"
+assert e[\"hooks\"][0][\"command\"]==\"\${CLAUDE_PLUGIN_ROOT}/bin/hooks/post-skill-log.sh\"
 "'
-assert "bundled hook byte-identical to bin/ source" 'cmp -s "$AIKIT/bin/hooks/post-skill-log.sh" "$BUNDLED_POST"'
-assert "bundled log-skill byte-identical to bin/ source" 'cmp -s "$AIKIT/bin/log-skill.sh" "$BUNDLED_LOG"'
-assert "sync-plugin-hooks --check clean" 'bash "$AIKIT/bin/sync-plugin-hooks.sh" --check >/dev/null 2>&1'
+assert "every hooks.json command is an executable file under workflow/" 'python3 -c "
+import json, os
+d=json.load(open(\"$BUNDLED_JSON\"))
+cmds={h[\"command\"] for bs in d[\"hooks\"].values() for b in bs for h in b[\"hooks\"]}
+bad=[c for c in cmds if not os.access(c.replace(\"\${CLAUDE_PLUGIN_ROOT}\", \"$AIKIT/workflow\"), os.X_OK)]
+assert not bad, bad
+"'
+assert "no committed hook copies under workflow/hooks" '[ -z "$(find "$AIKIT/workflow/hooks" -name "*.sh")" ]'
 
 # apply-sandcastle.sh overwrites the copied main.mts with main.ts.template, so
 # the template is what users actually run. Re-vendoring one and not the other
@@ -375,18 +376,6 @@ assert "workflow/context/templates/github exists in plugin" '[ -d "$AIKIT/workfl
 assert "workflow/bin/ai-kit-doctor.sh exists" '[ -x "$AIKIT/workflow/bin/ai-kit-doctor.sh" ]'
 assert "plugin commands use CLAUDE_PLUGIN_ROOT" '! grep -lE "AI_KIT_ROOT.*\\\$HOME/\\.config/ai-kit/root.*}/bin/" "$AIKIT/workflow/commands/"*.md'
 
-# Drift detection round-trip: mutate, --check fails, re-stamp, --check passes.
-TMP_HOOK_BAK=$(mktemp -d)
-cp "$BUNDLED_POST" "$TMP_HOOK_BAK/post-skill-log.sh"
-echo "# tampered" >> "$BUNDLED_POST"
-set +e
-bash "$AIKIT/bin/sync-plugin-hooks.sh" --check >/dev/null 2>&1
-HOOK_DRIFT_EXIT=$?
-set -e
-assert "sync-plugin-hooks --check detects drift" '[ "$HOOK_DRIFT_EXIT" -eq 1 ]'
-bash "$AIKIT/bin/sync-plugin-hooks.sh" >/dev/null
-assert "sync-plugin-hooks stamps drift away" 'bash "$AIKIT/bin/sync-plugin-hooks.sh" --check >/dev/null 2>&1'
-rm -rf "$TMP_HOOK_BAK"
 
 
 echo "=== VERSION ==="

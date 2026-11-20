@@ -61,17 +61,17 @@ echo "=== global-rules-link resolves the newest plugin cache ==="
 H_C=$(mktemp -d)
 CACHE="$H_C/cache/any-marketplace/ai"
 LINK_C="$H_C/.claude/rules/ai-kit"
-for v in 2.4.2 2.5.0 latest; do mkdir -p "$CACHE/$v/hooks" "$CACHE/$v/rules"; done
-cp "$HOOK" "$CACHE/2.4.2/hooks/global-rules-link.sh"
-HOME="$H_C" CLAUDE_PLUGIN_ROOT="$CACHE/2.4.2" bash "$CACHE/2.4.2/hooks/global-rules-link.sh" <<<"$PAYLOAD"
+for v in 2.4.2 2.5.0 latest; do mkdir -p "$CACHE/$v/bin/hooks" "$CACHE/$v/rules"; done
+cp "$HOOK" "$CACHE/2.4.2/bin/hooks/global-rules-link.sh"
+HOME="$H_C" CLAUDE_PLUGIN_ROOT="$CACHE/2.4.2" bash "$CACHE/2.4.2/bin/hooks/global-rules-link.sh" <<<"$PAYLOAD"
 assert "old plugin's hook links the newest cache version" '[ "$(readlink "$LINK_C")" = "$(cd "$CACHE/2.5.0/rules" && pwd -P)" ]'
 rm -rf "${CACHE:?}"/* "$LINK_C"
-mkdir -p "$H_C/plugin/hooks" "$H_C/plugin/rules"
-cp "$HOOK" "$H_C/plugin/hooks/global-rules-link.sh"
-HOME="$H_C" CLAUDE_PLUGIN_ROOT="$H_C/plugin" bash "$H_C/plugin/hooks/global-rules-link.sh" <<<"$PAYLOAD"
+mkdir -p "$H_C/plugin/bin/hooks" "$H_C/plugin/rules"
+cp "$HOOK" "$H_C/plugin/bin/hooks/global-rules-link.sh"
+HOME="$H_C" CLAUDE_PLUGIN_ROOT="$H_C/plugin" bash "$H_C/plugin/bin/hooks/global-rules-link.sh" <<<"$PAYLOAD"
 assert "empty cache falls back to the running plugin's rules" '[ "$(readlink "$LINK_C")" = "$(cd "$H_C/plugin/rules" && pwd -P)" ]'
 rm -rf "$H_C"
-assert "hooks.json registers global-rules-link on SessionEnd" 'jq -e ".hooks.SessionEnd[].hooks[].command | select(. == \"\${CLAUDE_PLUGIN_ROOT}/hooks/global-rules-link.sh\")" "$AIKIT/workflow/hooks/hooks.json" >/dev/null'
+assert "hooks.json registers global-rules-link on SessionEnd" 'jq -e ".hooks.SessionEnd[].hooks[].command | select(. == \"\${CLAUDE_PLUGIN_ROOT}/bin/hooks/global-rules-link.sh\")" "$AIKIT/workflow/hooks/hooks.json" >/dev/null'
 
 echo "=== opt-out toggle ==="
 # section: global-rules-optout
