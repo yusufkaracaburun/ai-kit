@@ -42,8 +42,8 @@ curl -fsSL https://raw.githubusercontent.com/yusufkaracaburun/ai-kit/master/inst
 ## 3. The shape of the codebase
 
 - `workflow/` — the canonical primitives that ship to hosts.
-  - `skills/<name>/SKILL.md` (35) · `agents/<name>.md` (6) ·
-    `commands/<name>.md` (11) · `hooks/` (10 hooks + `hooks.json`) ·
+  - `skills/<name>/SKILL.md` (32) · `agents/<name>.md` (7) ·
+    `commands/<name>.md` (9) · `hooks/hooks.json` (14 entries, run from `bin/hooks/`) ·
     `.claude-plugin/plugin.json` (manifest).
 - `standards/rules/` — agent-agnostic mini-rules; `bin/emit-rules.sh`
   fans them out to per-host conventions.
