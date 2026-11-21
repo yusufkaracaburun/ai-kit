@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.24.1 — 2026-11-21
+
+### Fixed
+- Heavy-run hook now honours backslash escapes when it masks quoted text, so quoted runner names no longer trigger a false deny.
+
+### Changed
+- Catalog: record zazencodes-season-3 and emilkowalski-skills as Ignore.
+- Roadmap: capture #301 as a deferred item.
+
 ## 2.24.0 — 2026-11-21
 
 ### Added
