@@ -340,6 +340,12 @@
       "pinned_sha": "3b46a49ef0efa33a94c98db09a8738e3a161d1dd",
       "reason": "YouTube demo-code repo (zazencodes/zazencodes-season-3, main, GPL-3.0, 584 stars), not a tool: 26 folders under src/, one per video, with no package, install path or release. Ignore on category (Confirmed by tree listing). Every tool-shaped item is already decided: src/token-savers covers rtk (catalogued companion), caveman and ponytail (installed plugins), headroom (Ignored above) and pxpipe (not in any catalog; proxy that renders context to images for vision models, same trust-surface objection as headroom, Untested). src/software-factory-claude-code-v2 is a competing lifecycle (intake, spec-writer, builder, approver, plus split code/security/ui/ux reviewers) over ai-kit's to-prd, to-issues, tdd and review; GPL-3.0 means its prompt text cannot be vendored into the MIT kit. src/agent-md-effectiveness is a README stub with TODO placeholders, no data. Track B: no consuming repo has a pain this repo addresses. Untested: whether split specialist reviewers (security/ui/ux) catch more than ai-kit's single reviewer plus verifier; that is a trial against our own review skill, not an adoption of this repo. should-i-use verdict: Ignore (2026-11-21).",
       "alternative": "Watch the matching video for ideas only. For the specialist-reviewer idea, run a trial of a split review inside /ai:review in a real app before building anything."
+    },
+    {
+      "name": "emilkowalski-skills",
+      "pinned_sha": "64eb3deb9a5fbfa041faf783e0bc3fd635872e9c",
+      "reason": "MIT, markdown-only, 20 skills at HEAD (13 when added 2026-09-15). Added as a companion on a gap-check without a measured trial. Removed 2026-11-21. Confirmed: 1 Skill call in 2 months (usage.jsonl), 0 in emeq-hub where 5 skills were installed. Confirmed: emeq-app retired, and emeq-reui's ReUI rule forbids retiming/restyling shipped components, which is the main action of improve-animations. Untested: output quality, because the trial in emeq-reui was blocked by auto mode. Also note: animate-expo duplicates the installed expo:expo-animation plugin. should-i-use verdict: Ignore (no consuming repo has the pain).",
+      "alternative": "If an app with heavy custom motion appears, run one trial there first: `npx skills@latest add emilkowalski/skills -a claude-code -y -s improve-animations` in a worktree, judge score before and after."
     }
   ],
   "reversed": [
@@ -376,6 +382,15 @@
       "now": "Merge every upstream release; only the listed skips stay excluded (2026-11-20)",
       "reason": "User decision 2026-11-20: ai-kit is built on mattpocock/skills, so upstream releases are merged (use, port, improve), not ignored. Distilled skills stay divergent.",
       "pinned_sha": "abeeaf95660ba9e8b7c753eb38f441ca707a8823",
+      "trial": "legacy, unmeasured"
+    },
+    {
+      "name": "emilkowalski-skills",
+      "was": "Wire. companions.json, animation + sonner tiers (2026-09-15)",
+      "now": "Ignore (2026-11-21)",
+      "reason": "Unused where it was installed: 0 uses in emeq-hub in 2 months, emeq-app is retired, and emeq-reui's ReUI rule forbids retiming shipped components, which is the main action of improve-animations.",
+      "consequence": "/ai:recommend-tools no longer detects, offers or installs it; the companion template is deleted. See the excluded entry above and VETTING.md.",
+      "pinned_sha": "64eb3deb9a5fbfa041faf783e0bc3fd635872e9c",
       "trial": "legacy, unmeasured"
     }
   ]
