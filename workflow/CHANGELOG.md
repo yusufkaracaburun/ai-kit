@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.24.2 — 2026-11-21
+
+### Added
+- The heavy-run wrapper now waits for the lock instead of refusing at once. It polls every 2 s for up to AI_KIT_HEAVY_WAIT seconds (default 600, 0 keeps the old refuse-at-once).
+
+### Changed
+- Roadmap: capture #302 as a deferred item.
+
 ## 2.24.1 — 2026-11-21
 
 ### Fixed
