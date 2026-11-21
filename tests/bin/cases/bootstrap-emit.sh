@@ -101,6 +101,13 @@ for FIELD in source_url source_license pinned_sha vendored_at; do
   assert "external rule has provenance: $FIELD" \
     'grep -q "^'"$FIELD"':" "$AIKIT/standards/rules/external/laravel-php-83.mini.md"'
 done
+assert "emit-rules: active-rules intro names no machine path" \
+  'grep -qxF "Canonical rules enabled for this project. Source of truth: the ai-kit \`standards/rules/*.mini.md\` files. Re-emit existing rules with \`/ai:upgrade\`; add rules with \`/ai:recommend-rules\`." "$EMIT_TMP/docs/agents/active-rules.md"'
+ROWS_BEFORE="$(grep "^| " "$EMIT_TMP/docs/agents/active-rules.md" | sed -n '3,$p' | cut -d'|' -f2)"
+MIDDLE_RULE="$(echo "$ROWS_BEFORE" | sed -n 2p | tr -d ' ')"
+"$AIKIT/bin/emit-rules.sh" "$EMIT_TMP" --rules "$MIDDLE_RULE" >/dev/null
+assert "emit-rules: re-emitting a middle rule keeps its row position" \
+  '[ "$(grep "^| " "$EMIT_TMP/docs/agents/active-rules.md" | sed -n "3,\$p" | cut -d"|" -f2)" = "$ROWS_BEFORE" ]'
 rm -rf "$EMIT_TMP"
 
 

@@ -17,16 +17,17 @@ emit_generic() {
   {
     echo "# Active rules"
     echo ""
-    echo "Canonical rules enabled for this project. Source of truth: \`~/.local/share/ai-kit/standards/rules/*.mini.md\`. Re-emit with \`bin/emit-rules.sh\`."
+    echo "Canonical rules enabled for this project. Source of truth: the ai-kit \`standards/rules/*.mini.md\` files. Re-emit existing rules with \`/ai:upgrade\`; add rules with \`/ai:recommend-rules\`."
     echo ""
     echo "<!-- ai-kit:active-rules:start -->"
     echo ""
     echo "| Rule | Mode | Description |"
     echo "| ---- | ---- | ----------- |"
 
-    # Preserve existing rows (other rules), then write/overwrite this rule's row.
+    # Keep existing row order: replace this rule's row in place, else append it.
+    local row="| ${rule_name} | ${mode} | ${description} |"
     if [ -f "$index" ]; then
-      awk -v skip="$rule_name" '
+      ROW="$row" awk -v skip="$rule_name" '
         /<!-- ai-kit:active-rules:start -->/ { in_block=1; next }
         /<!-- ai-kit:active-rules:end -->/ { in_block=0; next }
         in_block && /^\| / && $0 !~ /^\| Rule \|/ && $0 !~ /^\| -/ {
@@ -34,12 +35,13 @@ emit_generic() {
           # Extract rule name (column 1)
           n=split(line, parts, /[[:space:]]*\|[[:space:]]*/)
           name=parts[2]
-          if (name != skip) print line
+          if (name == skip) { print ENVIRON["ROW"]; found=1 } else print line
         }
+        END { if (!found) print ENVIRON["ROW"] }
       ' "$index"
+    else
+      echo "$row"
     fi
-
-    echo "| ${rule_name} | ${mode} | ${description} |"
     echo ""
     echo "<!-- ai-kit:active-rules:end -->"
   } > "$tmp"

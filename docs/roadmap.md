@@ -7,7 +7,7 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-11-21 against 116 open issues (#300 row added; #186 and #299 rows removed; #298 and #299 rows added; #285 closed by v2.21.1 and removed; #289-#297 rows added; #275 and #288 done 2026-11-16, closed by the heavy-run lock slice; #276-#283 done, #283 with this reconcile; #199, #258-#262 and #267 closed and removed; #270 closed by #280; #216 partly done in v2.19.0; rows added for #264, #284, #286, #287; #257, #263 and #264 labelled P3, P1 and P3 to match their sections; earlier reconciliation notes live in [roadmap-archive.md](roadmap-archive.md#reconciliation-notes))._
+_Last reconciled: 2026-11-21 against 115 open issues (#300 row removed; #186 and #299 rows removed; #298 and #299 rows added; #285 closed by v2.21.1 and removed; #289-#297 rows added; #275 and #288 done 2026-11-16, closed by the heavy-run lock slice; #276-#283 done, #283 with this reconcile; #199, #258-#262 and #267 closed and removed; #270 closed by #280; #216 partly done in v2.19.0; rows added for #264, #284, #286, #287; #257, #263 and #264 labelled P3, P1 and P3 to match their sections; earlier reconciliation notes live in [roadmap-archive.md](roadmap-archive.md#reconciliation-notes))._
 
 ## P1 — broken in the wild
 
@@ -157,7 +157,6 @@ _Last reconciled: 2026-11-21 against 116 open issues (#300 row added; #186 and #
 - **#248** `bug` — `bin/release.sh` ignores a `## Unreleased` CHANGELOG section: it prepends the new version and leaves Unreleased, duplicating lines. Fold Unreleased into the new version heading, with a fixture test. 2026-10-26.
 - **#271** `enhancement` — lead-guard denies `ai-kit-claim.sh set role=build` from the main thread unless the latest user prompt asks for it (UserPromptSubmit marker). 37 self-switches in 26 sessions. 2026-10-30.
 - **#298** `enhancement` — git-hygiene: cut worktree branches from `origin/<main>` after `git fetch`, never from local `<main>`; a naschool worktree inherited 5 unpushed commits and PR #436 mislabelled them. Rule edit in `standards/rules/git-hygiene.mini.md` plus the session-coordination worktree bullet. 2026-11-20.
-- **#300** `enhancement` — should-i-use: no positive verdict without a measured trial. Dedupe check first, mandatory Trial block, "Adopt and delete ours", a ledger suite test that fails on positive records without trial fields (existing ones marked `legacy, unmeasured`), a 14-day re-measure Defer issue per Adopt, trial budget of one task and one agent run. Grilled 2026-11-21. 2026-11-21.
 
 ## P3 — backlog
 

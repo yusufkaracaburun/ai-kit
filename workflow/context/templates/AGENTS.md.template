@@ -2,7 +2,7 @@
 
 This project uses the ai-kit workflow (Claude Code + Cursor).
 
-**Context budget**: lean on `CONTEXT.md` and `docs/adr/` as cached truth — don't re-derive what's already documented. For wide codebase sweeps, delegate to a sub-agent (`Explore`, `Plan`) so raw output stays out of the main conversation. Full rule: `docs/agents/active-rules.md` → `context-discipline` (canonical source: `~/.local/share/ai-kit/standards/rules/context-discipline.mini.md`).
+**Context budget**: lean on `CONTEXT.md` and `docs/adr/` as cached truth — don't re-derive what's already documented. For wide codebase sweeps, delegate to a sub-agent (`Explore`, `Plan`) so raw output stays out of the main conversation. Full rule: `docs/agents/active-rules.md` → `context-discipline` (canonical source: the ai-kit `standards/rules/context-discipline.mini.md` file).
 
 ## Agile lifecycle
 
@@ -67,7 +67,7 @@ Run relevant tests before claiming work complete. Derive commands from repo scri
 
 ## Standards
 
-Canonical book-derived rules live in `~/.local/share/ai-kit/standards/rules/*.mini.md`. Emitted per detected agent during `/setup` (or via `bin/emit-rules.sh`). The current active set for this project is listed in `docs/agents/active-rules.md`. Refine with `/recommend-rules` (project-aware scoring + optional web-search for stack-specific community rules).
+Canonical book-derived rules live in the ai-kit `standards/rules/*.mini.md` files. Emitted per detected agent during `/setup`. Re-emit existing rules with `/ai:upgrade`; add rules with `/ai:recommend-rules`. The current active set for this project is listed in `docs/agents/active-rules.md`. Refine with `/recommend-rules` (project-aware scoring + optional web-search for stack-specific community rules).
 
 ## Where facts live
 
@@ -76,4 +76,4 @@ Canonical book-derived rules live in `~/.local/share/ai-kit/standards/rules/*.mi
 - Agent config → `AGENTS.md`, `docs/agents/`
 - Setup state → `.ai-kit-setup`
 - Active rules → `docs/agents/active-rules.md`
-- Canonical book rules → `~/.local/share/ai-kit/standards/rules/`
+- Canonical book rules → the ai-kit `standards/rules/*.mini.md` files
