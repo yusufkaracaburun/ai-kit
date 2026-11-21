@@ -2,12 +2,10 @@
 
 ## Status
 
-**Rejected** (2026-07-09)
-
-Premise revisited in [ADR-0019](0019-multi-host-cursor-copilot.md) (proposed 2026-10-25): Copilot shipped Agent Skills on 2025-12-18.
+**Rejected** (2026-07-09). Superseded by [ADR-0019](0019-multi-host-cursor-copilot.md) (2026-11-21).
 
 Proposed as an amendment to [ADR-0006](0006-scope-claude-code-cursor-only.md),
-then rejected the same day. ADR-0006 stands unchanged: ai-kit targets **Claude
+then rejected the same day. ADR-0006 stood unchanged at the time: ai-kit targets **Claude
 Code and Cursor** only.
 
 Kept as a record so the question is not re-derived. The investigation below is

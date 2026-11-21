@@ -2,7 +2,9 @@
 
 ## Status
 
-Proposed (2026-10-25)
+Accepted (2026-11-21)
+
+v2.11.0 (1a8a90d) shipped global skills for Cursor and Copilot; Copilot support is not claimed in user docs until #232 and a live run.
 
 Supersedes [ADR-0006](0006-scope-claude-code-cursor-only.md) and
 [ADR-0010](0010-add-github-copilot-as-rules-only-host.md). Tracked in #229.

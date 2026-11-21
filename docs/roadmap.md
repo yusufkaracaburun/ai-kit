@@ -7,7 +7,7 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-11-21 against 117 open issues (#298 and #299 rows added; #285 closed by v2.21.1 and removed; #289-#297 rows added; #275 and #288 done 2026-11-16, closed by the heavy-run lock slice; #276-#283 done, #283 with this reconcile; #199, #258-#262 and #267 closed and removed; #270 closed by #280; #216 partly done in v2.19.0; rows added for #264, #284, #286, #287; #257, #263 and #264 labelled P3, P1 and P3 to match their sections; earlier reconciliation notes live in [roadmap-archive.md](roadmap-archive.md#reconciliation-notes))._
+_Last reconciled: 2026-11-21 against 115 open issues (#186 and #299 rows removed; #298 and #299 rows added; #285 closed by v2.21.1 and removed; #289-#297 rows added; #275 and #288 done 2026-11-16, closed by the heavy-run lock slice; #276-#283 done, #283 with this reconcile; #199, #258-#262 and #267 closed and removed; #270 closed by #280; #216 partly done in v2.19.0; rows added for #264, #284, #286, #287; #257, #263 and #264 labelled P3, P1 and P3 to match their sections; earlier reconciliation notes live in [roadmap-archive.md](roadmap-archive.md#reconciliation-notes))._
 
 ## P1 — broken in the wild
 
@@ -140,7 +140,7 @@ _Last reconciled: 2026-11-21 against 117 open issues (#298 and #299 rows added; 
 - **#215** `enhancement` — PreToolUse hook on SendMessage to block acks and cap message rate (1,767 calls in 10 days, still 170 to 230 per day after the 2026-10-10 rule). Deferred: needs a grill on block criteria, and v2.6.0 measured first (around 2026-10-18). 2026-10-14.
 - **#216** `enhancement` — `model:` frontmatter on read-only agents (ai:explore, ai:qa-runner); 827 of 1,362 spawns had no model and ran on Opus. Partly done in v2.19.0: explore and qa-runner pin Sonnet (#280). Open: the before/after quality check on real explore tasks. 2026-10-14.
 - **#218** `enhancement` — to-prd Defer mode expects a `## What's next` heading; this roadmap uses `## P1`/`## P2`/`## P3`, so the #213 to #216 capture stalled. Append to the section matching the priority label instead. Deferred: batch with the v2.7.0 skill changes and test on a downstream roadmap. 2026-10-14.
-- **#229** `enhancement` — **Multi-host: Cursor and GitHub Copilot**, the PRD for running ai-kit on client machines that have only Cursor or only Copilot, and on the own laptop alongside the Claude Code plugin. ADR-0019 (proposed) supersedes 0006 and 0010. 2026-10-25.
+- **#229** `enhancement` — **Multi-host: Cursor and GitHub Copilot**, the PRD for running ai-kit on client machines that have only Cursor or only Copilot, and on the own laptop alongside the Claude Code plugin. ADR-0019 (accepted) supersedes 0006 and 0010. 2026-10-25.
 - **#230** `enhancement` — Live check of four Cursor and Copilot behaviours before building, slice of #229. Checks 2 and 3 done 2026-10-27; checks 1 and 4 (Cursor) open. 2026-10-25.
 - **#232** `enhancement` — Convert the 11 plugin-root commands to skills that find the root via ~/.config/ai-kit/root, slice of #229. 2026-10-25.
 - **#233** `enhancement` — Fallbacks for autonomous, setup and docs-sync on hosts without subagents or AskUserQuestion, slice of #229. 2026-10-25.
@@ -152,12 +152,11 @@ _Last reconciled: 2026-11-21 against 117 open issues (#298 and #299 rows added; 
 - **#239** `enhancement` — /ai:setup asks local-only or committed per client repo, slice of #229. 2026-10-25.
 - **#240** `enhancement` — Host-neutral fallbacks and skill names in the 12 degrading skills, slice of #229. 2026-10-25.
 - **#241** `enhancement` — Opt-in `--with-hooks` adapter for Cursor and Copilot, slice of #229. 2026-10-25.
-- **#242** `enhancement` — Accept ADR-0019 and sweep the two-host wording, slice of #229. 2026-10-25.
+- **#242** `enhancement` — Accept ADR-0019 and sweep the two-host wording, slice of #229 (ADR accepted 2026-11-21; wording sweep waits on #232 and a live Copilot run). 2026-10-25.
 - **#247** `bug` — tests: the docs-sync case in `tests/bin/run-all.sh` fails on machine git state (a local branch with no commits of its own such as `epic/multi-host` counts as merged); the fixture run must ignore the host repo's branches. 2026-10-26.
 - **#248** `bug` — `bin/release.sh` ignores a `## Unreleased` CHANGELOG section: it prepends the new version and leaves Unreleased, duplicating lines. Fold Unreleased into the new version heading, with a fixture test. 2026-10-26.
 - **#271** `enhancement` — lead-guard denies `ai-kit-claim.sh set role=build` from the main thread unless the latest user prompt asks for it (UserPromptSubmit marker). 37 self-switches in 26 sessions. 2026-10-30.
 - **#298** `enhancement` — git-hygiene: cut worktree branches from `origin/<main>` after `git fetch`, never from local `<main>`; a naschool worktree inherited 5 unpushed commits and PR #436 mislabelled them. Rule edit in `standards/rules/git-hygiene.mini.md` plus the session-coordination worktree bullet. 2026-11-20.
-- **#299** `enhancement` — ADR status lines lag what shipped: ADR-0019 still Proposed and ADR-0006 still "stands" after v2.11.0 linked skills for Copilot, ADR-0012 phase status unchecked. Status lines only; overlaps #242 for 0019. 2026-11-21.
 
 ## P3 — backlog
 
@@ -184,9 +183,6 @@ _Last reconciled: 2026-11-21 against 117 open issues (#298 and #299 rows added; 
 - **#223** `enhancement` — quarterly idea-source check: distilled sources (mattpocock/skills, gstack, superpowers) have no drift signal. Due on or after 2027-01-15; adopt as pattern, never resync; drop the cadence if it yields 2 ideas or fewer. 2026-10-17.
 - **#210** `bug` — ai-kit's own `.claude/hooks/` copies are ungated and drifted since #205; commit a marker and drop the copies so the kit's own sessions run the plugin hooks. 2026-10-10.
 - **#211** `enhancement` — `/ai:upgrade` sweeps the legacy graphify-only inline nudge (`graphify-out/graph.json` command) from settings.json, same loop as the hook copies. 2026-10-10.
-- **#186** `enhancement` — catalog prune: `audit-architecture-*` out of the skill index,
-  23 logging blocks stripped, `zoom-out` deleted, `grill-with-docs` into `grill-me`,
-  skill+command doubles collapsed, `setup` 2c/2e by reference. Audit 2026-09-19.
 - **#187** `bug` — `gh` auth/network failures read as "no board" / "protection off" in
   `setup-gh-workflow.sh:216,250` and `doctor:490`; `bootstrap-project.sh:113` copies
   templates from an unchecked `TPL`. Audit 2026-09-19.

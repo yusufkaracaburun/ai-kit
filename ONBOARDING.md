@@ -108,6 +108,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the full checklist.
   + Laravel Boost handling in `/ai:setup`.
 - [ADR-0006](docs/adr/0006-scope-claude-code-cursor-only.md) — drop
   Aider/Cline/Continue/Cody emitters; Claude Code + Cursor only.
+  Superseded: ADR-0019.
 
 Read these before proposing structural changes.
 
