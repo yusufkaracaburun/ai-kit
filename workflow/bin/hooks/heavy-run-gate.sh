@@ -21,9 +21,10 @@ cmd="$(jq -r '.tool_input.command // empty' <<<"$payload" 2>/dev/null)"
 [ -z "$cmd" ] && exit 0
 
 # Quoted text keeps its separators and spaces masked, so a commit message
-# naming `pnpm test` is never a segment of its own.
+# naming `pnpm test` is never a segment of its own. A backslash escapes the
+# next char outside single quotes, as in bash.
 command -v perl >/dev/null 2>&1 || exit 0
-masked="$(perl -0777 -pe 's/("[^"]*"|\x27[^\x27]*\x27)/my $q = $1; $q =~ tr{;&|()\n \t}{\x01-\x08}; $q/ge' <<<"$cmd")"
+masked="$(perl -0777 -pe 's/("(?:[^"\\]|\\.)*"|\x27[^\x27]*\x27|\\.)/my $q = $1; $q =~ tr{;&|()\n \t}{\x01-\x08}; $q/gse' <<<"$cmd")"
 
 prefix_re='^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*|timeout([[:space:]]+[0-9]+[smh]?)?|time|env|command|nice|exec|sudo|npx|bunx|pnpx|\{|!|then|do)[[:space:]]+(.*)$'
 # Flags before `test` (pnpm --filter web, npm --prefix app) pick the package, not the tests.

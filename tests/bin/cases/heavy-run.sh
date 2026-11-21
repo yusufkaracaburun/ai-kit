@@ -100,12 +100,20 @@ done
 OUT=$(fire "FOO=1 pnpm test 2>&1 | tail -3")
 assert "deny keeps env assignments in front of the wrapper" \
   'grep -qF "Rerun as: FOO=1 $WRAP pnpm test 2>&1 | tail -3" <<<"$OUT"'
+ESCAPED_QUOTE_LOAD_CHECK=$(cat <<'EOF'
+grep -rE "operations\[ *[\"'\`][A-Za-z.]+_[0-9]+" src | grep -v types/api.d.ts; echo "criterion1 exit=$?"; ps -Ao args | grep -E 'pes[t]|paratest|phpunit|playwright|patrol|maestro|xcodebuild|gradle' | grep -v grep; echo "load-check done"
+EOF
+)
+OUT=$(fire 'echo "a\"b'"'"'c"; pnpm test')
+assert "deny after an escaped quote inside double quotes" \
+  'grep -qF "Rerun as: echo \"a\\\"b'"'"'c\"; $WRAP pnpm test" <<<"$OUT"'
 for c in "$WRAP pnpm test" "cd app && $WRAP composer test" "$WRAP vendor/bin/pest" \
   "vendor/bin/pest --filter Foo" "vendor/bin/pest --filter=Foo" "pnpm vitest run src/a.test.ts" \
   "pnpm test -t name" "vendor/bin/pest tests/Feature/FooTest.php" "npx playwright test e2e/login.spec.ts" \
   "pnpm --filter web test --filter Foo" "npx playwright install" "npx playwright install --with-deps chromium" \
   "npx playwright show-report" "npx playwright codegen" "vitest --version" "xcodebuild -version" \
-  "xcodebuild -workspace App.xcworkspace -list" "xcodebuild -list" "git status" "ls" "git commit -m 'run pnpm test; then jest'" "grep -r vitest package.json" "pnpm test:unit"; do
+  "xcodebuild -workspace App.xcworkspace -list" "xcodebuild -list" "git status" "ls" "git commit -m 'run pnpm test; then jest'" "grep -r vitest package.json" "pnpm test:unit" \
+  'git commit -m "run pnpm test"' "$ESCAPED_QUOTE_LOAD_CHECK"; do
   OUT=$(fire "$c")
   assert "allow: $c" '[ -z "$OUT" ]'
 done
