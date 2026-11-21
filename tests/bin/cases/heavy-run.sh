@@ -32,14 +32,41 @@ mkdir -p "$LOCK"
 printf '%s\n%s\n%s\n' "$$" otherrepo "pnpm test" >"$LOCK/holder"
 rm -f "$TMP/ran"
 set +e
-OUT=$(bash "$WRAP" touch "$TMP/ran" 2>&1)
+START=$SECONDS
+OUT=$(AI_KIT_HEAVY_WAIT=0 bash "$WRAP" touch "$TMP/ran" 2>&1)
 RC=$?
 set -e
-assert "live holder: exit 75" '[ "$RC" -eq 75 ]'
+assert "live holder, AI_KIT_HEAVY_WAIT=0: exit 75 at once" '[ "$RC" -eq 75 ] && [ $((SECONDS - START)) -lt 2 ]'
 assert "live holder: message names repo, command and pid" \
   'grep -q otherrepo <<<"$OUT" && grep -q "pnpm test" <<<"$OUT" && grep -q "$$" <<<"$OUT"'
 assert "live holder: command not run" '[ ! -e "$TMP/ran" ]'
 assert "live holder: lock left in place" '[ -f "$LOCK/holder" ]'
+
+set +e
+START=$SECONDS
+OUT=$(AI_KIT_HEAVY_WAIT=1 bash "$WRAP" touch "$TMP/ran" 2>&1)
+RC=$?
+set -e
+assert "live holder past the wait limit: exit 75 after waiting" '[ "$RC" -eq 75 ] && [ $((SECONDS - START)) -ge 1 ]'
+assert "live holder past the wait limit: waiting line and refusal name the holder" \
+  'grep -q "waiting" <<<"$OUT" && grep -q "not started" <<<"$OUT" && grep -q otherrepo <<<"$OUT"'
+assert "live holder past the wait limit: command not run" '[ ! -e "$TMP/ran" ]'
+
+sleep 2 &
+SHORT=$!
+printf '%s\n%s\n%s\n' "$SHORT" otherrepo "pnpm test" >"$LOCK/holder"
+set +e
+OUT=$(AI_KIT_HEAVY_WAIT=10 bash "$WRAP" bash -c 'touch "$1"; exit 4' _ "$TMP/ran" 2>&1)
+RC=$?
+set -e
+wait "$SHORT" || true
+assert "holder exits within the limit: wrapper waits, runs, returns the command's exit" \
+  '[ "$RC" -eq 4 ] && [ -f "$TMP/ran" ] && [ ! -e "$LOCK" ]'
+assert "holder exits within the limit: one waiting line names the holder" \
+  '[ "$(grep -c "waiting" <<<"$OUT")" -eq 1 ] && grep -q "pid $SHORT" <<<"$OUT"'
+rm -f "$TMP/ran"
+mkdir -p "$LOCK"
+printf '%s\n%s\n%s\n' "$$" otherrepo "pnpm test" >"$LOCK/holder"
 
 true &
 DEAD=$!
@@ -54,7 +81,7 @@ assert "dead holder: lock taken and command run" '[ "$RC" -eq 0 ] && [ -f "$TMP/
 mkdir -p "$LOCK"
 rm -f "$TMP/ran"
 set +e
-bash "$WRAP" touch "$TMP/ran" 2>/dev/null
+AI_KIT_HEAVY_WAIT=0 bash "$WRAP" touch "$TMP/ran" 2>/dev/null
 RC=$?
 set -e
 assert "fresh lock dir without holder file counts as held" '[ "$RC" -eq 75 ] && [ ! -e "$TMP/ran" ] && [ -d "$LOCK" ]'
@@ -66,7 +93,7 @@ assert "stale takeover leaves no .stale dir behind" '[ -z "$(ls -d "$LOCK".stale
 mkdir -p "$LOCK"
 echo "$$" >"$LOCK/holder"
 set +e
-OUT=$(bash "$WRAP" true 2>&1)
+OUT=$(AI_KIT_HEAVY_WAIT=0 bash "$WRAP" true 2>&1)
 set -e
 assert "holder with only a pid still names it" 'grep -q "pid $$" <<<"$OUT"'
 rm -rf "$LOCK"
