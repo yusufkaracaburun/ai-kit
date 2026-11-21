@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.23.0 — 2026-11-21
+
+### Changed
+
+- `/ai:audit-architecture-<stack>` (laravel, react, shadcn, typescript) is no longer a skill. The extensions moved out of the skill index, and `/ai:audit-architecture` loads the matching extension itself. The `docs-sync` and `next` command doubles are removed.
+- Plugin hooks run from `bin/hooks` directly; the copy is dropped.
+- ADR-0019 (multi-host Cursor and Copilot) is Accepted and supersedes ADR-0006 and ADR-0010. Copilot support stays unclaimed in user docs until #232 and a live run.
+- Quality score recorded at 79 (docs/score.md).
+
 ## 2.22.0 — 2026-11-16
 
 ### Added
