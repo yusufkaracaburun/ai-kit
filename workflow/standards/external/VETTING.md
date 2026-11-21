@@ -184,12 +184,19 @@ matching row in this file's [Audit log](#audit-log) below. Format:
   DATA-LOCALITY:    local|self-host|vendor:<region>|opaque
   PROVENANCE:       <sha>|n/a (built-in)
   SECURITY-SCAN:    pass|fail|n/a (<note>)
-  VERDICT:          ADD|REJECT|REVISIT (<reason>)
+  TRIAL:            repo=<repo> task=<task> metric=<metric> baseline=<value>
+                    result=<value> date=<YYYY-MM-DD> re-measure=<YYYY-MM-DD>
+  VERDICT:          ADD|VENDOR|REJECT|REVISIT (<reason>)
 ```
 
 Rows audited before criterion #8 landed (2026-06-26) carry
 `SECURITY-SCAN: not-run (pre-#8)` until the next annual re-walk — they are not
 retroactively rewritten, only re-scanned on cadence.
+
+An `ADD` or `VENDOR` row needs a filled `TRIAL` line (the should-i-use Trial
+block); Wire and both Adopt verdicts record as ADD, Vendor as VENDOR. Rows added before 2026-11-21 carry `TRIAL: legacy, unmeasured` and are
+not re-tested; `tests/bin/cases/vetting-trial.sh` fails any other positive row
+without the seven trial fields.
 
 `n/a` is allowed only where a criterion does not apply (e.g., a built-in
 formatter recipe with no upstream repo to pin — `PROVENANCE: n/a`).
@@ -231,6 +238,7 @@ mcp-servers.json batch · category=mixed · added 2026-05-23
   MATURITY:         pass (each recommended server is a published MCP package; floor enforced by Anthropic-curated source)
   DATA-LOCALITY:    varies per recommended server — disclosed at install time, not at table level
   PROVENANCE:       3449c10cd1f254c2529a4a7e96a094ef118a00a5
+  TRIAL:            legacy, unmeasured
   VERDICT:          ADD (already landed, retroactively approved)
 ```
 
@@ -255,6 +263,7 @@ hooks-patterns.json batch · category=mixed · added 2026-05-23
   MATURITY:         pass (single-purpose, fast, non-blocking matchers; floor met)
   DATA-LOCALITY:    n/a (hooks run locally on user machine, no data leaves)
   PROVENANCE:       3449c10cd1f254c2529a4a7e96a094ef118a00a5
+  TRIAL:            legacy, unmeasured
   VERDICT:          ADD (already landed, retroactively approved)
 ```
 
@@ -312,6 +321,7 @@ standards/rules/external/laravel-php-83.mini.md · category=rule · added 2026-0
   MATURITY:         pass (curated awesome-list, widely referenced)
   DATA-LOCALITY:    n/a (markdown file, no runtime)
   PROVENANCE:       4467ad4 (PatrickJS/awesome-cursorrules)
+  TRIAL:            legacy, unmeasured
   VERDICT:          ADD (already landed, retroactively approved)
 ```
 
@@ -359,6 +369,7 @@ diagram-design · category=diagrams · added 2026-08-23
                     network). Second data point after copywriter (2026-08-19)
                     that static skillspector is noise on prose/SVG-heavy
                     skills — reinforces the #111 re-scope.
+  TRIAL:            legacy, unmeasured
   VERDICT:          ADD (signal-gated: content:```mermaid)
 ```
 
@@ -426,6 +437,7 @@ skillui · category=design-extraction · added 2026-09-14
                     `execSync("npm root -g")` from a bundled dependency; no
                     `eval(`; no `process.env.*_KEY`/`*_TOKEN`/`*_SECRET` reads;
                     `--repo` goes through `simple-git` (reputable, argv-based).
+  TRIAL:            legacy, unmeasured
   VERDICT:          ADD, with caveats (owner-approved after the two fails were
                     surfaced: MARKETING-PARITY/-AUDIT and LICENSE do not clear
                     the "must pass all eight" bar as written). Disclosed
@@ -488,6 +500,7 @@ scrapling · category=web-fetch · added 2026-09-14
                     blocklist noted above. `.bandit.yml` skip list is narrow
                     and each entry justified inline (e.g. B113 skip scoped to
                     "benchmark and examples scripts only").
+  TRIAL:            legacy, unmeasured
   VERDICT:          ADD (companions.json, category web-fetch). Clean pass on
                     all eight — no caveats to disclose, unlike skillui.
                     Project-judgement-gated like graphify/llm-wiki, not
@@ -562,6 +575,7 @@ copywriter · category=content · vendored 2026-08-19
                     AGENTS.md; 1x "Scope Creep" matched the MIT warranty
                     disclaimer boilerplate; 1x LP3 wants an MCP `permissions`
                     field that Claude Code skills do not have. No real risk.
+  TRIAL:            legacy, unmeasured
   VERDICT:          VENDOR
 ```
 
@@ -630,6 +644,7 @@ ponytail · category=code-discipline · added 2026-08-26
                     "without judgment" in a path-traversal benchmark result.
                     Hand-read of hooks/*.js: no network, no child_process, no
                     credential env reads — only own config + host-detection vars)
+  TRIAL:            legacy, unmeasured
   VERDICT:          ADD (companions.json universal + plugins.json recommendation)
 ```
 
@@ -682,6 +697,7 @@ web-quality-skills · category=quality · added 2026-08-27
                     body bears it out — grep/find/jq only, no eval, no network,
                     no writes, output bounded by MAX_FINDINGS=100 and a
                     per-category-per-file cap
+  TRIAL:            legacy, unmeasured
   VERDICT:          ADD (signals mirror frontend-design: frontend architectures
                     + the 8 JS frameworks. Known limitation: server-rendered
                     stacks without a JS framework — Laravel Blade, Rails ERB —
@@ -779,6 +795,7 @@ ui-ux-pro-max · category=design · added 2026-08-29
                     `pytest==7.4.0` pinned in test fixtures with a flagged
                     CVE-2025-71176 (tmpdir handling) — dev/test-only dependency,
                     not shipped to the agent at skill-invocation time)
+  TRIAL:            legacy, unmeasured
   VERDICT:          ADD (companions.json design category; plugins.json entry
                     pre-dates this session and is unchanged). Revisit the two
                     shell-string spots if `/ai:should-i-use` or a re-audit
@@ -854,6 +871,7 @@ inspo-mcp · category=design-reference · added 2026-09-15
                     (marketing-parity + SSRF review) covered the parts of the
                     codebase relevant to trust anyway, in more depth than a
                     static scanner would have.
+  TRIAL:            legacy, unmeasured
   VERDICT:          ADD (companions.json design-reference category). Clean
                     pass on all eight — better-engineered than several
                     existing catalog entries (real SSRF hardening with a
@@ -926,6 +944,7 @@ emilkowalski-skills · category=animation · added 2026-09-15
                     Nothing to scan under criterion #8's scope; the installer
                     CLI is the only executable surface and is third-party
                     infra already in use, not vendored here.
+  TRIAL:            legacy, unmeasured
   VERDICT:          ADD (companions.json, category `animation`, two
                     independently-gated tiers). Clean pass on all eight.
                     Wired subset only: `animate`, `review-animations`,
@@ -1035,6 +1054,7 @@ modern-web-guidance · category=web-platform · added 2026-09-19
                     not the Claude plugin path, and not used here.
                     `search.mjs` (852 KB) is the bundled tfjs + model
                     loader; no eval, no writes outside the npx cache
+  TRIAL:            legacy, unmeasured
   VERDICT:          ADD (signals mirror web-quality-skills: frontend +
                     the 8 JS frameworks; not universal). Two caveats carried
                     into the entry: export `DISABLE_TELEMETRY=1` first, and
@@ -1137,6 +1157,7 @@ app-store-screenshots · category=store-assets · added 2026-09-27
                     SKILL.md copies the template into `$PWD` and runs
                     `bun install`/`bun dev`, which is why the entry says
                     sibling folder only
+  TRIAL:            legacy, unmeasured
   VERDICT:          ADD (companions.json, mobile-gated: `ios/` and
                     `android/`, or a Flutter `pubspec.yaml` plus one of
                     them. Risk carried into the entry: local dev server
@@ -1170,6 +1191,7 @@ openseo · category=seo · added 2026-10-20
   SECURITY-SCAN:    not run (no code vendored or executed by ai-kit). The
                     official plugin's `plugins/openseo/.mcp.json` registers
                     one http MCP at `https://app.openseo.so/mcp`
+  TRIAL:            legacy, unmeasured
   VERDICT:          ADD (companions.json, auto_install false. ai-kit ships no
                     MCP URL, OAuth config or skill copies, only an AGENTS.md
                     pointer. Risks carried into the entry: research spends

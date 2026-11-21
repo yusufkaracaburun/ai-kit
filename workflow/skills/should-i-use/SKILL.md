@@ -1,6 +1,6 @@
 ---
 name: should-i-use
-description: Assess whether a tool, library, repo, URL, article, pasted text, or image is worth adopting in the current project. Produces a structured verdict — vendor, wire, adopt-as-pattern, or ignore — with status check, value, cohesion impact, and a recommendation. Use when the user shares a tool / repo / link / screenshot and asks "should I use this", "beoordeel dit", "wat vind je hiervan", "is dit iets voor ons", or whether something belongs in the project.
+description: Assess whether a tool, library, repo, URL, article, pasted text, or image is worth adopting in the current project. Produces a structured verdict — vendor, wire, adopt-as-pattern, adopt and delete ours, trial, or ignore — with status check, value, cohesion impact, and a recommendation. Use when the user shares a tool / repo / link / screenshot and asks "should I use this", "beoordeel dit", "wat vind je hiervan", "is dit iets voor ons", or whether something belongs in the project.
 ---
 
 # should-i-use
@@ -36,6 +36,10 @@ never guess what it is.
 companion ("apply the X skill", "requires Y"), you were handed a system and
 shown one piece. Ask for the rest before judging: a verdict on half a system is
 a verdict on the wrong thing.
+
+**Run the dedupe ecosystem check first** (`/ai:dedupe`, Surface 5), before any
+verdict, and report what it found. If the kit or an installed plugin already
+covers the candidate's area, say so and name it.
 
 ## Two tracks — check both when the candidate is tooling-shaped
 
@@ -121,28 +125,22 @@ the tooling already in place (`package.json`, configs, `AGENTS.md` /
 `CLAUDE.md`, installed skills). A candidate that fits a 300-file brownfield
 repo can be pure noise in a 5-file greenfield one.
 
-**Test the claim, don't just argue about it.** The same discipline applies to
-objections as to value: a blocker stated as prose ("this could collide with
-X", "this might read files lossily") is a hypothesis, not a finding, right up
-until you run it. When the Decision hinges on something checkable — a
-default flag's actual behaviour, whether two hooks coexist, a compression
-ratio, a licence clause's real scope, a claimed benchmark — run it before
-writing Ignore or Wire, not instead of reading the docs. Prefer the cheapest
-real test: download the artifact directly and run it against the exact input
-in question, grep the shipped defaults instead of trusting the README's
-summary table, feed a hook script the exact stdin/stdout contract by hand.
-Downloading and running an unpinned upstream binary/script is exactly the
-kind of side effect Track B's cost question (4) must price in — verify its
-checksum against the release manifest first, run it in a scratch dir, and
-uninstall/remove what the test installed once you have the answer.
+**Trial before a positive verdict.** A trial is one real task in the
+consuming repo, in a worktree there, with one metric chosen before the run,
+compared against today's way. README text, vendor benchmarks and "looks like
+X" are not evidence. The same goes for objections: "this could collide with
+X" is a hypothesis until you run it. Verify a downloaded binary's checksum
+first, run it in a scratch dir, and remove what the trial installed.
 
-If a test is genuinely blocked — a sandbox self-modification guard, no
-second live session to fire a hook in, infra you don't have — say so
-explicitly and mark that objection **Untested**, not Confirmed. Presenting a
-blocked test as a settled reason to Ignore is worse than not testing at all,
-because it reads as verified when it never ran. Hand the user the smallest
-possible repro they could run themselves in the environment where the test
-*is* possible (exact commands, exact expected signal to look for).
+**Budget.** One real task and one agent run (builder or designer) per trial,
+without asking. Anything above that (several runs, a paid API, a
+machine-wide install, a device or simulator) is not yours to spend: the
+verdict is **Trial** with a cost estimate, and the user decides.
+
+If a trial is blocked (a sandbox guard, infra you don't have), say so, mark
+the objection **Untested**, and hand the user the smallest repro they could
+run (exact commands, exact signal to look for). A blocked test is never a
+settled reason to Ignore.
 
 This applies as much to claims about **this project's own mechanisms** as to
 the candidate's. "X is redundant, we already do Y" is a testable claim about
@@ -181,8 +179,9 @@ Produce exactly these, as a compact structured block — tables over prose:
    Check overlap by **derivation**, not only by name. Two things with different
    names can be the same material: grep the candidate's most distinctive
    artefacts (its word lists, its examples, its rule numbering) against the
-   repo. A tool already inside under another name is the strongest Ignore there
-   is, and the easiest to miss.
+   repo. A proven copy (same source or a fork) already inside under another
+   name is an Ignore, and the easiest to miss. Anything that only overlaps
+   goes to a trial against ours.
 
    Name the **scope** the value hangs on:
 
@@ -209,7 +208,15 @@ Produce exactly these, as a compact structured block — tables over prose:
    | **Vendor** | Rare. Only if the thing is small, license-clean, and must live in-repo. Carries maintenance + drift cost. |
    | **Wire** | Install from upstream; the project keeps only integration glue. Default for real external tools. |
    | **Adopt as pattern** | It is an idea or template, not a package — reimplement it natively and credit the source. |
-   | **Ignore** | Wrong category, redundant with existing tooling, or value < cost. |
+   | **Adopt and delete ours** | It does what one of our own skills or scripts does, and the trial shows it is at least as good. Wire it, remove ours. |
+   | **Trial** | No trial yet, or one above budget. Give the plan: repo, task, metric, baseline, cost. |
+   | **Ignore** | Without a trial, only on hard facts: licence, abandoned, wrong platform, security, no named pain in the consuming repo (Track B q1), or a proven copy of something the kit already has (same source or a fork). A tool that only does something similar to ours, or "no added value", needs a trial; it can end in Adopt and delete ours. |
+
+   Vendor, Wire and both Adopt verdicts need a filled **Trial block**; without
+   one the verdict is Trial:
+
+   | repo | task | metric | baseline | result | date | re-measure date |
+   | ---- | ---- | ------ | -------- | ------ | ---- | --------------- |
 
 5. **Cohesion impact** — honest. More tools ≠ higher quality. A good tool in the
    wrong category *lowers* coherence. Flag scope-creep and accumulation.
@@ -233,7 +240,12 @@ finish, write it where this project keeps decisions, and say where you put it.
   it has one, and record the result. In ai-kit that is
   `standards/external/VETTING.md`, whose criteria include a licence check, a
   marketing-versus-code parity check, a maturity check, a pinned provenance
-  SHA, and a security scan.
+  SHA, and a security scan. The Trial block goes in the row's `TRIAL:` line;
+  the suite fails a positive row without it.
+- **Every Adopt** opens a `/ai:to-prd` Defer-mode issue dated 14 days out,
+  naming the usage metric: Skill calls from the `post-skill-log` hook, or the
+  tool's own log. At the re-measure, 0 uses means add a nudge (hook or skill
+  wiring) or reverse the verdict.
 - **Ignore** — record the reason next to the candidate's name, not just the
   verdict. Six months on, "we looked at this and said no" is worth nothing;
   "this is `unslop` under another name, already in two of our files" stops the
