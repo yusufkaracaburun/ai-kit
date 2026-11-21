@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.24.0 — 2026-11-21
+
+### Added
+- should-i-use gives no Vendor, Wire or Adopt verdict without a measured trial in the consuming repo. It runs /ai:dedupe first, adds the Trial and "Adopt and delete ours" verdicts, and limits Ignore to hard facts. A ledger test guards the VETTING.md and plugins-excluded.json records.
+
+### Fixed
+- Emitted rule files (active-rules.md, the AGENTS.md template and rule headers) no longer name `~/.local/share/ai-kit`. A re-emitted rule keeps its row position.
+
 ## 2.23.0 — 2026-11-21
 
 ### Changed
