@@ -7,6 +7,8 @@ SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_BIN/lib/ai-kit-root.sh"
 # shellcheck source=lib/setup-marker.sh
 source "$SCRIPT_BIN/lib/setup-marker.sh"
+# shellcheck source=lib/detect-lib.sh
+source "$SCRIPT_BIN/lib/detect-lib.sh"
 AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
 EXPECTED_VERSION="$(resolve_ai_kit_version "$AIKIT")"
 
@@ -59,7 +61,8 @@ DOCKER_BRANCH=""
 SECRETS_SCAN_BRANCH=""
 DOMAIN_DOCS_BRANCH=""
 DEV_ENV_BRANCH=""
-PROJECT_SKILLS_MERGED_RAW=""
+ISSUE_TRACKER_BRANCH=""
+PROJECT_SKILLS_MERGED=true
 SETUP_VALID=false
 MARKER_VERSION=""
 
@@ -74,12 +77,8 @@ if [ -f "$SETUP_FILE" ] && MARKER_VERSION="$(marker_get "$SETUP_FILE" ai_kit_ver
   SECRETS_SCAN_BRANCH="$(marker_get "$SETUP_FILE" branches.secrets_scan)"
   DOMAIN_DOCS_BRANCH="$(marker_get "$SETUP_FILE" branches.domain_docs)"
   DEV_ENV_BRANCH="$(marker_get "$SETUP_FILE" branches.dev_environment)"
-  # skip_skill_merge=true is the v1.79 retrofit of project_skills_merged=false
-  # (ADR-0012); a marker written between the two carries only the old field.
-  PROJECT_SKILLS_MERGED_RAW="$(marker_get "$SETUP_FILE" branches.project_skills_merged)"
-  if [ -z "$PROJECT_SKILLS_MERGED_RAW" ] && [ "$(marker_get "$SETUP_FILE" branches.skip_skill_merge)" = true ]; then
-    PROJECT_SKILLS_MERGED_RAW=false
-  fi
+  ISSUE_TRACKER_BRANCH="$(marker_get "$SETUP_FILE" branches.issue_tracker)"
+  PROJECT_SKILLS_MERGED="$(marker_project_skills_merged "$SETUP_FILE")"
 fi
 
 # Legacy mode aliases
@@ -88,19 +87,6 @@ case "$SETUP_MODE" in
   merge-skills | link-all) SETUP_MODE="solo-both" ;;
   parallel) SETUP_MODE="brownfield" ;;
 esac
-
-# ADR-0012 phase (d): prefer the explicit dual-written field once a marker
-# has it; fall back to deriving from setup_mode for markers written before
-# phase (c) — solo-global is the only legacy value that meant "skip the
-# project skills dirs", every other value (including no marker at all)
-# meant "merge them." Zero behavior change for every marker on disk today.
-if [ -n "$PROJECT_SKILLS_MERGED_RAW" ]; then
-  PROJECT_SKILLS_MERGED="$PROJECT_SKILLS_MERGED_RAW"
-elif [ "$SETUP_MODE" = "solo-global" ]; then
-  PROJECT_SKILLS_MERGED=false
-else
-  PROJECT_SKILLS_MERGED=true
-fi
 
 MINIMAL_TIER=false
 if [ "$FORCE_MINIMAL" = true ] || [ "$SETUP_TIER" = "minimal" ]; then
@@ -165,8 +151,11 @@ if [ "$DEV_ENV_BRANCH" != "false" ]; then
 fi
 
 if [ "$SETUP_MODE" = "brownfield" ]; then
-  check "agent-stack.md (brownfield)" \
-    "$(bool [ -f "$TARGET/docs/agents/agent-stack.md" ])"
+  detect_agent_stack "$TARGET" "$AIKIT"
+  if [ "$AGENT_STACK_NEEDS_DOC" = true ]; then
+    check "agent-stack.md (brownfield)" \
+      "$(bool [ -f "$TARGET/docs/agents/agent-stack.md" ])"
+  fi
 fi
 
 if [ "$MINIMAL_TIER" = false ]; then
@@ -174,7 +163,9 @@ if [ "$MINIMAL_TIER" = false ]; then
     check "docker.md (docker branch active)" "$(bool [ -f "$TARGET/docs/agents/docker.md" ])"
   fi
 
-  check "issue-tracker.md" "$(bool [ -f "$TARGET/docs/agents/issue-tracker.md" ])"
+  if [ "$ISSUE_TRACKER_BRANCH" != "skipped" ]; then
+    check "issue-tracker.md" "$(bool [ -f "$TARGET/docs/agents/issue-tracker.md" ])"
+  fi
   check "triage-labels.md" "$(bool [ -f "$TARGET/docs/agents/triage-labels.md" ])"
   # domain.md is written only by the domain_docs branch (bootstrap copies
   # workflow.md, never domain.md), so a skipped branch owes no file; an older

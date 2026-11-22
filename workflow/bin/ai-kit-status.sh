@@ -82,7 +82,9 @@ PY
   echo ""
 fi
 
-detect_bootstrap_state "$TARGET"
+SKILLS_MERGED=true
+[ -f "$MARKER" ] && SKILLS_MERGED="$(marker_project_skills_merged "$MARKER" 2>/dev/null || echo true)"
+detect_bootstrap_state "$TARGET" "$SKILLS_MERGED"
 echo "Bootstrap: $BOOTSTRAP_STATE"
 if [ "${#BOOTSTRAP_MISSING[@]}" -gt 0 ]; then
   echo "           missing: $(IFS=', '; echo "${BOOTSTRAP_MISSING[*]}")"

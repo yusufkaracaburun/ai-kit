@@ -26,4 +26,23 @@ assert "no dev-environment.md FAIL when dev_environment is false" '! grep -q "FA
 assert "still checks dev-environment.md when the key is absent" 'grep -q "FAIL: dev-environment.md" <<<"$OUT2"'
 rm -rf "$TMP3"
 
+echo "=== brownfield agent-stack.md is owed only when there is a stack to record ==="
+TMP4=$(mktemp -d)
+mkdir -p "$TMP4/home" "$TMP4/proj"
+printf '{\n  "ai_kit_version": "1.0.0",\n  "completed_at": "2026-01-01T00:00:00Z",\n  "branches": {"setup_mode": "brownfield", "setup_tier": "full"}\n}\n' > "$TMP4/proj/.ai-kit-setup"
+OUT4="$(HOME="$TMP4/home" bash "$AIKIT/bin/verify-setup.sh" "$TMP4/proj" 2>&1 || true)"
+assert "no agent-stack.md FAIL when every stack value is n/a" '! grep -q "FAIL: agent-stack.md" <<<"$OUT4"'
+mkdir -p "$TMP4/proj/.cursor/commands" && touch "$TMP4/proj/.cursor/commands/deploy.md"
+OUT4="$(HOME="$TMP4/home" bash "$AIKIT/bin/verify-setup.sh" "$TMP4/proj" 2>&1 || true)"
+assert "agent-stack.md still owed when a custom command exists" 'grep -q "FAIL: agent-stack.md" <<<"$OUT4"'
+rm -rf "$TMP4"
+
+echo "=== issue-tracker.md follows the tracker branch ==="
+TMP5=$(mktemp -d)
+printf '{\n  "ai_kit_version": "1.0.0",\n  "completed_at": "2026-01-01T00:00:00Z",\n  "branches": {"setup_mode": "solo-both", "setup_tier": "full", "issue_tracker": "skipped"}\n}\n' > "$TMP5/.ai-kit-setup"
+OUT5="$(bash "$AIKIT/bin/verify-setup.sh" "$TMP5" 2>&1 || true)"
+assert "no issue-tracker.md FAIL when the tracker branch was skipped" '! grep -q "FAIL: issue-tracker.md" <<<"$OUT5"'
+assert "still checks issue-tracker.md when the key is absent" 'grep -q "FAIL: issue-tracker.md" <<<"$OUT2"'
+rm -rf "$TMP5"
+
 print_summary_and_exit

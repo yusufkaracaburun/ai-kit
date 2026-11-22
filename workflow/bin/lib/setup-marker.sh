@@ -36,3 +36,26 @@ marker_hook_on() {
   [ -f "$1/.ai-kit-setup" ] &&
     [ "$(marker_get "$1/.ai-kit-setup" "branches.${2//-/_}_hook" "$3" 2>/dev/null)" = wired ]
 }
+
+# marker_project_skills_merged <marker>
+#   Prints true when the project carries its own skill dirs (ADR-0012).
+#   skip_skill_merge=true is the v1.79 retrofit of project_skills_merged=false;
+#   a marker without either field derives it from setup_mode, where only
+#   solo-global (legacy global-only) meant "skip the project skill dirs".
+marker_project_skills_merged() {
+  local raw mode
+  raw="$(marker_get "$1" branches.project_skills_merged)" || return 1
+  if [ -z "$raw" ] && [ "$(marker_get "$1" branches.skip_skill_merge)" = true ]; then
+    raw=false
+  fi
+  if [ -n "$raw" ]; then
+    echo "$raw"
+    return 0
+  fi
+  mode="$(marker_get "$1" branches.setup_mode)"
+  [ -n "$mode" ] || mode="$(marker_get "$1" branches.agent_stack)"
+  case "$mode" in
+    solo-global | global-only) echo false ;;
+    *) echo true ;;
+  esac
+}

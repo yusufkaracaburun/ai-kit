@@ -142,12 +142,19 @@ fi
 printf '%s\n' "$NEW_VERSION" > VERSION
 
 python3 - "$NEW_ENTRY" <<'PY'
-import sys, pathlib
+import re, sys, pathlib
 new_entry = sys.argv[1]
 p = pathlib.Path("CHANGELOG.md")
 src = p.read_text()
 header_end = src.find("\n", src.find("# Changelog")) + 1
-out = src[:header_end] + "\n" + new_entry + src[header_end:]
+rest = src[header_end:]
+m = re.match(r"\s*## \[?Unreleased\]?[^\n]*\n(.*?)(?=^## |\Z)", rest, re.S | re.M)
+if m:
+    pending = m.group(1).strip()
+    if pending:
+        new_entry = new_entry.rstrip("\n") + "\n\n" + pending + "\n"
+    rest = rest[m.end():]
+out = src[:header_end] + "\n" + new_entry + "\n" + rest.lstrip("\n")
 p.write_text(out)
 PY
 

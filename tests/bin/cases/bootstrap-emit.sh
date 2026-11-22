@@ -162,4 +162,16 @@ assert "boost-managed AGENTS.md left untouched" '! grep -q "### Docker" "$TMP_BO
 rm -rf "$TMP_BOOST"
 
 
+echo "=== bootstrap: missing template dir ==="
+TMP_NOTPL=$(mktemp -d)
+mkdir -p "$TMP_NOTPL/kit" "$TMP_NOTPL/proj"
+touch "$TMP_NOTPL/proj/AGENTS.md" "$TMP_NOTPL/proj/CONTEXT.md" "$TMP_NOTPL/proj/CLAUDE.md"
+set +e
+OUT_NOTPL="$(AI_KIT_ROOT="$TMP_NOTPL/kit" "$AIKIT/bin/bootstrap-project.sh" --minimal "$TMP_NOTPL/proj" 2>&1)"
+RC_NOTPL=$?
+set -e
+assert "missing template dir exits non-zero" '[ "$RC_NOTPL" -ne 0 ]'
+assert "missing template dir names the path" 'echo "$OUT_NOTPL" | grep -qF "template dir not found: $TMP_NOTPL/kit/context/templates"'
+rm -rf "$TMP_NOTPL"
+
 print_summary_and_exit

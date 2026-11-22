@@ -93,4 +93,23 @@ OUT_N="$(bash "$DOCTOR" "$N" 2>&1 || true)"
 assert "absent rules dir is not reported (--no-rules is legitimate)" \
   '! echo "$OUT_N" | grep -q "rules absent"'
 
+echo "=== global skill dirs ==="
+H="$TMP/home"
+mkdir -p "$H/.claude/skills" "$H/.agents/skills" "$H/.cursor/skills" "$H/.cursor/commands"
+for d in .claude/skills .agents/skills .cursor/skills; do
+  ln -s "$AIKIT/workflow/skills/tdd" "$H/$d/tdd"
+  ln -s "$TMP/gone/old" "$H/$d/old"
+done
+ln -s "$TMP/gone/old.md" "$H/.cursor/commands/old.md"
+mkdir -p "$H/.config/ai-kit" && printf 'claude\ncursor\n' > "$H/.config/ai-kit/hosts"
+OUT_G="$(cd "$TMP" && HOME="$H" bash "$DOCTOR" --check-global 2>&1 || true)"
+for d in .claude/skills .agents/skills .cursor/skills .cursor/commands; do
+  assert "global $d dead link warns with the install-global fix" \
+    'echo "$OUT_G" | grep -E "^  warn " | grep -F "$H/$d: 1 broken symlink" | grep -q "install-global.sh"'
+done
+assert "global dead link names its target" \
+  'echo "$OUT_G" | grep -F -q "old.md -> $TMP/gone/old.md"'
+assert "global dead links never error" \
+  '! echo "$OUT_G" | grep -E "^  ERR" | grep -q "broken symlink"'
+
 print_summary_and_exit

@@ -93,6 +93,10 @@ fi
 
 TARGET="$(cd "$TARGET" && pwd)"
 TPL="$AIKIT/context/templates"
+if [ ! -d "$TPL" ]; then
+  echo "template dir not found: $TPL (reinstall ai-kit or set AI_KIT_ROOT)" >&2
+  exit 1
+fi
 
 if [ ! -f "$TARGET/AGENTS.md" ]; then
   cp "$TPL/AGENTS.md.template" "$TARGET/AGENTS.md"

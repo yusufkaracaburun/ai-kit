@@ -43,4 +43,20 @@ assert "skip_skill_merge=true skips the project skills dirs" \
   '! grep -q "FAIL: .cursor/skills present" <<<"$OUT4"'
 rm -rf "$TMP4"
 
+echo "=== ai-kit-status reads the same fact ==="
+TMP5=$(mktemp -d)
+mkdir -p "$TMP5/home" "$TMP5/proj"
+touch "$TMP5/proj/AGENTS.md"
+printf '{\n  "ai_kit_version": "1.0.0",\n  "completed_at": "2026-01-01T00:00:00Z",\n  "branches": {"setup_mode": "solo-global", "project_skills_merged": false, "dev_environment": false, "setup_tier": "minimal"}\n}\n' > "$TMP5/proj/.ai-kit-setup"
+OUT5="$(HOME="$TMP5/home" bash "$AIKIT/bin/ai-kit-status.sh" "$TMP5/proj" 2>&1 || true)"
+assert "solo-global without project skill dirs is a complete bootstrap" \
+  'grep -q "^Bootstrap: complete" <<<"$OUT5"'
+assert "solo-global does not list skill dirs as missing" \
+  '! grep -q "missing: .*skills" <<<"$OUT5"'
+printf '{\n  "ai_kit_version": "1.0.0",\n  "completed_at": "2026-01-01T00:00:00Z",\n  "branches": {"setup_mode": "solo-both"}\n}\n' > "$TMP5/proj/.ai-kit-setup"
+OUT6="$(HOME="$TMP5/home" bash "$AIKIT/bin/ai-kit-status.sh" "$TMP5/proj" 2>&1 || true)"
+assert "solo-both still lists missing skill dirs" \
+  'grep -q "missing: .*\.claude/skills" <<<"$OUT6"'
+rm -rf "$TMP5"
+
 print_summary_and_exit

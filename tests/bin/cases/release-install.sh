@@ -49,11 +49,14 @@ relgit add -A && relgit commit --quiet --allow-empty -m fixture
 GIT_CONFIG_GLOBAL="$REL_TMP/gitconfig" bash "$REL/bin/release.sh" 9.9.8 --notes-file="$TMP_NOTES" --no-tag >/dev/null 2>&1 || true
 assert "release: works without a marker" '[ "$(relgit log -1 --format=%s)" = "chore(release): v9.9.8" ] && [ ! -f "$REL/.ai-kit-setup" ]'
 AI_KIT_ROOT="$REL" bash "$REL/bin/write-setup-marker.sh" "$REL" --lifecycle=production --review-gate-hook=wired >/dev/null
-relgit add .ai-kit-setup && relgit commit --quiet -m marker
+printf '# Changelog\n\n## Unreleased\n\n- pending line\n\n## 9.9.8 — 2000-01-01\n\nold\n' > "$REL/CHANGELOG.md"
+relgit add .ai-kit-setup workflow/CHANGELOG.md && relgit commit --quiet -m marker
 GIT_CONFIG_GLOBAL="$REL_TMP/gitconfig" bash "$REL/bin/release.sh" 9.9.9 --notes-file="$TMP_NOTES" --no-tag >/dev/null 2>&1 || true
 assert "release: re-stamps the kit marker to the new version" '[ "$(jq -r .ai_kit_version "$REL/.ai-kit-setup")" = 9.9.9 ]'
 assert "release: keeps the marker's branch choices" '[ "$(jq -r .branches.review_gate_hook "$REL/.ai-kit-setup")" = wired ]'
 assert "release: the release commit carries the marker" 'relgit show --name-only --format= HEAD | grep -qx .ai-kit-setup'
+assert "release: folds Unreleased into the new entry" 'awk "/^## /{f=(\$2==\"9.9.9\")} f" "$REL/CHANGELOG.md" | grep -qx -- "- pending line"'
+assert "release: drops the Unreleased heading" '! grep -q "^## Unreleased" "$REL/CHANGELOG.md"'
 assert "release: leaves a clean tree" '[ -z "$(relgit status --porcelain)" ]'
 rm -rf "$REL_TMP"
 

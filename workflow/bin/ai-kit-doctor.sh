@@ -125,6 +125,25 @@ if [ "$CLAUDE_HOST" = true ]; then
 fi
 echo ""
 
+# One line per dead symlink: the link, the target it lost, and a remedy
+# that fits the case. A same-named file surviving elsewhere under the root
+# means the target moved (Laravel Boost renaming .ai/ to .agents/, say)
+# and the link can be repointed; nothing found means the link is dead
+# weight. `ln -sfn` rather than rm + ln — rm is aliased interactive on
+# many macs, where a pasted rm + ln recipe stalls on the prompt.
+broken_link_detail() {
+  local link="$1" root="$2" target replacement
+  target="$(readlink "$link" 2>/dev/null || echo '<unreadable>')"
+  replacement="$(find "$root" \
+    \( -name .git -o -name node_modules -o -name vendor \) -prune -o \
+    \( -type f -o -type d \) -name "$(basename "$link")" -print 2>/dev/null | head -2)"
+  if [ "$(printf '%s' "$replacement" | grep -c . )" -eq 1 ]; then
+    echo "${link#$root/} -> $target (dead; repoint: ln -sfn \"$replacement\" \"$link\")"
+  else
+    echo "${link#$root/} -> $target (dead, no unique replacement under $root; remove: rm -f \"$link\")"
+  fi
+}
+
 # Decide whether to check globals.
 #   1. CLI flags always win.
 #   2. If a project marker has setup_mode=project-only, skip.
@@ -176,6 +195,18 @@ else
     else
       warn "$d absent — run install-global.sh, or use --project-only if you don't want globals"
     fi
+  done
+  for d in "$HOME/.claude/skills" "$HOME/.agents/skills" "$HOME/.cursor/skills" "$HOME/.cursor/commands"; do
+    [ -d "$d" ] || continue
+    dead=()
+    while IFS= read -r l; do
+      [ -n "$l" ] && dead+=("$l")
+    done < <(find "$d" -mindepth 1 -maxdepth 1 -type l ! -exec test -e {} \; -print 2>/dev/null)
+    [ "${#dead[@]}" -gt 0 ] || continue
+    warn "$d: ${#dead[@]} broken symlink(s), run install-global.sh to reclaim them"
+    for l in "${dead[@]}"; do
+      info "    $(broken_link_detail "$l" "$d")"
+    done
   done
   echo ""
 fi
@@ -335,25 +366,6 @@ if [ -n "$TARGET" ]; then
     TARGET="$(cd "$TARGET" && pwd)"
     echo "Project: $TARGET"
 
-    # One line per dead symlink: the link, the target it lost, and a remedy
-    # that fits the case. A same-named file surviving elsewhere in the project
-    # means the target moved (Laravel Boost renaming .ai/ to .agents/, say)
-    # and the link can be repointed; nothing found means the link is dead
-    # weight. `ln -sfn` rather than rm + ln — rm is aliased interactive on
-    # many macs, where a pasted rm + ln recipe stalls on the prompt.
-    broken_link_detail() {
-      local link="$1" target replacement
-      target="$(readlink "$link" 2>/dev/null || echo '<unreadable>')"
-      replacement="$(find "$TARGET" \
-        \( -name .git -o -name node_modules -o -name vendor \) -prune -o \
-        \( -type f -o -type d \) -name "$(basename "$link")" -print 2>/dev/null | head -2)"
-      if [ "$(printf '%s' "$replacement" | grep -c . )" -eq 1 ]; then
-        echo "${link#$TARGET/} -> $target (dead; repoint: ln -sfn \"$replacement\" \"$link\")"
-      else
-        echo "${link#$TARGET/} -> $target (dead, no unique replacement in project; remove: rm -f \"$link\")"
-      fi
-    }
-
     # Directories ai-kit writes into: */skills carries bootstrap-project.sh's
     # symlinks, */rules carries emit-rules.sh output. Both are scanned for
     # dead links — the rules directories were not, so the links ai-kit itself
@@ -402,7 +414,7 @@ if [ -n "$TARGET" ]; then
       if [ "${#broken_links[@]}" -gt 0 ]; then
         err "$d — ${#broken_links[@]} broken symlink(s)"
         for l in "${broken_links[@]}"; do
-          info "    $(broken_link_detail "$l")"
+          info "    $(broken_link_detail "$l" "$TARGET")"
         done
       elif [ "$entries" -eq 0 ]; then
         warn "$d empty"
@@ -437,7 +449,7 @@ if [ -n "$TARGET" ]; then
     if [ "${#unowned_links[@]}" -gt 0 ]; then
       warn "${#unowned_links[@]} broken symlink(s) in agent directories ai-kit does not own"
       for l in "${unowned_links[@]}"; do
-        info "    $(broken_link_detail "$l")"
+        info "    $(broken_link_detail "$l" "$TARGET")"
       done
     fi
 

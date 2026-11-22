@@ -229,11 +229,14 @@ if [ "$SKIP_PROJECT" = false ]; then
   else
     log "detecting GitHub Project for owner=$OWNER"
     # List user projects; pick first matching the repo name, else the most recent.
-    PROJECT_JSON="$(gh project list --owner "$OWNER" --format json 2>/dev/null || echo '{"projects":[]}')"
-    PROJECT_NUMBER="$(python3 -c "
-import json, sys, re
+    GH_ERR="$(mktemp)"
+    PROJECT_NUMBER=""
+    GH_FAILED=""
+    if PROJECT_JSON="$(gh project list --owner "$OWNER" --format json 2>"$GH_ERR")"; then
+      PROJECT_NUMBER="$(PROJECT_JSON="$PROJECT_JSON" python3 -c "
+import json, os, sys, re
 try:
-    data = json.loads('''$PROJECT_JSON''')
+    data = json.loads(os.environ['PROJECT_JSON'])
 except Exception:
     sys.exit(0)
 projects = data.get('projects', [])
@@ -244,8 +247,15 @@ if not match and projects:
 if match:
     print(match.get('number', ''))
 " 2>/dev/null || true)"
+    else
+      GH_FAILED="$(head -1 "$GH_ERR" | grep . || echo "no error output")"
+    fi
+    rm -f "$GH_ERR"
 
-    if [ -z "$PROJECT_NUMBER" ]; then
+    if [ -n "$GH_FAILED" ]; then
+      log "  gh project list failed: $GH_FAILED"
+      log "  Fix gh, then re-run: $0 $TARGET --lang $LANG_VARIANT"
+    elif [ -z "$PROJECT_NUMBER" ]; then
       log "  no existing project board found for $OWNER"
       log "  Create one with:"
       log "    gh project create --owner $OWNER --title \"$REPO board\""
@@ -270,10 +280,10 @@ if match:
           }
         }
       ' -F owner="$OWNER" -F number="$PROJECT_NUMBER" 2>/dev/null || echo '{}')"
-      RESOLVED="$(python3 -c "
-import json, sys
+      RESOLVED="$(FIELDS_JSON="$FIELDS_JSON" python3 -c "
+import json, os, sys
 try:
-    d = json.loads('''$FIELDS_JSON''')
+    d = json.loads(os.environ['FIELDS_JSON'])
 except Exception:
     sys.exit(0)
 pv = (d.get('data') or {}).get('user', {}).get('projectV2') or {}

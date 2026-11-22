@@ -307,8 +307,9 @@ _aikit_primitives_root() {
   fi
 }
 
+# $2 = false when the marker says the project skill dirs are served globally.
 detect_bootstrap_state() {
-  local target="$1"
+  local target="$1" skills_merged="${2:-true}"
   BOOTSTRAP_STATE="missing"
   BOOTSTRAP_MISSING=()
 
@@ -321,18 +322,20 @@ detect_bootstrap_state() {
     BOOTSTRAP_MISSING+=("AGENTS.md")
   fi
 
-  if ! _has_skills_layout "$target/.claude/skills"; then
-    BOOTSTRAP_MISSING+=(".claude/skills")
-  fi
+  if [ "$skills_merged" = true ]; then
+    if ! _has_skills_layout "$target/.claude/skills"; then
+      BOOTSTRAP_MISSING+=(".claude/skills")
+    fi
 
-  if ! _has_skills_layout "$target/.agents/skills"; then
-    BOOTSTRAP_MISSING+=(".agents/skills")
-  fi
+    if ! _has_skills_layout "$target/.agents/skills"; then
+      BOOTSTRAP_MISSING+=(".agents/skills")
+    fi
 
-  if _has_skills_layout "$target/.cursor/skills" || cursor_global_holds_skills; then
-    has_cursor=true
-  else
-    BOOTSTRAP_MISSING+=(".cursor/skills")
+    if _has_skills_layout "$target/.cursor/skills" || cursor_global_holds_skills; then
+      has_cursor=true
+    else
+      BOOTSTRAP_MISSING+=(".cursor/skills")
+    fi
   fi
 
   if [ "$has_agents" = true ] && [ "${#BOOTSTRAP_MISSING[@]}" -eq 0 ]; then
