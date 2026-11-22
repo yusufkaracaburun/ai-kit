@@ -72,8 +72,14 @@ assert "link inside inline code span is NOT reported" \
   '! echo "$OUTPUT_BROKEN" | grep -F -q "inline-code-nope.md"'
 
 echo "=== clean-fixture ==="
-OUTPUT_CLEAN="$(bash "$DRIVER" "$FIX_CLEAN" --no-prompt 2>&1)"
-RC_CLEAN=$(bash "$DRIVER" "$FIX_CLEAN" --no-prompt >/dev/null 2>&1; echo $?)
+# Host-repo branches leak into finished-work when the fixture sits in the ai-kit tree.
+CLEAN_DIR="$(cd "$(mktemp -d)" && pwd -P)"
+cp -R "$FIX_CLEAN/." "$CLEAN_DIR"
+git -C "$CLEAN_DIR" init -q
+assert "clean fixture runs in its own git repo, not the host tree" \
+  '[ "$(git -C "$CLEAN_DIR" rev-parse --show-toplevel 2>/dev/null)" = "$(cd "$CLEAN_DIR" && pwd -P)" ]'
+OUTPUT_CLEAN="$(bash "$DRIVER" "$CLEAN_DIR" --no-prompt 2>&1)"
+RC_CLEAN=$(bash "$DRIVER" "$CLEAN_DIR" --no-prompt >/dev/null 2>&1; echo $?)
 assert "clean fixture exits 0" '[ "$RC_CLEAN" = "0" ]'
 assert "clean fixture reports 0 broken" \
   'echo "$OUTPUT_CLEAN" | grep -q "0 broken links"'
@@ -84,7 +90,7 @@ echo "=== anchor-with-valid-path ==="
 # docs-sync-clean docs/setup.md anchor link `./docs/setup.md#anything` resolves
 # to existing file even though anchor is not validated.
 TMP_ANCHOR=$(mktemp -d)
-trap 'rm -rf "$TMP_ANCHOR" "$TMP_SKIP" "$TMP_EMPTY"' EXIT
+trap 'rm -rf "$CLEAN_DIR" "$TMP_ANCHOR" "$TMP_SKIP" "$TMP_EMPTY"' EXIT
 mkdir -p "$TMP_ANCHOR"
 cat > "$TMP_ANCHOR/index.md" <<'MD'
 [exists with anchor](./other.md#nope)

@@ -104,8 +104,14 @@ if [ -n "$(manifests pytest.ini)" ] || [ -n "$(manifests tox.ini)" ] \
   RUNNERS+=("pytest"); PATTERNS+=("(python -m )?pytest([[:space:]]|$)|tox([[:space:]]|$)")
 fi
 
+if manifest_has '^[[:space:]]*flutter(_test)?:' pubspec.yaml; then
+  RUNNERS+=("flutter test"); PATTERNS+=("flutter test([[:space:]]|$)")
+elif [ -n "$(manifests pubspec.yaml)" ]; then
+  RUNNERS+=("dart test"); PATTERNS+=("dart test([[:space:]]|$)")
+fi
+
 if [ "${#RUNNERS[@]}" -eq 0 ]; then
-  echo "test-ci: no test runner detected (composer/package.json/pytest) — skipped."
+  echo "test-ci: no test runner detected (composer/package.json/pytest/pubspec) — skipped."
   exit 0
 fi
 

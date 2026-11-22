@@ -5,7 +5,7 @@
 # reference, decisions, patterns, project). Per file:
 #
 #   Orphan  = not referenced from .agents/memory/MEMORY.md index
-#   Stale   = not git-touched in >90 days AND zero project-wide refs
+#   Stale   = not git-touched in >90 days AND zero project-wide refs outside MEMORY.md
 #
 # Exit codes:
 #   0 — clean (or no .agents/memory/ / no MEMORY.md → skip silently)
@@ -70,7 +70,7 @@ for subdir in "$MEMORY_ROOT"/*/; do
     fi
 
     if [ "$last_epoch" -lt "$STALE_CUTOFF" ]; then
-      refs="$(grep -r -l "$name" --include="*.md" --exclude-dir=node_modules --exclude-dir=vendor --exclude-dir=.git "$PROJECT_PATH" 2>/dev/null | grep -v "^$f$" | wc -l | tr -d ' ')"
+      refs="$(grep -r -l "$name" --include="*.md" --exclude-dir=node_modules --exclude-dir=vendor --exclude-dir=.git "$PROJECT_PATH" 2>/dev/null | grep -v -e "^$f$" -e "^$MEMORY_INDEX$" | wc -l | tr -d ' ')"
       if [ "$refs" = "0" ]; then
         age_days=$(( (NOW_EPOCH - last_epoch) / 86400 ))
         stale+=("$bucket/$name (${age_days}d untouched, 0 refs)")

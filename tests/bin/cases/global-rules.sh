@@ -36,6 +36,22 @@ assert "quality-floor leaves room under the 60-line cap" '[ "$(grep -vc "^paths:
 assert "quality-floor has no duplicate one-caller item" '! grep -qF "One caller, one interface" "$QF"'
 assert "quality-floor has a See also line" 'grep -q "^## See also" "$QF" && grep -A3 "^## See also" "$QF" | grep -q "aposd" && grep -A3 "^## See also" "$QF" | grep -q "code-audit"'
 
+echo "=== sync-plugin-rules: root resolves the same via bin/ and workflow/bin/ ==="
+# section: global-rules-sync-paths
+TMP_S=$(mktemp -d)
+mkdir -p "$TMP_S/workflow/bin" "$TMP_S/standards" "$TMP_S/workflow/standards"
+cp -R "$AIKIT/workflow/bin/sync-plugin-rules.sh" "$AIKIT/workflow/bin/lib" "$TMP_S/workflow/bin/"
+cp -R "$AIKIT/standards/rules" "$TMP_S/standards/"
+cp -R "$AIKIT/standards/rules" "$TMP_S/workflow/standards/"
+ln -s workflow/bin "$TMP_S/bin"
+(cd "$TMP_S" && bash workflow/bin/sync-plugin-rules.sh >/dev/null 2>&1) || true
+assert "called as workflow/bin/: no stray workflow/workflow" '[ ! -e "$TMP_S/workflow/workflow" ]'
+assert "called as workflow/bin/: stamps workflow/rules" '[ -f "$TMP_S/workflow/rules/pre-write-discipline.md" ]'
+rm -rf "$TMP_S/workflow/rules"
+(cd "$TMP_S" && bash bin/sync-plugin-rules.sh >/dev/null 2>&1) || true
+assert "called as bin/: stamps workflow/rules" '[ -f "$TMP_S/workflow/rules/pre-write-discipline.md" ]'
+rm -rf "$TMP_S"
+
 echo "=== global-rules-link hook ==="
 # section: global-rules-hook
 TMP_H=$(mktemp -d)

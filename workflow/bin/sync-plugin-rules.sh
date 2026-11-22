@@ -13,8 +13,9 @@
 #   sync-plugin-rules.sh --check  # exit 1 if workflow/rules/ drifted
 set -euo pipefail
 
-SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"
-AIKIT="$(cd "$SCRIPT_BIN/.." && pwd)"
+# -P: bin/ is a symlink to workflow/bin/, so the physical path is the same for both callers.
+SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd -P)"
+AIKIT="$(cd "$SCRIPT_BIN/../.." && pwd)"
 # shellcheck source=lib/emitter-lib.sh
 source "$SCRIPT_BIN/lib/emitter-lib.sh"
 # shellcheck source=lib/emitters/claude-code.sh

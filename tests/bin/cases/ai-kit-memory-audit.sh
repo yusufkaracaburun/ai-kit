@@ -61,20 +61,18 @@ assert "old + unreferenced file flagged stale" 'grep -q "STALE" <<<"$OUT" && gre
 assert "warnings -> exit 1" '[ "$RC" -eq 1 ]'
 rm -rf "$T"
 
-echo "=== indexed + old: NOT flagged (documents current behaviour) ==="
-# The stale branch only fires when `refs` is 0, and it counts MEMORY.md itself.
-# So indexing a file creates the very reference that disqualifies it from ever
-# being called stale: a tidily-indexed memory rots unnoticed, an untidy one is
-# caught. This test pins what the script does today, not what it should do —
-# the design question is #147.
+echo "=== indexed + old: flagged stale, the index line is not a reference ==="
 T=$(mktemp -d)
 mkdir -p "$T/.agents/memory/feedback"
 echo "content" > "$T/.agents/memory/feedback/note-d.md"
 echo "- [Note D](feedback/note-d.md) — hook" > "$T/.agents/memory/MEMORY.md"
 touch -t 202001010000 "$T/.agents/memory/feedback/note-d.md"
 RC=0; OUT=$(memory_audit "$T") || RC=$?
-assert "indexed + very old file is reported clean (see #147)" 'grep -q "memory-audit: clean" <<<"$OUT"'
-assert "indexed + very old file -> exit 0 (see #147)" '[ "$RC" -eq 0 ]'
+assert "indexed + very old file is flagged stale" 'grep -q "STALE" <<<"$OUT" && grep -q "feedback/note-d" <<<"$OUT"'
+assert "indexed + very old file -> exit 1" '[ "$RC" -eq 1 ]'
+echo "see note-d" > "$T/doc.md"
+RC=0; OUT=$(memory_audit "$T") || RC=$?
+assert "indexed + old file referenced outside MEMORY.md -> clean" 'grep -q "memory-audit: clean" <<<"$OUT" && [ "$RC" -eq 0 ]'
 rm -rf "$T"
 
 print_summary_and_exit

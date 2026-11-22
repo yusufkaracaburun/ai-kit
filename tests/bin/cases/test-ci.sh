@@ -312,4 +312,26 @@ track "$TMP/block-scalar"
 OUT_BS="$("$CHECK" "$TMP/block-scalar" 2>&1)"; RC_BS=$?
 assert "test-ci sees a run inside a 'run: |' block scalar" '[ "$RC_BS" -eq 0 ]'
 
+# Dart/Flutter: pubspec.yaml declares the runner, `flutter test` or `dart test` runs it.
+mkrepo "$TMP/flutter-nowf"
+printf 'name: app\ndev_dependencies:\n  flutter_test:\n    sdk: flutter\n' > "$TMP/flutter-nowf/pubspec.yaml"
+track "$TMP/flutter-nowf"
+OUT_FL="$("$CHECK" "$TMP/flutter-nowf" 2>&1)" && RC_FL=0 || RC_FL=$?
+assert "test-ci exits 1 when flutter_test exists and no workflow runs it" '[ "$RC_FL" -eq 1 ]'
+assert "test-ci names flutter test as uncovered" 'echo "$OUT_FL" | grep -q "uncovered runner: flutter test"'
+
+mkrepo "$TMP/flutter-wf"
+printf 'name: app\ndev_dependencies:\n  flutter_test:\n    sdk: flutter\n' > "$TMP/flutter-wf/pubspec.yaml"
+wf "$TMP/flutter-wf" 'flutter pub get && flutter test --coverage'
+track "$TMP/flutter-wf"
+OUT_FW="$("$CHECK" "$TMP/flutter-wf" 2>&1)"; RC_FW=$?
+assert "test-ci exits 0 when a workflow runs flutter test" '[ "$RC_FW" -eq 0 ] && echo "$OUT_FW" | grep -q "flutter test runs in ci.yml"'
+
+mkrepo "$TMP/dart-nowf"
+mkdir -p "$TMP/dart-nowf/packages/core"
+printf 'name: core\ndev_dependencies:\n  test: ^1.25.0\n' > "$TMP/dart-nowf/packages/core/pubspec.yaml"
+track "$TMP/dart-nowf"
+OUT_DA="$("$CHECK" "$TMP/dart-nowf" 2>&1)" && RC_DA=0 || RC_DA=$?
+assert "test-ci names dart test for a pure Dart package" '[ "$RC_DA" -eq 1 ] && echo "$OUT_DA" | grep -q "uncovered runner: dart test"'
+
 print_summary_and_exit

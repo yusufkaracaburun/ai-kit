@@ -6,7 +6,7 @@ allowed-tools: Bash
 
 Read or set this project's lifecycle phase.
 
-!`bash "${CLAUDE_PLUGIN_ROOT}/bin/ai-kit-phase.sh" $ARGUMENTS`
+!`bash "${CLAUDE_PLUGIN_ROOT:-$HOME/.config/ai-kit/plugin-current}/bin/ai-kit-phase.sh" $ARGUMENTS`
 
 If no argument: prints the current phase (default `production` when unset).
 
@@ -14,6 +14,8 @@ If the user passed `development` or `production`: the marker key
 `branches.lifecycle` is updated. The canonical rule
 `project-lifecycle.mini.md` reads this key and emits the matching behaviour
 contract on every session — restart Claude Code to apply.
+
+If the script cannot run and you edit `branches.lifecycle` in `.ai-kit-setup` by hand, still print `lifecycle: <old> → <new>`.
 
 Phase semantics live in `standards/rules/project-lifecycle.mini.md`. Summary:
 
