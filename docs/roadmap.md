@@ -7,7 +7,7 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-11-22 against 129 open issues (count refreshed to 129; #300 row removed; #186 and #299 rows removed; #298 and #299 rows added; #285 closed by v2.21.1 and removed; #289-#297 rows added; #275 and #288 done 2026-11-16, closed by the heavy-run lock slice; #276-#283 done, #283 with this reconcile; #199, #258-#262 and #267 closed and removed; #270 closed by #280; #216 partly done in v2.19.0; rows added for #264, #284, #286, #287; #257, #263 and #264 labelled P3, P1 and P3 to match their sections; earlier reconciliation notes live in [roadmap-archive.md](roadmap-archive.md#reconciliation-notes))._
+_Last reconciled: 2026-11-22 against 107 open issues (count refreshed to 107; 25 closed rows removed (#116 #127 #128 #138 #139 #147 #148 #149 #150 #170 #174 #187 #198 #202 #206 #207 #208 #210 #246 #247 #248 #263 #269 #284 #316); #300 row removed; #186 and #299 rows removed; #298 and #299 rows added; #285 closed by v2.21.1 and removed; #289-#297 rows added; #275 and #288 done 2026-11-16, closed by the heavy-run lock slice; #276-#283 done, #283 with this reconcile; #199, #258-#262 and #267 closed and removed; #270 closed by #280; #216 partly done in v2.19.0; rows added for #264, #284, #286, #287; #257, #263 and #264 labelled P3, P1 and P3 to match their sections; earlier reconciliation notes live in [roadmap-archive.md](roadmap-archive.md#reconciliation-notes))._
 
 ## P1 — broken in the wild
 
@@ -19,17 +19,11 @@ _Last reconciled: 2026-11-22 against 129 open issues (count refreshed to 129; #3
   docs scaffold = recorded setup choice; `/ai:upgrade` removes the generated
   universal copies. Two releases: global channel first, then setup/bootstrap.
   Closes #149 with it.
-- **#263** `bug` — quoted frontmatter lists never match in recommend-rules, and
-  the `frontend`/`backend` architecture values no detector emits. 2026-10-29.
 - **#266** `bug` — setup writes no ignore for `.agents/worktrees` / `.claude/worktrees` in vitest, eslint, tsc or `.gitignore`; the React app `pnpm test` in main ran 20 test files from a parallel worktree. Add ignores in setup, doctor warns. 2026-10-30.
-- **#269** `bug` — `Agent` with `isolation: "worktree"` cuts from the default branch, not the lead HEAD; the React app epic/facturen builders started on master. tdd/builder brief create the worktree with `git worktree add -b <branch> .agents/worktrees/<name> <base>`, builder asserts `git rev-parse HEAD` equals the base SHA. 2026-10-30.
 - **#314** `enhancement` — use a GitHub Projects board as the single source: setup records the board, /ai:next reads Priority and Status from it, to-issues/to-prd/triage add new issues to it, tdd/autonomous move a card to Doing. Deferred until the board trial passes (re-measure 2026-12-06); #313 is the first slice. 2026-11-22.
 
 ## P2 — next up
 
-- **#174** `bug` — hygiene `test-ci` does not recognise Dart/Flutter projects as having a
-  test runner; the mobile app reports "no test runner" with a full Patrol suite. Labelled
-  P2 on 2026-09-19.
 - **#178** `bug` — `dedupe` reported `total: 0` on 12 repos + personal scope that
   held 200+ duplicates: it reads only `~/.claude/skills`, never `~/.agents/skills`
   / `~/.cursor/skills` (84 plugin symlinks, 16 gsd remnants lived there), no
@@ -44,36 +38,12 @@ _Last reconciled: 2026-11-22 against 129 open issues (count refreshed to 129; #3
   tsc. Same `bin/hooks/` + `workflow/hooks/hooks.json` shape as the plugin hooks that already ship;
   doctor then reports "drifted from shipped".
 
-- **#148** `bug` — rule injection gates on `weight: high` and then fills
-  smallest-first, so length decides what survives. Rediagnosed 2026-08-27: the
-  cause is in the rule metadata, not the sort order — `weight` is too coarse a
-  key to select on.
-- **#150** `bug` — `doctor` never counts dead symlinks in the global skill dirs.
-  `ai-kit-doctor.sh:118` greps for one link matching `$AIKIT`, reports `ok`, and
-  stops; that is why 74 broken links (44 `~/.agents/skills`, 23 `~/.cursor/skills`,
-  7 `~/.cursor/commands`, all → a `~/.local/share/ai-kit` long gone) went unreported
-  for months. `broken_link_detail` at `:274` already does this for the project path.
-  Downstream half of **#114** — v1.63.1's installer sweep reclaims these orphans once
-  rerun, but nothing tells you to rerun. #114's stable-indirection fix stops them
-  being created; this one stops them being invisible.
-
-- **#170** `bug` — `verify-setup.sh` / `ai-kit-status.sh` hard-code project files
-  and never read the marker: a solo-global + `dev_environment=false` project
-  stays FAIL forever; the Laravel app's sibling-dir agents skills likewise.
 - **#173** `bug` — `/ai:setup` on a non-git monorepo root (an umbrella folder) writes a marker +
   `${CLAUDE_PROJECT_DIR}` hook wiring that no session can ever resolve (cwd is
   always an app below it); doctor never sees the parent. Refuse/warn, no walk-up.
 - **#172** `bug` — `link-primitives` writes absolute `$HOME` symlinks into repos and
   merges skills a plugin-served machine already exposes as `ai:*` (double
   listing, #116). Skip the merge when the plugin serves; relative links otherwise.
-- **#149** `bug · primitive:rule` — bestaande projecten krijgen nooit nieuwe
-  `universal: true` regels, en doctor meldt dat als groen. The hub app mist
-  `pre-write-discipline` en `writing-style`; `recommend-rules` adviseert ze
-  allebei. `/ai:upgrade` herstempelt alleen de marker (per ontwerp), en doctor
-  controleert of de aanwezige 30 regels *oplossen* — nooit of er iets ontbreekt.
-  De catalogus groeit, projecten blijven staan, niets meldt het verschil. Gaat
-  vóór #148: de injectiehook leest `.claude/rules/`, dus een ontbrekende regel
-  wordt ook niet geïnjecteerd.
 
 - **#144** `enhancement · primitive:rule` — `always-on` means two different things
   per host. 30 rules carry `default_mode: always-on` (22 in `standards/rules/`, 8 in
@@ -94,26 +64,6 @@ _Last reconciled: 2026-11-22 against 129 open issues (count refreshed to 129; #3
   with the 200-line `context-lean` ceiling), or renaming the label to `recommended`
   and dropping the implied enforcement.
 
-- **#127** `bug` — `to-issues` and `autonomous` state contradictory contracts, so
-  every issue the first produces is rejected by the second. `to-issues` applies
-  `ready-for-agent` and declares the body the contract surface; `autonomous` requires
-  a `## Agent Brief` **comment** and reads a spec-complete body as `brief-thin`. The
-  brief contract it cites is triage → autonomous, which `to-issues` was never part of
-  while labelling as though it were. Hit live: `/ai:to-issues 120` produced #121–#124,
-  and the next `/ai:autonomous one` gated on pick with `body-not-promoted` despite
-  inline checkbox criteria. Unblocking cost two `triage` calls that restated bodies
-  already written for cold pickup. Either `to-issues` emits the brief itself — it has
-  the material, it wrote the body — or it stops applying the label and leaves that to
-  `triage`. Doing neither keeps the two skills disagreeing.
-- **#116** `bug · primitive:plugin` — a plugin skill silently shadows a same-named
-  project skill: `bootstrap-project.sh` merges ai-kit skills with `ln -sfn`, which
-  overwrites on name collision while the echo claims "custom entries preserved".
-  the portal app's own 379-line `docs-sync` was invisible in Claude Code for weeks —
-  and the collision was self-inflicted, since #26 promoted that very skill into
-  the catalog under the same name. Shares a root with **#114**: both come from
-  bootstrap materialising ai-kit skills into project dirs. If #114 lands the
-  plugin-only target state, this evaporates for global mode; `project-only`
-  installs still need collision detection before overwrite.
 - **#108** `enhancement` — auto-memory `MEMORY.md` grows unbounded: `/ai:checkpoint`
   appends one index line per session, and the index loads into context *every*
   session. Observed at ~25KB / 40+ lines before manual trimming. The only open
@@ -131,11 +81,7 @@ _Last reconciled: 2026-11-22 against 129 open issues (count refreshed to 129; #3
 - **#197** `enhancement` — PreCompact hook: write peer answers and decisions verbatim to the
   checkpoint memo before compaction; lead invented a spec after one. 2026-10-10.
 - **#200** `enhancement` — `ai-kit-heavy.sh`: one shared machine-load gate (check / wait / start / done via claim) replacing per-lead ps greps; 37/57 briefs lacked one, 2 overlaps + 1 Pest/simulator clash. 2026-10-10.
-- **#202** `bug` — lead-guard denies every `/ai:setup` write step in a role=lead session; 3 of 4 leads flipped to role=build. Recommended: setup/upgrade skills spawn an agent for write steps. 2026-10-10.
 - **#204** `enhancement` — bootstrap templates filtered by detected stack (editorconfig, gitattributes, graphifyignore, board workflows, renovate); ~490 cuttable lines in an Expo repo. 2026-10-10.
-- **#206** `bug` — build-delegation hook counts writes outside the project (memory files under `~/.claude`); skip paths outside `$CLAUDE_PROJECT_DIR` and memo paths. 2026-10-10.
-- **#207** `bug` — kit scripts hang on interactive mv/rm aliases (2 subagents hung during setup); `command mv -f` sweep over 15 scripts. 2026-10-10.
-- **#208** `bug` — `recommend-rules.sh --json` has no sources/quorum field the skill's "(sources: N/M verified)" annotation needs. 2026-10-10.
 - **#209** `enhancement` — memory-audit warns when a `MEMORY.md` index exceeds the host load limit (28.8 KB vs ~24 KB seen, silent truncation). 2026-10-10.
 - **#213** `enhancement` — trim plugins and MCP tools per project: ai-kit loads 92 skills plus ~190 deferred MCP tool names every turn (97% of tokens were cache reads, 10-05..14). Deferred until `/context` gives the block size in ai-kit, system and the SaaS app; then a per-project `enabledPlugins` recommendation. 2026-10-14.
 - **#215** `enhancement` — PreToolUse hook on SendMessage to block acks and cap message rate (1,767 calls in 10 days, still 170 to 230 per day after the 2026-10-10 rule). Deferred: needs a grill on block criteria, and v2.6.0 measured first (around 2026-10-18). 2026-10-14.
@@ -154,12 +100,9 @@ _Last reconciled: 2026-11-22 against 129 open issues (count refreshed to 129; #3
 - **#240** `enhancement` — Host-neutral fallbacks and skill names in the 12 degrading skills, slice of #229. 2026-10-25.
 - **#241** `enhancement` — Opt-in `--with-hooks` adapter for Cursor and Copilot, slice of #229. 2026-10-25.
 - **#242** `enhancement` — Accept ADR-0019 and sweep the two-host wording, slice of #229 (ADR accepted 2026-11-21; wording sweep waits on #232 and a live Copilot run). 2026-10-25.
-- **#247** `bug` — tests: the docs-sync case in `tests/bin/run-all.sh` fails on machine git state (a local branch with no commits of its own such as `epic/multi-host` counts as merged); the fixture run must ignore the host repo's branches. 2026-10-26.
-- **#248** `bug` — `bin/release.sh` ignores a `## Unreleased` CHANGELOG section: it prepends the new version and leaves Unreleased, duplicating lines. Fold Unreleased into the new version heading, with a fixture test. 2026-10-26.
 - **#271** `enhancement` — lead-guard denies `ai-kit-claim.sh set role=build` from the main thread unless the latest user prompt asks for it (UserPromptSubmit marker). 37 self-switches in 26 sessions. 2026-10-30.
 - **#298** `enhancement` — git-hygiene: cut worktree branches from `origin/<main>` after `git fetch`, never from local `<main>`; a portal app worktree inherited 5 unpushed commits and PR #436 mislabelled them. Rule edit in `standards/rules/git-hygiene.mini.md` plus the session-coordination worktree bullet. 2026-11-20.
 - **#315** `enhancement`: setup-gh-workflow: run the DoR check when a card moves to Doing. The `dor-dod-enforcement.yml` template only reacts to the `status:in-progress` label, which board repos no longer set (v2.26.0). Trigger on the board Status change too, or run the check when the kit moves a card. Deferred: parked from the #313 review to keep that slice small. 2026-11-22.
-- **#316** `enhancement`: tdd and autonomous: call `ai-kit-issue-meta.sh --status Doing` at work start; today only the board's "PR linked" workflow moves a card to Doing. Deferred: parked from the #313 review to keep that slice small. 2026-11-22.
 
 ## P3 — backlog
 
@@ -184,11 +127,7 @@ _Last reconciled: 2026-11-22 against 129 open issues (count refreshed to 129; #3
 - **#253** `enhancement` — release.sh duplicates the top section when CHANGELOG already has `## Unreleased`: rename it to `## X.Y.Z — date` instead of prepending, and never touch a later stray `## Unreleased`. 2026-10-27.
 - **#254** `enhancement` — stale ~/.cursor/commands stay after cursor is removed from hosts: prune only ai-kit's own entries there when cursor is not chosen. 2026-10-27.
 - **#223** `enhancement` — quarterly idea-source check: distilled sources (mattpocock/skills, gstack, superpowers) have no drift signal. Due on or after 2027-01-15; adopt as pattern, never resync; drop the cadence if it yields 2 ideas or fewer. 2026-10-17.
-- **#210** `bug` — ai-kit's own `.claude/hooks/` copies are ungated and drifted since #205; commit a marker and drop the copies so the kit's own sessions run the plugin hooks. 2026-10-10.
 - **#211** `enhancement` — `/ai:upgrade` sweeps the legacy graphify-only inline nudge (`graphify-out/graph.json` command) from settings.json, same loop as the hook copies. 2026-10-10.
-- **#187** `bug` — `gh` auth/network failures read as "no board" / "protection off" in
-  `setup-gh-workflow.sh:216,250` and `doctor:490`; `bootstrap-project.sh:113` copies
-  templates from an unchecked `TPL`. Audit 2026-09-19.
 - **#188** `enhancement` — dead scripts (`autonomous-queue`, `ai-kit-auto-release`,
   `eval-skill`, `ai-kit-root`) and wrapper families (`apply-*-hook` ×4, `no-globals` ×2);
   `detect-lib.sh` split. ~450 LOC, no behaviour change. Audit 2026-09-19.
@@ -201,9 +140,6 @@ _Last reconciled: 2026-11-22 against 129 open issues (count refreshed to 129; #3
 - **#194** `enhancement` — harvest the global PR gate (`pr-gate-check.sh` +
   `pr-gate-run.sh`, per-repo `.claude/pr-gate`) into `bin/hooks` + `/ai:setup` after real
   use; re-check ~2026-10-13. Open: hard default vs opt-in, per-stack seeding. 2026-09-29.
-- **#198** `bug` — `sync-plugin-rules.sh` called by its real path writes a stray
-  `workflow/workflow/rules/`; resolve root from realpath, test both paths, check
-  `sync-plugin-hooks.sh`. 2026-10-10.
 
 - **#180** `enhancement` — `docs-sync`: the portal app's 403-line project `docs-sync`
   (the skill #26 promoted the plugin's from) has diverged and shadows the plugin
@@ -276,10 +212,6 @@ _Last reconciled: 2026-11-22 against 129 open issues (count refreshed to 129; #3
   (the mobile app): commit 8b80cc1 already documents the Dart MCP gap
   being hand-rolled there; Patrol was found this session via manual research,
   not `/ai:recommend-tools`. Run both past `VETTING.md` before landing.
-- **#147** `bug` — `memory-audit` marks a file STALE only when it is past the
-  cutoff **and** has zero references. The index line in `MEMORY.md` counts as a
-  reference, so indexing a memory makes it permanently immune to the staleness
-  check — the check can only ever fire on memories nobody indexed.
 - **#142** `catalog-candidate` — add `clangd-lsp` to
   `standards/external/plugins.json`. `/ai:dedupe` surface 5 flags it as the one
   genuine ADOPT; `php-lsp` and `typescript-lsp` are already in the catalog, so it
@@ -333,12 +265,6 @@ _Last reconciled: 2026-11-22 against 129 open issues (count refreshed to 129; #3
   `claude-code-everything-you-need-to-know`. Run past `VETTING.md` before
   landing.
 
-- **#139** `bug` — `phase` hand-edits the marker when `CLAUDE_PLUGIN_ROOT` doesn't
-  resolve, losing the `lifecycle: old → new` transition line (0/12 eval runs
-  surfaced it). Found by the #137 eval suite. Fix: fallback contract in SKILL.md.
-- **#138** `bug` — `copywriter` flags Dutch tells but cites the §-numbers its own
-  SKILL.md defines in only 1-2/9 runs; one run kept a rule-of-three phrase in the
-  rewrite. Found by the #137 eval suite. Fix: explicit §-citation output contract.
 - **#137** `enhancement` — spike: `claude plugin eval` as ai-kit's behavioural
   eval layer — the ADR-0002 revisit-trigger check. Born from the autoresearch
   should-i-use (Ignore, logged in `plugins-excluded.json`): the mutation loop was
@@ -348,13 +274,6 @@ _Last reconciled: 2026-11-22 against 129 open issues (count refreshed to 129; #3
   revise ADR-0002 or log "trigger not met" with numbers. Human-driven improvement,
   eval as regression gate — no autonomous skill mutation, no text vendoring
   (licence-void source).
-- **#128** `bug` — `autonomous` in `drain` mode re-picks an issue it just shipped.
-  Step 7 opens a PR and never merges, but nothing the picker can see changes: the
-  issue keeps `ready-for-agent` until the PR merges, so the next iteration picks it
-  again and rebuilds work already sitting in review. There is no state between
-  queued and closed. `one` mode hides it. Cheapest fix reads the tracker for an open
-  PR referencing the issue rather than adding a label that would drift the moment
-  someone merges through the web UI.
 - **#112** `enhancement` — spike: should `to-issues` emit an in-repo **spec-delta**
   reviewable in the same PR as the code? Surfaced by `/ai:should-i-use` on
   OpenSpec (Fission-AI), whose verdict was Ignore for the catalog — alternative
@@ -417,14 +336,12 @@ _Last reconciled: 2026-11-22 against 129 open issues (count refreshed to 129; #3
 - **#243** `enhancement` — reference research before designing a new site: a fixed step that goes through a curated source list (inspora.design, collectui.com, 60fps.design, cta.gallery, footer.design) and collects concrete references per section before the first design, instead of fine-tuning over many rounds. Shape open (step in `design-to-code`, section in an existing skill, or own skill). Deferred until a client site session's reference research has shaped a real design and shows which sources earned their place (harvest-only-proven). Requested by Yusuf via a client site session. 2026-10-25.
 - **#244** `enhancement` — AI image generation for site visuals, harvested from a client site: generate, plausibility-check, place and credit objects-only images via OpenRouter (key from Keychain, never exported), site only. Deferred until a client site PR 1 is on main with credits and a credits check; opt-in per app (the content site bans AI images). 2026-10-25.
 - **#245** `enhancement` — grill skills: after recommending several design choices, check the combination still produces the source pattern's visual effect (seen: white header + pill nav made a white pill invisible). Deferred until a second occurrence fixes the wording. 2026-10-26.
-- **#246** `bug` — lead-guard: Bash appends to the memory index are blocked while Write works; make the guard message say "use Write", and keep agent briefs/hooks off interactive `rm` aliases (`command rm -f`). Low severity, workarounds exist. 2026-10-26.
 - **#257** `enhancement` — harvest the React app POC findings: SSR forms with sensitive fields use `method="post"`, never print `.env`, lead briefs ban `git add -N` and need unfiltered exit codes (proven, do first); grid-wrapper and design-to-code notes wait for a 2nd app (Paper chosen in #258). 2026-10-29.
 - **#268** `enhancement` — git-hygiene: commit briefs tick DoD boxes before closing; the DoD workflow reopens issues with unticked boxes. 2026-10-30.
 - **#272** `enhancement` — offer ReUI Pro registry in recommend-tools for React+shadcn projects (components.json); parked until a Pro block ships in the React app. 2026-10-30.
 - **#273** `enhancement` — design-to-code judge: `mask` takes CSS selectors, so a Paper frame or block thumbnail (no DOM) cannot mask a changing value; add mask-by-position only when an app needs it. 2026-11-08.
 - **#274** `enhancement` — design-pin.sh and judge hardening: `--` before shasum paths, exit 2 on missing inputs, git-config-proof worktree diff, one source for the overlay path list, shellcheck on `tests/bin/cases`, `set_by` per user-only overlay key, measure.json per width and theme. 2026-11-08.
 - **#264** — design-to-code: first Paper setup in the React app cost 20 MCP calls and found 7 mismatches between skill, guide and practice (per-group `write_html` against the Free-tier budget, design brief versus app tokens first, no light/dark token modes, `.` not allowed in token names, no file-choice or `create_file` step, `rename_nodes` truncates at 50 characters). 2026-10-30.
-- **#284** `bug` — hooks: lead-guard misses `git -C <dir> commit|push|tag|switch`, because its patterns expect `git <verb>` directly; found in the #281 review. 2026-11-13.
 - **#286** `enhancement` — upgrade: `/ai:upgrade` writes `env.CLAUDE_CODE_SUBAGENT_MODEL=sonnet` into `.claude/settings.json` for projects set up before v2.19.0; no-op when the key is set, leaves malformed JSON untouched. 2026-11-14.
 - **#287** `enhancement` — skills: lead-executes seams left after #282: design-leads (one screen at a time) versus design-to-code Batch (parallel), diagnose Phase 4 instrumentation and triage reproduce run by the lead, design-to-code `measure.json` and evidence produced by the lead. 2026-11-14.
 - **#289** `enhancement` — hooks: close heavy-run-gate gaps left after v2.22.0: suites that bypass the wrapper (`if`/`while` prefixes, `nohup`, `env -i`, `sudo -u`, backticks, `yarn workspace`, `bash -c`), false denies (`gradle tasks`, `vitest related`, `pnpm --filter web vitest`), the stale-lock takeover race, unguarded native builds and `expo run`, no Cursor/Codex wiring. Decide scope in a grill first. 2026-11-16.
