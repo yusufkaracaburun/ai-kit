@@ -1,5 +1,30 @@
 # Changelog
 
+## 2.27.0 — 2026-11-22
+
+### Added
+- `tdd` and `autonomous` move the board card to Doing when work starts, so a card no longer sits in Backlog while work runs (#316). A failure or missing board does not stop the work.
+
+### Fixed
+- `autonomous` skips issues that already have an open PR instead of picking them again, and logs the skip to `progress.txt` (#128).
+- Moving a card to Backlog keeps `ready-for-agent` and `ready-for-human`, and still drops `needs-info` and `status:in-progress`.
+- `ai-kit-issue-meta.sh` and `/ai:next` find project boards owned by another account.
+- `gh` failures are no longer read as "not found". `gh auth status` is pinned to github.com, doctor reports branch protection as inconclusive with gh's error instead of off, and `setup-gh-workflow` shows graphql errors (#187).
+- `recommend-rules` parses quoted frontmatter lists, and a rule that lists frameworks needs a framework match before architecture matches count (#263).
+- `lead-guard` catches `git -C/-c`, `--no-pager`, `-p/-P`, a path-prefixed git and a `command` prefix, and its Bash deny points memo writes at the Write tool. `build-delegation-check` no longer counts memory, planning, `~/.claude`, `/tmp` or out-of-project writes (#284, #246, #206).
+- Setup and upgrade no longer stall in lead sessions: the lead hands setup writes and verify to a subagent (#202).
+- The builder checks the base SHA in a worktree the lead made, so a stale worktree base is caught before work starts (#269).
+- `release.sh` folds a leading Unreleased section into the new entry, doctor reports dead links in the global skill dirs, and verify-setup and status follow the marker for agent-stack, issue-tracker and solo-global skills (#248, #150, #170).
+- `sync-plugin-rules` resolves its root from its real path, `test-ci` detects Dart and Flutter runners, and `memory-audit` no longer treats the MEMORY.md index line as a reference (#198, #174, #147).
+- `copywriter` names the section of every flagged tell (#138).
+- `/ai:phase` falls back to the stable plugin path when `CLAUDE_PLUGIN_ROOT` is unset, and prints the old and new phase after a change (#139).
+- `bootstrap-project.sh` fails clearly when the template dir is missing and warns for each missing template file.
+- Scripts run `mv`, `rm` and `cp` through `command`, so a user alias such as `rm -i` cannot make them prompt or hang. A new test fails on any bare call (#207).
+
+### Changed
+- Docs: keep `!` commands on one line.
+- Tests: the ready-label check reads the queue script, and the docs-sync test runs its fixture in its own git repo (#247).
+
 ## 2.26.0 — 2026-11-22
 
 ### Added
