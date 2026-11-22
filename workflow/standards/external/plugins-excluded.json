@@ -346,12 +346,6 @@
       "pinned_sha": "64eb3deb9a5fbfa041faf783e0bc3fd635872e9c",
       "reason": "MIT, markdown-only, 20 skills at HEAD (13 when added 2026-09-15). Added as a companion on a gap-check without a measured trial. Removed 2026-11-21. Confirmed: 1 Skill call in 2 months (usage.jsonl), 0 in emeq-hub where 5 skills were installed. Confirmed: emeq-app retired, and emeq-reui's ReUI rule forbids retiming/restyling shipped components, which is the main action of improve-animations. Untested: output quality, because the trial in emeq-reui was blocked by auto mode. Also note: animate-expo duplicates the installed expo:expo-animation plugin. should-i-use verdict: Ignore (no consuming repo has the pain).",
       "alternative": "If an app with heavy custom motion appears, run one trial there first: `npx skills@latest add emilkowalski/skills -a claude-code -y -s improve-animations` in a worktree, judge score before and after."
-    },
-    {
-      "name": "kaneo",
-      "pinned_sha": "df0a5b0e6da2611f5bc9bcee794e7b83b00ab2e9",
-      "reason": "Self-hosted project board (usekaneo/kaneo, v2.50.0, HEAD df0a5b0 on main, MIT per the root LICENSE; sub-package licences not read). Assessed 2026-11-22. should-i-use verdict: Ignore (Track A). Confirmed from docs and kaneo.app: self-hosting needs Docker Compose, Postgres and a self-created GitHub App, or $4/month cloud. Confirmed from apps/api/src/plugins/github and docs: the two-way GitHub sync writes real issues and comments, so it becomes a second writer next to the roadmap <-> issues sync rule. Untested: no Kaneo trial was run. The target pain (a stale, hand-generated roadmap board in one app) is addressed by a private user-level GitHub Projects board, trial 2026-11-22 to 2026-12-06. Track A: no catalog gap, since GitHub issues via gh is the kit tracker and mcp-servers.json already lists Linear for teams that need one.",
-      "alternative": "If the GitHub Projects board trial (2026-11-22 to 2026-12-06) fails, run one Kaneo trial in the consuming repo first, with the GitHub sync off, and compare against the board."
     }
   ],
   "reversed": [
