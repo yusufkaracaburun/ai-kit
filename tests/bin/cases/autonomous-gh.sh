@@ -41,6 +41,24 @@ AQ_JSON_POP="$(PATH="$TMP_AQ/stubs:$PATH" "$AIKIT/bin/autonomous-queue.sh" next 
 assert "populated --json includes issue #" 'echo "$AQ_JSON_POP" | grep -q "\"issue\": 18"'
 assert "populated --json includes title"   'echo "$AQ_JSON_POP" | grep -q "\"title\": \"older one\""'
 
+# An issue that already has an open PR is skipped, and the skip is logged.
+cat > "$TMP_AQ/stubs/gh" <<'STUB'
+#!/usr/bin/env bash
+if [ "$1" = pr ]; then
+  echo "$*" > "$GH_PR_ARGS_LOG"
+  echo '[{"number": 101, "closingIssuesReferences": [{"number": 18}]}]'
+else
+  echo '[{"number": 42, "title": "newer one", "updatedAt": "2026-05-22T10:00:00Z"},
+         {"number": 18, "title": "older one", "updatedAt": "2026-05-20T10:00:00Z"}]'
+fi
+STUB
+AQ_OUT_PR="$(GH_PR_ARGS_LOG="$TMP_AQ/pr.args" PATH="$TMP_AQ/stubs:$PATH" "$AIKIT/bin/autonomous-queue.sh" next --log "$TMP_AQ/progress.txt" 2>"$TMP_AQ/skip.err")"
+assert "open PR: skips the issue with an open PR" '[ "$AQ_OUT_PR" = "$(printf "42\tnewer one")" ]'
+assert "open PR: --log gets the skip line in progress.txt schema" \
+  'grep -qE "^[0-9TZ:-]+	18	skip	open-pr=101$" "$TMP_AQ/progress.txt"'
+assert "open PR: stderr stays free for errors" '[ ! -s "$TMP_AQ/skip.err" ]'
+assert "open PR: pr list asks past the default page" 'grep -q -- "--limit 200" "$TMP_AQ/pr.args"'
+
 # Label comes from docs/agents/triage-labels.md; ready-for-agent without it.
 cat > "$TMP_AQ/stubs/gh" <<'STUB'
 #!/usr/bin/env bash

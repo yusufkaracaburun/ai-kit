@@ -134,7 +134,7 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
     5-hour block by its end, not a hard Anthropic-reported limit — ccusage
     has no API for the account's real cap, so the guard is a user-chosen
     dollar ceiling, not a universal threshold. Silent no-op when unset.
-2. **Pick next issue.** `gh issue list --label "$READY_LABEL" --json number,title,updatedAt --jq 'sort_by(.updatedAt) | .[0]'`. Oldest first. Queue empty → write `exit-empty`, stop.
+2. **Pick next issue.** `"$AI_KIT_ROOT/bin/autonomous-queue.sh" next --log .ai-kit/autonomous/progress.txt`. Oldest first. The script skips an issue that already has an open PR and logs `skip <n> open-pr=<PR#>`. Non-zero exit → write `exit-gate queue-error`, stop. Queue empty → write `exit-empty`, stop.
 3. **Read Agent Brief.** `gh issue view <n> --comments` — find the
    comment whose header is the literal `## Agent Brief`. If missing or
    thin (no acceptance criteria inline), write `exit-gate brief-thin`
@@ -284,7 +284,9 @@ Events:
   `preflight-*` line on a fresh run = step 0 was skipped — refuse to
   consume that progress.txt and start over.
 - **Lifecycle:** `pick`, `brief-ok`, `cycle-attempt`, `cycle-done`,
-  `tdd-green`, `review-pass`, `verify-pass`, `ship-ok`.
+  `tdd-green`, `review-pass`, `verify-pass`, `ship-ok`, `skip`
+  (detail `open-pr=<PR#>`; the picker passed over an issue that already
+  has an open PR).
 - **Liveness:** `heartbeat` — one per 60s wall-clock while the skill
   is alive (emitted by `bin/autonomous-heartbeat.sh`, not the LLM).
   Absence of `heartbeat` for >120s = process gone or runner crashed.
