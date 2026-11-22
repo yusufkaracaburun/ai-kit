@@ -33,7 +33,7 @@ esac
 
 RULES_DIR="$AIKIT/standards/rules"
 TMP="$(mktemp -d)"
-trap 'rm -rf "$TMP"' EXIT
+trap 'command rm -rf "$TMP"' EXIT
 
 paths=()
 for f in "$RULES_DIR"/*.mini.md "$RULES_DIR"/*.nano.md \

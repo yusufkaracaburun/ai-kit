@@ -169,7 +169,7 @@ case "$MODE" in
           # (We could keep nesting; flat is easier to inspect.)
           dest="$BACKUP_ROOT/$(printf "%s" "$rel" | tr '/' '_')"
           mkdir -p "$(dirname "$dest")"
-          cp "$f" "$dest"
+          command cp "$f" "$dest"
           BACKED_UP=$((BACKED_UP + 1))
           ;;
       esac

@@ -56,7 +56,7 @@ case "$ACTION" in
     ;;
   off)
     if [ -f "$OPT_OUT_FILE" ]; then
-      rm -f "$OPT_OUT_FILE"
+      command rm -f "$OPT_OUT_FILE"
       echo "prefer-plugin opt-out removed: ${OPT_OUT_FILE}"
     else
       echo "prefer-plugin opt-out already absent"

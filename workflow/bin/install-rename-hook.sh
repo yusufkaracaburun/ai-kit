@@ -37,7 +37,7 @@ mkdir -p "$HOOK_DST_DIR"
 [ -f "$SETTINGS" ] || echo '{}' > "$SETTINGS"
 
 if [ "$UNINSTALL" -eq 1 ]; then
-  rm -f "$HOOK_DST"
+  command rm -f "$HOOK_DST"
   python3 - "$SETTINGS" <<'PY'
 import json, sys
 
@@ -92,7 +92,7 @@ fi
 HOOK_SRC="$AIKIT/bin/hooks/rename-detector.sh"
 [ -f "$HOOK_SRC" ] || { echo "Hook source missing: $HOOK_SRC" >&2; exit 1; }
 
-cp "$HOOK_SRC" "$HOOK_DST"
+command cp -f "$HOOK_SRC" "$HOOK_DST"
 chmod +x "$HOOK_DST"
 
 # Seed an empty registry so the hook's first read never trips on missing file.

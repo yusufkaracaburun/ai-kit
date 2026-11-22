@@ -27,5 +27,5 @@ if [ "$AUTO_CONFIRM" != true ]; then
   esac
 fi
 
-rm -f "$log_file"
+command rm -f "$log_file"
 echo "Deleted."

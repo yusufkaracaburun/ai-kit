@@ -36,8 +36,8 @@ acquire() {
   fi
   # The rename lets only one of several runs clear the same stale lock.
   # shortcut: a clearer that renames after another clearer already re-took the lock moves a live lock; upgrade to a holder re-check after the rename if that is ever seen.
-  mv "$lock" "$lock.stale.$$" 2>/dev/null || { why="another run is clearing a stale lock"; return 1; }
-  rm -rf "$lock.stale.$$"
+  command mv "$lock" "$lock.stale.$$" 2>/dev/null || { why="another run is clearing a stale lock"; return 1; }
+  command rm -rf "$lock.stale.$$"
   take "$@" || { why="another run took the lock just now"; return 1; }
 }
 
@@ -48,7 +48,7 @@ until acquire "$@"; do
   sleep 2
 done
 
-trap 'rm -rf "$lock"' EXIT
+trap 'command rm -rf "$lock"' EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 

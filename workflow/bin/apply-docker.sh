@@ -20,18 +20,18 @@ mkdir -p "$TARGET/docs/agents"
 
 case "$MODE" in
   none)
-    cp "$AIKIT/context/templates/docs/agents/docker-none.md" "$TARGET/docs/agents/docker.md"
+    command cp -f "$AIKIT/context/templates/docs/agents/docker-none.md" "$TARGET/docs/agents/docker.md"
     echo "none" > "$TARGET/.ai-kit-docker"
     echo "Docker: none"
     ;;
   minimal)
     if [ ! -f "$TARGET/compose.yaml" ] && [ ! -f "$TARGET/docker-compose.yml" ] && [ ! -f "$TARGET/docker-compose.yaml" ]; then
-      cp "$AIKIT/dev/docker/compose.yml.template" "$TARGET/compose.yaml"
+      command cp "$AIKIT/dev/docker/compose.yml.template" "$TARGET/compose.yaml"
       echo "Created compose.yaml (customize before use)"
     else
       echo "Compose file already exists — skipped scaffold"
     fi
-    cp "$AIKIT/context/templates/docs/agents/docker-minimal.md" "$TARGET/docs/agents/docker.md"
+    command cp -f "$AIKIT/context/templates/docs/agents/docker-minimal.md" "$TARGET/docs/agents/docker.md"
     echo "minimal" > "$TARGET/.ai-kit-docker"
     echo "Docker: minimal compose"
     ;;

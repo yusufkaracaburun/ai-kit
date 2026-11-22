@@ -110,11 +110,11 @@ write_cache() {
   cat > "$tmp"
   # Validate before committing — never persist garbage.
   if ! python3 -c 'import json,sys; json.load(open(sys.argv[1]))' "$tmp" >/dev/null 2>&1; then
-    rm -f "$tmp"
+    command rm -f "$tmp"
     echo "Refusing to cache invalid JSON for key $key" >&2
     return 2
   fi
-  mv "$tmp" "$path"
+  command mv -f "$tmp" "$path"
 }
 
 main() {
@@ -169,9 +169,9 @@ main() {
       local dir
       dir="$(cache_dir)"
       if [ "${#pos[@]}" -eq 0 ]; then
-        [ -d "$dir" ] && rm -rf "$dir"
+        [ -d "$dir" ] && command rm -rf "$dir"
       else
-        rm -f "$(key_path "${pos[0]}")"
+        command rm -f "$(key_path "${pos[0]}")"
       fi
       ;;
     *) usage ;;

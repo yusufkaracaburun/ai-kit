@@ -106,7 +106,7 @@ fi
 # RTF / ODT / MD natively (PDF needs pdftotext under the hood for old
 # pandoc versions; modern pandoc ships its own PDF reader).
 TMP="$(mktemp -t doc-to-skill.XXXXXX.md)"
-trap 'rm -f "$TMP"' EXIT
+trap 'command rm -f "$TMP"' EXIT
 
 # Use --wrap=none so headings stay on one line, easier to grep.
 pandoc "$SRC" -t markdown --wrap=none -o "$TMP" 2>/dev/null || {

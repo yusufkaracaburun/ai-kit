@@ -60,7 +60,7 @@ mkdir -p "$TARGET/.github/workflows"
 if [ -f "$DST" ] && [ "$FORCE" = false ]; then
   echo "  skip (exists): .github/workflows/gitleaks.yml — pass --force to replace"
 else
-  cp "$SRC" "$DST"
+  command cp -f "$SRC" "$DST"
   echo "  wrote .github/workflows/gitleaks.yml"
 fi
 

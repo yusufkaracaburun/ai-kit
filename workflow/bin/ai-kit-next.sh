@@ -330,7 +330,7 @@ if not top:
     print("ai-kit next — nothing open")
     print("")
     print("  No prioritised GH issues, no open roadmap entries, no deferred setup branches.")
-    print("  If you think this is wrong: gh auth status; ls docs/roadmap.md")
+    print("  If you think this is wrong: gh auth status --hostname github.com; ls docs/roadmap.md")
     sys.exit(0)
 
 print(f"ai-kit next — top {len(top)} for {os.path.basename(TARGET.rstrip('/'))} (of {len(items)} total)")

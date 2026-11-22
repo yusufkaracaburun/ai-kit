@@ -138,7 +138,7 @@ copy_template() {
     log "  [dry-run] copy ${src#"$AIKIT"/} → ${dst#"$TARGET"/}"
     return 0
   fi
-  cp "$src" "$dst"
+  command cp -f "$src" "$dst"
   log "  wrote ${dst#"$TARGET"/}"
 }
 
@@ -252,7 +252,7 @@ if match:
     else
       GH_FAILED="$(head -1 "$GH_ERR" | grep . || echo "no error output")"
     fi
-    rm -f "$GH_ERR"
+    command rm -f "$GH_ERR"
 
     if [ -n "$GH_FAILED" ]; then
       log "  gh project list failed: $GH_FAILED"
@@ -267,6 +267,7 @@ if match:
     else
       log "  found project #$PROJECT_NUMBER for owner $OWNER"
       # Fetch Status field + Todo + Ready option IDs.
+      GH_ERR="$(mktemp)"
       FIELDS_JSON="$(gh api graphql -f query='
         query($owner: String!, $number: Int!) {
           user(login: $owner) {
@@ -282,7 +283,7 @@ if match:
           }
         }
       ' -F owner="$OWNER" -F number="$PROJECT_NUMBER" 2>"$GH_ERR")" || GH_FAILED="$(head -1 "$GH_ERR" | grep . || echo "no error output")"
-      rm -f "$GH_ERR"
+      command rm -f "$GH_ERR"
       RESOLVED="$(FIELDS_JSON="$FIELDS_JSON" python3 -c "
 import json, os, sys
 try:
@@ -365,7 +366,7 @@ scaffold_pr_template() {
     return 0
   fi
   mkdir -p "$target/.github"
-  cp "$src" "$target/.github/PULL_REQUEST_TEMPLATE.md"
+  command cp "$src" "$target/.github/PULL_REQUEST_TEMPLATE.md"
   log "PR template: scaffolded at .github/PULL_REQUEST_TEMPLATE.md"
 }
 

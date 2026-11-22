@@ -27,13 +27,13 @@ case "$ACTION" in
   on)
     mkdir -p "$(dirname "$OPT_OUT_FILE")"
     : > "$OPT_OUT_FILE"
-    [ -L "$LINK" ] && rm -f "$LINK"
+    [ -L "$LINK" ] && command rm -f "$LINK"
     echo "Opt-out active: ${OPT_OUT_FILE}"
     echo "Global rules off — ${LINK} removed; the SessionStart hook will not recreate it."
     ;;
   off)
     if [ -f "$OPT_OUT_FILE" ]; then
-      rm -f "$OPT_OUT_FILE"
+      command rm -f "$OPT_OUT_FILE"
       echo "Opt-out removed: ${OPT_OUT_FILE}"
       echo "Global rules resume on the next session start."
     else

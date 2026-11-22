@@ -31,7 +31,7 @@ case "$ACTION" in
     ;;
   off)
     if [ -f "$OPT_OUT_FILE" ]; then
-      rm -f "$OPT_OUT_FILE"
+      command rm -f "$OPT_OUT_FILE"
       echo "Opt-out removed: ${OPT_OUT_FILE}"
     else
       echo "Opt-out already absent"

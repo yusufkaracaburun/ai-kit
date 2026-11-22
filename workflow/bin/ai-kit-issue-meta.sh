@@ -36,7 +36,7 @@ USAGE
 bad() { echo "issue-meta: $1" >&2; usage >&2; exit 2; }
 note() { echo "issue-meta: $1" >&2; }
 ERR_FILE=$(mktemp)
-trap 'rm -f "$ERR_FILE"' EXIT
+trap 'command rm -f "$ERR_FILE"' EXIT
 # Notes a failure with the first line of the last gh call's stderr.
 fail() {
   local err

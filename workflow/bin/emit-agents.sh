@@ -143,7 +143,7 @@ process_agent() {
 
   if cmp -s "$agent_md" "$new_file"; then
     echo "emit-agents: $rel — in sync"
-    rm -f "$genfile" "$new_file"
+    command rm -f "$genfile" "$new_file"
     return 0
   fi
 
@@ -158,11 +158,11 @@ process_agent() {
       diff "$agent_md" "$new_file" || true
       ;;
     write)
-      cp "$new_file" "$agent_md"
+      command cp -f "$new_file" "$agent_md"
       echo "emit-agents: updated $rel"
       ;;
   esac
-  rm -f "$genfile" "$new_file"
+  command rm -f "$genfile" "$new_file"
 }
 
 found=0

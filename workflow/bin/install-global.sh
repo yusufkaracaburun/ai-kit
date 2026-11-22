@@ -44,7 +44,7 @@ install_files_to() {
     was="$(readlink "$dead")"
     case "$was" in
       */ai-kit/*|"$PREV_ROOT"/*)
-        rm -f "$dead"
+        command rm -f "$dead"
         echo "Removed dead link $(basename "$dead") (was -> $was)"
         ;;
     esac
@@ -57,7 +57,7 @@ install_files_to() {
       if [ -L "$dest" ]; then
         resolved="$(cd "$(dirname "$dest")" 2>/dev/null && readlink "$dest")" || resolved=""
         case "$resolved" in
-          "$src_real"/*|"$entry") rm -f "$dest" ;;
+          "$src_real"/*|"$entry") command rm -f "$dest" ;;
           *)
             echo "Skipped $name (existing non-aikit entry at $dest)"
             continue

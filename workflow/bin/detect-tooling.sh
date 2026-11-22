@@ -71,7 +71,7 @@ fi
 if [ "$WRITE_AGENT_STACK" = true ]; then
   mkdir -p "$TARGET/docs/agents"
   OUT="$TARGET/docs/agents/agent-stack.md"
-  cp "$AIKIT/context/templates/docs/agents/agent-stack.md" "$OUT"
+  command cp -f "$AIKIT/context/templates/docs/agents/agent-stack.md" "$OUT"
   python3 - "$OUT" "${AGENT_STACK_RECOMMENDATION}" \
     "${AGENT_STACK_CURSOR_SKILLS_AIKIT[*]-}" "${AGENT_STACK_CURSOR_SKILLS_CUSTOM[*]-}" \
     "${AGENT_STACK_RULES_AIKIT[*]-}" "${AGENT_STACK_RULES_CUSTOM[*]-}" \
@@ -108,7 +108,7 @@ fi
 if [ "$WRITE" = true ]; then
   mkdir -p "$TARGET/docs/agents"
   OUT="$TARGET/docs/agents/dev-environment.md"
-  cp "$AIKIT/context/templates/docs/agents/dev-environment.md" "$OUT"
+  command cp -f "$AIKIT/context/templates/docs/agents/dev-environment.md" "$OUT"
 
   FW_LIST="$(IFS=,; echo "${FRAMEWORKS[*]-}")"
   python3 - "$OUT" "$PM_NAME" "$INSTALL_CMD" "$FW_LIST" "$SCRIPT_TEST" "$SCRIPT_BUILD" \

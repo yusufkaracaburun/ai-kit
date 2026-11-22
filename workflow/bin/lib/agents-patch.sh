@@ -59,7 +59,7 @@ EOF
     return 0
   fi
 
-  mv "$tmp" "$file"
+  command mv -f "$tmp" "$file"
 }
 
 patch_agents_docker_section() {

@@ -119,7 +119,7 @@ claim_set() {
     printf '%s: %s\n' "$key" "$val" >> "$tmp"
   done
   printf 'updated: %s\n---\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$tmp"
-  mv "$tmp" "$file"
+  command mv -f "$tmp" "$file"
   cat "$file"
 }
 
@@ -169,14 +169,14 @@ claim_prune() {
   for file in "$CLAIMS_DIR"/*.md; do
     [ -f "$file" ] || continue
     sid="$(basename "$file" .md)"
-    grep -qxF "$sid" <<<"$live" || rm -f "$file"
+    grep -qxF "$sid" <<<"$live" || command rm -f "$file"
   done
 }
 
 case "$CMD" in
   set) claim_set "$@" ;;
   show) claim_show ;;
-  release) need_session; rm -f "$CLAIMS_DIR/$SESSION.md" ;;
+  release) need_session; command rm -f "$CLAIMS_DIR/$SESSION.md" ;;
   prune) claim_prune ;;
   *) usage ;;
 esac

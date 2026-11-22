@@ -46,6 +46,6 @@ emit_generic() {
     echo "<!-- ai-kit:active-rules:end -->"
   } > "$tmp"
 
-  mv "$tmp" "$index"
+  command mv -f "$tmp" "$index"
   echo "emit:generic  ${index#$target/} (+ ${rule_name})"
 }

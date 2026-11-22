@@ -151,7 +151,7 @@ if [ "$PROMPT_FIRED" -eq 1 ] && { [ "$reply" = "y" ] || [ "$reply" = "Y" ]; }; t
     fi
   done
   for s in "${BROKEN_SYMLINKS[@]}"; do
-    if rm "$s" 2>/dev/null; then
+    if command rm "$s" 2>/dev/null; then
       echo "  rm: ${s#$PROJECT_PATH/}"
     else
       echo "  rm FAILED: ${s#$PROJECT_PATH/}" >&2

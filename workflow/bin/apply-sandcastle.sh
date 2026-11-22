@@ -19,9 +19,9 @@ SC="$TARGET/.sandcastle"
 
 mkdir -p "$SC"
 
-cp -n "$AIKIT/orchestration/sandcastle/sequential-reviewer/"* "$SC/" 2>/dev/null || true
-cp -n "$AIKIT/orchestration/sandcastle/prompt.md.template" "$SC/prompt.md" 2>/dev/null || true
-cp "$AIKIT/orchestration/sandcastle/main.ts.template" "$SC/main.mts"
+command cp -n "$AIKIT/orchestration/sandcastle/sequential-reviewer/"* "$SC/" 2>/dev/null || true
+command cp -n "$AIKIT/orchestration/sandcastle/prompt.md.template" "$SC/prompt.md" 2>/dev/null || true
+command cp -f "$AIKIT/orchestration/sandcastle/main.ts.template" "$SC/main.mts"
 
 detect_package_manager "$TARGET"
 
@@ -35,7 +35,7 @@ fi
 # Patch placeholders in main.mts
 tmp="$(mktemp)"
 sed "s|{{INSTALL_CMD}}|${INSTALL}|g" "$SC/main.mts" | sed "s|{{COPY_TO_WORKTREE}}|${COPY_JSON}|g" > "$tmp"
-mv "$tmp" "$SC/main.mts"
+command mv -f "$tmp" "$SC/main.mts"
 
 echo "Sandcastle scaffold installed at .sandcastle/"
 echo "Install hook: ${INSTALL}"

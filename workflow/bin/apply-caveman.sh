@@ -120,7 +120,7 @@ backup_settings() {
   local dir
   dir="$HOME/.claude/.backups/$(date -u +"%Y%m%dT%H%M%SZ")"
   mkdir -p "$dir"
-  cp "$SETTINGS" "$dir/settings.json"
+  command cp "$SETTINGS" "$dir/settings.json"
   echo "  backup: $dir/settings.json"
 }
 

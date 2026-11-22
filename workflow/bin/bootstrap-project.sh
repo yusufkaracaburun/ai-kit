@@ -99,17 +99,17 @@ if [ ! -d "$TPL" ]; then
 fi
 
 if [ ! -f "$TARGET/AGENTS.md" ]; then
-  cp "$TPL/AGENTS.md.template" "$TARGET/AGENTS.md"
+  command cp "$TPL/AGENTS.md.template" "$TARGET/AGENTS.md"
   echo "Created AGENTS.md"
 fi
 
 if [ ! -f "$TARGET/CONTEXT.md" ]; then
-  cp "$TPL/CONTEXT.md.template" "$TARGET/CONTEXT.md"
+  command cp "$TPL/CONTEXT.md.template" "$TARGET/CONTEXT.md"
   echo "Created CONTEXT.md"
 fi
 
 if [ ! -f "$TARGET/CLAUDE.md" ]; then
-  cp "$TPL/CLAUDE.md.template" "$TARGET/CLAUDE.md"
+  command cp "$TPL/CLAUDE.md.template" "$TARGET/CLAUDE.md"
   echo "Created CLAUDE.md"
 fi
 
@@ -119,7 +119,7 @@ mkdir -p "$TARGET/docs/agents" "$TARGET/docs/adr" "$TARGET/docs/wiki"
 # the framework section, branch 5 edits the label mapping.
 for f in docs/adr/ADR-template.md docs/wiki/README.md docs/agents/workflow.md docs/agents/triage-labels.md; do
   if [ -f "$TPL/$f" ]; then
-    cp -n "$TPL/$f" "$TARGET/$f" 2>/dev/null || true
+    command cp -n "$TPL/$f" "$TARGET/$f" 2>/dev/null || true
   else
     echo "warn: template file not found: $TPL/$f" >&2
   fi
@@ -171,7 +171,7 @@ if [ "$WITH_MCP" = true ]; then
   if [ -f "$TARGET/.cursor/mcp.json" ] || [ -f "$TARGET/.mcp.json" ] || [ -f "$TARGET/.vscode/mcp.json" ]; then
     echo "Skipped mcp.json copy (existing MCP config detected)"
   elif [ -f "$TPL/.cursor/mcp.json.template" ]; then
-    cp "$TPL/.cursor/mcp.json.template" "$TARGET/.cursor/mcp.json"
+    command cp "$TPL/.cursor/mcp.json.template" "$TARGET/.cursor/mcp.json"
     echo "Created .cursor/mcp.json (baseline — uncomment servers you want)"
   fi
 fi

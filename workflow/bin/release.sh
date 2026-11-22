@@ -219,7 +219,7 @@ echo "Pushing ai-kit master + tags…"
 git push origin master --tags
 
 MKT_TMP="$(mktemp -d -t ai-kit-marketplace.XXXXXX)"
-trap 'rm -rf "$MKT_TMP"' EXIT
+trap 'command rm -rf "$MKT_TMP"' EXIT
 
 echo "Cloning $MARKETPLACE_REPO → $MKT_TMP …"
 git clone --quiet "$MARKETPLACE_REPO" "$MKT_TMP"
@@ -238,7 +238,7 @@ fi
 jq --arg v "$NEW_VERSION" --arg ref "v$NEW_VERSION" \
   '.plugins[0].version = $v | .plugins[0].source.ref = $ref' \
   "$MKT_JSON" > "$MKT_JSON.tmp"
-mv "$MKT_JSON.tmp" "$MKT_JSON"
+command mv -f "$MKT_JSON.tmp" "$MKT_JSON"
 
 cd "$MKT_TMP"
 if git diff --quiet; then

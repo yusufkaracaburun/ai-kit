@@ -10,8 +10,8 @@ link_skills_all() {
   local dest_parent="$1" label="$2" primitives="$3" copy="${4:-false}"
   mkdir -p "$dest_parent"
   if [ "$copy" = true ]; then
-    rm -rf "$dest_parent/skills"
-    cp -R "$primitives/skills" "$dest_parent/skills"
+    command rm -rf "$dest_parent/skills"
+    command cp -R "$primitives/skills" "$dest_parent/skills"
     echo "Copied skills to $dest_parent/skills/"
   else
     ln -sfn "$primitives/skills" "$dest_parent/skills"
@@ -66,7 +66,7 @@ merge_skills() {
       echo "$label already linked to ai-kit skills"
       return 0
     fi
-    rm -f "$skills_dir"
+    command rm -f "$skills_dir"
   fi
 
   mkdir -p "$skills_dir"
@@ -91,7 +91,7 @@ merge_agents() {
     # Pre-2.2.1 linked a dir per agent, which Claude Code registers as <dir>:<name>.
     legacy="$agents_dir/$(basename "$agent" .md)"
     if [ -L "$legacy" ]; then
-      case "$(readlink "$legacy")" in *ai-kit*|*plugins/cache/*) rm -f "$legacy" ;; esac
+      case "$(readlink "$legacy")" in *ai-kit*|*plugins/cache/*) command rm -f "$legacy" ;; esac
     fi
     link_preserving_custom "$agent" "$agents_dir/$(basename "$agent")" "$label" "$project_root"
   done
@@ -135,7 +135,7 @@ install_dir_to() {
     was="$(readlink "$dead")"
     case "$was" in
       */ai-kit/*|"${PREV_ROOT:-//no-previous-root}"/*)
-        rm -f "$dead"
+        command rm -f "$dead"
         echo "Removed dead link $(basename "$dead") (was -> $was)"
         ;;
     esac
@@ -149,7 +149,7 @@ install_dir_to() {
         [ "$(readlink "$dest")" = "$entry" ] && continue
         resolved="$(cd "$dest" 2>/dev/null && pwd -P)" || resolved=""
         case "$resolved" in
-          "$src_real"/*) rm -f "$dest" ;;
+          "$src_real"/*) command rm -f "$dest" ;;
           *)
             echo "Skipped $name (existing non-aikit entry at $dest)"
             continue
@@ -182,7 +182,7 @@ prune_aikit_skill_links() {
     [ -L "$link" ] || continue
     resolved="$(cd "$link" 2>/dev/null && pwd -P)" || resolved=""
     if aikit_skill_link "$link" || { [ -n "$src_real" ] && [[ $resolved == "$src_real"/* ]]; }; then
-      rm -f "$link"
+      command rm -f "$link"
     fi
   done
   return 0

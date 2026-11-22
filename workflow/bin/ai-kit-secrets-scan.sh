@@ -58,7 +58,7 @@ fi
 # leave an artefact behind, least of all one holding findings.
 REPORT="$(mktemp -t aikit-secrets-XXXXXX)"
 GL_ERR="$(mktemp -t aikit-secrets-err-XXXXXX)"
-trap 'rm -f "$REPORT" "$GL_ERR"' EXIT
+trap 'command rm -f "$REPORT" "$GL_ERR"' EXIT
 
 (cd "$TARGET" && gitleaks detect --no-banner --redact \
   --report-format json --report-path "$REPORT") >/dev/null 2>"$GL_ERR"
