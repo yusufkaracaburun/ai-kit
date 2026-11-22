@@ -7,7 +7,7 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-11-21 against 115 open issues (#300 row removed; #186 and #299 rows removed; #298 and #299 rows added; #285 closed by v2.21.1 and removed; #289-#297 rows added; #275 and #288 done 2026-11-16, closed by the heavy-run lock slice; #276-#283 done, #283 with this reconcile; #199, #258-#262 and #267 closed and removed; #270 closed by #280; #216 partly done in v2.19.0; rows added for #264, #284, #286, #287; #257, #263 and #264 labelled P3, P1 and P3 to match their sections; earlier reconciliation notes live in [roadmap-archive.md](roadmap-archive.md#reconciliation-notes))._
+_Last reconciled: 2026-11-22 against 126 open issues (count refreshed to 126; #300 row removed; #186 and #299 rows removed; #298 and #299 rows added; #285 closed by v2.21.1 and removed; #289-#297 rows added; #275 and #288 done 2026-11-16, closed by the heavy-run lock slice; #276-#283 done, #283 with this reconcile; #199, #258-#262 and #267 closed and removed; #270 closed by #280; #216 partly done in v2.19.0; rows added for #264, #284, #286, #287; #257, #263 and #264 labelled P3, P1 and P3 to match their sections; earlier reconciliation notes live in [roadmap-archive.md](roadmap-archive.md#reconciliation-notes))._
 
 ## P1 — broken in the wild
 
