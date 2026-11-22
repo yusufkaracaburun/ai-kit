@@ -96,3 +96,17 @@ Catalog: 17 universal always-on pathless rules (5,239 words) + 6 universal
   setup/bootstrap (stack-only emit, docs question, `detect-tooling`
   recognising the ai-kit header, upgrade removal).
 - `context-lean` reports the global set as one line, not per project.
+
+## Amendment 2026-11-22 (grill #171)
+
+- Decision 2 is refined: universal rules are also emitted per repo when the
+  no-global-rules opt-out is set, not only when `global_channel_available` is
+  false.
+- Decision 3 is replaced: bootstrap writes only the docs files a skill reads.
+  Of the docs scaffold, skills read `triage-labels.md` and `workflow.md`;
+  nothing reads `ADR-template.md` or `wiki/README.md`. CONTEXT.md is no longer
+  written by bootstrap, because grill-with-docs creates it when the first term
+  is resolved. A question plus a marker field costs more than it saves.
+- Decision 4 is refined: upgrade removes only copies that match a released
+  version, checked against a shipped checksum list. Other copies are reported,
+  never deleted. The doctor "loaded twice" WARN stays.

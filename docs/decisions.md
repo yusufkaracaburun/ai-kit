@@ -38,3 +38,8 @@
 - 2026-11-22: In repos with a board the kit never sets status:in-progress; the Doing column is the source, and /ai:next still reads both. (source: grill #313)
 - 2026-11-22: Ship checks after the merge that the issue is closed and its card is Done; an epic-branch merge closes the issue with a comment linking the PR; refs #N slices stay open. (source: grill #313)
 - 2026-11-22: ready-for-agent and ready-for-human say who picks an issue up, not when; --status Backlog keeps them (source: user, after a board cleanup)
+- 2026-11-22: #171 ships as three PRs: (1) bootstrap writes universal rules per repo only without a global channel, (2) docs scaffold trimmed, (3) /ai:upgrade removes old universal copies. Cleanup ships last. (source: grill #171)
+- 2026-11-22: With a global channel, bootstrap emits only stack rules into .claude/rules. Universal rules are emitted per repo only when global_channel_available is false or the no-global-rules opt-out is set. (source: grill #171)
+- 2026-11-22: Cursor keeps the full .mdc set per repo, only when .cursor/ exists before bootstrap, because Cursor has no global rules channel. (source: grill #171)
+- 2026-11-22: Bootstrap writes only the docs files a skill reads: docs/agents/triage-labels.md and docs/agents/workflow.md. ADR-template.md and wiki/README.md are dropped; CONTEXT.md is created lazily by grill-with-docs. No setup question and no docs_scaffold marker field. (source: grill #171)
+- 2026-11-22: /ai:upgrade removes a per-repo universal rule copy only when it matches a released version of that rule. The plugin ships a checksum list of every released rule version. Copies that match none are kept and listed in the upgrade output. (source: grill #171)
