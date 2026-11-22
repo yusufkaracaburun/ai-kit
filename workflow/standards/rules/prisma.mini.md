@@ -4,7 +4,7 @@ description: Prisma ORM conventions — schema-first, migrations versioned, tran
 applies_to:
   frameworks: []
   languages: []
-  architectures: ["backend"]
+  architectures: []
 universal: false
 default_mode: always-on
 paths: ["prisma/**", "**/*.prisma"]

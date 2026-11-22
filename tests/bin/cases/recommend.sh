@@ -69,12 +69,26 @@ echo "=== recommend-rules ==="
 # section: recommend-rules
 REC_TMP=$(mktemp -d)
 cp -R "$AIKIT/tests/fixtures/architecture-laravel/." "$REC_TMP/"
+printf '{"require":{"laravel/framework":"^12.0"}}' > "$REC_TMP/composer.json"
 JSON_REC="$("$AIKIT/bin/recommend-rules.sh" "$REC_TMP" --json)"
 assert "recommend: universal rule (git-hygiene) scored" 'echo "$JSON_REC" | grep -q "\"name\": \"git-hygiene\""'
 assert "recommend: universal rule (context-discipline) scored" 'echo "$JSON_REC" | grep -q "\"name\": \"context-discipline\""'
 assert "recommend: score is integer" 'echo "$JSON_REC" | python3 -c "import json,sys; d=json.load(sys.stdin); assert all(isinstance(r[\"score\"], int) for r in d[\"recommendations\"])"'
 assert "recommend: results sorted desc" 'echo "$JSON_REC" | python3 -c "import json,sys; d=json.load(sys.stdin); s=[r[\"score\"] for r in d[\"recommendations\"]]; assert s == sorted(s, reverse=True)"'
+assert "recommend: quoted frameworks list matches (laravel-conventions)" \
+  'echo "$JSON_REC" | python3 -c "import json,sys; d=json.load(sys.stdin); r=[x for x in d[\"recommendations\"] if x[\"name\"]==\"laravel-conventions\"]; assert r and \"framework match: laravel\" in r[0][\"reason\"], d"'
+assert "recommend: detected backend maps to backend architecture" \
+  'echo "$JSON_REC" | python3 -c "import json,sys; d=json.load(sys.stdin); r=[x for x in d[\"recommendations\"] if x[\"name\"]==\"laravel-conventions\"]; assert r and \"architecture match: backend\" in r[0][\"reason\"], d"'
+assert "recommend: backend alone does not surface prisma" \
+  'echo "$JSON_REC" | python3 -c "import json,sys; d=json.load(sys.stdin); assert not any(x[\"name\"]==\"prisma\" for x in d[\"recommendations\"]), d"'
 rm -rf "$REC_TMP"
+FSD_TMP=$(mktemp -d)
+cp -R "$AIKIT/tests/fixtures/architecture-fsd/." "$FSD_TMP/"
+assert "recommend: detected frontend surfaces ui-states" \
+  '"$AIKIT/bin/recommend-rules.sh" "$FSD_TMP" --json | python3 -c "import json,sys; d=json.load(sys.stdin); r=[x for x in d[\"recommendations\"] if x[\"name\"]==\"ui-states\"]; assert r and \"architecture match: frontend\" in r[0][\"reason\"], d"'
+assert "recommend: frontend alone does not surface framework rules" \
+  '"$AIKIT/bin/recommend-rules.sh" "$FSD_TMP" --json | python3 -c "import json,sys; d=json.load(sys.stdin); n={x[\"name\"] for x in d[\"recommendations\"]}; assert not n & {\"flutter-conventions\",\"astro-conventions\",\"react-rsc\",\"worker-fronts-static-site\"}, n"'
+rm -rf "$FSD_TMP"
 
 # design-leads: .pen files are an archive (Paper replaced Pencil), so they no
 # longer yield a framework. A UI framework is what surfaces the rule.

@@ -51,6 +51,8 @@ _recommend_score_one() {
   [ "$match_fw" = 1 ] && score=$((score + 2))
 
   local arch match_arch=0
+  # A framework-specific rule needs its framework; the architecture alone is too broad.
+  [ -n "$frameworks" ] && [ "$match_fw" = 0 ] && architectures=""
   for arch in ${architectures}; do
     if [[ ",${arch_csv}," == *",${arch},"* ]]; then
       match_arch=1
@@ -105,8 +107,8 @@ try:
     parts = []
     fe = a.get("frontend", {}).get("detected", "")
     be = a.get("backend", {}).get("detected", "")
-    if fe: parts.append(fe)
-    if be: parts.append(be)
+    if fe: parts += [fe, "frontend"]
+    if be: parts += [be, "backend"]
     print(",".join(parts))
 except Exception as e:
     print(f"recommend-lib: detect-tooling output unparseable ({e}) — treating as no architecture", file=sys.stderr)

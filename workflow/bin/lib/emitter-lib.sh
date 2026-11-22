@@ -86,6 +86,7 @@ _emitter_extract_list() {
       line=$0
       sub(/^[^\[]*\[/, "", line)
       sub(/\].*/, "", line)
+      gsub(/["\047]/, "", line)
       gsub(/,/, " ", line)
       gsub(/[[:space:]]+/, " ", line)
       sub(/^ /, "", line)
