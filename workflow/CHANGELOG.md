@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.25.0 — 2026-11-22
+
+### Added
+- `/ai:next` ranks issues by the GitHub Priority issue field and the board Status column, and falls back to the P0-P3 labels when a repo has no Priority field.
+- New issues from `/ai:to-issues`, `/ai:to-prd` and `/ai:triage` get their issue type, Priority and project board set through the new `ai-kit-issue-meta.sh` helper.
+
+### Changed
+- Docs: private app names removed from ADRs, the roadmap, the catalog ledger and test fixtures, since this repo is public.
+- Roadmap and decisions: record the #303 grill outcome, capture #303-#312 and park kaneo.
+
+
 ## 2.24.2 — 2026-11-21
 
 ### Added
