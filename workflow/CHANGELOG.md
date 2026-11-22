@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.26.0 — 2026-11-22
+
+### Added
+- `ai-kit-issue-meta.sh --status` moves the project board card and drops clashing status labels, so triage and ship keep the card and labels in step. Ship also checks that the issue is closed and the card is Done.
+- `/ai:next` warns on a Doing or Next card that still carries `needs-triage` or `needs-info`.
+
+### Changed
+- Issue templates and the auto-promote DoR check accept the Priority issue field or a P label.
+- `setup-gh-workflow` skips P labels and `status:in-progress` on repos with a project board.
+
 ## 2.25.0 — 2026-11-22
 
 ### Added
