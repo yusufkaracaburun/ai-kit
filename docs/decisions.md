@@ -21,3 +21,8 @@
 - 2026-11-22: The changelog is stored as the annotated deploy tag message. No CHANGELOG.md, so no post-deploy commit. (source: grill #303)
 - 2026-11-22: The deploy logic lives in a versioned script in the app repo. The deploy shell function becomes a one-line call to it. (source: grill #303)
 - 2026-11-22: The pilot is done after one real deploy of the pilot app with REVISION, a deploy tag carrying the commit list, and the rollback line in docs. Then /ai:harvest as a rule, not a kit script. (source: grill #303)
+- 2026-11-22: /ai:next reads priority from the issue's Priority field and status from the GitHub Projects item, with no board config in .ai-kit-setup. (source: grill #313)
+- 2026-11-22: The Priority issue field wins over P labels; P labels stay as the fallback for repos without a board. Urgent = P0, High = P1, Medium = P2, Low = P3. (source: grill #313)
+- 2026-11-22: Status Doing scores like status:in-progress and Next like ready-for-agent; Blocked and Done items leave the /ai:next list. (source: grill #313)
+- 2026-11-22: Issue types: Feature for an epic, PRD or new functionality, Bug for a fault, Task for a slice or chore. (source: grill #313)
+- 2026-11-22: #313 ships in two slices: /ai:next reads the fields first, then to-issues, to-prd and triage set the issue type and Priority field and the templates and DoR check accept the field. Recording the board in .ai-kit-setup is dropped. (source: grill #313)

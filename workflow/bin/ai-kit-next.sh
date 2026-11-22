@@ -2,16 +2,19 @@
 # ai-kit-next.sh — ranked "what to do next" list for the current project.
 #
 # Combines three data sources:
-#   1. GitHub issues (priority via P0-P3 labels installed by setup-gh-workflow,
-#      plus epic/* + area/* + status:in-progress + ready-for-agent labels).
+#   1. GitHub issues (priority via the Priority issue field, else P0-P3
+#      labels; status via the project Status field, else status:in-progress +
+#      ready-for-agent labels; plus epic/* + area/* labels).
 #   2. docs/roadmap.md (or ROADMAP.md / .planning/roadmap.md) entries that
 #      reference a GH issue, AND entries that don't (roadmap-only TODOs).
 #   3. .ai-kit-setup deferred branches (e.g. automation_recommender: deferred).
 #
 # Scoring per item:
 #   P0 = 1000, P1 = 100, P2 = 10, P3 = 1; unprioritised roadmap = 5.
-#   +50  status:in-progress         (finish before start)
-#   +20  ready-for-agent             (queue-drainable)
+#   Priority issue field Urgent/High/Medium/Low = P0/P1/P2/P3, wins over P labels.
+#   +50  status:in-progress or Status Doing  (finish before start)
+#   +20  ready-for-agent or Status Next       (queue-drainable)
+#   Status Blocked or Done: left out of the list.
 #   +10  area/* matches current branch name
 #   -1   per week since last update (stale penalty)
 #
@@ -45,6 +48,7 @@ Usage: $0 [PATH] [--limit N] [--no-gh] [--no-roadmap] [--json]
 
 Sources combined:
   - gh issue list --state open  (P0-P3 + status:in-progress + ready-for-agent)
+  - Priority issue field + project Status field via gh api graphql (labels as fallback)
   - <PATH>/docs/roadmap.md  (or ROADMAP.md, .planning/roadmap.md)
   - <PATH>/.ai-kit-setup deferred branches
 USAGE
@@ -73,8 +77,19 @@ GH_JSON=""
 if [ "$NO_GH" = false ] && command -v gh >/dev/null 2>&1 && (cd "$TARGET" && git rev-parse --git-dir >/dev/null 2>&1); then
   # gh fails silently if no remote or no auth — that's fine, we just emit "[]".
   GH_JSON="$(cd "$TARGET" && gh issue list --state open --limit 100 --json number,title,labels,updatedAt,url,assignees 2>/dev/null || echo '[]')"
+  # Priority is an issue field, Status a project item field. Separate queries: Status needs the
+  # read:project scope, and a failed query falls back to labels without taking the other down.
+  # shortcut: first 100 open issues only, page with pageInfo once a repo has more.
+  # shellcheck disable=SC2016
+  PRIORITY_QUERY='query($owner:String!,$name:String!){repository(owner:$owner,name:$name){issues(states:OPEN,first:100,orderBy:{field:CREATED_AT,direction:DESC}){nodes{number issueFieldValues(first:10){nodes{... on IssueFieldSingleSelectValue{name field{... on IssueFieldSingleSelect{name}}}}}}}}}'
+  # shellcheck disable=SC2016
+  STATUS_QUERY='query($owner:String!,$name:String!){repository(owner:$owner,name:$name){issues(states:OPEN,first:100,orderBy:{field:CREATED_AT,direction:DESC}){nodes{number projectItems(first:10){nodes{status:fieldValueByName(name:"Status"){... on ProjectV2ItemFieldSingleSelectValue{name}}}}}}}}'
+  PRIORITY_JSON=$(cd "$TARGET" && gh api graphql -F owner='{owner}' -F name='{repo}' -f query="$PRIORITY_QUERY" 2>/dev/null) || PRIORITY_JSON='{}'
+  STATUS_JSON=$(cd "$TARGET" && gh api graphql -F owner='{owner}' -F name='{repo}' -f query="$STATUS_QUERY" 2>/dev/null) || STATUS_JSON='{}'
 else
   GH_JSON='[]'
+  PRIORITY_JSON='{}'
+  STATUS_JSON='{}'
 fi
 
 ROADMAP_FILE=""
@@ -99,6 +114,8 @@ fi
 
 # Hand off to python3 ranker.
 GH_JSON="$GH_JSON" \
+PRIORITY_JSON="$PRIORITY_JSON" \
+STATUS_JSON="$STATUS_JSON" \
 ROADMAP_FILE="$ROADMAP_FILE" \
 MARKER_FILE="$MARKER_FILE" \
 CURRENT_BRANCH="$CURRENT_BRANCH" \
@@ -136,26 +153,56 @@ def parse_iso(s):
 def label_names(issue):
     return [l.get("name", "") for l in issue.get("labels", [])]
 
+FIELD_PRIORITY = {"Urgent": "P0", "High": "P1", "Medium": "P2", "Low": "P3"}
+
+def issue_nodes(env):
+    try:
+        return json.loads(os.environ.get(env) or "{}")["data"]["repository"]["issues"]["nodes"]
+    except (json.JSONDecodeError, KeyError, TypeError):
+        return []
+
+def project_fields():
+    """Map issue number -> (Priority issue field tags, project item status names)."""
+    out = {}
+    for n in issue_nodes("PRIORITY_JSON"):
+        if not n:
+            continue
+        prios = {FIELD_PRIORITY[v["name"]] for v in (n.get("issueFieldValues") or {}).get("nodes") or []
+                 if v and (v.get("field") or {}).get("name") == "Priority" and v.get("name") in FIELD_PRIORITY}
+        out.setdefault(n.get("number"), (set(), set()))[0].update(prios)
+    for n in issue_nodes("STATUS_JSON"):
+        if not n:
+            continue
+        statuses = {(it.get("status") or {}).get("name") for it in (n.get("projectItems") or {}).get("nodes") or [] if it}
+        out.setdefault(n.get("number"), (set(), set()))[1].update(statuses - {None})
+    return out
+
+fields = project_fields()
 items = []
 gh_issue_numbers = set()
 now = datetime.now(timezone.utc)
 
 for iss in gh_issues:
     labels = label_names(iss)
+    field_prios, statuses = fields.get(iss.get("number"), (set(), set()))
+    gh_issue_numbers.add(iss.get("number"))
+    if statuses & {"Blocked", "Done"}:
+        continue
     p_score = 0
     p_tag = None
-    for lab in labels:
-        m = P_LABEL_RE.match(lab)
-        if m:
-            p_tag = f"P{m.group(1)}"
-            p_score = max(p_score, P_SCORE[p_tag])
+    tags = field_prios or {f"P{m.group(1)}" for m in map(P_LABEL_RE.match, labels) if m}
+    for tag in tags:
+        if P_SCORE[tag] > p_score:
+            p_tag, p_score = tag, P_SCORE[tag]
     if p_score == 0:
         p_score = 5  # default for unlabelled GH issues
-        p_tag = p_tag or "P?"
+        p_tag = "P?"
     score = p_score
-    if "status:in-progress" in labels:
+    in_progress = "status:in-progress" in labels or "Doing" in statuses
+    ready = "ready-for-agent" in labels or "Next" in statuses
+    if in_progress:
         score += 50
-    if "ready-for-agent" in labels:
+    if ready:
         score += 20
     area = next((l for l in labels if l.startswith("area/")), None)
     epic = next((l for l in labels if l.startswith("epic/")), None)
@@ -172,13 +219,12 @@ for iss in gh_issues:
         "priority": p_tag,
         "area": area,
         "epic": epic,
-        "status_in_progress": "status:in-progress" in labels,
-        "ready_for_agent": "ready-for-agent" in labels,
+        "status_in_progress": in_progress,
+        "ready_for_agent": ready,
         "url": iss.get("url"),
         "updated": iss.get("updatedAt"),
         "score": score,
     })
-    gh_issue_numbers.add(iss.get("number"))
 
 # --- 2. Roadmap entries -----------------------------------------------------
 ROADMAP_FILE = os.environ.get("ROADMAP_FILE") or ""
@@ -248,7 +294,7 @@ if JSON_OUT:
 if not top:
     print("ai-kit next — nothing open")
     print("")
-    print("  No P-labelled GH issues, no open roadmap entries, no deferred setup branches.")
+    print("  No prioritised GH issues, no open roadmap entries, no deferred setup branches.")
     print("  If you think this is wrong: gh auth status; ls docs/roadmap.md")
     sys.exit(0)
 
