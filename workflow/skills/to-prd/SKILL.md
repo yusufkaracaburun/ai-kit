@@ -92,7 +92,11 @@ gh issue create \
   --body "<body>"
 ```
 
-Capture the returned issue number — needed for the roadmap pointer.
+Capture the returned issue number — needed for the roadmap pointer. Then set its type, Priority and board spot (type `Bug` when the lead is a fault, else `Task`; add `--priority` only when the user named one):
+
+```bash
+bash "${CLAUDE_PLUGIN_ROOT:-$HOME/.config/ai-kit/plugin-current}/bin/ai-kit-issue-meta.sh" <issue> --type Task
+```
 
 If `gh` returns non-zero, surface the exact error to the user; do not proceed to roadmap update with a missing issue ID.
 
@@ -155,7 +159,7 @@ A deep module (as opposed to a shallow module) is one which encapsulates a lot o
 
 Check with the user that these modules match their expectations. Check with the user which modules they want tests written for.
 
-4. Write the PRD using the template below, then publish it to the project issue tracker. Apply the `ready-for-agent` triage label — no need for additional triage — and post the `## Agent Brief` comment with the label, in the order [`triage/AGENT-BRIEF.md`](../triage/AGENT-BRIEF.md) § Posting gives. The brief distils the PRD into that template's shape, with the acceptance criteria inline.
+4. Write the PRD using the template below, then publish it to the project issue tracker. Apply the `ready-for-agent` triage label — no need for additional triage — and post the `## Agent Brief` comment with the label, in the order [`triage/AGENT-BRIEF.md`](../triage/AGENT-BRIEF.md) § Posting gives. The brief distils the PRD into that template's shape, with the acceptance criteria inline. Then run `bash "${CLAUDE_PLUGIN_ROOT:-$HOME/.config/ai-kit/plugin-current}/bin/ai-kit-issue-meta.sh" <issue> --type Feature`, adding `--priority` when the grill set one.
 
 <prd-template>
 

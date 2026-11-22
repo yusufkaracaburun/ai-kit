@@ -95,6 +95,12 @@ For each approved slice, publish a new issue to the issue tracker. Use the issue
 
 Publish issues in dependency order (blockers first) so you can reference real issue identifiers in the "Blocked by" field.
 
+After each issue is created, give it its type, Priority and board spot. Type `Task`, or `Bug` when the slice fixes a fault; `--parent` is the PRD or epic issue, omitted when there is none. The script never fails the run; pass its stderr lines on to the user.
+
+```bash
+bash "${CLAUDE_PLUGIN_ROOT:-$HOME/.config/ai-kit/plugin-current}/bin/ai-kit-issue-meta.sh" <issue> --type Task --parent <parent-issue>
+```
+
 <issue-template>
 ## Parent
 

@@ -81,7 +81,7 @@ Show counts and a one-line summary per issue. Let the maintainer pick.
 
 4. **Grill (if needed).** If the issue needs fleshing out, run a `/ai:grill-with-docs` session.
 
-5. **Apply the outcome:**
+5. **Apply the outcome.** Once the category is settled, set it as the issue type (`Bug` for a fault, `Feature` for new functionality, `Task` for a chore; in doubt `Task`), with `--priority` only when triage decided one: `bash "${CLAUDE_PLUGIN_ROOT:-$HOME/.config/ai-kit/plugin-current}/bin/ai-kit-issue-meta.sh" <issue> --type <Type> [--priority Urgent|High|Medium|Low]`. Then:
    - `ready-for-agent` — **MUST** post an Agent Brief comment ([AGENT-BRIEF.md](AGENT-BRIEF.md)) **atomically with the label change** (same triage call, not a follow-up). The comment **MUST** start with the literal header `## Agent Brief` (not `## Triage outcome` — that header is reserved for `needs-info` triage notes). The brief **MUST** contain inline acceptance criteria — referencing an external plan-doc or any file path is insufficient, because downstream skills (e.g. `autonomous`) read this comment cold and do not follow links. If you cannot produce a complete brief from issue context, **do not apply the `ready-for-agent` label** — route to `needs-info` instead.
    - `ready-for-human` — same structure as an Agent Brief (header `## Agent Brief`, inline acceptance criteria), but note why it can't be delegated (judgment calls, external access, design decisions, manual testing).
    - `needs-info` — post triage notes (template below).
