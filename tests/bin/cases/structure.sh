@@ -244,7 +244,8 @@ for s in to-prd autonomous harvest diagnose; do
   assert "$s references the ship brief" "grep -qF 'triage/SHIP-BRIEF.md' \"\$SK/$s/SKILL.md\""
 done
 AUTO="$SK/autonomous/SKILL.md"
-assert "autonomous reads the label from triage-labels.md" 'grep -qF "docs/agents/triage-labels.md" "$AUTO" && grep -qF -- "--label \"\$READY_LABEL\"" "$AUTO"'
+AUTO_Q="$AIKIT/workflow/bin/autonomous-queue.sh"
+assert "autonomous queue reads the label from triage-labels.md" 'grep -qF "docs/agents/triage-labels.md" "$AUTO" && grep -qF "docs/agents/triage-labels.md" "$AUTO_Q" && grep -qF -- "--label \"\$READY_LABEL\"" "$AUTO_Q"'
 assert "autonomous verifier gets staged and untracked new files" 'grep -qF "staged (\`A\`) or" "$AUTO" && grep -qF "untracked (\`??\`)" "$AUTO"'
 assert "ship brief requires a review APPROVE on the staged tree" 'grep -qF "stage nothing beyond the reviewed paths" "$SK/triage/SHIP-BRIEF.md"'
 assert "review: role=lead staging goes to a subagent" 'grep -qF "a subagent stages by explicit path" "$SK/review/SKILL.md"'
