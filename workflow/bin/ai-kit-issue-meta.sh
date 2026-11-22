@@ -82,7 +82,8 @@ if [ -n "$PARENT" ]; then
   [ "$REF_OWNER" != '{owner}' ] || { REF_OWNER="$OWNER"; REF_NAME="$NAME"; }
 fi
 
-P_LABELS="P0-critical=Urgent P1-high=High P2-medium=Medium P3-low=Low"
+# Bare forms first: the label writer takes the last match, so new labels stay suffixed.
+P_LABELS="P0=Urgent P1=High P2=Medium P3=Low P0-critical=Urgent P1-high=High P2-medium=Medium P3-low=Low"
 
 # Prints the id paired with exactly name $1 in list $2: pairs split by \x1e, name and id by \x1f.
 option_id() {

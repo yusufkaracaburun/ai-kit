@@ -111,6 +111,9 @@ assert "issue-meta: more labels than one page adds, never replaces" '! echo "$CA
 write_meta "$TYPES" "$PRIO" "$BOARDS" '{"name":"P1-high"}'
 run_meta 57 --type Bug
 assert "issue-meta: P label migrates to the Priority field" 'echo "$CALLS" | grep "setIssueFieldValue" | grep -q "optionId=O_h"'
+write_meta "$TYPES" "$PRIO" "$BOARDS" '{"name":"P1"}'
+run_meta 61 --type Bug
+assert "issue-meta: bare P1 label maps to High" 'echo "$CALLS" | grep "setIssueFieldValue" | grep -q "optionId=O_h"'
 
 echo ""
 echo "=== ai-kit-issue-meta: no types, no board ==="
