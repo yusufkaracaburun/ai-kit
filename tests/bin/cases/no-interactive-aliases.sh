@@ -9,12 +9,12 @@ echo "=== scripts call mv/rm/cp past user aliases and functions ==="
 
 # A user's `mv -i` / `rm -i` / `cp -i` alias or exported function makes a
 # script stop on a prompt nobody sees (#207). `command mv -f` skips both.
+# shortcut: misses xargs rm, find -exec rm, prefixes like env/time, and any line starting with echo/printf/log; upgrade when a real miss shows up.
 BARE_RE='(^|[;&|({)]|(then|do|else|if|!)[[:space:]]|trap '"[\"']"')[[:space:]]*(mv|rm|cp)[[:space:]]'
 SKIP_RE='^[^:]*:[0-9]+:[[:space:]]*(#|echo |printf |log )'
-EXCLUDED_RE='workflow/bin/(autonomous-queue\.sh|lib/emitter-lib\.sh|lib/recommend-lib\.sh)$'
 
 bare_calls() {
-  find "$1" -name '*.sh' | grep -vE "$EXCLUDED_RE" | sort \
+  find "$1" -name '*.sh' | sort \
     | xargs grep -nE "$BARE_RE" | grep -vE "$SKIP_RE" || true
 }
 
