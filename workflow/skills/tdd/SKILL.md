@@ -9,6 +9,8 @@ Apply [`context-discipline.mini.md`](../../../standards/rules/context-discipline
 
 Apply [`grill-first.mini.md`](../../../standards/rules/grill-first.mini.md) **before** writing the first failing test. If the user handed you an issue/PRD/spec, open with grill questions on scope, edge cases, detection logic, and override patterns — even when the source doc looks complete. Skip only if those questions were already answered in the same turn.
 
+When an issue number is in play, move its card to `Doing` before the first failing test or the builder hand-off: `bash "${CLAUDE_PLUGIN_ROOT:-$HOME/.config/ai-kit/plugin-current}/bin/ai-kit-issue-meta.sh" <issue> --status Doing`. A failure or "no board" note does not stop the work.
+
 ## Run mode
 
 - **Claude Code:** when the change spans ≥3 files, or the caller wants the main context kept clean for review, delegate the whole red→green→refactor pass to the `builder` subagent via the Task tool with `subagent_type=ai:builder`. When this session's own claim says `role=lead` (the `role:` line in the frontmatter of `~/.config/ai-kit/claims/<session>.md`, read the way `lead-guard.sh` reads it), always delegate, whatever the file count: lead-guard denies inline Edit and Write for that role. Pass: the full Agent Brief in the shape of [`triage/AGENT-BRIEF.md`](../triage/AGENT-BRIEF.md) (summary, current and desired behaviour, key interfaces, the acceptance criteria agreed in Planning, Out of scope, test command and run budget, Decisions in force), never only the criteria and the test command. It returns a `## Changed` / `## Tests` report — read it here, then continue with Review.

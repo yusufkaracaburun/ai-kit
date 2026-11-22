@@ -155,6 +155,9 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
    on it inside a worktree, otherwise `agent/issue-<n>-<slug>` from the
    project's default branch. The skill does not create it; the ship
    brief in step 7 does, and builder's uncommitted work carries over.
+   Clean tree → move the card to `Doing`:
+   `bash "${CLAUDE_PLUGIN_ROOT:-$HOME/.config/ai-kit/plugin-current}/bin/ai-kit-issue-meta.sh" <n> --status Doing`.
+   A failure or "no board" note does not stop the run.
 5. **TDD.** Invoke `tdd` against the Agent Brief's acceptance
    criteria. The per-issue worker is the `builder` subagent
    (`subagent_type=ai:builder`, fed the full Agent Brief in the shape

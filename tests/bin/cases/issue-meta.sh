@@ -142,6 +142,10 @@ assert "issue-meta: move to Blocked keeps needs-info" '! echo "$CALLS" | grep -q
 write_meta "$TYPES" "$PRIO" "$BOARDS" '{"name":"needs-info"}' false "$ITEMS"
 run_meta 62 --status Doing
 assert "issue-meta: leaving Blocked drops needs-info, the last label, in one delete" 'echo "$CALLS" | grep -q "api -X DELETE repos/{owner}/{repo}/issues/62/labels$" && [ "$(echo "$CALLS" | grep -c "/labels")" -eq 1 ]'
+write_meta "$TYPES" "$PRIO" "$BOARDS" '{"name":"area-x"}' false "$ITEMS"
+run_meta 69 --status Doing
+assert "issue-meta: --status Doing alone exits 0" '[ "$RC" -eq 0 ]'
+assert "issue-meta: --status Doing alone writes only Status" 'echo "$CALLS" | grep "updateProjectV2ItemFieldValue" | grep -q "optionId=S_doing" && ! echo "$CALLS" | grep -q "api -X PATCH\|setIssueFieldValue\|addProjectV2ItemById\|/labels" && [ "$(echo "$CALLS" | wc -l)" -eq 2 ]'
 
 write_meta "$TYPES" "$PRIO" "$BOARDS"
 echo '{"data":{"addProjectV2ItemById":{"item":{"id":"PVTI_new","project":{"id":"PVT_b","field":'"$STATUS_FIELD"'}}}}}' > "$TMP_IM/add.json"
