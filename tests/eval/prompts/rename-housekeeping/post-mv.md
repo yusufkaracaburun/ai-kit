@@ -14,6 +14,6 @@ expects:
 # Prompt
 
 I just renamed my repo: `mv ~/Sites/localhost/school-activities-hub
-~/Sites/localhost/naschool`. Stale absolute-path references are scattered
+~/Sites/localhost/demo-app`. Stale absolute-path references are scattered
 across my memory files (user-global `~/.claude/CLAUDE.md` + per-project
 checkpoints). Clean it up.

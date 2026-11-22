@@ -5,7 +5,7 @@
     "source_url": "https://github.com/yusufkaracaburun/ai-kit/blob/master/standards/external/paas.json",
     "source_license": "MIT",
     "vendored_at": "2026-05-29",
-    "notes": "Catalogues open-source self-host PaaS layers surfaced by /ai:recommend-tools and /ai:setup when bin/detect-tooling.sh reports deploy_shape=self-host. v1 ships Coolify-only — the user-validated path on naschool/emeq. Dokku (single-host buildpack), Caprover (Swarm cluster), and Kamal (CLI-driven) deferred to follow-up issues so the catalog grows from real adoption signal, not speculation. Preview-then-confirm: ai-kit never writes Docker/server config without explicit user approval."
+    "notes": "Catalogues open-source self-host PaaS layers surfaced by /ai:recommend-tools and /ai:setup when bin/detect-tooling.sh reports deploy_shape=self-host. v1 ships Coolify-only — the user-validated path on two apps. Dokku (single-host buildpack), Caprover (Swarm cluster), and Kamal (CLI-driven) deferred to follow-up issues so the catalog grows from real adoption signal, not speculation. Preview-then-confirm: ai-kit never writes Docker/server config without explicit user approval."
   },
   "recommendations": [
     {

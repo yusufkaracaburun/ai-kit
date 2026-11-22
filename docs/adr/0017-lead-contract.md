@@ -10,7 +10,7 @@ Lead-guard tool list superseded by [ADR-0020](0020-paper-replaces-pencil.md), 20
 
 ADR-0014 made one session per repo the lead, and its 2026-09-29 amendment
 said the lead dispatches rather than executes. That stayed a prose rule. Two
-emeq-mobile lead sessions on 2026-10-09/10, both on Opus, show what the rule
+mobile app B lead sessions on 2026-10-09/10, both on Opus, show what the rule
 did not prevent:
 
 - The lead did 104 Pen edits, 71 Chrome actions and the log redaction inline,
@@ -126,7 +126,7 @@ agreed on the edges:
   writes it into its claim. A shared gate script is #200.
 - Verification by the lead means a few targeted reads (a path, a stat line,
   an export), never a diff review.
-- emeq-app-df: merge permission is allowed in `settings.local.json`.
+- an app: merge permission is allowed in `settings.local.json`.
 
 **Unproven**
 

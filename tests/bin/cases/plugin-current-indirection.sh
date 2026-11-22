@@ -68,7 +68,7 @@ assert "the link still resolves to real content" \
 
 echo "=== an upgrade heals every existing project link without re-running bootstrap ==="
 V4="$(make_fake_version 2.0.1 v4)"
-# Simulate the cache GC that bricked emeq/naschool: the version bootstrap
+# Simulate the cache GC that bricked two apps: the version bootstrap
 # linked through is gone.
 rm -rf "$V3"
 # Any subsequent ai-kit invocation from the new version — here, running

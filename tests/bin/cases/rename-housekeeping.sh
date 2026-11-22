@@ -41,7 +41,7 @@ TMP=$(mktmpdir)
 FAKE_HOME="$TMP/home"
 FAKE_REPO="$TMP/repo"
 OLD="school-activities-hub"
-NEW="naschool"
+NEW="demo-app"
 
 mkdir -p "$FAKE_HOME/.claude/rules" \
          "$FAKE_HOME/.claude/projects/-x/memory" \
@@ -124,12 +124,12 @@ TMP=$(mktmpdir)
 FAKE_HOME="$TMP/home"
 mkdir -p "$FAKE_HOME/.claude"
 cat > "$FAKE_HOME/.claude/known-projects.json" <<JSON
-{"projects":[{"name":"naschool","path":"$TMP/ghost-path","first_seen":"2026-05-20","last_seen":"2026-05-23"}]}
+{"projects":[{"name":"demo-app","path":"$TMP/ghost-path","first_seen":"2026-05-20","last_seen":"2026-05-23"}]}
 JSON
-mkdir -p "$TMP/Sites/naschool"
-# Run hook with new $PWD = $TMP/Sites/naschool (same basename, different path,
+mkdir -p "$TMP/Sites/demo-app"
+# Run hook with new $PWD = $TMP/Sites/demo-app (same basename, different path,
 # and old path $TMP/ghost-path does NOT exist).
-HOOK_OUT=$(cd "$TMP/Sites/naschool" && HOME="$FAKE_HOME" bash "$HOOK" </dev/null)
+HOOK_OUT=$(cd "$TMP/Sites/demo-app" && HOME="$FAKE_HOME" bash "$HOOK" </dev/null)
 assert "hook emits warning JSON when old path gone" "echo '$HOOK_OUT' | grep -q 'Possible repo rename detected'"
 assert "hook output is valid JSON envelope" "echo '$HOOK_OUT' | python3 -c 'import json,sys; d=json.load(sys.stdin); assert d[\"hookSpecificOutput\"][\"hookEventName\"]==\"SessionStart\"'"
 rm -rf "$TMP"
@@ -140,12 +140,12 @@ echo "=== multi-clone-guard ==="
 TMP=$(mktmpdir)
 FAKE_HOME="$TMP/home"
 mkdir -p "$FAKE_HOME/.claude"
-mkdir -p "$TMP/clone-a/naschool" "$TMP/clone-b/naschool"
+mkdir -p "$TMP/clone-a/demo-app" "$TMP/clone-b/demo-app"
 cat > "$FAKE_HOME/.claude/known-projects.json" <<JSON
-{"projects":[{"name":"naschool","path":"$TMP/clone-a/naschool","first_seen":"2026-05-20","last_seen":"2026-05-23"}]}
+{"projects":[{"name":"demo-app","path":"$TMP/clone-a/demo-app","first_seen":"2026-05-20","last_seen":"2026-05-23"}]}
 JSON
 # Run hook in clone-b — same basename, different path, BUT clone-a still exists.
-HOOK_OUT=$(cd "$TMP/clone-b/naschool" && HOME="$FAKE_HOME" bash "$HOOK" </dev/null)
+HOOK_OUT=$(cd "$TMP/clone-b/demo-app" && HOME="$FAKE_HOME" bash "$HOOK" </dev/null)
 assert "hook stays silent when multi-clone" "[ -z '$HOOK_OUT' ]"
 # Registry should have appended a second disambiguated entry.
 SECOND_ENTRY=$(python3 -c "import json; d=json.load(open('$FAKE_HOME/.claude/known-projects.json')); print(len(d['projects']))")

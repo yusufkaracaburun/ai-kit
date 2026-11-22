@@ -9,7 +9,7 @@ This is **not** the same as `/ai:qa` (automated smoke test against a URL) or `/a
 
 ## Why this shape
 
-Proven 2026-05-28 on naschool: 89 findings across 4 roles on 2 hosts, 2-3 hours, ended with 2 clean parent-issues (`naschool#81`, `naschool#82`) + 1 follow-up + 1 cross-repo backlog issue. The defaults below all come from that run; deviating from them degenerates the experience.
+Proven 2026-05-28 on a Laravel app: 89 findings across 4 roles on 2 hosts, 2-3 hours, ended with 2 clean parent-issues (two app issues) + 1 follow-up + 1 cross-repo backlog issue. The defaults below all come from that run; deviating from them degenerates the experience.
 
 Three failure modes this skill prevents:
 
@@ -56,7 +56,7 @@ This is the bulk of the session — minutes to hours. Tester emits free-form fin
 
 For each finding from the tester:
 - Assign sequential `#N`.
-- Detect current scope from the latest scope-marker (`ik ben nu op http://...`, `Start admin.naschool testen`, `Stop demo.naschool testen`, role announcements).
+- Detect current scope from the latest scope-marker (`ik ben nu op http://...`, `Start admin.example testen`, `Stop demo.example testen`, role announcements).
 - Reply with **one line, nothing else**:
   ```
   #N [scope] <normalized one-line>. Gelogd.
@@ -170,10 +170,10 @@ Do not run phase-2 inside this skill. The whole point of capture-and-bundle is t
 
 ## Manual-run reference (proof + design rationale)
 
-The skill defaults all come from a manual session 2026-05-28 on naschool — the user emitted 89 findings across 4 roles on 2 hosts in 2-3 hours, ending with:
-- naschool#81 — 72 findings, 3 rollen, ouder/gast/schooladmin op demo.naschool, `area/portal`
-- naschool#82 — 17 findings, 2 rollen, central_admin + schoolbestuur op admin.naschool, `area/admin`
-- naschool#83 — follow-up todo voor 3 nog-te-doen rol-sessies, `P1-high`
-- naschool#84 — design-system tracker dat opkwam tijdens sessie, `P0-critical`
+The skill defaults all come from a manual session 2026-05-28 on a Laravel app — the user emitted 89 findings across 4 roles on 2 hosts in 2-3 hours, ending with:
+- app issue A — 72 findings, 3 rollen, ouder/gast/schooladmin op demo.example, `area/portal`
+- app issue B — 17 findings, 2 rollen, central_admin + schoolbestuur op admin.example, `area/admin`
+- app issue C — follow-up todo voor 3 nog-te-doen rol-sessies, `P1-high`
+- app issue D — design-system tracker dat opkwam tijdens sessie, `P0-critical`
 
-Plan file from that run: `naschool/.agents/plans/ik-wil-nu-handmatige-lively-rainbow.md`.
+Plan file from that run: `<app>/.agents/plans/ik-wil-nu-handmatige-lively-rainbow.md`.

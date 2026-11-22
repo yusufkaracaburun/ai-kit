@@ -86,4 +86,4 @@ Return preview/run instructions, the source-to-local route map, representative d
 
 ## Provenance
 
-Vendored from [JCodesMore/ai-website-cloner-template](https://github.com/JCodesMore/ai-website-cloner-template) (`.agents/skills/clone-website/`, commit `ee3f5a2f31fd549b9593fa4f7cf6d2955ee593bb`, 2026-10-26), Copyright (c) 2025 JCodesMore, MIT (see [LICENSE](LICENSE)). ai-kit adds framework detection, the Astro/Next.js path table, Astro interaction guidance, and lessons from the hazarfan.nl and planny.nl clone runs. The template scaffold is not vendored.
+Vendored from [JCodesMore/ai-website-cloner-template](https://github.com/JCodesMore/ai-website-cloner-template) (`.agents/skills/clone-website/`, commit `ee3f5a2f31fd549b9593fa4f7cf6d2955ee593bb`, 2026-10-26), Copyright (c) 2025 JCodesMore, MIT (see [LICENSE](LICENSE)). ai-kit adds framework detection, the Astro/Next.js path table, Astro interaction guidance, and lessons from a client site and the product site clone runs. The template scaffold is not vendored.

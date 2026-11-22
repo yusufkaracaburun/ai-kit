@@ -7,7 +7,7 @@ Accepted. Decision 3 (the lead) is extended by ADR-0017 (lead contract).
 ## Context
 
 Claude Code sessions on one machine can already see and message each other:
-`ListAgents` lists peers by name (`planny-app-mobile-7c`, `planny-7f`,
+`ListAgents` lists peers by name (`mobile-app-7c`, `saas-7f`,
 `ai-kit-99`) and `SendMessage` reaches them. The user runs up to five
 sessions at once across repos. Over 15–17 Sep 2026 those sessions exchanged
 358 messages to coordinate — and nothing in ai-kit ever told a session that
@@ -15,7 +15,7 @@ peers existed, so every agreement was re-invented per session.
 
 What the transcripts show the sessions actually negotiating:
 
-- **Same repo** (planny-app-mobile, sessions 7c/36/64/86/92 in parallel on
+- **Same repo** (the mobile app, sessions 7c/36/64/86/92 in parallel on
   different emulators): file ownership ("the home-skeleton files belong to
   session 64", "next_lesson_hero.dart is mine since 4763201"); commit
   sequencing ("two commits within minutes — keep the index empty", agreed as
@@ -25,7 +25,7 @@ What the transcripts show the sessions actually negotiating:
   designated by the user (7c) that owns push/merge order, with a lighter
   protocol for mechanical follow-ups ("spec + tests present → build session
   tests and commits, lead only checks live").
-- **Cross repo** (planny backend ↔ planny-app-mobile ↔ cce-e2e-tests):
+- **Cross repo** (the SaaS app backend ↔ the mobile app ↔ cce-e2e-tests):
   contract questions ("does the field set we show still match what the
   backend returns"); deploy broadcasts ("prod deployed 6289cd0a..e7a6deca —
   relevant for the app: (1)… (2)…"); resource delegation ("7c needs a live

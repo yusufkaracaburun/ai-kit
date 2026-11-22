@@ -66,7 +66,7 @@ assert "graph-fresh suggests graphify update" 'echo "$OUT_STALE" | grep -q "grap
 assert "graph-fresh explains topology-vs-stamp" 'echo "$OUT_STALE" | grep -q "no topology change"'
 assert "graph-fresh never prompts under --no-prompt" '! echo "$OUT_STALE" | grep -q "\[y/N\]"'
 
-# The naschool case: graphify was run, reported no topology change, so the
+# The portal app case: graphify was run, reported no topology change, so the
 # stamp never advanced. A recorded verified-HEAD settles it — no nagging.
 printf '%s\n' "$(git -C "$TMP/stale" rev-parse HEAD)" > "$TMP/stale/graphify-out/.ai-kit-graph-verified"
 OUT_VERIFIED="$("$FRESH" "$TMP/stale" --no-prompt 2>&1)"; RC_VERIFIED=$?

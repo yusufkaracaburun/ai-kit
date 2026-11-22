@@ -7,7 +7,7 @@ Accepted (v1.24.0)
 ## Context
 
 Issue [#30](https://github.com/yusufkaracaburun/ai-kit/issues/30):
-naschool's `.agents/memory/feedback/` had accumulated ~35 project-local
+the portal app's `.agents/memory/feedback/` had accumulated ~35 project-local
 feedback-memories over months, roughly half of which were
 agent-/workflow-general rules that any new project would want on day 1
 of `/ai:setup`. Every new project was re-discovering these rules

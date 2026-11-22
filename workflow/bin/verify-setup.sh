@@ -209,7 +209,7 @@ if [ "$MINIMAL_TIER" = false ]; then
 fi
 
 if [ "$STRICT" = true ]; then
-  # #114 (naschool): a symlink pinned straight into a version-numbered
+  # #114 (the portal app): a symlink pinned straight into a version-numbered
   # plugin cache dir (rather than through the plugin-current indirection)
   # resolves fine today and bricks silently on the next /plugin update GC.
   # Presence-only checks above never catch this — flag it explicitly.

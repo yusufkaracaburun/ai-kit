@@ -453,8 +453,8 @@ skillui · category=design-extraction · added 2026-09-14
 
 `/should-i-use https://github.com/d4vinci/Scrapling` 2026-09-14, same session
 as `skillui` above. Owner already runs it in production via a personal
-wrapper (`~/Sites/localhost/ws/site-scrapers`, built on
-`scrapling[fetchers]`) that scraped the SnelStart B2B API docs for emeq-hub —
+wrapper (a personal scraper repo, built on
+`scrapling[fetchers]`) that scraped the SnelStart B2B API docs for the hub app —
 Track B was a confirmed **Wire** before this audit even started. This row
 covers Track A: does ai-kit's own catalog get a companion out of it.
 
@@ -809,10 +809,10 @@ ui-ux-pro-max · category=design · added 2026-08-29
 `ui-ux-pro-max`'s own entry above names — "pair with actual reference sites for
 concrete visual exemplars" — nothing filled it generically. Queued as
 `yusufkaracaburun/ai-kit#168` pending this pass; Track B in the same session
-found one confirmed downstream need (`emeq-hub#112` — `design-taste-frontend`
+found one confirmed downstream need (an app issue — `design-taste-frontend`
 skill names "Linear-style"/"Awwwards-experimental" vibe words with no live
-lookup mechanism) against three Ignores (theorieplek/emeq-web/planny-app-mobile
-— design-led via Pencil, or wrong category for planny-app-mobile's native-app
+lookup mechanism) against three Ignores (the content site, the marketing site, the mobile app
+— design-led via Pencil, or wrong category for the mobile app's native-app
 screens, already covered by #166's curated mobile-app sources).
 
 ```
@@ -889,14 +889,14 @@ inspo-mcp · category=design-reference · added 2026-09-15
 found a real catalog gap: none of the existing design entries (ui-ux-pro-max,
 impeccable, skillui, inspo-mcp) cover animation-specific taste — easing,
 duration, physicality, interruptibility. Track B checked every downstream
-repo, not just the ones already open: `emeq-app` (React 19 + `motion` dep,
+repo, not just the ones already open: the legacy app (React 19 + `motion` dep,
 155 files with transition/animate/`useAnimat*` usage, `sonner` dependency),
-`naschool/frontend/{portal,admin,partner}` (152 files same signal across all
-three, `sonner` in all three), `emeq-web` (Astro, 7 files — lighter),
-`theorieplek` (Astro, 6 files, but a hand-built 377-line animated component
-with `prefers-reduced-motion` handling already — real if light), `planny`
+`portal-app/frontend/{portal,admin,partner}` (152 files same signal across all
+three, `sonner` in all three), the marketing site (Astro, 7 files — lighter),
+the content site (Astro, 6 files, but a hand-built 377-line animated component
+with `prefers-reduced-motion` handling already — real if light), the SaaS app
 (Vue, 9 files, but `vue-toastification` not `sonner` — sonner tier doesn't
-fire there), `planny-app-mobile` (Flutter/Dart — 1467 `.dart` files, 1527
+fire there), the mobile app (Flutter/Dart — 1467 `.dart` files, 1527
 `.swift`-named files turned out to be vendored CocoaPods/Flutter-runner
 boilerplate + `.tmp/` example repos, only 18 real and none importing SwiftUI —
 confirmed NOT a native Swift target by import statements, not extension
@@ -927,7 +927,7 @@ emilkowalski-skills · category=animation · added 2026-09-15
                     record, not an anonymous single-purpose repo). Install
                     mechanism is `vercel-labs/skills` (maintained by
                     Guillermo Rauch), the same CLI already active in
-                    naschool's `skills-lock.json` for `frontend-design`/
+                    the portal app's `skills-lock.json` for `frontend-design`/
                     `superdesign` — not a new dependency on this ecosystem.
   DATA-LOCALITY:    local — plain markdown skill files, no network calls, no
                     telemetry in the repo itself. The installer CLI
@@ -963,22 +963,22 @@ emilkowalski-skills · category=animation · added 2026-09-15
 **Re-checked 2026-09-19** (`/ai:should-i-use` on the 12 non-Swift skills).
 Upstream HEAD still `85e8e23` — zero commits since the pin, nothing to
 re-diff. Counts above corrected (13 skills, 22 `.md` = 20 in skill dirs + 2 root, not 14/14). Target
-repos for Track B from this pass on: emeq-app, planny-app-mobile, planny,
-emeq/system, emeq-hub, theorieplek (user decision 2026-09-19; naschool is no
-longer a reference project). Animation gate re-run there: emeq-app 155 files,
-emeq-hub 40, emeq/system 21 (Laravel 13 + Vue 2), planny 9, theorieplek 6,
-planny-app-mobile 0 (Flutter). Sonner gate: emeq-app only. planny lead
-session (planny-2b, 2026-09-19): planny web is a desktop admin for staff,
+repos for Track B from this pass on: the legacy app, the mobile app, the SaaS app,
+the Laravel app, the hub app, the content site (user decision 2026-09-19; the portal app is no
+longer a reference project). Animation gate re-run there: the legacy app 155 files,
+the hub app 40, the Laravel app 21 (Laravel 13 + Vue 2), the SaaS app 9, the content site 6,
+the mobile app 0 (Flutter). Sonner gate: the legacy app only. The SaaS app lead
+session (saas-2b, 2026-09-19): the SaaS app web is a desktop admin for staff,
 end users get the Flutter app, none of ~50 open issues touch motion — skip. Install status:
 the wired tiers have fired nowhere — 0 of 6 repos have
 `.claude/skills/animate`, no `skills-lock.json` names the upstream. The
-catalog entry exists; nobody has run the install in emeq-app or emeq-hub.
+catalog entry exists; nobody has run the install in the legacy app or the hub app.
 That is the actual gap, not the six unwired skills. Running the recorded
 `install_command` exposed a second one: `-s a,b,c` (comma-joined, as written
 on 09-15 and never executed) is read by `skills` CLI as one unknown skill
 name and installs nothing — `-s a b c` is the syntax. Fixed in
-companions.json + recommend-tools; both tiers installed in emeq-app, the
-animation tier in emeq-hub (there `.claude/` is gitignored, so per-machine).
+companions.json + recommend-tools; both tiers installed in the legacy app, the
+animation tier in the hub app (there `.claude/` is gitignored, so per-machine).
 
 Per-skill, the six left unwired, each objection now tested:
 
@@ -986,12 +986,12 @@ Per-skill, the six left unwired, each objection now tested:
 | --- | --- | --- |
 | `emil-design-eng` | Ignore — **Confirmed** duplicate | same 3 cubic-beziers as `animate`+`STANDARDS.md`; every component topic (clip-path 14/10, tooltip 9/9, `@starting-style` 4/6, blur, `scale(0)`, pointer capture) already in `animate/RECIPES.md`; 3 of 106 sentences verbatim, so a rewrite of the same rules plus 3 philosophy paragraphs — nothing operational is unique |
 | `prototype` | Ignore as install — **Confirmed** overlap; harvest 2 mechanisms | functional twin of ai-kit's own `workflow/skills/prototype/UI.md` (N variants on one route, floating bottom switcher, `?variant=`), plus a `/prototype` vs `/ai:prototype` name clash. Emil's adds named axes per variant (not A/B/C) and a tradeoff table at handoff — worth folding into UI.md as pattern |
-| `pick-ui-library` | Ignore — **Confirmed** already chosen | emeq-app has 9 of the 18 picks installed (dnd-kit, cmdk, cva, clsx, input-otp, motion, recharts, sonner, zustand); only divergence is `@radix-ui/react-dialog` vs base-ui, where the skill would nudge a migration. The list is React-shaped — planny and emeq/system are Vue, emeq-hub Laravel, planny-app-mobile Flutter. `disable-model-invocation: true` — a person-scope lookup anyway |
-| `animate-expo` | Ignore — **Confirmed** no target | 0 `package.json` with `expo`/`react-native` under `~/Sites/localhost` (depth 4); planny-app-mobile lead (planny-app-mobile-01, 2026-09-19): pure Flutter/Dart, `.swift` = Runner boilerplate, no RN/Expo planned — unwired for good. `write-swift` stays unwired until planny-app #44 (iOS/Android home-screen widget, P3, unscheduled — would need a WidgetKit/SwiftUI extension) is scheduled |
-| `apple-design` | Ignore — **Confirmed** physics lives in a dep | 39 Sheet/Drawer files in emeq-app, all via `vaul` (Emil's own drawer — momentum, damping, snap are inside it); custom drag surface is 7 files, dnd-kit sortable; planny 5 drag files, no sheet; emeq-hub/theorieplek 0. Springs/interruptibility/reduced-motion already in `animate`. Revisit if a repo hand-rolls a sheet |
-| `mobile-native` | Ignore — **Confirmed** MWG gap, but no repo wants it | Track A: MWG 0.0.189 (171 guides, enabled globally) has 0 guides for `safe-area-inset`/`viewport-fit`/`tap-highlight`/`hover: hover`/input-zoom/`interactive-widget`, only `dvh` (4) + `overscroll-behavior` (5) — "already covered" is false. Track B: theorieplek (Astro commerce site, mobile-first buyers) is the only mobile-facing web repo: `StickyKoopbalk.astro:73` pads with `env(safe-area-inset-bottom, 0px)` but `Base.astro:57` viewport lacks `viewport-fit=cover` → `env()` is always `0px` (rule #7); Header.astro already does `100dvh` + `overscroll-behavior`, ProductKaart `@media (hover: hover)` — the author knows the fixes, missed one. emeq-app is a desktop admin (16 `dvh`, 0 of the other 10); planny/emeq-hub 1–2 stray hits. theorieplek review session (theorieplek-25, 2026-09-19) confirmed the no-op but: the `StickyKoopbalk` line is uncommitted WIP in the same unreviewed batch as the Header `dvh`/overscroll changes, not a shipped convention — fix is one meta attribute at that diff's review. Their call on installing the skill there: **no** — 4 mobile-specific CSS spots in a static Astro site don't carry 310 lines, and input-zoom/tap-highlight/sticky-hover are `design.pen` token questions where a code-side skill would fight the fidelity gates. Zero repos want it → Ignore for the kit too; revisit when a second mobile-web repo appears |
+| `pick-ui-library` | Ignore — **Confirmed** already chosen | The legacy app has 9 of the 18 picks installed (dnd-kit, cmdk, cva, clsx, input-otp, motion, recharts, sonner, zustand); only divergence is `@radix-ui/react-dialog` vs base-ui, where the skill would nudge a migration. The list is React-shaped — the SaaS app and the Laravel app are Vue, the hub app Laravel, the mobile app Flutter. `disable-model-invocation: true` — a person-scope lookup anyway |
+| `animate-expo` | Ignore — **Confirmed** no target | 0 `package.json` with `expo`/`react-native` under `~/Sites/localhost` (depth 4); the mobile app lead (session mobile-app-01, 2026-09-19): pure Flutter/Dart, `.swift` = Runner boilerplate, no RN/Expo planned — unwired for good. `write-swift` stays unwired until the mobile app #44 (iOS/Android home-screen widget, P3, unscheduled — would need a WidgetKit/SwiftUI extension) is scheduled |
+| `apple-design` | Ignore — **Confirmed** physics lives in a dep | 39 Sheet/Drawer files in the legacy app, all via `vaul` (Emil's own drawer — momentum, damping, snap are inside it); custom drag surface is 7 files, dnd-kit sortable; the SaaS app 5 drag files, no sheet; the hub app, the content site 0. Springs/interruptibility/reduced-motion already in `animate`. Revisit if a repo hand-rolls a sheet |
+| `mobile-native` | Ignore — **Confirmed** MWG gap, but no repo wants it | Track A: MWG 0.0.189 (171 guides, enabled globally) has 0 guides for `safe-area-inset`/`viewport-fit`/`tap-highlight`/`hover: hover`/input-zoom/`interactive-widget`, only `dvh` (4) + `overscroll-behavior` (5) — "already covered" is false. Track B: the content site (Astro commerce site, mobile-first buyers) is the only mobile-facing web repo: `StickyKoopbalk.astro:73` pads with `env(safe-area-inset-bottom, 0px)` but `Base.astro:57` viewport lacks `viewport-fit=cover` → `env()` is always `0px` (rule #7); Header.astro already does `100dvh` + `overscroll-behavior`, ProductKaart `@media (hover: hover)` — the author knows the fixes, missed one. The legacy app is a desktop admin (16 `dvh`, 0 of the other 10); the SaaS app, the hub app 1–2 stray hits. The content site review session (site-25, 2026-09-19) confirmed the no-op but: the `StickyKoopbalk` line is uncommitted WIP in the same unreviewed batch as the Header `dvh`/overscroll changes, not a shipped convention — fix is one meta attribute at that diff's review. Their call on installing the skill there: **no** — 4 mobile-specific CSS spots in a static Astro site don't carry 310 lines, and input-zoom/tap-highlight/sticky-hover are `design.pen` token questions where a code-side skill would fight the fidelity gates. Zero repos want it → Ignore for the kit too; revisit when a second mobile-web repo appears |
 
-REVERTED 2026-11-21: removed from companions.json and recommend-tools because no consuming repo used it (1 Skill call in 2 months, emeq-app retired, emeq-reui forbids retiming shipped components); see the `emilkowalski-skills` entry in plugins-excluded.json.
+REVERTED 2026-11-21: removed from companions.json and recommend-tools because no consuming repo used it (1 Skill call in 2 months, the legacy app retired, the React app forbids retiming shipped components); see the `emilkowalski-skills` entry in plugins-excluded.json.
 
 ### `modern-web-guidance` — added 2026-09-19 (plugins.json)
 
@@ -1006,10 +1006,10 @@ form and the agent would otherwise write the legacy-JS version.
 Gap it closes, measured: `plugins.json` had `design` (what to choose:
 ui-ux-pro-max, frontend-design), `quality` (measure afterwards:
 web-quality-skills) and nothing for "implement it with the platform".
-Downstream evidence: theorieplek (Astro, 24 components / 33 pages) hand-rolls
+Downstream evidence: the content site (Astro, 24 components / 33 pages) hand-rolls
 its mobile nav in `src/components/Header.astro` with WAAPI + a reduced-motion
 branch and has 0 `<dialog>`, 0 `popover`, 0 `color-scheme`, 0 `@container`
-across `src/`; emeq-web (Astro, 39 components / 10 pages) the same profile.
+across `src/`; the marketing site (Astro, 39 components / 10 pages) the same profile.
 MWG's `navigation-drawer` (4384 t) and `animate-element-entry-exit` (1415 t)
 are the platform versions of exactly that nav.
 
@@ -1091,11 +1091,11 @@ own marketplace `googlechrome` at 1.0.1. The catalog entry now installs
 its `autoUpdate`. The first-pass install path above is superseded. Local
 install moved the same day (user scope, 1.0.1).
 
-First real run: `legacy-scan .` on theorieplek gave 0 findings from 38 guides
+First real run: `legacy-scan .` on the content site gave 0 findings from 38 guides
 and wrote no files.
 
-Token cost, measured 2026-11-20 from theorieplek transcripts
-(`~/.claude/projects/-Users-yusufkaracaburun-Sites-localhost-github-com-theorieplek/`).
+Token cost, measured 2026-11-20 from the content site transcripts
+(`~/.claude/projects/<encoded content-site path>/`).
 Transcripts only go back to 2026-10-21; 2026-09-19 to 2026-10-20 is gone.
 In the 33 top-level transcript files from 2026-10-21 to 2026-11-19: 0
 `modern-web-guidance` Skill calls and 0 `search`/`retrieve`/`legacy-scan`
@@ -1103,7 +1103,7 @@ calls (**Confirmed**, grep over all 33 files and their subagent
 transcripts). Always-on cost is the two skill names in the roster, about 20
 tokens per session. The description text is not carried. Cheap, and unused.
 
-The usage pointer never reached the agent. theorieplek's
+The usage pointer never reached the agent. The content site's
 `npx modern-web-guidance search` line sits in `AGENTS.md:67-68`, which
 Claude Code does not load next to `CLAUDE.md`, and `CLAUDE.md` does not
 `@import` it. The string appears in 0 of the 33 transcripts. So this
@@ -1118,9 +1118,9 @@ tooling. The user reversed that on 2026-09-27: ai-kit will serve more mobile
 apps, and every app with an iOS and Android target needs store screenshots at
 each release. The reversal is recorded in `plugins-excluded.json` `reversed[]`.
 A POC the same day at the pinned SHA rendered a 6-slide 1320x2868 deck from
-planny-app-mobile goldens. It is the fallback route; apps with a `.pen` source
+the mobile app goldens. It is the fallback route; apps with a `.pen` source
 use the design-to-code store flow (#192). Superseded by ADR-0020 (2026-10-29): Paper replaced Pencil, and store screenshots go through this companion until mobile is designed in Paper. Detection checked by hand: fires on
-planny-app-mobile, silent on emeq-app, emeq-hub, emeq-web and ai-kit.
+the mobile app, silent on the legacy app, the hub app, the marketing site and ai-kit.
 
 ```
 app-store-screenshots · category=store-assets · added 2026-09-27
@@ -1170,11 +1170,11 @@ app-store-screenshots · category=store-assets · added 2026-09-27
 ### `openseo`, added 2026-10-20 (companions.json)
 
 Offered on web, marketing and content sites, or when the user asks about SEO.
-Real use on 2026-10-20: a self-hosted instance ran against emeq.nl. Baseline:
+Real use on 2026-10-20: a self-hosted instance ran against the marketing site. Baseline:
 1 ranked keyword ("infrabedrijf", position 53), 113 referring domains, and a
 50-page site audit (0 critical, 42 warnings, 53 info). The audit surfaced two
 site-wide issues: canonicals pointing at `/` and missing H1s. Self-host does
-not report credit spend. Re-measure after the Astro emeq.nl site goes live; drop to Ignore if there is no gain.
+not report credit spend. Re-measure after the Astro marketing site goes live; drop to Ignore if there is no gain.
 
 ```
 openseo · category=seo · added 2026-10-20
@@ -1200,5 +1200,5 @@ openseo · category=seo · added 2026-10-20
                     credits; plugin next to a self-hosted MCP gives a
                     duplicate openseo MCP; OpenSEO's `seo-audit` skill
                     clashes with a project skill of the same name, confirmed
-                    in theorieplek, which one wins is unverified)
+                    in the content site, which one wins is unverified)
 ```

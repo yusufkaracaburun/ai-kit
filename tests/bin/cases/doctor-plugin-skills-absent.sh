@@ -6,7 +6,7 @@ source "$AIKIT/tests/bin/lib/harness.sh"
 
 # #114 §"Doctor makes it worse": when ai-kit is installed as a Claude Code
 # plugin, .claude/skills and .agents/skills symlinks are pure duplication —
-# the plugin already serves /ai:*. A project with none (emeq-hub, the
+# the plugin already serves /ai:*. A project with none (the hub app, the
 # "healthy reference config") should not be nagged to run bootstrap-project.sh
 # for those two. .cursor/skills is unaffected: Cursor has no plugin channel,
 # so its absence still warns regardless (caveat in the issue, deliberately

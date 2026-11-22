@@ -167,7 +167,7 @@ rm -rf "$TMP_GH_DRY"
 # Workflows have the right top-level structure (name + on + jobs).
 # Using grep rather than yaml.safe_load — pyyaml is not in stdlib and
 # requiring it would block CI on minimal images. The full YAML is sourced
-# verbatim from naschool's production setup, so syntactic validity is
+# verbatim from the portal app's production setup, so syntactic validity is
 # established upstream; we only need to assert our copy preserved the
 # load-bearing top-level keys.
 TMP_GH_YAML=$(mktemp -d)

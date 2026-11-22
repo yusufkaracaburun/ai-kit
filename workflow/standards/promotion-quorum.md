@@ -103,7 +103,7 @@ The promotion flow is currently manual:
    `universal: true` and `default_mode: always-on`.
 
 Promotion is not for every lesson — only for ones that hold across stacks,
-domains, and product surfaces. The naschool harvest that produced #29 and
+domains, and product surfaces. The portal app harvest that produced #29 and
 #30 dropped ~17 candidates of which 8 survived the agnostic-rewrite bar.
 
 Automate (`/ai:promote-feedback` skill) only when promotion rate exceeds

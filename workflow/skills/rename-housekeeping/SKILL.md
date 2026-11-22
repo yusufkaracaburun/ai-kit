@@ -12,7 +12,7 @@ argument-hint: "<old-basename-or-path> <new-basename-or-path>"
 
 # Rename housekeeping
 
-Repo gets renamed (`mv school-activities-hub naschool`) or moved (`mv ~/projects/foo ~/Sites/foo`). Memory files still reference the old absolute path or basename. Next session copy-pastes stale `cd` commands → hits non-existent dir → user pays round-trip + correction.
+Repo gets renamed (`mv school-activities-hub demo-app`) or moved (`mv ~/projects/foo ~/Sites/foo`). Memory files still reference the old absolute path or basename. Next session copy-pastes stale `cd` commands → hits non-existent dir → user pays round-trip + correction.
 
 This skill rewrites every stale reference in the detector universe, with dry-run preview + per-file confirm + backups.
 
@@ -61,8 +61,8 @@ Schema:
 {
   "projects": [
     {
-      "name": "naschool",
-      "path": "/Users/y/Sites/localhost/naschool",
+      "name": "demo-app",
+      "path": "/Users/y/Sites/localhost/demo-app",
       "first_seen": "2026-05-20",
       "last_seen": "2026-05-25"
     }

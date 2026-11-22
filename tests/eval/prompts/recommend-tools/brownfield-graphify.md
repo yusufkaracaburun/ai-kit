@@ -15,7 +15,7 @@ expects:
 
 # Prompt
 
-We just ran `/ai:setup` on emeq/admin — a five-year-old Laravel admin panel with
+We just ran `/ai:setup` on the admin app — a five-year-old Laravel admin panel with
 hundreds of files. I grep around it constantly and the agent burns tokens
 re-reading the same code. Are there companion tools worth adding to push this
 setup further, and which actually fit a repo this size?

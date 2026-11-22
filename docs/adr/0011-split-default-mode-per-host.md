@@ -10,7 +10,7 @@ kept for the record: superseded in practice by the host (#182, measured
 with `paths:` only when a matching file is touched. The premise of both #144
 ("always-on is inert on Claude Code") and the withheld injection hook (a 2k-word
 budget with weight-then-length selection) no longer holds: the native loader
-was already spending 7× that budget in emeq-hub (32 files, 14,288 words) with
+was already spending 7× that budget in the hub app (32 files, 14,288 words) with
 no selection at all.
 
 What the emitter does since v1.91.0, `bin/lib/emitters/claude-code.sh`:
@@ -37,7 +37,7 @@ edit or verdict — see their AGENT.md.
 
 Original status text, kept for the record: accepted, not yet wired (#144);
 the hook shipped in v1.61.0 with the `SessionStart` registration withheld
-after an emeq-hub measurement showed length deciding which five rules
+after an hub app measurement showed length deciding which five rules
 survived (#148).
 
 This ADR was originally proposed as "split `default_mode` per host"

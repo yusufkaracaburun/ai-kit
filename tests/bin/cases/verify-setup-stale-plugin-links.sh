@@ -4,7 +4,7 @@ AIKIT="$(cd "$(dirname "$0")/../../.." && pwd)"
 # shellcheck source=../lib/harness.sh
 source "$AIKIT/tests/bin/lib/harness.sh"
 
-# #114 (naschool comment): "verify-setup.sh --strict reports 19/19 green
+# #114 (the portal app comment): "verify-setup.sh --strict reports 19/19 green
 # while every link is pinned" — presence-only checking makes a project whose
 # skill links are pinned directly into a version-numbered plugin cache path
 # (rather than through the plugin-current indirection, #114 slice A) look

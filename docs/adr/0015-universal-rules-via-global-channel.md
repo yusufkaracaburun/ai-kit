@@ -8,10 +8,10 @@ live). Closes #171, #149.
 
 ## Context
 
-Three of the five ai-kit-marked repos on this machine (planny, emeq/system,
-theorieplek) load **zero** universal rules: their owner reverted the 58
+Three of the five ai-kit-marked repos on this machine (the SaaS app, the Laravel app,
+the content site) load **zero** universal rules: their owner reverted the 58
 files `/ai:setup` wrote ("we hebben ai-kit toch global geïnstalleerd").
-The other two (emeq-hub 28, planny-app-mobile 25) carry per-repo copies
+The other two (the hub app 28, the mobile app 25) carry per-repo copies
 that never receive a new universal rule (#149). Cursor rules: none, in any
 repo.
 

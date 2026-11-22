@@ -54,7 +54,7 @@ bin/emit-rules.sh                  ← NEW: takes detected agents + rule names �
 - [x] `bootstrap-project.sh` wires `emit-rules.sh` after skill linking; `--no-rules` to opt out.
 - [x] Tests in `tests/bin/run-tests.sh` cover emit + idempotency + filtering.
 - [x] `AGENTS.md.template` no longer mentions Cursor-specific `.cursor/rules/`; agent-agnostic phrasing.
-- [x] emeq/admin migrated by hand (commit `51accea` "chore: drop ai-kit Cursor rule shims").
+- [x] the admin app migrated by hand (commit `51accea` "chore: drop ai-kit Cursor rule shims").
 - [x] Stub emitters finished — `aider.sh`, `cline.sh`, `continue.sh`, `cody.sh` (2026-05-22). Each writes per-rule files to the agent's conventional rules dir; a legacy single-file `.clinerules` is skipped (with a reason), not clobbered.
 - [x] Migration guide for pre-2.0 legacy installs — `docs/troubleshooting.md` "Migrating from a pre-2.0 install" (2026-05-22, closes #10).
 
@@ -238,7 +238,7 @@ in priority order:
 7. **Brainstorm: second plugin under `yusufkaracaburun/marketplace`** (#15).
    Parking lot for picking plugin #2 now that the standalone marketplace
    is live (#9). Marketplace shape only pays off at N ≥ 2. Candidate
-   seeds: `emeq-kit` (emeq-specific lifecycle layer — Naschool / Snelstart
+   seeds: `an app-specific kit` (app-specific lifecycle layer — The portal app / Snelstart
    / Mollie templates), `spec-kit` (PRD/ADR authoring subset of gsd-*),
    `browser-qa-kit` (Playwright/MCP QA standalone), `graphify-kit`
    (graphify + caveman + llm-wiki bundle). Exit criterion: pick one,
@@ -274,7 +274,7 @@ in priority order:
    `mcp-servers.json`) fires on the same self-host signals — pick PaaS
    first, then optionally wire the MCP. Dokku / Caprover / Kamal
    deferred to follow-up issues — catalog grows from validated adoption
-   signal (the user runs Coolify in production via naschool), not
+   signal (the user runs Coolify in production via the portal app), not
    speculation. `recommend-tools/SKILL.md` + `setup/SKILL.md` Branch 14
    wire the surface; preview-then-confirm trust model. 10 new test
    asserts cover detect + scorer across 5 fixtures.
@@ -363,8 +363,8 @@ in priority order:
     benchmark (48 tables + 36 code blocks preserved vs pdftotext's 0+0
     on a 103-page technical book) is documented prior art for any
     future llm-wiki PDF-ingest path.
-16. **Adopt naschool's DoR/DoD-enforced GH issues + Projects flow** (#27) —
-    ai-kit projects have no opinion on issue tracking today. Naschool has
+16. **Adopt the portal app's DoR/DoD-enforced GH issues + Projects flow** (#27) —
+    ai-kit projects have no opinion on issue tracking today. The portal app has
     solved this with a battle-tested GitHub-native stack:
     `.github/ISSUE_TEMPLATE/{feature,spike}.md` embedding Triage (priority /
     epic / area / depends-on / blocks / ready-to-start) + Scope + Acceptance
@@ -388,11 +388,11 @@ in priority order:
     **Decisions baked in:** Tier-A always-on when GitHub-remote
     detected (every ai-kit-on-GitHub repo gets the same bar);
     **Dutch default** with `--lang en` flag for English templates
-    (matches naschool source and user's primary language); detect-
+    (matches the portal app source and user's primary language); detect-
     existing-board never auto-create; labels hard-copied from
-    naschool (divergence without reason is noise); DoR/DoD parsing
-    logic verbatim from naschool (already battle-tested).
-15. **Generalise naschool docs-sync into reusable ai-kit primitive** (#26)
+    the portal app (divergence without reason is noise); DoR/DoD parsing
+    logic verbatim from the portal app (already battle-tested).
+15. **Generalise the portal app docs-sync into reusable ai-kit primitive** (#26)
     — Tier 1 **landed** 2026-05-23 (commit `3a64907`):
     `bin/hooks/context-drift-check.sh` now fires path-pattern triggers
     in addition to literal-doc-name matches, with per-category reminders
@@ -406,7 +406,7 @@ in priority order:
     local overrides in `docs/agents/docs-drift.yml`. Wired into
     `/ai:setup` as a Tier-B branch parallel to Branch 11. Sequencing
     risk — skill-vs-companion call (recommend-tools vs core) needed
-    first. Migration path: naschool keeps local override until Tier 2
+    first. Migration path: the portal app keeps local override until Tier 2
     lands, then re-bootstraps and drops the project-specific bits into
     the YAML config.
 17. **Doc-to-skill scaffold (PDF/EPUB/DOCX → `SKILL.md` stub)** (#45) —
@@ -476,7 +476,7 @@ in priority order:
     existing Branch 14 — no separate setup branch needed.
 
 17. **Make plugin self-contained: bundle `bin/` so global clone is
-    optional** (#28) — Surfaced 2026-05-23 when naschool's project-
+    optional** (#28) — Surfaced 2026-05-23 when the portal app's project-
     scope plugin install showed v4.1.0 in `installed_plugins.json` but
     `/ai:status` reported "marker 4.0.0 == VERSION 4.0.0 no drift".
     Root cause: 7 plugin slash-commands call
@@ -532,7 +532,7 @@ in priority order:
     Flutter project. Go/Rails deferred to follow-up issues.).
 
 20. **triage↔autonomous Agent Brief contract** (#36) — landed
-    2026-05-23 in v1.14.1 (PR #37). Surfaced on a live naschool run
+    2026-05-23 in v1.14.1 (PR #37). Surfaced on a live portal app run
     (#42/#43/#44, EPIC #41 backend refactor): `/ai:triage` produced
     `## Triage outcome` comments referencing an external plan-doc,
     while `/ai:autonomous` searches for `## Agent Brief` literally and
@@ -552,7 +552,7 @@ in priority order:
 
 21. **autonomous hardening: cwd-guard + telemetry + exit-handoff**
     (#38, #39, #40) — landed 2026-05-23 in v1.14.2. First real-queue
-    drain on naschool #42 (EPIC #41 Chunk A: 18 dir deletes, 24
+    drain on the portal app #42 (EPIC #41 Chunk A: 18 dir deletes, 24
     call-site rewrites, 4 moves, vocab doc, CLAUDE.md rewrite)
     surfaced three orthogonal gaps. **Safety (#39):** CC harness
     resets cwd to session-primary working dir after every Bash, so
@@ -591,8 +591,8 @@ in priority order:
 22. **broader CC-primitive ecosystem audit + convergence** (#41) —
     landed 2026-05-24 in v1.15.0. `/ai:dedupe` and `/ai:setup` were
     blind to host-side Claude Code state beyond their four narrow
-    surfaces; on naschool the rename `school-activities-hub` →
-    `naschool` left stale `projectPath` refs in
+    surfaces; on the portal app the rename `school-activities-hub` →
+    the portal app left stale `projectPath` refs in
     `~/.claude/plugins/installed_plugins.json` and `/ai:dedupe`
     still reported `clean — no duplicates or orphans found`. User
     reframe (2026-05-24): ai-kit should *replace* the scattered
@@ -629,7 +629,7 @@ in priority order:
     presence (5 extra assertions). 449 tests pass total. Real-
     machine smoke on the dev host: 66 items inspected, 9
     divergent — confirmed `ai@yusufkaracaburun` project-scoped to
-    naschool only (should be user), `superpowers` installed from
+    the portal app only (should be user), `superpowers` installed from
     two different marketplaces, 4 plugin promotion candidates
     (`context7`, `claude-code-setup`, `csharp-lsp`, `caveman`).
     Non-goals deferred to follow-ups: auto-promote of `ADOPT`
@@ -640,7 +640,7 @@ in priority order:
 
 23. **ecosystem-audit polish: report-only, self-ref, deliberately-
     excluded** (v1.15.2) — landed 2026-05-24. First real-world use
-    on naschool surfaced four shortcomings of v1.15.0/v1.15.1.
+    on the portal app surfaced four shortcomings of v1.15.0/v1.15.1.
     **Exit-code UX:** Claude Code's slash-command runner treats any
     non-zero exit as red `Error:` — users mistook divergent findings
     for script failure. Both `bin/ai-kit-dedupe.sh` and
@@ -667,11 +667,11 @@ in priority order:
     `Use ai-kit's own lifecycle skills` as the alternative.
     **Plugin standards bundling:** v1.15.1 hotfix (`bin/sync-
     plugin-standards.sh`) confirmed in production — plugin install
-    on naschool went from 21 false-divergent (catalog missing) to 9
+    on the portal app went from 21 false-divergent (catalog missing) to 9
     real divergent. Tests: 455 pass (+6 since v1.15.0). Follow-ups
     parked as ai-kit#42/#43/#44 (catalog-candidates for context7 /
     claude-code-setup / caveman, filed via `/ai:to-prd defer` from
-    naschool — labeled `enhancement` fallback because `catalog-
+    the portal app — labeled `enhancement` fallback because `catalog-
     candidate` label did not yet exist on this repo; v1.15.2 adds
     the label + relabels the three issues).
 
@@ -683,16 +683,16 @@ in priority order:
     cover the EXCLUDED fixture (audit's per-Surface section header
     present + verdict row visible in inline table). Standalone script
     remains for `--scope` / `--json` / CI.
-25. ~~**Promote framework-agnostic checks from naschool docs-sync to
+25. ~~**Promote framework-agnostic checks from the portal app docs-sync to
     ai-kit** (#88)~~ ✅ **Shipped** 2026-05-27 across v1.30.0 → v1.34.0.
     `/ai:docs-sync` standalone skill with three checks (dead-links,
     repo-hygiene, finished-work cleanup), applicability-gated nudges
     across `/ai:checkpoint` / `/ai:ship` / `/ai:triage`, and
     `repo-skill-hint` evolved to surface both project + framework
     surfaces. Stale-references + orphan-docs checks deferred to v2
-    (need second-project signal for heuristic tuning). Naschool
+    (need second-project signal for heuristic tuning). The portal app
     slim-down (delete checks 8/9/10 from project-local docs-sync)
-    lands separately in the naschool repo.
+    lands separately in the portal app repo.
 26. ~~**Audit /ai:checkpoint vs /ai:handoff — merge, split, or sharpen?**
     (#91)~~ ✅ **Shipped** 2026-05-27 in v1.35.0 — merged `/ai:handoff`
     into `/ai:checkpoint` with `--to memory|tmp` argument (default
@@ -726,8 +726,8 @@ in priority order:
     `/ai:to-issues` for phase-2. Eval fixture
     (`tests/eval/prompts/exploratory-test/multi-role-bundle.md`)
     captures the 9 contract expectations. Defaults all derived from
-    proven manual run 2026-05-28 on naschool (89 findings, 4 roles,
-    2 hosts, 2-3 hrs → naschool#81 + #82 + #83 + #84). LEAN scope:
+    proven manual run 2026-05-28 on the portal app (89 findings, 4 roles,
+    2 hosts, 2-3 hrs → four app issues). LEAN scope:
     no helper bin/, skill is conversational. Skill count: 37 → 38.
 29. **Cite Osmani "Loop Engineering" as external validation in Ralph
     spike** (#107) — `/ai:should-i-use
@@ -797,7 +797,7 @@ Design settled via `/ai:grill-me`, split into #121-#124 via `/ai:to-issues`. #12
 in v1.54.0 via `/ai:autonomous`; each run's review caught a blocker, which is the writer/reviewer
 split doing real work rather than ceremony. #123 shipped in PR #130 and also corrected #122's
 template. #124 remains, human-driven. Remediation for the one repo with real findings is
-`emeq-system#209`, and its key has been rotated.
+an app issue, and its key has been rotated.
 
 Four bugs in the kit itself came out of the friction: #127 (`to-issues` labels but emits no brief,
 so `autonomous` rejects everything it produces), #128 (drain re-picks a shipped issue), #129 (a
@@ -819,10 +819,10 @@ measure `pre-write-discipline` effectiveness, surfaced by `/ai:should-i-use` on 
 declined — measuring a behavioural rule needs A/B agent runs that reverse ADR-0002, whose Revisited
 note now records the decision). Prior:
 2026-07-11 against 17 open issues (#118 added — `graph-fresh` cannot check umbrella
-repos like emeq, whose root is not a git repo; #117 added — surface `graph-fresh` in the
+repos like the umbrella repo, whose root is not a git repo; #117 added — surface `graph-fresh` in the
 search-delegation hook, where a stale graph actually misleads the agent. Both deferred from the
 v1.47.0/v1.47.1 `graph-fresh` session.) Prior: 2026-07-09 against 15 open issues (#116 added — plugin skill shadows same-named
 project skill, shares bootstrap root with #114; #115 opened + closed same day — GitHub Copilot
 rejected as a third host, ADR-0010 kept as Rejected; #114 added — bootstrap pins the versioned
-plugin-cache path, bricked emeq's 114 skill symlinks, naschool primed to follow; #113 added — marker ↔ hook-wiring
+plugin-cache path, bricked the umbrella repo's 114 skill symlinks, the portal app primed to follow; #113 added — marker ↔ hook-wiring
 cross-check gap, surfaced by a hook inventory; #112 added — OpenSpec: Ignore for catalog, spike on whether `to-issues` should emit an in-repo spec-delta; #108 was untracked + unlabelled, now P2; #111 SkillSpector skill-security scanner spike; #110 headroom tool-output-compression companion spike; #109 codebase-memory-mcp graphify-replacement spike; #101/#102/#103/#107 shipped in v1.42.0; #105 in v1.41.1)._

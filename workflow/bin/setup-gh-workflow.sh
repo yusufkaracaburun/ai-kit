@@ -4,7 +4,7 @@
 #   1. Copy ISSUE_TEMPLATE/ (feature.md + spike.md + config.yml) into
 #      TARGET/.github/ISSUE_TEMPLATE/ — Dutch by default, English via --lang en.
 #   2. Copy workflows (dor-dod-enforcement.yml + auto-promote-ready.yml) into
-#      TARGET/.github/workflows/. Both verbatim from naschool — battle-tested
+#      TARGET/.github/workflows/. Both verbatim from the portal app — battle-tested
 #      DoR/DoD enforcement + auto-promote-to-Ready on project boards.
 #      Plus gitleaks.yml — the secrets gate ai-kit-secrets-gate.sh checks for.
 #   3. Bulk-create labels (P0-P3 priorities, epic/* placeholders, area/*

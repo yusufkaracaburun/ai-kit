@@ -36,3 +36,6 @@ graphify-out/
 
 # Agent worktrees — transient, never tracked
 .claude/worktrees/
+
+# Autonomous run log, holds local absolute paths
+.ai-kit/autonomous/progress.txt

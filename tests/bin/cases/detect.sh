@@ -97,7 +97,7 @@ assert "claude .mcp.json detected" '[[ " ${AGENT_STACK_MCP[*]} " == *" .mcp.json
 assert "claude mcp recommends brownfield" '[ "$AGENT_STACK_RECOMMENDATION" = "brownfield" ]'
 
 # Emitted rules carry a marker line; the historical name list alone misfiled
-# every current rule as custom (seen on emeq: 23 of 25).
+# every current rule as custom (seen on the umbrella repo: 23 of 25).
 TMP_RULES=$(mktemp -d)
 "$AIKIT/bin/emit-rules.sh" "$TMP_RULES" --agents cursor >/dev/null 2>&1 || true
 printf -- '---\ndescription: mine\n---\nhouse rule\n' > "$TMP_RULES/.cursor/rules/house.mdc"

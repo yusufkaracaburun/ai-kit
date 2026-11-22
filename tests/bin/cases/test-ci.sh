@@ -89,7 +89,7 @@ assert "hygiene accepts --skip-test-ci" 'grep -q -- "--skip-test-ci" "$AIKIT/bin
 # --- regressions found by running this check against real repos, not fixtures ---
 
 # Monorepo: manifests live one level down (backend/, frontend/). Grading only
-# the repo root stayed silent on naschool, which is the shape with the most to
+# the repo root stayed silent on the portal app, which is the shape with the most to
 # verify. Detection walks tracked files instead.
 mkrepo "$TMP/monorepo"
 mkdir -p "$TMP/monorepo/backend"
@@ -100,7 +100,7 @@ assert "test-ci detects a runner in a monorepo subdir" '[ "$RC_MONO" -eq 1 ]'
 assert "test-ci names the subdir runner" 'echo "$OUT_MONO" | grep -q "uncovered runner: phpunit"'
 
 # `php artisan test` drives pest/phpunit without naming either. Matching only
-# the binary warned at naschool, whose CI does run the suite — a false alarm
+# the binary warned at the portal app, whose CI does run the suite — a false alarm
 # teaches the reader to ignore the section, so it is the worse failure.
 mkrepo "$TMP/artisan"
 mkdir -p "$TMP/artisan/backend" "$TMP/artisan/.github/workflows"

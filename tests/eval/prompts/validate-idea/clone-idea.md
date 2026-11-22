@@ -13,5 +13,5 @@ expects:
 
 # Prompt
 
-Toets dit idee: een kloon van rentslam.com voor Nederland, huur- en
+Toets dit idee: een kloon van een bestaande buitenlandse woningalert-dienst voor Nederland, huur- en
 koop-alerts per e-mail en Telegram, rond EUR 20 per maand. Heeft dit potentie?

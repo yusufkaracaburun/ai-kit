@@ -4,7 +4,7 @@ AIKIT="$(cd "$(dirname "$0")/../../.." && pwd)"
 # shellcheck source=../lib/harness.sh
 source "$AIKIT/tests/bin/lib/harness.sh"
 
-# #114 (naschool comment): "/ai:upgrade re-stamps the marker but never
+# #114 (the portal app comment): "/ai:upgrade re-stamps the marker but never
 # touches the links" — the one command whose job is moving a project to the
 # new ai-kit version moved the version STRING and left the version PATHS.
 # A project bootstrapped before the plugin-current indirection (#114 slice A)
@@ -84,7 +84,7 @@ HOME="$H" bash "$V5/bin/ai-kit-upgrade.sh" "$PN" >/dev/null 2>&1
 assert "no .claude/skills materialized" '[ ! -e "$PN/.claude/skills" ]'
 
 echo "=== plugin-served project holding only its own skills/agents: nothing gets installed ==="
-# emeq/system: .claude/skills/ existed with three project-own dirs and no
+# the Laravel app: .claude/skills/ existed with three project-own dirs and no
 # ai-kit link at all, yet upgrade merged every plugin skill into it — "the
 # dir exists" was read as "this project has ai-kit links to repair".
 V6="$(make_fake_version 4.0.0 v6)"

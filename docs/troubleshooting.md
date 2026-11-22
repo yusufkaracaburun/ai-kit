@@ -126,7 +126,7 @@ generate — your own `.cursor/rules/team-conventions.mdc` is always left untouc
 `AGENTS.md.template` is agent-agnostic. If your `AGENTS.md` still names `.cursor/rules/`,
 re-run `bootstrap-project.sh` (it merges, never clobbers) or edit the path out by hand.
 
-emeq/admin was migrated this way by hand (commit `51accea`); these steps generalise
+the admin app was migrated this way by hand (commit `51accea`); these steps generalise
 that cleanup to any project.
 
 ## Sandcastle

@@ -59,7 +59,7 @@
 
 ### Changed
 
-- `docs/score.md` gains a Downstream outcomes dimension worth 15 points, taken from the other five (Works 26, Structure 17, Catalog 17, Docs honesty 13, Process 12). Its baseline: emeq-reui had at least 4 owner-found defects in 2026-11-10..11-13; the review gate is wired in all five downstream repos (plugin ≥2.17.0, `review_gate_hook` at default) but not yet observed: 0 approvals and 0 skips recorded, and emeq-reui made 8 commits after the install with no `review-ok`, likely from a session started before the plugin update; corrections per 100 prompts is not measured. No new score row, because one of the three measures has no value (#283).
+- `docs/score.md` gains a Downstream outcomes dimension worth 15 points, taken from the other five (Works 26, Structure 17, Catalog 17, Docs honesty 13, Process 12). Its baseline: the React app had at least 4 owner-found defects in 2026-11-10..11-13; the review gate is wired in all five downstream repos (plugin ≥2.17.0, `review_gate_hook` at default) but not yet observed: 0 approvals and 0 skips recorded, and the React app made 8 commits after the install with no `review-ok`, likely from a session started before the plugin update; corrections per 100 prompts is not measured. No new score row, because one of the three measures has no value (#283).
 - Roadmap reconciled on 2026-11-14 against 109 open issues: rows for #199, #258 to #262, #267, #270 and #276 to #283 removed, rows added for #264, #284, #285, #286 and #287, #216 marked partly done in v2.19.0 (#283).
 - autonomous, tdd, to-issues and triage, the `docs/agents/workflow.md` and PR templates, the `setup-gh-workflow.sh` fallback message and the doctor solo-lint warning no longer cite "ai-kit issue #52"; they state the 2-dev default directly; autonomous drops its "spike-stage" limitations that contradicted its stable status; review and qa drop the gstack line (credit stays in the README); retro reads `docs/agents/workflow.md` as the file `/ai:setup` writes, and asks when it is missing (#283).
 - ADR-0014 no longer names the deleted `session-rules-inject.sh`; ADR-0015 drops the stale count of 23 rules and records the v2.20.0 count: 22 files, 12 pathless and 10 path-scoped (#283).
@@ -223,7 +223,7 @@
 
 ### Added
 
-- `/ai:clone-website`: rebuild an existing site's pages as local Astro or Next.js code, matching real content, assets, responsive layout and interactions. It detects the framework from the project and recommends Astro for an empty folder. Vendored from JCodesMore/ai-website-cloner-template (MIT, ee3f5a2), plus lessons from the hazarfan.nl and planny.nl clone runs.
+- `/ai:clone-website`: rebuild an existing site's pages as local Astro or Next.js code, matching real content, assets, responsive layout and interactions. It detects the framework from the project and recommends Astro for an empty folder. Vendored from JCodesMore/ai-website-cloner-template (MIT, ee3f5a2), plus lessons from a client site and the product site clone runs.
 - Rule `worker-fronts-static-site`: on a static site behind an edge Worker, forms, lead posts and redirects live in the Worker, and its handler carries the tests.
 
 ## 2.9.0 — 2026-10-23
@@ -231,7 +231,7 @@
 ### Added
 
 - `/ai:validate-idea`: go/no-go research for a new product idea. It writes a sourced brief, `ai:verifier` checks the 5 key numbers, and the run ends in one recorded exit with a stop rule. Reports and a ledger land in `$IDEAS_DIR` (#225).
-- `/ai:recommend-tools` offers OpenSEO as an optional SEO companion. It is offered only on web or content sites, or on request, and is never auto-installed. Unmeasured: the baseline covers emeq.nl only. Re-measure after the Astro site goes live.
+- `/ai:recommend-tools` offers OpenSEO as an optional SEO companion. It is offered only on web or content sites, or on request, and is never auto-installed. Unmeasured: the baseline covers the marketing site only. Re-measure after the Astro site goes live.
 
 ### Fixed
 
@@ -329,7 +329,7 @@ Advisory hooks ship machine-wide via the plugin and refresh on /plugin update; /
 
 ### Fixed
 
-- `lead-guard` hook: package runners (`npx`, `npm`, `pnpm`, `yarn`) pass when the segment ends in a read verb (`whoami`, `list`, `ls`, `status`, `info`, `view`, `show`, `get`, `describe`, `audit` without `fix`, `search`, `why`, `help`, `doctor`, `explain`, `outdated`, or a sole `--help`/`--version`); `run`, `exec`, `x`, `dlx` and `create` stay denied. `curl`, `wget` and httpie are denied only with a mutating method (`POST`, `PUT`, `PATCH`, `DELETE`) or a body (`-d`, `-F`, `-T`, `--data*`, `--form`, `--upload-file`, `--json`, httpie `key=value` items). Live false deny on `npx wrangler whoami; npx wrangler deployments list` in a theorieplek lead session, 2026-10-10. Test case now covers 127 asserts, including a trailing-space `http ` command that crashed under `set -u`.
+- `lead-guard` hook: package runners (`npx`, `npm`, `pnpm`, `yarn`) pass when the segment ends in a read verb (`whoami`, `list`, `ls`, `status`, `info`, `view`, `show`, `get`, `describe`, `audit` without `fix`, `search`, `why`, `help`, `doctor`, `explain`, `outdated`, or a sole `--help`/`--version`); `run`, `exec`, `x`, `dlx` and `create` stay denied. `curl`, `wget` and httpie are denied only with a mutating method (`POST`, `PUT`, `PATCH`, `DELETE`) or a body (`-d`, `-F`, `-T`, `--data*`, `--form`, `--upload-file`, `--json`, httpie `key=value` items). Live false deny on `npx wrangler whoami; npx wrangler deployments list` in a content site lead session, 2026-10-10. Test case now covers 127 asserts, including a trailing-space `http ` command that crashed under `set -u`.
 - `search-delegation-check` hook: a plain `grep` counts as a repo-wide sweep only when recursive (`-r`, `-R`, `--recursive`, combined short flags with r/R). `cmd | grep x` and a grep on one named file stay quiet. 6 fires, 0 real sweeps in one lead session.
 - `phase-check` hook: relayed `<cross-session-message>`, `<agent-message>` and `<task-notification>` prompts exit silently, like `/` and `!` prompts.
 - `recommend-tools` skill: no longer runs `graphify claude install` (it wrote two absolute-path PreToolUse hooks, a duplicate CLAUDE.md block and a `settings.json.graphify-bak`); the companion block is appended to CLAUDE.md directly (#203).
@@ -340,13 +340,13 @@ Advisory hooks ship machine-wide via the plugin and refresh on /plugin update; /
 
 ### Verified live
 
-- Main-thread PreToolUse payload lacks `agent_id`, subagent payload carries it: the theorieplek lead's own Chrome `navigate` was denied while its subagent navigated under the same `role=lead` claim (#199).
+- Main-thread PreToolUse payload lacks `agent_id`, subagent payload carries it: the content site lead's own Chrome `navigate` was denied while its subagent navigated under the same `role=lead` claim (#199).
 
 ## 2.4.0 — 2026-10-10
 
 ### Added
 
-- `lead-guard` hook (PreToolUse, bundled, machine-wide): a session whose claim says `role=lead` is denied `Edit`/`Write`/`MultiEdit`/`NotebookEdit` on repo files, mutating or heavy Bash (commits, pushes, test suites, builds, e2e, simulator boots, `sed -i`, redirects, `asc`/`gh`/`eas` writes, `rm`, `kill`), `mcp__pencil__execute` and Chrome write tools. Memo and scratch paths (`~/.claude/`, `.agents/memory/`, `.planning/`, `$TMPDIR`, `/tmp`) stay allowed, so checkpoints and claims still work. Subagents (payload carries `agent_id`) and non-lead sessions pass through. The only override is the role: `ai-kit-claim.sh set role=build`. Harvested from two emeq-mobile lead sessions (2026-10-09/10) in which the lead did 104 Pen edits and 71 browser actions inline while the prose rule said to dispatch.
+- `lead-guard` hook (PreToolUse, bundled, machine-wide): a session whose claim says `role=lead` is denied `Edit`/`Write`/`MultiEdit`/`NotebookEdit` on repo files, mutating or heavy Bash (commits, pushes, test suites, builds, e2e, simulator boots, `sed -i`, redirects, `asc`/`gh`/`eas` writes, `rm`, `kill`), `mcp__pencil__execute` and Chrome write tools. Memo and scratch paths (`~/.claude/`, `.agents/memory/`, `.planning/`, `$TMPDIR`, `/tmp`) stay allowed, so checkpoints and claims still work. Subagents (payload carries `agent_id`) and non-lead sessions pass through. The only override is the role: `ai-kit-claim.sh set role=build`. Harvested from two mobile app B lead sessions (2026-10-09/10) in which the lead did 104 Pen edits and 71 browser actions inline while the prose rule said to dispatch.
 - `session-coordination` rule: the lead contract. The lead never executes (code, tests, builds, e2e, commits, `.pen` edits, browser and store-console flows, CLI release ops all go to subagents); opens every reply with one status block (Doing, Where, Needs-you asked once, Advice for every open choice, and a one-time pushback with reasons when an instruction would make the product worse); accepts no agent claim without evidence or a few targeted reads of its own; guards quality against the project's design principles through a reviewer subagent; guards scope and picks simplicity; models: strongest model for the lead, Opus default for subagents via `CLAUDE_CODE_SUBAGENT_MODEL`, another model per spawn only when the task fits it. Shared resources are announced on take and release, never asked for; a permission denial is final for the session. Body stays within the 14-line budget the peer-sessions hook injects.
 - `secrets-hygiene` rule: `## E2E and test runners`. Credentials from an env file outside the repo, passed through process env (never argv), labelled input steps, grep the runner's logs for the value after a run. A real password landed in a tracked `.env.example` and in Maestro argv and 16 log files within one hour.
 - `mark-recommended-option` rule: a turn that ends with a question carries the recommendation in that turn, also in prose. "advies?" was typed six times in one day.
@@ -374,12 +374,12 @@ Advisory hooks ship machine-wide via the plugin and refresh on /plugin update; /
 ## 2.2.0 — 2026-09-29
 
 ### Changed
-- **A lead session dispatches, it does not execute.** `session-coordination` defined lead only as owner of push/merge order, so leads built, tested and committed inline and filled their context with suite output. The rule now sends code edits, test changes, suite runs, builds, e2e and commits to subagents (`builder`, `designer`, `qa-runner`, `explore`), keeps inline work to one lookup or a one-line fix, requires invoking the phase skill instead of naming it (naming `tdd` passes the phase check and skips the builder), and has the lead check agent claims before relaying them. The peer-sessions hook injects these bullets whenever peers are live. ADR-0014 amended. Harvested from planny and planny-app-mobile.
+- **A lead session dispatches, it does not execute.** `session-coordination` defined lead only as owner of push/merge order, so leads built, tested and committed inline and filled their context with suite output. The rule now sends code edits, test changes, suite runs, builds, e2e and commits to subagents (`builder`, `designer`, `qa-runner`, `explore`), keeps inline work to one lookup or a one-line fix, requires invoking the phase skill instead of naming it (naming `tdd` passes the phase check and skips the builder), and has the lead check agent claims before relaying them. The peer-sessions hook injects these bullets whenever peers are live. ADR-0014 amended. Harvested from the SaaS app and the mobile app.
 
 ## 2.1.0 — 2026-09-27
 
 ### Added
-- **`design-to-code` has a fifth flow, `store` (#192).** It builds App Store and Play Store screenshot slides from the app's own `.pen` screen masters: each phone is a new shell instance with the screen's content master in its slot, captions and decoration sit outside the shell, and everything lives in one section the flow asks to keep or delete. A frame is store size / 3 exported at scale 3 (440x956 → 1320x2868); sizes not divisible by 3 get another scale or a 1:1 frame. Verified live in planny-app-mobile: Home exported at 1320x2868, section deleted, `.pen` diff empty afterwards.
+- **`design-to-code` has a fifth flow, `store` (#192).** It builds App Store and Play Store screenshot slides from the app's own `.pen` screen masters: each phone is a new shell instance with the screen's content master in its slot, captions and decoration sit outside the shell, and everything lives in one section the flow asks to keep or delete. A frame is store size / 3 exported at scale 3 (440x956 → 1320x2868); sizes not divisible by 3 get another scale or a 1:1 frame. Verified live in the mobile app: Home exported at 1320x2868, section deleted, `.pen` diff empty afterwards.
 - **`app-store-screenshots` companion for mobile apps (#191).** ParthJadhav/app-store-screenshots, pinned `7faf7fc`, offered by `/ai:recommend-tools` only when the repo has `ios/` and `android/` (or a Flutter pubspec plus one of them). It is the fallback for apps without a `.pen`. It scaffolds a local Next.js editor whose API routes write to disk, so the entry and its AGENTS.md pointer say: sibling folder, never inside the app repo, never deployed. The earlier Ignore verdict moved to `plugins-excluded.json` `reversed[]` with the evidence that overturned it.
 
 ### Changed
@@ -388,12 +388,12 @@ Advisory hooks ship machine-wide via the plugin and refresh on /plugin update; /
 ## 2.0.4 — 2026-09-23
 
 ### Fixed
-- **`/ai:upgrade` downgraded a marker newer than the running kit (#190).** A session still on the 2.0.2 plugin after `/plugin update` stamped planny's 2.0.3 marker down to 2.0.2, printed the changelog slice backwards and re-pinned project links to the older cache, with no warning. With several peer sessions open, one running the new plugin and one the old, this is the normal state. Upgrade now exits 1 before writing: `marker is newer than the running kit (X > Y); restart the session after /plugin update`. A deliberate rollback is a manual marker edit.
+- **`/ai:upgrade` downgraded a marker newer than the running kit (#190).** A session still on the 2.0.2 plugin after `/plugin update` stamped the SaaS app's 2.0.3 marker down to 2.0.2, printed the changelog slice backwards and re-pinned project links to the older cache, with no warning. With several peer sessions open, one running the new plugin and one the old, this is the normal state. Upgrade now exits 1 before writing: `marker is newer than the running kit (X > Y); restart the session after /plugin update`. A deliberate rollback is a manual marker edit.
 
 ## 2.0.3 — 2026-09-23
 
 ### Fixed
-- **`verify-setup.sh` failed projects that opted out of the dev-environment branch.** The `dev-environment.md` check ran unconditionally, so a marker with `branches.dev_environment: false` always reported `FAIL: dev-environment.md` (seen in planny on 1.91.0 and again on 2.0.2). The check now skips when the marker says `false`; a marker without the key is still checked, the same rule `domain_docs` already follows. Test: `tests/bin/cases/verify-setup-skipped-doc-branches.sh`.
+- **`verify-setup.sh` failed projects that opted out of the dev-environment branch.** The `dev-environment.md` check ran unconditionally, so a marker with `branches.dev_environment: false` always reported `FAIL: dev-environment.md` (seen in the SaaS app on 1.91.0 and again on 2.0.2). The check now skips when the marker says `false`; a marker without the key is still checked, the same rule `domain_docs` already follows. Test: `tests/bin/cases/verify-setup-skipped-doc-branches.sh`.
 
 ## 2.0.2 — 2026-09-21
 
@@ -414,7 +414,7 @@ Advisory hooks ship machine-wide via the plugin and refresh on /plugin update; /
 - `/ai:upgrade` names the key to check: `jq -r .ai_kit_version .ai-kit-setup`.
 
 ### Verified
-- #140 closed: the plugin ships `CHANGELOG.md` since 2.0.0 and `/ai:upgrade` 1.93.2 → 2.0.0 printed the release slice in theorieplek.
+- #140 closed: the plugin ships `CHANGELOG.md` since 2.0.0 and `/ai:upgrade` 1.93.2 → 2.0.0 printed the release slice in the content site.
 
 ### Score
 - 78/100 (`docs/score.md` row c): Works 26, Structure 16, Catalog 15, Docs 11, Process 10.
@@ -422,12 +422,12 @@ Advisory hooks ship machine-wide via the plugin and refresh on /plugin update; /
 ## 2.0.0 — 2026-09-19
 
 ### Removed
-- **11 skills with zero recorded use** (usage log: 1601 events across 40 projects, none for these): `zoom-out`, `show-me`, `ship`, `prototype`, `phase` (the `/ai:phase` slash command stays), `onboard`, `improve-codebase-architecture`, `design-direction`, `contribute-eval`, `audit-architecture-vue`, `audit-architecture-nextjs`. Each cost description tokens in every session's skill index. `autonomous` opens its PR with `gh pr create` directly; the phase-check hook and the `grill-first` rule point Deployment at the project's own release procedure. 44 → 33 skills. Two consumer docs still name `/ai:ship` by hand (emeq-hub `CLAUDE.md`, emeq/system `docs/agents/workflow.md`); emitted rules pick up the new wording on `/ai:upgrade`.
+- **11 skills with zero recorded use** (usage log: 1601 events across 40 projects, none for these): `zoom-out`, `show-me`, `ship`, `prototype`, `phase` (the `/ai:phase` slash command stays), `onboard`, `improve-codebase-architecture`, `design-direction`, `contribute-eval`, `audit-architecture-vue`, `audit-architecture-nextjs`. Each cost description tokens in every session's skill index. `autonomous` opens its PR with `gh pr create` directly; the phase-check hook and the `grill-first` rule point Deployment at the project's own release procedure. 44 → 33 skills. Two consumer docs still name `/ai:ship` by hand (the hub app `CLAUDE.md`, the Laravel app `docs/agents/workflow.md`); emitted rules pick up the new wording on `/ai:upgrade`.
 - **The per-skill "Usage logging" section** in 23 SKILL.md files. The plugin's PostToolUse hook has logged every Skill call since it was wired; the sections were dead weight.
 - **The committed `workflow/` mirror.** `bin/`, `standards/`, `context/`, `orchestration/` and `CHANGELOG.md` were tracked twice, policed by four `sync-plugin-*.sh` scripts and six structure asserts. The canonical trees now live under `workflow/`; the repo-root paths are symlinks (ADR-0016). One copy, nothing to sync, 26k tracked lines gone. Plugin layout unchanged.
 
 ### Fixed
-- **`detect-tooling` filed every ai-kit rule as "custom".** `detect_agent_stack` matched `.cursor/rules/*.mdc` basenames against a nine-name list frozen when the emitter stopped using those names, so on emeq 23 of 25 generated rules were reported as hand-written. Classification now keys on the `<!-- Generated by ai-kit ... -->` marker the emitter writes; the list stays for legacy files.
+- **`detect-tooling` filed every ai-kit rule as "custom".** `detect_agent_stack` matched `.cursor/rules/*.mdc` basenames against a nine-name list frozen when the emitter stopped using those names, so on the umbrella repo 23 of 25 generated rules were reported as hand-written. Classification now keys on the `<!-- Generated by ai-kit ... -->` marker the emitter writes; the list stays for legacy files.
 - **`global-rules-link.sh` silently linked nothing when reached through a symlink.** It tested `..` with `[ -d ]` (physical) and then `cd` (logical); the two disagree across a symlink. `pwd -P` throughout.
 - README named `handoff` (merged into `checkpoint` in May), pinned `v1.10.0` as the example release, and gave companion counts of 21/25/12 against 24/28/23 in the JSON they cite.
 
@@ -439,13 +439,13 @@ Advisory hooks ship machine-wide via the plugin and refresh on /plugin update; /
 ## 1.94.2 — 2026-09-19
 
 ### Fixed
-- **Every patch bump dirtied every generated rule file.** `emit-rules.sh` stamped the kit version into the header of each `.claude/rules/*.md` and `.cursor/rules/*.mdc`, so `/ai:upgrade` 1.93.1 → 1.93.2 in planny-app-mobile changed one comment line in 26 files with no rule change behind it, and polluted a fix-branch worktree. The header is now `<!-- Generated by ai-kit from standards/rules/<name>.mini.md -->`, same as the global variant since v1.94.0; the version lives in `.ai-kit-setup` and nothing read it from the header. The next emit rewrites the header line once per file; after that a rule file only changes when its rule does.
-- **`verify-setup.sh` demanded `.cursor/skills` from a project that opted out of the skill merge.** A marker written by `ai-kit-upgrade.sh --skip-skill-merge=true` (v1.79) carries `skip_skill_merge: true` but no `project_skills_merged`, and the fallback derived "merge" from `setup_mode=solo-both`, so `--strict` failed on `.cursor/skills present` in planny-app-mobile (Cursor retired, Claude-only). `skip_skill_merge=true` now counts as `project_skills_merged=false`, per ADR-0012's reading of the retrofit flag.
+- **Every patch bump dirtied every generated rule file.** `emit-rules.sh` stamped the kit version into the header of each `.claude/rules/*.md` and `.cursor/rules/*.mdc`, so `/ai:upgrade` 1.93.1 → 1.93.2 in the mobile app changed one comment line in 26 files with no rule change behind it, and polluted a fix-branch worktree. The header is now `<!-- Generated by ai-kit from standards/rules/<name>.mini.md -->`, same as the global variant since v1.94.0; the version lives in `.ai-kit-setup` and nothing read it from the header. The next emit rewrites the header line once per file; after that a rule file only changes when its rule does.
+- **`verify-setup.sh` demanded `.cursor/skills` from a project that opted out of the skill merge.** A marker written by `ai-kit-upgrade.sh --skip-skill-merge=true` (v1.79) carries `skip_skill_merge: true` but no `project_skills_merged`, and the fallback derived "merge" from `setup_mode=solo-both`, so `--strict` failed on `.cursor/skills present` in the mobile app (Cursor retired, Claude-only). `skip_skill_merge=true` now counts as `project_skills_merged=false`, per ADR-0012's reading of the retrofit flag.
 
 ## 1.94.1 — 2026-09-19
 
 ### Fixed
-- **`/ai:doctor` hid the global-rules link behind a legacy `setup_mode=project-only` marker.** emeq-hub carries that value (ADR-0012's enum, not a fact about the machine) and got no `global rules` line at all in v1.94.0 — yet the host loads `~/.claude/rules` there like in every other project. The check now skips only on the explicit `--project-only` flag; verified live in emeq-hub and planny (`ok global rules linked … 23 rules load in every session`).
+- **`/ai:doctor` hid the global-rules link behind a legacy `setup_mode=project-only` marker.** The hub app carries that value (ADR-0012's enum, not a fact about the machine) and got no `global rules` line at all in v1.94.0 — yet the host loads `~/.claude/rules` there like in every other project. The check now skips only on the explicit `--project-only` flag; verified live in the hub app and the SaaS app (`ok global rules linked … 23 rules load in every session`).
 
 ## 1.94.0 — 2026-09-19
 
@@ -463,8 +463,8 @@ Advisory hooks ship machine-wide via the plugin and refresh on /plugin update; /
 ## 1.93.1 — 2026-09-19
 
 ### Fixed
-- **`/ai:upgrade` left a removed rule's generated copy behind.** After v1.93.0 dropped `branch-cleanup-after-merge`, emeq-hub still carried the emitted file — pathless, so loaded every session, with no source to re-emit from. Upgrade now removes a generated `.claude/rules` file (ai-kit header) whose source is no longer in `standards/rules` and reports it as `removed:`; hand-written files are never touched.
-- **`context-lean` skipped symlinked rules.** `find -type f` ignored `.claude/rules/*.md` that are links into `.agents/rules/`, so the always-on count was short (emeq-hub: 3 files, 807 words). Symlinks count like files — the host loads them the same.
+- **`/ai:upgrade` left a removed rule's generated copy behind.** After v1.93.0 dropped `branch-cleanup-after-merge`, the hub app still carried the emitted file — pathless, so loaded every session, with no source to re-emit from. Upgrade now removes a generated `.claude/rules` file (ai-kit header) whose source is no longer in `standards/rules` and reports it as `removed:`; hand-written files are never touched.
+- **`context-lean` skipped symlinked rules.** `find -type f` ignored `.claude/rules/*.md` that are links into `.agents/rules/`, so the always-on count was short (the hub app: 3 files, 807 words). Symlinks count like files — the host loads them the same.
 
 ## 1.93.0 — 2026-09-19
 
@@ -477,27 +477,27 @@ Advisory hooks ship machine-wide via the plugin and refresh on /plugin update; /
 ## 1.92.0 — 2026-09-19
 
 ### Changed
-- **The universal always-on set drops from 24 rules / 9,678 words to 17 / 7,488 — nothing removed, seven rules now load only when their subject is on the table (#183).** With the host loading every pathless rule at session start (v1.91.0), the kit's own universal set had become ≈ 14k tokens before the first prompt in every consuming project. Six universal rules whose subject is file-bound now carry `paths:` and load on touch, verified with a headless probe (a `src/**` rule was absent before `Read src/a.ts` and present after; a `docs/**` sibling stayed out): `domain-model-first` → `**/Models/**, **/domain/**, **/migrations/**, **/entities/**, **/schema*, **/content.config.*, CONTEXT.md`; `latest-stable-deps` → manifests and lockfiles (its body now says that a Bash `npm install foo@^2` never touches one — read the manifest first); `semver` → `**/CHANGELOG*, VERSION, package.json, pubspec.yaml, composer.json`; `gitignore-public-assets-trap` → `**/.gitignore`; `observability` → `**/Http/**, **/controllers/**, **/*services/**, **/jobs/**, **/middleware/**, **/api/**, **/pages/**, worker/**, **/logging*` (checked against all six target repos, including theorieplek's `worker/*.ts` and planny-app-mobile's `lib/network_services/`); `testing-pyramid` → `**/tests/**, **/test/**, **/__tests__/**, **/*.test.*, **/*.spec.*, **/*_test.*` (root-anchored `tests/**` would have missed emeq-hub's `packages/*/tests`). `branch-cleanup-after-merge` becomes `on-demand` — `docs-sync` already does the sweep, and now also skips `release/*` / `epic/*`, the two exemptions that rule encoded. `writing-style` stays pathless on purpose: commit bodies, PR text and chat answers have no file trigger. The seventeen that stay always-on are the behavioural guards a session cannot know it needs in advance; shortening the nine longest of them (git-hygiene 1,028 w down to bsd-sed-word-boundary 275) is the second half of #183. Downstream: `/ai:upgrade` re-emits.
+- **The universal always-on set drops from 24 rules / 9,678 words to 17 / 7,488 — nothing removed, seven rules now load only when their subject is on the table (#183).** With the host loading every pathless rule at session start (v1.91.0), the kit's own universal set had become ≈ 14k tokens before the first prompt in every consuming project. Six universal rules whose subject is file-bound now carry `paths:` and load on touch, verified with a headless probe (a `src/**` rule was absent before `Read src/a.ts` and present after; a `docs/**` sibling stayed out): `domain-model-first` → `**/Models/**, **/domain/**, **/migrations/**, **/entities/**, **/schema*, **/content.config.*, CONTEXT.md`; `latest-stable-deps` → manifests and lockfiles (its body now says that a Bash `npm install foo@^2` never touches one — read the manifest first); `semver` → `**/CHANGELOG*, VERSION, package.json, pubspec.yaml, composer.json`; `gitignore-public-assets-trap` → `**/.gitignore`; `observability` → `**/Http/**, **/controllers/**, **/*services/**, **/jobs/**, **/middleware/**, **/api/**, **/pages/**, worker/**, **/logging*` (checked against all six target repos, including the content site's `worker/*.ts` and the mobile app's `lib/network_services/`); `testing-pyramid` → `**/tests/**, **/test/**, **/__tests__/**, **/*.test.*, **/*.spec.*, **/*_test.*` (root-anchored `tests/**` would have missed the hub app's `packages/*/tests`). `branch-cleanup-after-merge` becomes `on-demand` — `docs-sync` already does the sweep, and now also skips `release/*` / `epic/*`, the two exemptions that rule encoded. `writing-style` stays pathless on purpose: commit bodies, PR text and chat answers have no file trigger. The seventeen that stay always-on are the behavioural guards a session cannot know it needs in advance; shortening the nine longest of them (git-hygiene 1,028 w down to bsd-sed-word-boundary 275) is the second half of #183. Downstream: `/ai:upgrade` re-emits.
 
 ## 1.91.0 — 2026-09-19
 
 ### Changed
-- **Rules on Claude Code: the host loads them, so the emitter now says which ones, when.** Measured 2026-09-19 (CC 2.1.278, headless sentinel probe, #182): Claude Code reads every `.claude/rules/*.md` that has no `paths:` frontmatter at session start — all of them, no budget — and a file with `paths:` only when a matching file is touched. ai-kit's emitter wrote no `paths:`, so every emitted rule was always-on for real: emeq-hub carried 32 files / 14,288 words (≈ 19k tokens) into every session, planny-app-mobile 27 / 12,558 — on-demand audit checklists included. The premise of #144 ("always-on is inert on Claude Code") and the injection hook withheld in #148 no longer hold; the native loader was already spending 7× that budget with no selection. `bin/lib/emitters/claude-code.sh` now emits a rule's own `paths:` (15 always-on stack rules gained one: `laravel-conventions` → `app/**, routes/**, …`, `a11y` → `**/*.tsx, **/*.vue, …`, `sql-style` → `**/*.sql, **/migrations/**`, `design-leads` → `**/*.pen, src/components/**, …`), fences every `default_mode: on-demand` rule behind `paths: [".on-demand/**"]` — never auto-loaded, a skill reads it by path (`code-audit` and its six stack extensions, `aposd`, `refactoring`, `ddd-distilled`, `release-it`, `copy-nl`, …) — and leaves universal always-on rules pathless. Two source invariants are pinned by test: `paths:` is a single-line flow list, and an on-demand rule never declares one. `/ai:upgrade` re-emits the ai-kit rules a project already carries (feedback/, external/ and .nano sources resolve; a generated file whose source is gone is reported as `stale:`; hand-written files untouched), so the frontmatter reaches downstream copies. `context-lean` now counts pathless rules as the always-on tax in two buckets: the kit's universal set as a note (emeq-hub: 25 rules, 10,993 words — a kit decision, not scored against the project) and everything else pathless as the project's own, warned above 2,000 words (emeq-hub: 4 rules, 2,489 → gone after `/ai:upgrade`). ADR-0011 status, the emitters README, `phase-check.sh`, the setup skill and the glossary now describe the structural behaviour; the injection hook stays in the tree unwired as a fallback and strips frontmatter properly should it ever run.
+- **Rules on Claude Code: the host loads them, so the emitter now says which ones, when.** Measured 2026-09-19 (CC 2.1.278, headless sentinel probe, #182): Claude Code reads every `.claude/rules/*.md` that has no `paths:` frontmatter at session start — all of them, no budget — and a file with `paths:` only when a matching file is touched. ai-kit's emitter wrote no `paths:`, so every emitted rule was always-on for real: the hub app carried 32 files / 14,288 words (≈ 19k tokens) into every session, the mobile app 27 / 12,558 — on-demand audit checklists included. The premise of #144 ("always-on is inert on Claude Code") and the injection hook withheld in #148 no longer hold; the native loader was already spending 7× that budget with no selection. `bin/lib/emitters/claude-code.sh` now emits a rule's own `paths:` (15 always-on stack rules gained one: `laravel-conventions` → `app/**, routes/**, …`, `a11y` → `**/*.tsx, **/*.vue, …`, `sql-style` → `**/*.sql, **/migrations/**`, `design-leads` → `**/*.pen, src/components/**, …`), fences every `default_mode: on-demand` rule behind `paths: [".on-demand/**"]` — never auto-loaded, a skill reads it by path (`code-audit` and its six stack extensions, `aposd`, `refactoring`, `ddd-distilled`, `release-it`, `copy-nl`, …) — and leaves universal always-on rules pathless. Two source invariants are pinned by test: `paths:` is a single-line flow list, and an on-demand rule never declares one. `/ai:upgrade` re-emits the ai-kit rules a project already carries (feedback/, external/ and .nano sources resolve; a generated file whose source is gone is reported as `stale:`; hand-written files untouched), so the frontmatter reaches downstream copies. `context-lean` now counts pathless rules as the always-on tax in two buckets: the kit's universal set as a note (the hub app: 25 rules, 10,993 words — a kit decision, not scored against the project) and everything else pathless as the project's own, warned above 2,000 words (the hub app: 4 rules, 2,489 → gone after `/ai:upgrade`). ADR-0011 status, the emitters README, `phase-check.sh`, the setup skill and the glossary now describe the structural behaviour; the injection hook stays in the tree unwired as a fallback and strips frontmatter properly should it ever run.
 - **Subagents read the rules they need — nothing else delivers them.** The same probe showed a subagent receives CLAUDE.md, memory and its AGENT.md, never `.claude/rules/` and (unless `tools: All`, ≈ 70k tokens of listings per spawn) no Skill tool. `builder`, `designer`, `reviewer` and `verifier` gained one concrete step: one `head -3 .claude/rules/*.md` for the `paths:` map, then `Read` only the rules whose `paths:` cover the files in scope, and for the pathless ones only the `docs/agents/active-rules.md` rows that apply — never the directory wholesale. A reviewer treats a violated rule as a finding; a verifier treats a claim that holds only by ignoring one as REFUTED.
 
 ## 1.90.2 — 2026-09-19
 
 ### Fixed
-- **`verify-setup.sh` failed `domain.md` on every project that skipped domain docs.** The check ran unconditionally while `architecture.md` and `docker.md` were already gated on their marker branch, so `/ai:upgrade` ended with a red `--strict` verify (theorieplek: 15/16) and the only way to green was creating a file the user had chosen not to have. Only the `domain_docs` branch writes `docs/agents/domain.md` — bootstrap copies `workflow.md`, never `domain.md` — so a marker with `domain_docs: "skipped"` now skips the check; an older marker without the key keeps it. `workflow.md` stays unconditional (bootstrap-owned regardless of the workflow branch). Regression test `verify-setup-skipped-doc-branches.sh`.
+- **`verify-setup.sh` failed `domain.md` on every project that skipped domain docs.** The check ran unconditionally while `architecture.md` and `docker.md` were already gated on their marker branch, so `/ai:upgrade` ended with a red `--strict` verify (the content site: 15/16) and the only way to green was creating a file the user had chosen not to have. Only the `domain_docs` branch writes `docs/agents/domain.md` — bootstrap copies `workflow.md`, never `domain.md` — so a marker with `domain_docs: "skipped"` now skips the check; an older marker without the key keeps it. `workflow.md` stays unconditional (bootstrap-owned regardless of the workflow branch). Regression test `verify-setup-skipped-doc-branches.sh`.
 
 ## 1.90.1 — 2026-09-19
 
 ### Fixed
-- **`emilkowalski-skills` install command installed nothing.** `companions.json`, `recommend-tools` step 3 and the AGENTS.md glue told the agent to run `npx skills@latest add emilkowalski/skills … -s animate,review-animations,…` — the `skills` CLI reads a comma-joined list as one skill name, prints "No matching skills found" and exits without installing. Written 2026-09-15, never executed; found by running it during the 2026-09-19 re-check. The flag is space-separated (`-s animate review-animations …`); all three places now say so, and the glue's "installs all 14" is 13 (the upstream count). Both tiers are now actually installed in emeq-app (155 motion files, sonner) and the animation tier in emeq-hub (40).
+- **`emilkowalski-skills` install command installed nothing.** `companions.json`, `recommend-tools` step 3 and the AGENTS.md glue told the agent to run `npx skills@latest add emilkowalski/skills … -s animate,review-animations,…` — the `skills` CLI reads a comma-joined list as one skill name, prints "No matching skills found" and exits without installing. Written 2026-09-15, never executed; found by running it during the 2026-09-19 re-check. The flag is space-separated (`-s animate review-animations …`); all three places now say so, and the glue's "installs all 14" is 13 (the upstream count). Both tiers are now actually installed in the legacy app (155 motion files, sonner) and the animation tier in the hub app (40).
 
 ### Changed
 - **`prototype` UI branch: each variant gets a name and an axis, and the handoff is a tradeoff table.** Two mechanisms folded in from emilkowalski/skills `prototype` (MIT, credited in UI.md): variants are named for their direction ("Quiet", "Dense", "Editorial" — never Option A/B/C) with the axis they disagree on stated before code, and step 5 presents the set as `variant · axis · when it's right · its cost` and stops — never pre-picks. The rest of Emil's skill is a functional twin of the branch that already existed (N variants on one route, floating switcher, `?variant=`), plus a `/prototype` name clash with `/ai:prototype`, so it is not wired.
-- **`VETTING.md`:** the `emilkowalski-skills` entry gains a 2026-09-19 re-check — SHA unchanged upstream, counts corrected (13 skills / 22 `.md`), and each of the six unwired skills now carries a Confirmed objection against the current target repos (emeq-app, planny-app-mobile, planny, emeq/system, emeq-hub, theorieplek): `emil-design-eng` shares every cubic-bezier and every component topic with `animate`+`RECIPES.md`; `pick-ui-library`'s picks are already installed (9/18 in emeq-app) and React-shaped; `apple-design`'s physics lives inside `vaul`; `animate-expo` has no React Native target (Flutter lead confirmed, for good); `mobile-native` fills a real `modern-web-guidance` gap (0 guides for safe-area/viewport-fit/tap-highlight) but the only mobile-web repo declined it — its one concrete finding was a one-line `viewport-fit=cover`, fixed there.
+- **`VETTING.md`:** the `emilkowalski-skills` entry gains a 2026-09-19 re-check — SHA unchanged upstream, counts corrected (13 skills / 22 `.md`), and each of the six unwired skills now carries a Confirmed objection against the current target repos (the legacy app, the mobile app, the SaaS app, the Laravel app, the hub app, the content site): `emil-design-eng` shares every cubic-bezier and every component topic with `animate`+`RECIPES.md`; `pick-ui-library`'s picks are already installed (9/18 in the legacy app) and React-shaped; `apple-design`'s physics lives inside `vaul`; `animate-expo` has no React Native target (Flutter lead confirmed, for good); `mobile-native` fills a real `modern-web-guidance` gap (0 guides for safe-area/viewport-fit/tap-highlight) but the only mobile-web repo declined it — its one concrete finding was a one-line `viewport-fit=cover`, fixed there.
 
 ## 1.90.0 — 2026-09-18
 
@@ -521,7 +521,7 @@ Advisory hooks ship machine-wide via the plugin and refresh on /plugin update; /
 ## 1.88.4 — 2026-09-18
 
 ### Fixed
-- **`/ai:recommend-tools` sent the agent to `graphify . --wiki` — a flag graphify does not have.** (#175) On graphify 0.9.62 that runs a full semantic re-extraction (LLM tokens, minutes — planny paid $0.64 and got 20k nodes) and writes no wiki at all. The wiki is a subcommand: `graphify export wiki` renders `graphify-out/wiki/index.md` plus one article per node from the existing `graph.json` in seconds, no LLM. Phase 1 now probes `graphify --help` for `export wiki` before the tier is offered; Phase 3 step 5 states the cost split (`graphify <path>` = LLM run, `graphify update` = AST-only) and sends document corpora (`.docs/`, `raw/`, scraped Markdown) to `.graphifyignore` first — planny's 797 fresh CBR pages were what the LLM re-extracted. The unmeasured "faster than query for navigation" claim is gone; the catalog now says what the wiki is (one article per node, heading articles for documents) so the agent can judge. `companions.json` wiki tier, the graphify↔llm-wiki conflict warning and the llm-wiki README use the real command.
+- **`/ai:recommend-tools` sent the agent to `graphify . --wiki` — a flag graphify does not have.** (#175) On graphify 0.9.62 that runs a full semantic re-extraction (LLM tokens, minutes — the SaaS app paid $0.64 and got 20k nodes) and writes no wiki at all. The wiki is a subcommand: `graphify export wiki` renders `graphify-out/wiki/index.md` plus one article per node from the existing `graph.json` in seconds, no LLM. Phase 1 now probes `graphify --help` for `export wiki` before the tier is offered; Phase 3 step 5 states the cost split (`graphify <path>` = LLM run, `graphify update` = AST-only) and sends document corpora (`.docs/`, `raw/`, scraped Markdown) to `.graphifyignore` first — the SaaS app's 797 fresh CBR pages were what the LLM re-extracted. The unmeasured "faster than query for navigation" claim is gone; the catalog now says what the wiki is (one article per node, heading articles for documents) so the agent can judge. `companions.json` wiki tier, the graphify↔llm-wiki conflict warning and the llm-wiki README use the real command.
 
 ## 1.88.3 — 2026-09-18
 
@@ -536,12 +536,12 @@ Advisory hooks ship machine-wide via the plugin and refresh on /plugin update; /
 ## 1.88.2 — 2026-09-17
 
 ### Fixed
-- **Doctor: three bogus "`~/.claude/skills` — N entries but none link to …" warnings on plugin-served machines.** Since 1.88.1 the doctor detects the cwd as the project; mode-resolution rule 3 then read `setup_mode=brownfield`/`solo-both` as "project opted into globals — check them even if the machine opted out" and demanded symlink-install links the user had deliberately replaced with the plugin. With the plugin installed, `~/.config/ai-kit/no-globals` now wins regardless of the project's setup_mode; only a machine without the plugin still gets rule 3. Reported from emeq/system.
+- **Doctor: three bogus "`~/.claude/skills` — N entries but none link to …" warnings on plugin-served machines.** Since 1.88.1 the doctor detects the cwd as the project; mode-resolution rule 3 then read `setup_mode=brownfield`/`solo-both` as "project opted into globals — check them even if the machine opted out" and demanded symlink-install links the user had deliberately replaced with the plugin. With the plugin installed, `~/.config/ai-kit/no-globals` now wins regardless of the project's setup_mode; only a machine without the plugin still gets rule 3. Reported from the Laravel app.
 
 ## 1.88.1 — 2026-09-17
 
 ### Fixed
-- **`ai-kit-upgrade.sh` no longer installs ai-kit skills, agents or commands into a project that has none.** `repair_links` treated "the directory exists" as "this project has ai-kit links", so a plugin-served repo (emeq/system: three project-own skills, no links) got all 47 plugin skills symlinked into `.claude/skills/` and `.cursor/skills/` on upgrade — every `/ai:*` skill shadowed as a bare project skill (#116). Repair now requires at least one existing ai-kit link; otherwise it prints `No ai-kit <kind> links in … — nothing to repair (plugin serves them)`. Stale links into a GC'd cache dir are still repaired; `--link-all` dirs and `skip_skill_merge` unchanged.
+- **`ai-kit-upgrade.sh` no longer installs ai-kit skills, agents or commands into a project that has none.** `repair_links` treated "the directory exists" as "this project has ai-kit links", so a plugin-served repo (the Laravel app: three project-own skills, no links) got all 47 plugin skills symlinked into `.claude/skills/` and `.cursor/skills/` on upgrade — every `/ai:*` skill shadowed as a bare project skill (#116). Repair now requires at least one existing ai-kit link; otherwise it prints `No ai-kit <kind> links in … — nothing to repair (plugin serves them)`. Stale links into a GC'd cache dir are still repaired; `--link-all` dirs and `skip_skill_merge` unchanged.
 - **`/ai:doctor` without a path skipped the whole Project section** and reported "all green" while hooks were unwired. With no argument the doctor now treats a cwd that holds `.git`, `.claude` or `.ai-kit-setup` as the project.
 - **Doctor project-hooks check:** an opt-in hook (`context-drift`, recorded `skipped` by Tier-A setup) with no marker claim is `info`, not `warn`; auto-apply hooks still warn. A wired hook whose `.claude/hooks/` copy differs from the kit's source warns with the applier to re-run (copies do not update on `/plugin update`).
 - **Doctor env check:** a `~/.config/ai-kit/root` that points at a removed plugin-cache dir (e.g. `…/ai/1.73.2`) is now a warning with the fix (`printf '%s\n' "$HOME/.config/ai-kit/plugin-current" > "$HOME/.config/ai-kit/root"`) instead of "fallback works".
@@ -584,7 +584,7 @@ Advisory hooks ship machine-wide via the plugin and refresh on /plugin update; /
 
 ### Added
 
-- **New `/ai:recommend-tools` companion: `emilkowalski-skills`**, animation-specific taste (easing/duration/physicality/interruptibility) that no existing design companion covers — `ui-ux-pro-max`/`impeccable` are palette/anti-slop taxonomies, `skillui`/`inspo-mcp` extract tokens or reference real sites, none judge motion. Surfaced by `/ai:should-i-use https://github.com/emilkowalski/skills`. Two independently-gated tiers: **animation** (`animate`/`review-animations`/`improve-animations`/`find-animation-opportunities`/`animation-vocabulary`, gated on a frontend framework + real transition/`@keyframes`/framer-motion code) and **sonner** (`ask-sonner` alone, gated on the `sonner` dependency regardless of the animation signal). Track B checked six real projects: `emeq-app` (React 19 + `motion` dep, 155 files with animation usage, `sonner` present) and `naschool`'s three frontends (152 files, `sonner` in all three) fire both tiers; `emeq-web`/`theorieplek` are lighter but real; `planny` uses `vue-toastification`, not `sonner` — sonner tier correctly doesn't fire; `planny-app-mobile` is Flutter/Dart, confirmed by import statements (not just `.swift` file count, which is inflated by vendored CocoaPods/Flutter-runner boilerplate) — `write-swift`/`animate-expo` correctly not wired anywhere. Deliberately narrow: the upstream repo's `emil-design-eng` (674 lines, duplicates `animate` + `review-animations`) and four other skills with no confirmed downstream signal are not wired — see the catalog entry's install notes.
+- **New `/ai:recommend-tools` companion: `emilkowalski-skills`**, animation-specific taste (easing/duration/physicality/interruptibility) that no existing design companion covers — `ui-ux-pro-max`/`impeccable` are palette/anti-slop taxonomies, `skillui`/`inspo-mcp` extract tokens or reference real sites, none judge motion. Surfaced by `/ai:should-i-use https://github.com/emilkowalski/skills`. Two independently-gated tiers: **animation** (`animate`/`review-animations`/`improve-animations`/`find-animation-opportunities`/`animation-vocabulary`, gated on a frontend framework + real transition/`@keyframes`/framer-motion code) and **sonner** (`ask-sonner` alone, gated on the `sonner` dependency regardless of the animation signal). Track B checked six real projects: the legacy app (React 19 + `motion` dep, 155 files with animation usage, `sonner` present) and the portal app's three frontends (152 files, `sonner` in all three) fire both tiers; the marketing site, the content site are lighter but real; the SaaS app uses `vue-toastification`, not `sonner` — sonner tier correctly doesn't fire; the mobile app is Flutter/Dart, confirmed by import statements (not just `.swift` file count, which is inflated by vendored CocoaPods/Flutter-runner boilerplate) — `write-swift`/`animate-expo` correctly not wired anywhere. Deliberately narrow: the upstream repo's `emil-design-eng` (674 lines, duplicates `animate` + `review-animations`) and four other skills with no confirmed downstream signal are not wired — see the catalog entry's install notes.
 
 ### Fixed
 
@@ -595,23 +595,23 @@ Advisory hooks ship machine-wide via the plugin and refresh on /plugin update; /
 
 ### Added
 
-- **New `/ai:recommend-tools` companion: `inspo-mcp`**, a design-reference MCP server over a curated archive of 832 production sites / 2,320 screens. Surfaced by `/ai:should-i-use https://inspomcp.dev/`: `ui-ux-pro-max`'s own catalog entry already named the gap — "pair with actual reference sites for concrete visual exemplars" — and nothing filled it generically (`skillui` only extracts tokens from a URL the user already names). Track B checked six real projects: `emeq-hub` had an active, confirmed need (`design-taste-frontend` skill names vibe words like "Linear-style"/"Awwwards-experimental" with no live lookup mechanism — filed as `emeq-hub#112`), while `theorieplek`, `emeq-web`, and `planny-app-mobile` were Ignore (design-led via Pencil, or wrong category — `planny-app-mobile`'s native-app-screen gap is already covered by `#166`'s curated mobile sources). VETTING.md pass source-dove the monorepo rather than trusting the marketing page: OKLAB color search, embedding-based similarity with an honest fallback, and real SSRF hardening (private/loopback/link-local/CGNAT/cloud-metadata-range blocking with DNS-rebinding resolution) all confirmed in `apps/mcp/src/tools.ts` and `packages/shared/src/study.ts`. Clean pass on all eight criteria; sole caveat disclosed in the catalog entry is that it's vendor-hosted only (Vercel, no self-host path) — free/no-API-key today isn't a durability guarantee.
+- **New `/ai:recommend-tools` companion: `inspo-mcp`**, a design-reference MCP server over a curated archive of 832 production sites / 2,320 screens. Surfaced by `/ai:should-i-use https://inspomcp.dev/`: `ui-ux-pro-max`'s own catalog entry already named the gap — "pair with actual reference sites for concrete visual exemplars" — and nothing filled it generically (`skillui` only extracts tokens from a URL the user already names). Track B checked six real projects: the hub app had an active, confirmed need (`design-taste-frontend` skill names vibe words like "Linear-style"/"Awwwards-experimental" with no live lookup mechanism — filed as an app issue), while the content site, the marketing site, and the mobile app were Ignore (design-led via Pencil, or wrong category — the mobile app's native-app-screen gap is already covered by `#166`'s curated mobile sources). VETTING.md pass source-dove the monorepo rather than trusting the marketing page: OKLAB color search, embedding-based similarity with an honest fallback, and real SSRF hardening (private/loopback/link-local/CGNAT/cloud-metadata-range blocking with DNS-rebinding resolution) all confirmed in `apps/mcp/src/tools.ts` and `packages/shared/src/study.ts`. Clean pass on all eight criteria; sole caveat disclosed in the catalog entry is that it's vendor-hosted only (Vercel, no self-host path) — free/no-API-key today isn't a durability guarantee.
 
 ## 1.84.0 — 2026-09-15
 
 ### Added
 
-- **New canonical rule `ui-states.mini.md`** (42 → 43 rules). Found via `/ai:should-i-use` on `elayadesign/ai-design-skills`: the candidate's fixed font/color/motion visual system was Ignored on both tracks (it would override an already-established brand on every real landing-page repo checked — emeq-web, theorieplek), but its "component states" section (loading/empty/error/hover/active/no-dead-links/current-nav-indication) named a genuine, stack-agnostic gap — zero coverage across `a11y.mini.md` (owns focus/live-regions only) and `design-tokens.mini.md` (token consistency, not interaction states). Landed as its own rule instead of adopting the whole skill. Verdict recorded in `standards/external/plugins-excluded.json`.
+- **New canonical rule `ui-states.mini.md`** (42 → 43 rules). Found via `/ai:should-i-use` on `elayadesign/ai-design-skills`: the candidate's fixed font/color/motion visual system was Ignored on both tracks (it would override an already-established brand on every real landing-page repo checked — the marketing site, the content site), but its "component states" section (loading/empty/error/hover/active/no-dead-links/current-nav-indication) named a genuine, stack-agnostic gap — zero coverage across `a11y.mini.md` (owns focus/live-regions only) and `design-tokens.mini.md` (token consistency, not interaction states). Landed as its own rule instead of adopting the whole skill. Verdict recorded in `standards/external/plugins-excluded.json`.
 
 ### Fixed
 
-- **`public-surface.mini.md` now names `og:image` explicitly** in its hard rules. The generic "OG tags" phrasing let a real site ship title/description/url/locale/site_name while the image quietly stayed unset — found during a `/ai:should-i-use` pass on a pasted pre-launch checklist, audited against emeq-web and theorieplek.
+- **`public-surface.mini.md` now names `og:image` explicitly** in its hard rules. The generic "OG tags" phrasing let a real site ship title/description/url/locale/site_name while the image quietly stayed unset — found during a `/ai:should-i-use` pass on a pasted pre-launch checklist, audited against the marketing site and the content site.
 
 ## 1.83.0 — 2026-09-14
 
 ### Added
 
-- **Two new `/ai:recommend-tools` companions: `skillui` and `scrapling`**, both owner-directed after the owner found they already run them locally (`skillui --url <site> --mode ultra`; `scrapling` behind a personal `site-scrapers` wrapper that scraped SnelStart's B2B API docs for emeq-hub). `skillui` extracts a reference site's actual design tokens (colors, fonts, spacing, components) into DESIGN.md instead of eyeballing a screenshot; `scrapling` is the fetch/crawl layer underneath it — official MCP server with multi-page/session crawling, JS-rendering, and anti-bot bypass (Cloudflare Turnstile) for pages plain `WebFetch`/browser tools can't reach. `design-direction`'s research flow now escalates through both: named reference site → `skillui`; page unreachable → `scrapling` first, then `skillui` on what it fetched. VETTING.md audit found the two candidates in stark contrast — `skillui`'s README claims "no AI, no API keys, no cloud" while its shipped CLI hardcodes a live Google Fonts key and calls `googleapis.com` on every scan, and its upstream repo ships no LICENSE file (landed anyway, with both caveats disclosed inline in the catalog and every offer); `scrapling` passed all eight criteria clean — BSD-3 with a matching LICENSE file, every headline claim (adaptive element relocation, Turnstile solving, ad-domain blocklist count, `--ai-targeted` sanitization) spot-checked against source and confirmed real.
+- **Two new `/ai:recommend-tools` companions: `skillui` and `scrapling`**, both owner-directed after the owner found they already run them locally (`skillui --url <site> --mode ultra`; `scrapling` behind a personal scraper wrapper that scraped SnelStart's B2B API docs for the hub app). `skillui` extracts a reference site's actual design tokens (colors, fonts, spacing, components) into DESIGN.md instead of eyeballing a screenshot; `scrapling` is the fetch/crawl layer underneath it — official MCP server with multi-page/session crawling, JS-rendering, and anti-bot bypass (Cloudflare Turnstile) for pages plain `WebFetch`/browser tools can't reach. `design-direction`'s research flow now escalates through both: named reference site → `skillui`; page unreachable → `scrapling` first, then `skillui` on what it fetched. VETTING.md audit found the two candidates in stark contrast — `skillui`'s README claims "no AI, no API keys, no cloud" while its shipped CLI hardcodes a live Google Fonts key and calls `googleapis.com` on every scan, and its upstream repo ships no LICENSE file (landed anyway, with both caveats disclosed inline in the catalog and every offer); `scrapling` passed all eight criteria clean — BSD-3 with a matching LICENSE file, every headline claim (adaptive element relocation, Turnstile solving, ad-domain blocklist count, `--ai-targeted` sanitization) spot-checked against source and confirmed real.
 
 ## 1.82.0 — 2026-09-12
 
@@ -648,7 +648,7 @@ Advisory hooks ship machine-wide via the plugin and refresh on /plugin update; /
 ### Added
 
 - **`/ai:setup` Branch 0 replaces the 4-way `solo-both`/`solo-global`/`project-only`/`brownfield` menu with an auto-detected fact + one conditional question** (ADR-0012, supersedes ADR-0001). The old enum conflated three independent things: whether a global channel already serves ai-kit skills (a *machine fact*, not a choice — the plugin, the legacy symlink-install, or neither), whether a project also wants its skills merged in anyway (the one real per-project decision), and brownfield's six Tier-B defaults (lifecycle, Sandcastle, automation-recommender, architecture, agent-stack.md — unrelated to skill-linking, and safe under every mode since `link_preserving_custom` shipped in v1.78.3). New behavior: `global_channel_available` is auto-detected via `bin/lib/ai-kit-root.sh`, no question asked; the one merge question is asked only when that fact is true, defaulting toward "skip merge" when the channel found covers every host (the symlink-install) and toward "merge anyway" when it's the plugin only (which never covers Cursor — running under Cursor ignores the plugin half of the fact entirely). `setup_mode`/`agent_stack` keep working as derived, dual-written legacy values; no enum removal yet — that's its own later ADR once every consumer has migrated.
-- **`branches.global_channel_available` and `branches.project_skills_merged`** in `.ai-kit-setup`, dual-written alongside the existing `setup_mode`. `write-setup-marker.sh` always auto-computes `global_channel_available` (no flag — it's a fact, not a choice) and accepts `--project-skills-merged=true|false`. `verify-setup.sh` and `ai-kit-doctor.sh` prefer the new fields when present, falling back to deriving from `setup_mode` for every marker written before this release — verified zero behavior change against two real installs (`naschool`, `emeq-hub`) before shipping.
+- **`branches.global_channel_available` and `branches.project_skills_merged`** in `.ai-kit-setup`, dual-written alongside the existing `setup_mode`. `write-setup-marker.sh` always auto-computes `global_channel_available` (no flag — it's a fact, not a choice) and accepts `--project-skills-merged=true|false`. `verify-setup.sh` and `ai-kit-doctor.sh` prefer the new fields when present, falling back to deriving from `setup_mode` for every marker written before this release — verified zero behavior change against two real installs (the portal app, the hub app) before shipping.
 - **`/ai:setup` scans git history for secrets before finishing** (#124). New Branch 2g runs `bin/ai-kit-secrets-scan.sh` (#121) exactly once per project. Clean or low-signal-only scans continue without a prompt; a missing `gitleaks` binary or a non-git target records that and continues; a high-signal finding prints the scanner's own redacted report and offers to file a GitHub issue with it before continuing — never a hard stop.
 
 ### Fixed
@@ -819,7 +819,7 @@ Advisory hooks ship machine-wide via the plugin and refresh on /plugin update; /
 
 ### Fixed
 
-- `bootstrap-project.sh` symlinked project skills/agents/commands straight into the version-pinned plugin cache path (`~/.claude/plugins/cache/.../ai/1.43.1`), so every `/plugin update` GC'd the old version and bricked every project's links at once (emeq: 114 dead links, naschool: 87). `resolve_ai_kit_root` now refreshes a stable `~/.config/ai-kit/plugin-current` symlink on every plugin-mode resolution; `bootstrap-project.sh` links through it instead, so the next ai-kit invocation after an update repoints one symlink and heals every project with no bootstrap re-run. `doctor` also stops nagging "run bootstrap-project.sh" for absent `.claude/skills`/`.agents/skills` once the plugin is installed — pure duplication once the plugin serves `/ai:*`. `.cursor/skills` is unaffected (no plugin channel for Cursor). Partial fix for #114 — Cursor-channel default and the upgrade-script/verify-setup drift findings from the issue thread remain open. (#114)
+- `bootstrap-project.sh` symlinked project skills/agents/commands straight into the version-pinned plugin cache path (`~/.claude/plugins/cache/.../ai/1.43.1`), so every `/plugin update` GC'd the old version and bricked every project's links at once (the umbrella repo: 114 dead links, the portal app: 87). `resolve_ai_kit_root` now refreshes a stable `~/.config/ai-kit/plugin-current` symlink on every plugin-mode resolution; `bootstrap-project.sh` links through it instead, so the next ai-kit invocation after an update repoints one symlink and heals every project with no bootstrap re-run. `doctor` also stops nagging "run bootstrap-project.sh" for absent `.claude/skills`/`.agents/skills` once the plugin is installed — pure duplication once the plugin serves `/ai:*`. `.cursor/skills` is unaffected (no plugin channel for Cursor). Partial fix for #114 — Cursor-channel default and the upgrade-script/verify-setup drift findings from the issue thread remain open. (#114)
 
 ## 1.73.2 — 2026-09-04
 
@@ -838,8 +838,8 @@ Advisory hooks ship machine-wide via the plugin and refresh on /plugin update; /
 
 ### Changed
 
-- `should-i-use`: recorded verdict for `app-store-screenshots` (ParthJadhav) — Ignore for ai-kit's own catalog (marketing-asset production, one-off scope), Ignore for naschool/emeq-hub/emeq-web (no store presence), confirmed Wire (one-off) for Planny-MobileApp.
-- `should-i-use`: confirmed a real-world hit for the already-Ignored `claude-bughunter` entry — plugin was enabled in emeq-hub and a same-day security fix matches its vuln categories (stale-.gitignore secret exposure + weak credential validation).
+- `should-i-use`: recorded verdict for `app-store-screenshots` (ParthJadhav) — Ignore for ai-kit's own catalog (marketing-asset production, one-off scope), Ignore for the portal app, the hub app, the marketing site (no store presence), confirmed Wire (one-off) for the mobile app.
+- `should-i-use`: confirmed a real-world hit for the already-Ignored `claude-bughunter` entry — plugin was enabled in the hub app and a same-day security fix matches its vuln categories (stale-.gitignore secret exposure + weak credential validation).
 
 ## 1.72.0 — 2026-09-02
 
@@ -875,7 +875,7 @@ Advisory hooks ship machine-wide via the plugin and refresh on /plugin update; /
   Refero — verified live catalog of real-site `DESIGN.md` analyses.
 
 Surfaced by a full-tier `/ai:setup` run against a real Flutter repo
-(Planny-MobileApp), which hand-rolled the Dart MCP wiring and a
+(the mobile app), which hand-rolled the Dart MCP wiring and a
 project-local rule/hook manually because ai-kit had nothing to offer —
 folded that experience back into the kit instead of leaving two sessions to
 reinvent it separately.
@@ -1111,7 +1111,7 @@ reinvent it separately.
 ### Added
 
 - **`public-surface`, a rule for any app that serves crawlable HTML.** Harvested
-  from a shipped app rather than authored from theory. `emeq-hub` had
+  from a shipped app rather than authored from theory. The hub app had
   independently built a public-surface layer — a server-side meta and schema
   builder, a sitemap derived from real routes, an environment-aware
   `robots.txt`, and a 264-line CI-gated regression suite — and no ai-kit rule
@@ -1136,7 +1136,7 @@ reinvent it separately.
 ### Changed
 
 - **`claude-seo` recorded as Ignore in `standards/external/plugins-excluded.json`.**
-  Evaluated against `emeq-hub`, which does have a real organic surface —
+  Evaluated against the hub app, which does have a real organic surface —
   public routes, a dynamic sitemap, `robots.txt` and `llms.txt`. Ignored on
   category and cost: right tool for an SEO agency, wrong one for a
   dev-lifecycle kit, and the repo already covers the technical and GEO baseline
@@ -1630,7 +1630,7 @@ Tests: 1254 pass (was 1229).
   licence); three of its four phases duplicate `tailwind.mini.md`,
   `a11y.mini.md`, `/ai:qa`, `/ai:audit-architecture` and `prototype/UI.md`, and
   its Fase 2 wants a folder for gitignored licensed material. Measured against
-  the intended target (emeq-app, 448 `.tsx`, 84 routes, Tailwind v4 `@theme` +
+  the intended target (the legacy app, 448 `.tsx`, 84 routes, Tailwind v4 `@theme` +
   142 custom properties): 2 hardcoded palette classes in 1 file, 0 arbitrary
   values — and its Fase 1 already exists there and stronger (`colors:check`,
   `token:freeze`, `ds:check` G0–G8, `parity:seed-design`, chained in
@@ -1682,7 +1682,7 @@ Tests: 1254 pass (was 1229).
 
 ### Added
 
-- Astro stack support, end to end (an Astro site is planned — emeq-web):
+- Astro stack support, end to end (an Astro site is planned — the marketing site):
   - `detect-lib.sh` gains the `astro` framework signal (`"astro"` in
     `package.json`, same quoted-key pattern as `next`/`react`, so
     `astro-icon` does not false-positive) plus `docs.astro.build` in
@@ -1908,7 +1908,7 @@ Tests: 981 → 1002 passing. A new case, `doctor-broken-symlinks`, builds a proj
 
 - **`writing-style` credits its source.** Its jargon list (substrate, wedge, north star, flywheel) and plain-word list (utilize, facilitate, numerous) come from the `unslop` skill, and the lineage runs back to Wikipedia's Signs of AI writing. The rule landed without any of that. It also lost a correct count to a wrong correction: "39-pattern editor" was changed to 33 on the assumption it confused patterns with skills, when the skill did have 39 by then. Both restored.
 
-- **The Dutch landing eval fixture carried a transcription error.** It presented `01 — Waarom Emeq Hub` as copy from a real page and asserted the audit catches em dashes in the section eyebrows. The page uses a middot, and every em dash in those components sits in a code comment. The fixture now uses the middot and asserts that a middot must not be flagged as an em dash. Em-dash coverage moved to the synthetic `dutch-tells.md` prompt, which can carry one honestly.
+- **The Dutch landing eval fixture carried a transcription error.** It presented `01 — Waarom Acme Hub` as copy from a real page and asserted the audit catches em dashes in the section eyebrows. The page uses a middot, and every em dash in those components sits in a code comment. The fixture now uses the middot and asserts that a middot must not be flagged as an em dash. Em-dash coverage moved to the synthetic `dutch-tells.md` prompt, which can carry one honestly.
 
 ## 1.50.0 — 2026-08-19
 
@@ -1922,7 +1922,7 @@ Tests: 981 → 1002 passing. A new case, `doctor-broken-symlinks`, builds a proj
 
 - **`/ai:copywriter` now reads project context.** A new ai-kit-owned block, marked as such and separate from the vendored body, teaches the skill to read `.agents/memory/project/copy-context.md` before its intake and skip every question that file already answers. After a full intake it offers to persist the answers, writing both the memory file and its `MEMORY.md` index line, and creating the memory tree when the project has none. It never writes either file unasked. Dutch is judged from the text in front of it rather than from project configuration, so `copy-nl` also loads on a first run where no copy-context exists yet; `detect-tooling.sh` emits no language axis, so there is nothing to detect against.
 
-  Proven on a real repo before shipping. A cold intake against emeq-hub's landing page produced a copy-context whose value was mostly in what it refused: asked twice to invent a build-time number and customer quotes, the skill declined both, and the detour produced better material than the invention would have. The number came out of git instead (23 working days for one connector, measured across 1040 commits, with the caveat that the window includes maintenance), and the customer voice was replaced by founder voice sourced from artefacts the repo already contained. The intake also surfaced two claims on the live site with no coverage behind them.
+  Proven on a real repo before shipping. A cold intake against the hub app's landing page produced a copy-context whose value was mostly in what it refused: asked twice to invent a build-time number and customer quotes, the skill declined both, and the detour produced better material than the invention would have. The number came out of git instead (23 working days for one connector, measured across 1040 commits, with the caveat that the window includes maintenance), and the customer voice was replaced by founder voice sourced from artefacts the repo already contained. The intake also surfaced two claims on the live site with no coverage behind them.
 
 - **New eval fixture** `copywriter/dutch-tells.md` asserts the Dutch path end to end: that `copy-nl` loads unprompted, that specific tells are caught and mapped to a section number, and that the skill declines to decide je/u.
 
@@ -2005,7 +2005,7 @@ Context-budget release. The theme: ai-kit already *said* the right things about 
 
 ### Fixed
 
-- **context-lean no longer warns on Boost-managed files.** Laravel Boost writes `AGENTS.md` as one wholesale `<laravel-boost-guidelines>` block — not user-curatable, so a size warning there is a permanent false positive (−5 on every hygiene run) that can only be silenced by disabling Boost. The check now detects the Boost wrapper on line 1 and emits a note instead of a warning; files with user content above a Boost block still warn. Found in the field on emeq-hub within an hour of the v1.44.0 release.
+- **context-lean no longer warns on Boost-managed files.** Laravel Boost writes `AGENTS.md` as one wholesale `<laravel-boost-guidelines>` block — not user-curatable, so a size warning there is a permanent false positive (−5 on every hygiene run) that can only be silenced by disabling Boost. The check now detects the Boost wrapper on line 1 and emits a note instead of a warning; files with user content above a Boost block still warn. Found in the field on the hub app within an hour of the v1.44.0 release.
 
 ### Notes
 
@@ -2123,7 +2123,7 @@ LEAN scope: data-only — two `standards/external/*.json` entries + plugin-copy 
 
 ### Notes
 
-LEAN scope: SKILL.md + eval fixture only. No new bin/helpers — the skill is conversational, not deterministic. Defaults come from a proven manual run (naschool#81 / naschool#82, 2026-05-28, 89 findings across 4 roles on 2 hosts). Skill count: 37 → 38.
+LEAN scope: SKILL.md + eval fixture only. No new bin/helpers — the skill is conversational, not deterministic. Defaults come from a proven manual run (two app issues, 2026-05-28, 89 findings across 4 roles on 2 hosts). Skill count: 37 → 38.
 
 ## 1.39.0 — 2026-05-29
 
@@ -2139,7 +2139,7 @@ LEAN scope: SKILL.md + eval fixture only. No new bin/helpers — the skill is co
 
 ### Notes
 
-LEAN scope: Coolify only. Dokku/Caprover/Kamal deferred per the principle that the catalog should grow from validated adoption (the user runs Coolify in production via naschool, hence v1). The `env` signal type added to the scorer is generic — usable by any future catalog entry.
+LEAN scope: Coolify only. Dokku/Caprover/Kamal deferred per the principle that the catalog should grow from validated adoption (the user runs Coolify in production via the portal app, hence v1). The `env` signal type added to the scorer is generic — usable by any future catalog entry.
 
 ## 1.38.0 — 2026-05-29
 
@@ -2229,10 +2229,10 @@ LEAN scope: scoring layer lives entirely in `bin/ai-kit-hygiene.sh`. No new flag
 
 ### Notes
 
-- Out-of-tree follow-up tracked separately: `naschool/.agents/skills/docs-sync/SKILL.md`
+- Out-of-tree follow-up tracked separately: `portal-app/.agents/skills/docs-sync/SKILL.md`
   should be slimmed to drop the three generic checks (dead-links,
   repo-hygiene, finished-work cleanup) now that `/ai:docs-sync` covers
-  them framework-side. That PR lands in the naschool repo.
+  them framework-side. That PR lands in the portal app repo.
 
 ## 1.33.0 — 2026-05-27
 
@@ -2382,7 +2382,7 @@ LEAN scope: scoring layer lives entirely in `bin/ai-kit-hygiene.sh`. No new flag
 ### Changed
 
 - **`autonomous` skill promoted out of SPIKE.** Multiple real-queue
-  drains in `ai-kit` and `naschool` validated the cold-start /
+  drains in `ai-kit` and the portal app validated the cold-start /
   fresh-context invariant + `progress.txt` discipline; no contract
   changes versus the spike draft. README "Experimental" row replaced
   by "Automation"; spike doc preserved at
@@ -3039,7 +3039,7 @@ shouldn't bloat v1.14.0.
 ## 1.13.0 — 2026-05-23
 
 Closes #29: new canonical rule `domain-model-first`. Captures the
-naschool 2026-05-23 "domain-model blindness" lesson from
+the portal app 2026-05-23 "domain-model blindness" lesson from
 `~/.claude/ai-kit-lessons.md` as a reusable, stack-agnostic primitive.
 Ships universal so every `/ai:setup` run pulls it in.
 
@@ -3055,7 +3055,7 @@ harness changes ai-kit doesn't control.
   related entities, verify don't assume, prefix proposal with
   evidence, prefer extending), when-to-skip (cosmetic / explicit
   user override / no-domain-layer), and a concrete anti-pattern
-  using the naschool subsidy example.
+  using the portal app subsidy example.
 - **Updated** `tests/bin/cases/bootstrap-emit.sh` — `--list` count
   23 → 24, adds `domain-model-first listed` assertion.
 - **Updated** plugin manifest + README from 23 → 24 canonical rules.

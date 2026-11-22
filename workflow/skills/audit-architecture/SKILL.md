@@ -128,7 +128,7 @@ Structure:
 
 **Merging extension output into the dimension sections:** each extension returns its own dimension-keyed markdown. For every `### Dimension N · <name>` block in an extension's output, append its findings under the matching `## N. <name>` section in the final report. Each merged finding row gets a `[<stack>]` tag prefix so the reader (and `grep`) can attribute the row to its source extension. Extension `## Per-stack appendix` blocks are appended after the per-dimension report, before the tech-debt rolling table. Stack tags also propagate into the rolling-table IDs (`L1`, `R3`, `T7`, …) for per-stack batch issue-filing.
 
-The tech-debt table at the bottom is copy-paste-ready for batch issue-filing — same pattern as the naschool 2026-05-23 session and the `audit-fix` follow-up workflow.
+The tech-debt table at the bottom is copy-paste-ready for batch issue-filing — same pattern as the portal app 2026-05-23 session and the `audit-fix` follow-up workflow.
 
 ### Env-var escape hatches
 

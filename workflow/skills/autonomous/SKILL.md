@@ -6,7 +6,7 @@ description: Autonomous backlog grinder — drains issues labeled `ready-for-age
 # Autonomous backlog grinder
 
 > **Status:** stable (promoted 2026-05-26 after multiple real-queue drains
-> in `ai-kit` and `naschool`). Original spike research preserved at
+> in `ai-kit` and the portal app). Original spike research preserved at
 > [docs/spikes/aikit-autonomous-ralph.md](../../../docs/spikes/aikit-autonomous-ralph.md).
 > Tracks [#17](https://github.com/yusufkaracaburun/ai-kit/issues/17).
 

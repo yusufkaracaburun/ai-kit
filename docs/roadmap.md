@@ -7,12 +7,12 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-11-22 against 127 open issues (count refreshed to 127; #300 row removed; #186 and #299 rows removed; #298 and #299 rows added; #285 closed by v2.21.1 and removed; #289-#297 rows added; #275 and #288 done 2026-11-16, closed by the heavy-run lock slice; #276-#283 done, #283 with this reconcile; #199, #258-#262 and #267 closed and removed; #270 closed by #280; #216 partly done in v2.19.0; rows added for #264, #284, #286, #287; #257, #263 and #264 labelled P3, P1 and P3 to match their sections; earlier reconciliation notes live in [roadmap-archive.md](roadmap-archive.md#reconciliation-notes))._
+_Last reconciled: 2026-11-22 against 129 open issues (count refreshed to 129; #300 row removed; #186 and #299 rows removed; #298 and #299 rows added; #285 closed by v2.21.1 and removed; #289-#297 rows added; #275 and #288 done 2026-11-16, closed by the heavy-run lock slice; #276-#283 done, #283 with this reconcile; #199, #258-#262 and #267 closed and removed; #270 closed by #280; #216 partly done in v2.19.0; rows added for #264, #284, #286, #287; #257, #263 and #264 labelled P3, P1 and P3 to match their sections; earlier reconciliation notes live in [roadmap-archive.md](roadmap-archive.md#reconciliation-notes))._
 
 ## P1 — broken in the wild
 
 - **#171** `bug` — `/ai:setup` on a plugin-served repo still emits 29 rules ×2 hosts
-  + docs scaffold (68 files in planny, reverted by hand; theorieplek again
+  + docs scaffold (68 files in the SaaS app, reverted by hand; the content site again
   2026-09-19). **Grilled 2026-09-19 → ADR-0015:** all 23 universal rules go
   global via `~/.claude/rules/ai-kit` (plugin `rules/` + SessionStart symlink,
   `paths:` verified to work at user level); per-repo emit = stack rules only;
@@ -21,13 +21,14 @@ _Last reconciled: 2026-11-22 against 127 open issues (count refreshed to 127; #3
   Closes #149 with it.
 - **#263** `bug` — quoted frontmatter lists never match in recommend-rules, and
   the `frontend`/`backend` architecture values no detector emits. 2026-10-29.
-- **#266** `bug` — setup writes no ignore for `.agents/worktrees` / `.claude/worktrees` in vitest, eslint, tsc or `.gitignore`; emeq-reui `pnpm test` in main ran 20 test files from a parallel worktree. Add ignores in setup, doctor warns. 2026-10-30.
-- **#269** `bug` — `Agent` with `isolation: "worktree"` cuts from the default branch, not the lead HEAD; emeq-reui epic/facturen builders started on master. tdd/builder brief create the worktree with `git worktree add -b <branch> .agents/worktrees/<name> <base>`, builder asserts `git rev-parse HEAD` equals the base SHA. 2026-10-30.
+- **#266** `bug` — setup writes no ignore for `.agents/worktrees` / `.claude/worktrees` in vitest, eslint, tsc or `.gitignore`; the React app `pnpm test` in main ran 20 test files from a parallel worktree. Add ignores in setup, doctor warns. 2026-10-30.
+- **#269** `bug` — `Agent` with `isolation: "worktree"` cuts from the default branch, not the lead HEAD; the React app epic/facturen builders started on master. tdd/builder brief create the worktree with `git worktree add -b <branch> .agents/worktrees/<name> <base>`, builder asserts `git rev-parse HEAD` equals the base SHA. 2026-10-30.
+- **#314** `enhancement` — use a GitHub Projects board as the single source: setup records the board, /ai:next reads Priority and Status from it, to-issues/to-prd/triage add new issues to it, tdd/autonomous move a card to Doing. Deferred until the board trial passes (re-measure 2026-12-06); #313 is the first slice. 2026-11-22.
 
 ## P2 — next up
 
 - **#174** `bug` — hygiene `test-ci` does not recognise Dart/Flutter projects as having a
-  test runner; planny-app-mobile reports "no test runner" with a full Patrol suite. Labelled
+  test runner; the mobile app reports "no test runner" with a full Patrol suite. Labelled
   P2 on 2026-09-19.
 - **#178** `bug` — `dedupe` reported `total: 0` on 12 repos + personal scope that
   held 200+ duplicates: it reads only `~/.claude/skills`, never `~/.agents/skills`
@@ -36,8 +37,8 @@ _Last reconciled: 2026-11-22 against 127 open issues (count refreshed to 127; #3
   drift, no catalog cross-check for user-scope skills. Fixture: the pre-cleanup
   snapshot in `~/.claude/.backups/20260919T004749/`.
 - **#179** `enhancement` — ship the hook scripts `hooks-patterns.json` only
-  names: `test-suite-stop-gate` (3 hand-written variants across emeq-hub /
-  naschool / emeq-app), `block-env-edits`, `block-lockfile-edits`,
+  names: `test-suite-stop-gate` (3 hand-written variants across the hub app /
+  the portal app / the legacy app), `block-env-edits`, `block-lockfile-edits`,
   `gitleaks-scan`, `docs-drift-check` (2 each), `large-diff-warn`,
   `format-on-edit`; stack-scoped `flutter-analyze-check` (#176), pint / phpstan /
   tsc. Same `bin/hooks/` + `workflow/hooks/hooks.json` shape as the plugin hooks that already ship;
@@ -58,15 +59,15 @@ _Last reconciled: 2026-11-22 against 127 open issues (count refreshed to 127; #3
 
 - **#170** `bug` — `verify-setup.sh` / `ai-kit-status.sh` hard-code project files
   and never read the marker: a solo-global + `dev_environment=false` project
-  stays FAIL forever; emeq/system's sibling-dir agents skills likewise.
-- **#173** `bug` — `/ai:setup` on a non-git monorepo root (emeq/) writes a marker +
+  stays FAIL forever; the Laravel app's sibling-dir agents skills likewise.
+- **#173** `bug` — `/ai:setup` on a non-git monorepo root (an umbrella folder) writes a marker +
   `${CLAUDE_PROJECT_DIR}` hook wiring that no session can ever resolve (cwd is
   always an app below it); doctor never sees the parent. Refuse/warn, no walk-up.
 - **#172** `bug` — `link-primitives` writes absolute `$HOME` symlinks into repos and
   merges skills a plugin-served machine already exposes as `ai:*` (double
   listing, #116). Skip the merge when the plugin serves; relative links otherwise.
 - **#149** `bug · primitive:rule` — bestaande projecten krijgen nooit nieuwe
-  `universal: true` regels, en doctor meldt dat als groen. emeq-hub mist
+  `universal: true` regels, en doctor meldt dat als groen. The hub app mist
   `pre-write-discipline` en `writing-style`; `recommend-rules` adviseert ze
   allebei. `/ai:upgrade` herstempelt alleen de marker (per ontwerp), en doctor
   controleert of de aanwezige 30 regels *oplossen* — nooit of er iets ontbreekt.
@@ -107,7 +108,7 @@ _Last reconciled: 2026-11-22 against 127 open issues (count refreshed to 127; #3
 - **#116** `bug · primitive:plugin` — a plugin skill silently shadows a same-named
   project skill: `bootstrap-project.sh` merges ai-kit skills with `ln -sfn`, which
   overwrites on name collision while the echo claims "custom entries preserved".
-  naschool's own 379-line `docs-sync` was invisible in Claude Code for weeks —
+  the portal app's own 379-line `docs-sync` was invisible in Claude Code for weeks —
   and the collision was self-inflicted, since #26 promoted that very skill into
   the catalog under the same name. Shares a root with **#114**: both come from
   bootstrap materialising ai-kit skills into project dirs. If #114 lands the
@@ -124,7 +125,7 @@ _Last reconciled: 2026-11-22 against 127 open issues (count refreshed to 127; #3
   decompose via `/ai:to-issues` before scheduling.
 - **#195** `enhancement` — `device-runner` agent for mobile E2E (Maestro/Patrol): one device,
   Metro port discipline, teardown of what it started. 5 general-purpose runs / 195 min in
-  emeq-mobile 2026-10-09/10.
+  mobile app B 2026-10-09/10.
 - **#196** `enhancement` — `committer` agent: stage by path, read staged diff, needs review
   marker, refuses `checkout --`/`reset`/`stash`/`clean`. One agent discarded a peer's file. 2026-10-10.
 - **#197** `enhancement` — PreCompact hook: write peer answers and decisions verbatim to the
@@ -136,7 +137,7 @@ _Last reconciled: 2026-11-22 against 127 open issues (count refreshed to 127; #3
 - **#207** `bug` — kit scripts hang on interactive mv/rm aliases (2 subagents hung during setup); `command mv -f` sweep over 15 scripts. 2026-10-10.
 - **#208** `bug` — `recommend-rules.sh --json` has no sources/quorum field the skill's "(sources: N/M verified)" annotation needs. 2026-10-10.
 - **#209** `enhancement` — memory-audit warns when a `MEMORY.md` index exceeds the host load limit (28.8 KB vs ~24 KB seen, silent truncation). 2026-10-10.
-- **#213** `enhancement` — trim plugins and MCP tools per project: ai-kit loads 92 skills plus ~190 deferred MCP tool names every turn (97% of tokens were cache reads, 10-05..14). Deferred until `/context` gives the block size in ai-kit, system and planny; then a per-project `enabledPlugins` recommendation. 2026-10-14.
+- **#213** `enhancement` — trim plugins and MCP tools per project: ai-kit loads 92 skills plus ~190 deferred MCP tool names every turn (97% of tokens were cache reads, 10-05..14). Deferred until `/context` gives the block size in ai-kit, system and the SaaS app; then a per-project `enabledPlugins` recommendation. 2026-10-14.
 - **#215** `enhancement` — PreToolUse hook on SendMessage to block acks and cap message rate (1,767 calls in 10 days, still 170 to 230 per day after the 2026-10-10 rule). Deferred: needs a grill on block criteria, and v2.6.0 measured first (around 2026-10-18). 2026-10-14.
 - **#216** `enhancement` — `model:` frontmatter on read-only agents (ai:explore, ai:qa-runner); 827 of 1,362 spawns had no model and ran on Opus. Partly done in v2.19.0: explore and qa-runner pin Sonnet (#280). Open: the before/after quality check on real explore tasks. 2026-10-14.
 - **#218** `enhancement` — to-prd Defer mode expects a `## What's next` heading; this roadmap uses `## P1`/`## P2`/`## P3`, so the #213 to #216 capture stalled. Append to the section matching the priority label instead. Deferred: batch with the v2.7.0 skill changes and test on a downstream roadmap. 2026-10-14.
@@ -156,7 +157,8 @@ _Last reconciled: 2026-11-22 against 127 open issues (count refreshed to 127; #3
 - **#247** `bug` — tests: the docs-sync case in `tests/bin/run-all.sh` fails on machine git state (a local branch with no commits of its own such as `epic/multi-host` counts as merged); the fixture run must ignore the host repo's branches. 2026-10-26.
 - **#248** `bug` — `bin/release.sh` ignores a `## Unreleased` CHANGELOG section: it prepends the new version and leaves Unreleased, duplicating lines. Fold Unreleased into the new version heading, with a fixture test. 2026-10-26.
 - **#271** `enhancement` — lead-guard denies `ai-kit-claim.sh set role=build` from the main thread unless the latest user prompt asks for it (UserPromptSubmit marker). 37 self-switches in 26 sessions. 2026-10-30.
-- **#298** `enhancement` — git-hygiene: cut worktree branches from `origin/<main>` after `git fetch`, never from local `<main>`; a naschool worktree inherited 5 unpushed commits and PR #436 mislabelled them. Rule edit in `standards/rules/git-hygiene.mini.md` plus the session-coordination worktree bullet. 2026-11-20.
+- **#298** `enhancement` — git-hygiene: cut worktree branches from `origin/<main>` after `git fetch`, never from local `<main>`; a portal app worktree inherited 5 unpushed commits and PR #436 mislabelled them. Rule edit in `standards/rules/git-hygiene.mini.md` plus the session-coordination worktree bullet. 2026-11-20.
+- **#313** `enhancement` — set the GitHub issue type in `/ai:to-issues`, `/ai:to-prd` and `/ai:triage`: PRD or epic = Feature, slice or chore = Task, bug = Bug, doubt = Task; only when the repo owner is an org with issue types (`gh api orgs/<owner>/issue-types`), skipped silently otherwise. Deferred: the skill change needs its own TDD round. 2026-11-22.
 
 ## P3 — backlog
 
@@ -168,8 +170,8 @@ _Last reconciled: 2026-11-22 against 127 open issues (count refreshed to 127; #3
   cache the verdict per HEAD, or warn once per session. Must reuse
   `ai-kit-docs-sync-graph-fresh.sh`'s "candidate, not proof" semantics, not
   re-derive them.
-- **#118** `enhancement` — `graph-fresh` cannot check umbrella repos. emeq's root
-  is not a git repo; it holds `admin/`, `system/`, `emeq-app/` as separate repos
+- **#118** `enhancement` — `graph-fresh` cannot check umbrella repos. The umbrella repo's root
+  is not a git repo; it holds `admin/`, `system/`, `legacy-app/` as separate repos
   with graphify indexing across all three, so there is no single HEAD to compare.
   The check skips cleanly — but that leaves the project *most* likely to drift
   (three repos moving independently) with no drift signal at all. Cheapest fix
@@ -202,13 +204,13 @@ _Last reconciled: 2026-11-22 against 127 open issues (count refreshed to 127; #3
   `workflow/workflow/rules/`; resolve root from realpath, test both paths, check
   `sync-plugin-hooks.sh`. 2026-10-10.
 
-- **#180** `enhancement` — `docs-sync`: naschool's 403-line project `docs-sync`
+- **#180** `enhancement` — `docs-sync`: the portal app's 403-line project `docs-sync`
   (the skill #26 promoted the plugin's from) has diverged and shadows the plugin
   by name; diff, fold the generic part back, rename the local one to an overlay.
 - **#177** `enhancement` — `design-to-code`: ship a web design-fidelity script
   (texts 45 · tokens 30 · hex 15 · icons 10, per component ≥ 90) as the
-  reference impl of the audit flow's four measurements. Source is theorieplek's
-  `scripts/check-fidelity.mjs`, which has never run outside theorieplek: its
+  reference impl of the audit flow's four measurements. Source is the content site's
+  `scripts/check-fidelity.mjs`, which has never run outside the content site: its
   design-file input pending #258 (Paper), Astro-coupled page resolution,
   `design-map.json` as contract.
   Ships only behind a `tests/` fixture (tiny design input + `dist/` + map) the suite
@@ -220,10 +222,10 @@ _Last reconciled: 2026-11-22 against 127 open issues (count refreshed to 127; #3
   keep status in a context doc and want none). Same cluster as #155 / #166 /
   #83 — decide once whether ai-kit ships a Flutter pack behind the `pubspec.yaml`
   signal (release-ios/android/e2e at user scope, apple-hig +
-  make-interfaces-feel-better project-scoped in planny-app-mobile). Deferred
+  make-interfaces-feel-better project-scoped in the mobile app). Deferred
   from the v1.89.0 harvest; CI minutes exhausted until 2026-10 so any
   enforcement is a local pre-push hook.
-- **#166** `catalog-candidate` — harvest `planny-app-mobile`'s project-scoped
+- **#166** `catalog-candidate` — harvest the mobile app's project-scoped
   `mobile-app-ui-design` skill into ai-kit's own catalog, wired via the
   existing extension-loader pattern keyed on `pubspec.yaml` `sdk: flutter`
   (ai-kit already detects Flutter, `bin/lib/detect-lib.sh:73,168-169`, but
@@ -243,7 +245,7 @@ _Last reconciled: 2026-11-22 against 127 open issues (count refreshed to 127; #3
   alternative full lifecycle, same bucket as superpowers/openspec/ecc). Real
   gap confirmed: `standards/rules/*.mini.md` is ai-kit's own catalog wired
   outward via `/ai:setup`/`recommend-rules`; nothing lets a single project
-  (naschool, emeq-hub, emeq-web) declare its own ad-hoc house rules that
+  (the portal app, the hub app, the marketing site) declare its own ad-hoc house rules that
   `to-prd`/`review` read and cite back to (`(house-rule: <path>)`). Needs its
   own scoping/design pass before buildable — touches `to-prd`/`review` output
   contracts.
@@ -253,7 +255,7 @@ _Last reconciled: 2026-11-22 against 127 open issues (count refreshed to 127; #3
   points users at `knip` as successor. Surfaced by `/ai:should-i-use
   webpro-nl/knip` (2026-09-13): knip is ISC-licensed, actively maintained
   (v6.35.1, 2026-09), zero-config, checks unused files/exports/deps/unresolved
-  deps (ts-prune only covers unused exports). `naschool/frontend/partner`
+  deps (ts-prune only covers unused exports). `portal-app/frontend/partner`
   already runs knip in production, validating the swap. Needs a `VETTING.md`
   pass before landing; scope stays to swapping the T8 tool-gate, not adding new
   heuristics.
@@ -261,8 +263,8 @@ _Last reconciled: 2026-11-22 against 127 open issues (count refreshed to 127; #3
   absent `.cursor/skills` when a project shows no other sign of Cursor usage.
   Split off #114's "Caveat worth deciding": `.claude/skills`/`.agents/skills`
   absence stopped warning once the plugin is installed (pure duplication),
-  but `.cursor/skills` has no plugin channel so it always warns. `emeq-hub`
-  and `naschool` both show zero ai-kit skill symlinks there and have never
+  but `.cursor/skills` has no plugin channel so it always warns. The hub app
+  and the portal app both show zero ai-kit skill symlinks there and have never
   complained — suggestive, not conclusive. Product call on what counts as
   "Cursor unused" signal, not a bug fix.
 - **#155** `catalog-candidate` — add the official Dart/Flutter MCP server
@@ -270,7 +272,7 @@ _Last reconciled: 2026-11-22 against 127 open issues (count refreshed to 127; #3
   (leancodepl/patrol, Flutter-native test automation, ships its own Claude
   Code skills) to the testing-tool catalog, both signal-gated on
   `pubspec.yaml`/flutter framework. Surfaced against a real repo
-  (Planny-MobileApp): commit 8b80cc1 already documents the Dart MCP gap
+  (the mobile app): commit 8b80cc1 already documents the Dart MCP gap
   being hand-rolled there; Patrol was found this session via manual research,
   not `/ai:recommend-tools`. Run both past `VETTING.md` before landing.
 - **#147** `bug` — `memory-audit` marks a file STALE only when it is past the
@@ -302,7 +304,7 @@ _Last reconciled: 2026-11-22 against 127 open issues (count refreshed to 127; #3
   `results` and silently yields empty (their #25, unfixed on `main`), no geo
   parameter exists in any tool schema, and volume is bucketed to the same resolution
   as the free UI. The surviving idea needs no API: the valuable half of the research
-  is terminology archaeology, which `emeq-web/PLAN.md` §A5 already did by hand
+  is terminology archaeology, which `marketing-site/PLAN.md` §A5 already did by hand
   (the Belastingdienst says *manurenadministratie*, never *mandagenregister* —
   0× in AL 529). Slice: `search-terms.mini.md` (on-demand rule) + a `## Zoektermen`
   section in the `copy-context.md` contract + a page-scale gate in `copywriter`.
@@ -322,9 +324,9 @@ _Last reconciled: 2026-11-22 against 127 open issues (count refreshed to 127; #3
   9 specialized-agent roles, GH issue/PR hygiene, MCP-server writeups) was
   redundant with `hooks-patterns.json`, `/ai:setup-gh-workflow`, or
   `/ai:docs-sync`; this was the one real gap. Re-checked against Track B
-  (emeq-hub, emeq-app, emeq-hub-sdk, planny, not ai-kit itself) — the one
-  concrete trigger, emeq-hub-sdk's 244-line CLAUDE.md, is a false positive:
-  ~176 lines are Laravel Boost's generated block, and emeq-hub already fixes
+  (the hub app, the legacy app, the hub SDK, the SaaS app, not ai-kit itself) — the one
+  concrete trigger, the hub SDK's 244-line CLAUDE.md, is a false positive:
+  ~176 lines are Laravel Boost's generated block, and the hub app already fixes
   this cheaper with an `@AGENTS.md` import instead of a review skill. Staying
   P3. Full verdict: `standards/external/plugins-excluded.json` →
   `claude-code-everything-you-need-to-know`. Run past `VETTING.md` before
@@ -369,9 +371,9 @@ _Last reconciled: 2026-11-22 against 127 open issues (count refreshed to 127; #3
   should-i-use verdict was Ignore both tracks (logged in
   `plugins-excluded.json`) — the DRY gap it targets is real (`/ai:audit-architecture`'s
   DRY dimension is explicitly bounded to a scoped subagent pass on repos
-  >200 files) but no confirmed real-world miss in naschool/emeq-hub/planny/
-  emeq-web yet, and the empirical test (`uv tool install slopo` + local run
-  against emeq-hub) was blocked mid-install by the harness's own auto-mode
+  >200 files) but no confirmed real-world miss in the portal app, the hub app, the SaaS app,
+  the marketing site yet, and the empirical test (`uv tool install slopo` + local run
+  against the hub app) was blocked mid-install by the harness's own auto-mode
   classifier (Untrusted Code Integration) — Untested, not Confirmed. Repro
   steps to close it are in the issue.
 - **#111** `enhancement · catalog-candidate` — spike: wire `SkillSpector` (NVIDIA,
@@ -405,27 +407,27 @@ _Last reconciled: 2026-11-22 against 127 open issues (count refreshed to 127; #3
 - **#221** `enhancement` — search-delegation hint: subagents may use up the once-per-session
   hint, and ai-kit's own repo gets no nudge (no `.ai-kit-setup`). Deferred: surfaced in
   the v2.7.0 pre-release review, no effect on downstream users. 2026-10-15.
-- **#222** `catalog-candidate` — marketing track from theorieplek, harvested per part only once that
+- **#222** `catalog-candidate` — marketing track from the content site, harvested per part only once that
   part has a measured result there (proven-only rule, 2026-10-15). First checkpoint: 2026-11-05
-  re-measurement. Route /ai:harvest from theorieplek, validate in emeq-web, then generalise.
+  re-measurement. Route /ai:harvest from the content site, validate in the marketing site, then generalise.
   marketingskills is a pattern source only, its plugin stays excluded. 2026-10-15.
 - **#226** `enhancement` — `/ai:design-to-code` from-reference step: reference URL → tokens + section patterns → own brand in Paper → build, harvested after one real run in a marketing site. 2026-10-23.
-- **#228** `enhancement · catalog-candidate` — `cloudflare/security-audit-skill` (MIT) as a person-scope repo-wide security-audit companion; ai-kit only has diff-scoped review. Catalog only after one real full-audit run in emeq/system or planny produces confirmed findings (harvest-only-proven). VETTING #8 passes after manual triage (skillspector 14/14 false positives, see #111). 2026-10-23.
-- **#243** `enhancement` — reference research before designing a new site: a fixed step that goes through a curated source list (inspora.design, collectui.com, 60fps.design, cta.gallery, footer.design) and collects concrete references per section before the first design, instead of fine-tuning over many rounds. Shape open (step in `design-to-code`, section in an existing skill, or own skill). Deferred until the hazarfan.nl session's reference research has shaped a real design and shows which sources earned their place (harvest-only-proven). Requested by Yusuf via the hazarfan.nl session. 2026-10-25.
-- **#244** `enhancement` — AI image generation for site visuals, harvested from hazarfan.nl: generate, plausibility-check, place and credit objects-only images via OpenRouter (key from Keychain, never exported), site only. Deferred until hazarfan.nl PR 1 is on main with credits and a credits check; opt-in per app (theorieplek bans AI images). 2026-10-25.
+- **#228** `enhancement · catalog-candidate` — `cloudflare/security-audit-skill` (MIT) as a person-scope repo-wide security-audit companion; ai-kit only has diff-scoped review. Catalog only after one real full-audit run in the Laravel app or the SaaS app produces confirmed findings (harvest-only-proven). VETTING #8 passes after manual triage (skillspector 14/14 false positives, see #111). 2026-10-23.
+- **#243** `enhancement` — reference research before designing a new site: a fixed step that goes through a curated source list (inspora.design, collectui.com, 60fps.design, cta.gallery, footer.design) and collects concrete references per section before the first design, instead of fine-tuning over many rounds. Shape open (step in `design-to-code`, section in an existing skill, or own skill). Deferred until a client site session's reference research has shaped a real design and shows which sources earned their place (harvest-only-proven). Requested by Yusuf via a client site session. 2026-10-25.
+- **#244** `enhancement` — AI image generation for site visuals, harvested from a client site: generate, plausibility-check, place and credit objects-only images via OpenRouter (key from Keychain, never exported), site only. Deferred until a client site PR 1 is on main with credits and a credits check; opt-in per app (the content site bans AI images). 2026-10-25.
 - **#245** `enhancement` — grill skills: after recommending several design choices, check the combination still produces the source pattern's visual effect (seen: white header + pill nav made a white pill invisible). Deferred until a second occurrence fixes the wording. 2026-10-26.
 - **#246** `bug` — lead-guard: Bash appends to the memory index are blocked while Write works; make the guard message say "use Write", and keep agent briefs/hooks off interactive `rm` aliases (`command rm -f`). Low severity, workarounds exist. 2026-10-26.
-- **#257** `enhancement` — harvest emeq-reui POC findings: SSR forms with sensitive fields use `method="post"`, never print `.env`, lead briefs ban `git add -N` and need unfiltered exit codes (proven, do first); grid-wrapper and design-to-code notes wait for a 2nd app (Paper chosen in #258). 2026-10-29.
+- **#257** `enhancement` — harvest the React app POC findings: SSR forms with sensitive fields use `method="post"`, never print `.env`, lead briefs ban `git add -N` and need unfiltered exit codes (proven, do first); grid-wrapper and design-to-code notes wait for a 2nd app (Paper chosen in #258). 2026-10-29.
 - **#268** `enhancement` — git-hygiene: commit briefs tick DoD boxes before closing; the DoD workflow reopens issues with unticked boxes. 2026-10-30.
-- **#272** `enhancement` — offer ReUI Pro registry in recommend-tools for React+shadcn projects (components.json); parked until a Pro block ships in emeq-reui. 2026-10-30.
+- **#272** `enhancement` — offer ReUI Pro registry in recommend-tools for React+shadcn projects (components.json); parked until a Pro block ships in the React app. 2026-10-30.
 - **#273** `enhancement` — design-to-code judge: `mask` takes CSS selectors, so a Paper frame or block thumbnail (no DOM) cannot mask a changing value; add mask-by-position only when an app needs it. 2026-11-08.
 - **#274** `enhancement` — design-pin.sh and judge hardening: `--` before shasum paths, exit 2 on missing inputs, git-config-proof worktree diff, one source for the overlay path list, shellcheck on `tests/bin/cases`, `set_by` per user-only overlay key, measure.json per width and theme. 2026-11-08.
-- **#264** — design-to-code: first Paper setup in emeq-reui cost 20 MCP calls and found 7 mismatches between skill, guide and practice (per-group `write_html` against the Free-tier budget, design brief versus app tokens first, no light/dark token modes, `.` not allowed in token names, no file-choice or `create_file` step, `rename_nodes` truncates at 50 characters). 2026-10-30.
+- **#264** — design-to-code: first Paper setup in the React app cost 20 MCP calls and found 7 mismatches between skill, guide and practice (per-group `write_html` against the Free-tier budget, design brief versus app tokens first, no light/dark token modes, `.` not allowed in token names, no file-choice or `create_file` step, `rename_nodes` truncates at 50 characters). 2026-10-30.
 - **#284** `bug` — hooks: lead-guard misses `git -C <dir> commit|push|tag|switch`, because its patterns expect `git <verb>` directly; found in the #281 review. 2026-11-13.
 - **#286** `enhancement` — upgrade: `/ai:upgrade` writes `env.CLAUDE_CODE_SUBAGENT_MODEL=sonnet` into `.claude/settings.json` for projects set up before v2.19.0; no-op when the key is set, leaves malformed JSON untouched. 2026-11-14.
 - **#287** `enhancement` — skills: lead-executes seams left after #282: design-leads (one screen at a time) versus design-to-code Batch (parallel), diagnose Phase 4 instrumentation and triage reproduce run by the lead, design-to-code `measure.json` and evidence produced by the lead. 2026-11-14.
 - **#289** `enhancement` — hooks: close heavy-run-gate gaps left after v2.22.0: suites that bypass the wrapper (`if`/`while` prefixes, `nohup`, `env -i`, `sudo -u`, backticks, `yarn workspace`, `bash -c`), false denies (`gradle tasks`, `vitest related`, `pnpm --filter web vitest`), the stale-lock takeover race, unguarded native builds and `expo run`, no Cursor/Codex wiring. Decide scope in a grill first. 2026-11-16.
-- **#290** `enhancement` — retro: add an agent-environment retro mode over session transcripts, adopted as a pattern from mattpocock/skills `skills/engineering/retro` (abeeaf9, MIT): a mechanical review finding becomes a lint/pre-commit/CI check, a prose rule only for judgement calls. Prove it first in emeq-reui on one real feature; workflow-audit forbids reading `*.jsonl` today. Refs #223. 2026-11-20.
+- **#290** `enhancement` — retro: add an agent-environment retro mode over session transcripts, adopted as a pattern from mattpocock/skills `skills/engineering/retro` (abeeaf9, MIT): a mechanical review finding becomes a lint/pre-commit/CI check, a prose rule only for judgement calls. Prove it first in the React app on one real feature; workflow-audit forbids reading `*.jsonl` today. Refs #223. 2026-11-20.
 - **#291** `enhancement` — drift: track mattpocock/skills releases (pin v1.3.2 / abeeaf9) in `bin/ai-kit-upstream-drift.sh` with a new `distilled` manifest kind; session-start notice in the ai-kit repo lists changed upstream SKILL.md paths. Replaces the quarterly cadence of #223. 2026-11-20.
 - **#292** `enhancement` — hooks: ask-first guard `bin/hooks/destructive-git-guard.sh` for reset --hard, clean -f, branch -D, checkout ., restore ., push --force; reuses review-gate.sh parsing, never blocks plain push. Port of upstream git-guardrails-claude-code. 2026-11-20.
 - **#293** `enhancement` — review: split into Standards and Spec axes with a fixed-point ref and early fail on bad ref or empty diff (`workflow/skills/review/SKILL.md`, `workflow/agents/reviewer.md`). Upstream engineering/code-review. 2026-11-20.
@@ -433,15 +435,15 @@ _Last reconciled: 2026-11-22 against 127 open issues (count refreshed to 127; #3
 - **#295** `enhancement` — prototype: port the logic prototype (single HTML state-model driver), LOGIC branch only. Upstream engineering/prototype/LOGIC.md. 2026-11-20. Parked until an app needs it.
 - **#296** `enhancement` — setup: pre-commit branch per stack (Husky v9 + lint-staged, Pint, dart format/analyze), no full suite. Upstream misc/setup-pre-commit. 2026-11-20. Parked until an app needs it.
 - **#297** `enhancement` — skills: merge mattpocock/skills v1.3.2 ideas into existing skills (tdd, audit-architecture, to-issues, to-prd, diagnose, grill-me, checkpoint, doc-to-skill, git-hygiene PR template, autonomous, small ports). Related #291-#296, #290. 2026-11-20.
-- **#301** `enhancement` — route reviewers by risk in /ai:autonomous: trial before build. In naschool, run 3 to 4 small issues and compare tokens per issue plus review findings against today's fixed reviewer; re-measure 2026-12-05. Pattern from zazencodes software-factory-v2, which is recorded as Ignore in plugins-excluded.json. 2026-11-21.
+- **#301** `enhancement` — route reviewers by risk in /ai:autonomous: trial before build. In the portal app, run 3 to 4 small issues and compare tokens per issue plus review findings against today's fixed reviewer; re-measure 2026-12-05. Pattern from zazencodes software-factory-v2, which is recorded as Ignore in plugins-excluded.json. 2026-11-21.
 - **#302** `enhancement` — heavy-run gate: pin the backslash-escape branch with two tests (deny `echo it\'s; pnpm test; echo 'x'`, allow `echo a\; pnpm test`); decide fix or accept for fail-open on `$'...'` and backslash-newline continuation. Follow-up to a128895 / v2.24.1. 2026-11-21.
-- **#303** `enhancement` — release step for apps: deploy ledger (SHA, date, smoke result per deploy), one written rollback line per app, then a changelog draft (trial `git cliff --unreleased` in one Laravel and one Astro app, rewritten for humans). Customer announcements stay out. Deferred: pilot in emeq/system (emeq-system#870, #871) first, then /ai:harvest; any deploy waits for an explicit go. Reshaped 2026-11-22.
+- **#303** `enhancement` — release step for apps: deploy ledger (SHA, date, smoke result per deploy), one written rollback line per app, then a changelog draft (trial `git cliff --unreleased` in one Laravel and one Astro app, rewritten for humans). Customer announcements stay out. Deferred: pilot in the Laravel app (two app issues) first, then /ai:harvest; any deploy waits for an explicit go. Reshaped 2026-11-22.
 - **#304** `enhancement` — persist lessons from review, qa and retro: retro writes a lesson to `docs/decisions.md` or proposes an ADR; review and qa only feed retro. Deferred: captured during a page review, needs its own grill and plan. 2026-11-22.
-- **#305** `enhancement` — remove the exploratory-test skill (unused, no `tests/bin` case). Deferred: first check emeq-reui, planny-app-mobile, planny, emeq/system, emeq-hub and theorieplek for usage; remove skill, eval prompts and references only if none. 2026-11-22.
+- **#305** `enhancement` — remove the exploratory-test skill (unused, no `tests/bin` case). Deferred: first check the React app, the mobile app, the SaaS app, the Laravel app, the hub app and the content site for usage; remove skill, eval prompts and references only if none. 2026-11-22.
 - **#306** `enhancement` — to-prd: add a mermaid block only when the plan has a flow, sequence or states. Deferred: captured during a page review, needs its own grill and plan. 2026-11-22.
 - **#307** `enhancement` — tdd: add one test-pyramid rule (no test for trivial code, unit for logic, integration for module boundaries, e2e for critical user flows). Deferred: captured during a page review, needs its own grill and plan. 2026-11-22.
 - **#308** `enhancement` — trial Haiku for mechanical subagent work: one week where mechanical general-purpose spawns pass model "haiku", count the redo rate against Sonnet, then change the lead-reply hook text only if it holds. explore and qa-runner stay on Sonnet until a separate measurement. Deferred: nothing in the kit has measured Haiku yet; needs its own plan. 2026-11-22.
-- **#309** `enhancement` — review: add a UI/UX/a11y reviewer only when the diff touches UI; trial on 10 PRs in emeq-reui and count real blockers the main reviewer missed. Decided not doing: audit-architecture in Review and hygiene in Learn. Deferred: needs the trial in a downstream app before any widening. 2026-11-22.
+- **#309** `enhancement` — review: add a UI/UX/a11y reviewer only when the diff touches UI; trial on 10 PRs in the React app and count real blockers the main reviewer missed. Decided not doing: audit-architecture in Review and hygiene in Learn. Deferred: needs the trial in a downstream app before any widening. 2026-11-22.
 - **#310** `enhancement` — deployment-on-demand: accept a per-app standing deploy mandate written in the app's AGENTS.md with scope and date; apps without one keep waiting for go. Deferred: rule change needs its own small PR and review, plus a docs/decisions.md entry and the emitted rule copy synced. 2026-11-22.
 - **#311** `enhancement` — harvest: before proposing a rule, add a cross-app survey, external best-practice research (free web search first) and a deviation list; an external tool beats own code. Deferred: needs a skill edit plus an eval update. 2026-11-22.
 - **#312** `enhancement` — revisit Kaneo as a self-hosted project board, only if the private GitHub Projects board trial (2026-11-22 to 2026-12-06) falls short. Self-hosting needs Docker Compose, Postgres and a GitHub App; its two-way GitHub sync would be a second writer. Deferred: lowest priority, re-assess with /ai:should-i-use after the board re-measure. 2026-11-22.

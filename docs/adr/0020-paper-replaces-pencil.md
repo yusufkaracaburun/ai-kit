@@ -10,7 +10,7 @@ Accepted (2026-10-29). Tracked in #258 and #259. Supersedes the Pencil line in
 ## Context
 
 Yusuf decided on 2026-10-29: "ik ga geen pencil meer gebruiken, want paper
-vervangt alles". emeq-reui ran the Paper trial first and recorded the same
+vervangt alles". The React app ran the Paper trial first and recorded the same
 choice in its `docs/adr/0002-code-als-ontwerpbron.md`: "Paper vervangt Pencil
 volledig."
 
@@ -22,7 +22,7 @@ Pencil gone that entry guards nothing, and Paper writes passed the guard.
 1. Paper is the design tool in every project. ai-kit keeps no Pencil support
    next to it and no design-tool abstraction.
 2. Existing `.pen` files stay as a read-only archive. Nobody edits them.
-3. Paper MCP tools run under the prefix `mcp__paper__`, as the emeq-reui
+3. Paper MCP tools run under the prefix `mcp__paper__`, as the React app
    sessions call them (`mcp__paper__write_html`, `mcp__paper__get_screenshot`).
 4. The split between read and write follows the annotations the Paper MCP
    server reports itself. Source: `tools/list` on `paper mcp`
@@ -35,7 +35,7 @@ Pencil gone that entry guards nothing, and Paper writes passed the guard.
    - Read (`readOnlyHint`): every other tool, among them `get_basic_info`,
      `get_screenshot`, `get_computed_styles`, `get_jsx`, `get_tokens`,
      `open_file`, `export` and `finish_working_on_nodes`.
-   The emeq-reui trial log (`docs/poc/paper-proef-log.md`) shows the same
+   The React app trial log (`docs/poc/paper-proef-log.md`) shows the same
    tools in use, for example "| 8 | write_html | whole screen in one call" and
    "| 9 | get_screenshot | review 1: week nav 8pt too high".
 5. lead-guard denies the 16 write tools for a `role=lead` session and names

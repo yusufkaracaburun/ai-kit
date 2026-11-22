@@ -67,7 +67,7 @@ Money guard, mandatory unless the caller states the flow has no payments or orde
 
 Rank findings by severity times flow position, sign-up and checkout first. Never rank by how many lenses hit a finding: the lenses share one model, so their misses correlate. Persona rows add a `Smoke would catch` column (yes/no) to the Findings table in Output.
 
-Evidence: the theorieplek run of 2026-10-18 found 5 findings (2 high); a smoke run caught 0 of the 5.
+Evidence: the content site run of 2026-10-18 found 5 findings (2 high); a smoke run caught 0 of the 5.
 
 ## Output
 

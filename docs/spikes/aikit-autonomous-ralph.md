@@ -1,7 +1,7 @@
 # Spike — `autonomous` (Ralph pattern)
 
 > **Status:** PROMOTED 2026-05-26. Skill is stable after multiple
-> real-queue drains in `ai-kit` + `naschool`. Document preserved as
+> real-queue drains in `ai-kit` + the portal app. Document preserved as
 > historical research record; see `workflow/skills/autonomous/SKILL.md`
 > for the live contract. Tracks
 > [#17](https://github.com/yusufkaracaburun/ai-kit/issues/17).

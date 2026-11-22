@@ -368,7 +368,7 @@
         "auto_install": false,
         "pinned_sha": "7faf7fcd62238df12c1d7f0578191bcc73cff07c",
         "vetted_at": "2026-09-27",
-        "notes": "Per project, not `-g`. Installs one skill (SKILL.md 758 lines, style prompts, a Next.js 16 template; 95 tracked files upstream). POC 2026-09-27 on planny-app-mobile goldens: default slide transforms did not fit foreign content (tune per slide), and low-res captures upscale about 3x, so feed 3x simulator captures."
+        "notes": "Per project, not `-g`. Installs one skill (SKILL.md 758 lines, style prompts, a Next.js 16 template; 95 tracked files upstream). POC 2026-09-27 on the mobile app goldens: default slide transforms did not fit foreign content (tune per slide), and low-res captures upscale about 3x, so feed 3x simulator captures."
       },
       "license": "MIT"
     },

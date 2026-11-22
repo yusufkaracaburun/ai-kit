@@ -1,16 +1,16 @@
 # Workflow audit 2026-11-13 (kit v2.15.2)
 
-Three read-only explore agents (chain, delivery, evidence) plus lead spot-checks. Paths are relative to the ai-kit repo unless a repo is named. Window: 2026-10-01 to 2026-11-13. Busiest repo: the repo with the most commits in the window (emeq-reui). Downstream repos: emeq-reui, emeq/system, planny-app-mobile, theorieplek, emeq-hub.
+Three read-only explore agents (chain, delivery, evidence) plus lead spot-checks. Paths are relative to the ai-kit repo unless a repo is named. Window: 2026-10-01 to 2026-11-13. Busiest repo: the repo with the most commits in the window (the React app). Downstream repos: the React app, the Laravel app, the mobile app, the content site, the hub app.
 
 ## Key figures
 
 | Measure | Value | Previous | Source |
 | ------- | ----- | -------- | ------ |
 | Lead-inline sessions | 89 of 214 sessions executed inline; 37 escapes via role=build | first run | kit checkpoint memo 2026-10-30 |
-| Owner-found defects per week, busiest repo (emeq-reui) | at least 4 in 11-10..11-13, plus a 28-finding consistency audit on 11-13 | first run | emeq-reui memory `feedback/*`, `project/consistency-audit-2026-11-13.md` |
-| Review gate in effect | no in every repo (no ai-kit gate; personal ponytail gate: time-based, not tree-bound). emeq/system upgraded its marker to 2.17.0 on 2026-11-13, after this audit, so its 2.17.0 in Per repo is not a contradiction | first run | `workflow/hooks/` at v2.15.2 |
+| Owner-found defects per week, busiest repo (the React app) | at least 4 in 11-10..11-13, plus a 28-finding consistency audit on 11-13 | first run | The React app memory `feedback/*`, `project/consistency-audit-2026-11-13.md` |
+| Review gate in effect | no in every repo (no ai-kit gate; personal ponytail gate: time-based, not tree-bound). The Laravel app upgraded its marker to 2.17.0 on 2026-11-13, after this audit, so its 2.17.0 in Per repo is not a contradiction | first run | `workflow/hooks/` at v2.15.2 |
 | Gate skips logged (main git-dir only) | not measured (no gate-log before v2.17.0) | first run | `workflow/hooks/review-gate.sh:45` |
-| Fix-ish commit ratio since 2026-10-01 (upper bound) | system 81/178 (46%), emeq-hub 36/114 (32%), planny-app-mobile 34/117 (29%), emeq-reui 64/262 (24%), theorieplek 30/230 (13%) | first run | `b=$(git symbolic-ref --short refs/remotes/origin/HEAD \|\| echo master)`; `git log "$b" --no-merges --since=2026-10-01 --format=%s \| grep -ciE '^(fix\|revert)\|hotfix\|regress'` over `git log "$b" --no-merges --since=2026-10-01 --format=%s \| wc -l`, per repo (all on origin/master) |
+| Fix-ish commit ratio since 2026-10-01 (upper bound) | The Laravel app 81/178 (46%), the hub app 36/114 (32%), the mobile app 34/117 (29%), the React app 64/262 (24%), the content site 30/230 (13%) | first run | `b=$(git symbolic-ref --short refs/remotes/origin/HEAD \|\| echo master)`; `git log "$b" --no-merges --since=2026-10-01 --format=%s \| grep -ciE '^(fix\|revert)\|hotfix\|regress'` over `git log "$b" --no-merges --since=2026-10-01 --format=%s \| wc -l`, per repo (all on origin/master) |
 | Open re-measurements | 3: correction-loop (due 10-02), Sonnet flip (due ~11-06), designer Sonnet trial | first run | kit memory |
 | Open kit issues | 107; roadmap reconcile stamp 2026-10-27 | first run | `gh issue list`, `docs/roadmap.md:10` |
 | docs/score.md | 78 on 2026-09-21, no row since (sessions quoted 87 and 90) | first run | `docs/score.md:24` |
@@ -19,11 +19,11 @@ Three read-only explore agents (chain, delivery, evidence) plus lead spot-checks
 
 | Repo | Path | Marker version | Lifecycle | Fix ratio |
 | ---- | ---- | -------------- | --------- | --------- |
-| emeq/system | `~/Sites/localhost/emeq/system` | 2.17.0 | production | 81/178 (46%) |
-| emeq-hub | `~/Sites/localhost/github.com/emeq-hub` | 2.15.2 | production | 36/114 (32%) |
-| planny-app-mobile | `~/Sites/localhost/github.com/planny-app-mobile` | 2.15.1 | production | 34/117 (29%) |
-| emeq-reui | `~/Sites/localhost/emeq/emeq-reui` | 2.15.1 | development | 64/262 (24%) |
-| theorieplek | `~/Sites/localhost/github.com/theorieplek` | 2.15.1 | development | 30/230 (13%) |
+| Laravel app | `~/Sites/laravel-app` | 2.17.0 | production | 81/178 (46%) |
+| hub app | `~/Sites/hub-app` | 2.15.2 | production | 36/114 (32%) |
+| mobile app | `~/Sites/mobile-app` | 2.15.1 | production | 34/117 (29%) |
+| React app | `~/Sites/react-app` | 2.15.1 | development | 64/262 (24%) |
+| content site | `~/Sites/content-site` | 2.15.1 | development | 30/230 (13%) |
 
 Marker values from `jq -r '.ai_kit_version, (.branches.lifecycle // "production")' .ai-kit-setup`, read 2026-11-13.
 
@@ -83,12 +83,12 @@ Marker values from `jq -r '.ai_kit_version, (.branches.lifecycle // "production"
 
 ## Patterns
 
-1. Green gate or self-score while defects ship: planny-app-mobile screens scored 100/100 while bugs shipped (09-12, 09-16, 09-29 gate never ran); emeq-reui old judge rounds 64-79 against a bar of 90.
-2. Owner finds the defect before the lead or a reviewer: emeq-reui 11-10, 11-11 ("erg slordig"), 11-12, 11-13; emeq/system three correction rounds on one PR (memo 2026-08-09).
-3. Drift between sibling screens or modules: emeq-reui Productiebonnen lacked the Facturen conventions (11-11); 28-finding consistency audit (11-13); route restarted 10-31 over "drifts en gaps".
-4. Reviewers check code, not rendered UI or behaviour: emeq-reui had 3 should-fix findings refuted by measurement; `reviewer.md:106` forbids running tests.
-5. Lead executes inline or escapes via role=build: 89 of 214 sessions inline, 37 role=build escapes; emeq-hub feedback "do it yourself, lead" conflicts with never-execute.
-6. Done claims without evidence: planny-app-mobile lead relayed agent scores 91/92 where its own pass gave about 78 (09-26, 10-02); emeq/system RED test that passed on base (2026-08-09).
+1. Green gate or self-score while defects ship: the mobile app screens scored 100/100 while bugs shipped (09-12, 09-16, 09-29 gate never ran); the React app old judge rounds 64-79 against a bar of 90.
+2. Owner finds the defect before the lead or a reviewer: the React app 11-10, 11-11 ("erg slordig"), 11-12, 11-13; the Laravel app three correction rounds on one PR (memo 2026-08-09).
+3. Drift between sibling screens or modules: the React app Productiebonnen lacked the Facturen conventions (11-11); 28-finding consistency audit (11-13); route restarted 10-31 over "drifts en gaps".
+4. Reviewers check code, not rendered UI or behaviour: the React app had 3 should-fix findings refuted by measurement; `reviewer.md:106` forbids running tests.
+5. Lead executes inline or escapes via role=build: 89 of 214 sessions inline, 37 role=build escapes; the hub app feedback "do it yourself, lead" conflicts with never-execute.
+6. Done claims without evidence: the mobile app lead relayed agent scores 91/92 where its own pass gave about 78 (09-26, 10-02); the Laravel app RED test that passed on base (2026-08-09).
 7. Model experiments unmeasurable or unfinished: Fable 0 requests (#270); Sonnet flip and designer Sonnet trial without a result.
 8. Planned re-checks never closed: correction-loop due 10-02, Sonnet flip due ~11-06, score.md without a row since 09-21.
 9. Kit fix churn on the same surface: lead-guard 2.4.0, 2.4.1, 2.4.2 with #199 still open; Cursor skill links 2.10.1, 2.11.0, 2.12.0 on one day; Pencil detection fixed in 2.9.0 and removed in 2.13.0; lead-contract text changed in 8 releases.

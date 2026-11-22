@@ -17,7 +17,7 @@ REG="$TMP_H/.claude/sessions"
 CLAIMS="$TMP_H/.config/ai-kit/claims"
 mkdir -p "$REG"
 
-REPO="$TMP_H/planny-app-mobile"
+REPO="$TMP_H/demo-app-mobile"
 mkdir -p "$REPO"
 git -C "$REPO" init -q -b feat/home-skeleton
 
@@ -54,7 +54,7 @@ assert "solo without role -> one line pointing at the rule" '[ "$(wc -l <<<"$OUT
 assert "solo pointer says role=lead plus next SessionStart brings the full block" 'grep -q "set role=lead" <<<"$OUT" && grep -q "next SessionStart" <<<"$OUT"'
 assert "solo pointer sets no role" '! grep -q "^role:" "$CLAIMS/own-1.md"'
 assert "skeleton claim written for own session" '[ -f "$CLAIMS/own-1.md" ]'
-assert "skeleton records repo" 'grep -q "^repo: planny-app-mobile$" "$CLAIMS/own-1.md"'
+assert "skeleton records repo" 'grep -q "^repo: demo-app-mobile$" "$CLAIMS/own-1.md"'
 assert "skeleton records branch" 'grep -q "^branch: feat/home-skeleton$" "$CLAIMS/own-1.md"'
 "$CLAIM" --session own-1 set role=lead >/dev/null
 OUT=$(fire "$OWN")
@@ -63,22 +63,22 @@ assert "solo with role=lead -> full protocol incl. the yaml template" 'grep -qF 
 
 echo "=== peer-sessions-check: live peer fires ==="
 # section: peer-sessions-fires
-registry 99999999 peer-dead planny-old /x/planny
+registry 99999999 peer-dead demo-app-old /x/demo-app
 OUT=$(fire "$OWN")
-assert "peer with dead pid -> no peers table" '! grep -q "planny-old" <<<"$OUT"'
+assert "peer with dead pid -> no peers table" '! grep -q "demo-app-old" <<<"$OUT"'
 
-registry "$PPID" peer-1 planny-7f /x/planny
+registry "$PPID" peer-1 demo-app-7f /x/demo-app
 OUT=$(fire "$OWN")
 assert "live peer -> fires" '[ -n "$OUT" ]'
-assert "table names the peer" 'grep -q "planny-7f" <<<"$OUT"'
-assert "table names the peer repo" 'grep -q "| planny |" <<<"$OUT"'
+assert "table names the peer" 'grep -q "demo-app-7f" <<<"$OUT"'
+assert "table names the peer repo" 'grep -q "| demo-app |" <<<"$OUT"'
 assert "own session not listed as a peer" '! grep -q "ai-kit-99" <<<"$OUT"'
 assert "nudge asks for ListAgents + claim" 'grep -q "ListAgents" <<<"$OUT" && grep -q "ai-kit-claim.sh" <<<"$OUT"'
 assert "emits valid JSON" 'bash "$HOOK" <<<"$OWN" | python3 -c "import json,sys; json.load(sys.stdin)"'
 assert "alone on repo -> Do now names role=lead" 'grep "^Do now" <<<"$OUT" | grep -qF "role=lead (no other session on this repo: you are lead)"'
 sleep 30 &
 SAME_PID=$!
-registry "$SAME_PID" peer-2 planny-lead "$REPO"
+registry "$SAME_PID" peer-2 demo-app-lead "$REPO"
 "$CLAIM" --session peer-2 set role=lead >/dev/null
 OUT_SAME=$(fire "$OWN")
 assert "lead peer on same repo -> Do now keeps role=…" 'grep "^Do now" <<<"$OUT_SAME" | grep -qF "role=…" && ! grep "^Do now" <<<"$OUT_SAME" | grep -qF "role=lead"'
@@ -113,15 +113,15 @@ assert "payload without session_id exits 0 silent" '[ "$NOSID_RC" -eq 0 ] && [ -
 
 echo "=== ai-kit-claim: set / show / release round-trip ==="
 # section: claim-roundtrip
-"$CLAIM" --session own-1 set role=lead owns="lib/home/*, paper:Q501VT" depends_on=planny >/dev/null
+"$CLAIM" --session own-1 set role=lead owns="lib/home/*, paper:Q501VT" depends_on=demo-app >/dev/null
 assert "set writes role" 'grep -q "^role: lead$" "$CLAIMS/own-1.md"'
 assert "set writes owns as a list" 'grep -q "^owns: \[lib/home/\*, paper:Q501VT\]$" "$CLAIMS/own-1.md"'
-assert "set keeps skeleton fields" 'grep -q "^repo: planny-app-mobile$" "$CLAIMS/own-1.md"'
+assert "set keeps skeleton fields" 'grep -q "^repo: demo-app-mobile$" "$CLAIMS/own-1.md"'
 assert "set refreshes updated" 'grep -q "^updated: 20" "$CLAIMS/own-1.md"'
 
 OUT_SHOW=$("$CLAIM" --session peer-1 show)
-assert "show lists the other live session with its claim" 'grep -q "ai-kit-99.*| lead |.*Q501VT.*| planny |" <<<"$OUT_SHOW"'
-assert "show omits the asking session" '! grep -q "planny-7f" <<<"$OUT_SHOW"'
+assert "show lists the other live session with its claim" 'grep -q "ai-kit-99.*| lead |.*Q501VT.*| demo-app |" <<<"$OUT_SHOW"'
+assert "show omits the asking session" '! grep -q "demo-app-7f" <<<"$OUT_SHOW"'
 OUT_ENV=$(AI_KIT_SESSION_ID=peer-1 "$CLAIM" show)
 assert "AI_KIT_SESSION_ID identifies the session too" '[ "$OUT_ENV" = "$OUT_SHOW" ]'
 
@@ -158,7 +158,7 @@ mkdir -p "$TMP_P/hooks" "$TMP_P/bin"
 cp "$HOOK" "$TMP_P/hooks/"
 cp "$CLAIM" "$TMP_P/bin/"
 OUT=$(fire "$OWN" "$TMP_P/hooks/peer-sessions-check.sh")
-assert "plugin layout resolves bin/ai-kit-claim.sh and fires" 'grep -q "planny-7f" <<<"$OUT"'
+assert "plugin layout resolves bin/ai-kit-claim.sh and fires" 'grep -q "demo-app-7f" <<<"$OUT"'
 assert "rule file missing -> peers table without the protocol block" '! grep -q "Protocol" <<<"$OUT"'
 mkdir -p "$TMP_P/standards/rules"
 cp "$RULE" "$TMP_P/standards/rules/"
@@ -168,7 +168,7 @@ rm -rf "$TMP_P"
 
 echo "=== ai-kit-claim: hardening ==="
 # section: claim-hardening
-registry "$PPID" peer-1 "" /x/planny
+registry "$PPID" peer-1 "" /x/demo-app
 OUT_SHOW=$("$CLAIM" --session own-1 show)
 ROW=$(grep "^| peer-1 |" <<<"$OUT_SHOW" || true)
 assert "registry entry without a name falls back to the sid prefix" '[ -n "$ROW" ]'

@@ -107,7 +107,7 @@ Invocation examples:
    ```
    audit-fix(DRY): extract subsidy aggregation into Coalition::totalRequestedHoursPerYear
 
-   Finding A3 from docs/reviews/2026-05-26-naschool-architecture-audit.md.
+   Finding A3 from docs/reviews/2026-05-26-portal-app-architecture-audit.md.
    ```
 7. **Read-after-write verification.** Re-run the **dimension** check on
    the touched paths (re-invoke `/ai:audit-architecture` scoped via

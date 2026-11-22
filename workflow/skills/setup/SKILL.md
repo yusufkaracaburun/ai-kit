@@ -331,7 +331,7 @@ redacted — paths, lines, rule ids, entropy, never a value), then ask:
 > [2] No, just continue
 
 On [1]: `gh issue create` with the scanner's printed report (verbatim, it is
-already redacted) as the body — `emeq-system#209` is the worked example of
+already redacted) as the body — an app issue is the worked example of
 the format (rotate-first ordering, remediation checklist, no secrets in the
 body). Record `--secrets-scan=findings-issue-filed`. If `gh` fails or has no
 remote to file against, degrade visibly (print the failure, don't retry) and

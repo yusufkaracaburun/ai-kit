@@ -5,7 +5,7 @@ description: Install ai-kit's GitHub workflow hygiene — issue templates with D
 
 # Setup GitHub workflow
 
-Install `.github/ISSUE_TEMPLATE/` (feature + spike templates with embedded DoR/DoD), two `.github/workflows/` files (DoR/DoD enforcement + auto-promote-to-Ready), a PR template, branch protection, and a bulk label set into the current project. Adopt-as-pattern from naschool (`/should-i-use` verdict 2026-05-23) — battle-tested, parsing logic verbatim.
+Install `.github/ISSUE_TEMPLATE/` (feature + spike templates with embedded DoR/DoD), two `.github/workflows/` files (DoR/DoD enforcement + auto-promote-to-Ready), a PR template, branch protection, and a bulk label set into the current project. Adopt-as-pattern from the portal app (`/should-i-use` verdict 2026-05-23) — battle-tested, parsing logic verbatim.
 
 ## When to invoke
 
@@ -73,7 +73,7 @@ Two things the script intentionally does not do silently (config anti-pattern):
 
 `epic/core` and `epic/ux` ship as placeholders. Rename them per project — every issue needs an `epic/*` label for the DoR enforcement + auto-promote to trigger.
 
-`area/*` defaults cover backend / frontend / infra / docs. Adjust to your project's modules (e.g. naschool uses `area/portal` / `area/partner` / `area/admin` / `area/backend`).
+`area/*` defaults cover backend / frontend / infra / docs. Adjust to your project's modules (e.g. the portal app uses `area/portal` / `area/partner` / `area/admin` / `area/backend`).
 
 ## After install
 
@@ -92,7 +92,7 @@ Issues already on the project board with all DoR checkboxes + the three required
 - **Existing files never overwritten** — `--force` is opt-in. Bootstrap is safe on a repo that already has its own templates.
 - **Silent skip on non-GitHub remotes** — GitLab / Bitbucket / no-remote projects get nothing.
 - **No auto-project-create** — projects v2 needs a PAT secret; auto-create + auto-secret hides what the workflow needs. Detect-only, print manual steps.
-- **Dutch templates default** — naschool source language. English variant via `--lang en` flag.
+- **Dutch templates default** — the portal app source language. English variant via `--lang en` flag.
 
 ## Flags
 

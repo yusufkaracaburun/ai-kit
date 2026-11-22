@@ -44,7 +44,7 @@ EOF
 cat > "$T/partial.md" <<'EOF'
 ```
 half · category=x · added 2026-11-21
-  TRIAL:            repo=theorieplek task=nav metric=loc
+  TRIAL:            repo=demo-app task=nav metric=loc
   VERDICT:          ADD (wired)
 ```
 EOF
@@ -57,7 +57,7 @@ legacy · category=x · added 2026-05-23
 
 ```
 measured · category=x · added 2026-11-21
-  TRIAL:            repo=theorieplek task=nav-drawer metric=loc baseline=120
+  TRIAL:            repo=demo-app task=nav-drawer metric=loc baseline=120
                     result=40 date=2026-11-21 re-measure=2026-12-05
   VERDICT:          ADD (wired)
 ```
