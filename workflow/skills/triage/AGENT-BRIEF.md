@@ -87,6 +87,9 @@ Be specific about edge cases and error conditions.
 **Test command:**
 `pnpm test` (or the project's own command), plus any run budget: which heavy runs are granted
 
+**Base SHA:** `git rev-parse HEAD` at hand-off; required when the builder works in a worktree or on a non-default branch
+**Worktree path:** absolute path of the worktree the lead created; required when the builder works in a worktree
+
 **Decisions in force:**
 - YYYY-MM-DD: <decision copied verbatim from docs/decisions.md> (source: <grill topic/issue>)
 ```

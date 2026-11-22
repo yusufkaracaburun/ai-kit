@@ -32,11 +32,14 @@ The skill passes the full Agent Brief, in the shape of `triage/AGENT-BRIEF.md`:
 - **Out of scope** — what you must not touch; it binds like the acceptance criteria
 - **Test command** — how this project runs its tests (`composer test`, `pnpm test`, `make test`, …), plus the run budget
 - **Decisions in force** — lines quoted from the project's `docs/decisions.md`; treat them as settled
+- **Base SHA**: the lead's `git rev-parse HEAD` at hand-off
+- **Worktree path**: the absolute path of the worktree the lead created, when there is one
 
 If the test command is missing, find it (`composer.json`, `package.json`, `Makefile`, `justfile`, CI config) and name it in the report — use the project's command, not a generic one you assume works. If the criteria are missing or too thin to write a first failing test, stop and report that; don't guess.
 
 ## Process
 
+0. **Check the base.** The brief names a base SHA → `git -C <worktree path> rev-parse HEAD` must equal it (no worktree path → the current tree). It differs → stop and report both SHAs; do not start. With a worktree path, all work happens under it. Prefix every Bash call with `cd <worktree path> &&` and use absolute paths under it for every Read and Edit.
 1. **Read before writing.** Every file you're about to change — all of it, not the first 50 lines. You cannot match conventions you haven't seen.
 2. **Project rules reach you only if you read them** — nothing under `.claude/rules/` or `~/.claude/rules/ai-kit/` is in your context (the host loads those for the main thread, not for subagents). Before the first edit, one Bash call: `find .claude/rules ~/.claude/rules/ai-kit -name '*.md' -exec head -4 {} + 2>/dev/null` — that is the `paths:` map plus each global rule's one-line description. Then `Read` only the rules whose `paths:` cover the files in scope, and the pathless ones whose description applies to this change (project ones are listed in `docs/agents/active-rules.md`). Never read the directory wholesale. Apply what you read as hard constraints. Mandatory read: `~/.claude/rules/ai-kit/quality-floor.md` (fallback: `standards/rules/quality-floor.mini.md` in the ai-kit plugin), whatever the descriptions say.
 3. **Copy the nearest shape.** Find the closest existing feature of the same kind and mirror its structure: naming, layering, error handling, test placement.
