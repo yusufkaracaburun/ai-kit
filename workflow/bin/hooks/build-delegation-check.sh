@@ -13,6 +13,7 @@
 #
 #   - the 1st and 2nd file — a one- or two-file change is fine inline
 #   - the 4th and later — one nudge is signal, one per edit is noise
+#   - a path outside the project, or a memo, planning or temp file
 #   - repeat edits to a file already counted — iterating on one file is not
 #     a multi-file change
 #   - any other tool, a subagent (agent_id set), an unparseable payload, a
@@ -72,6 +73,12 @@ esac
 session="$(read_field '.session_id')"
 path="$(read_field '.tool_input.file_path')"
 { [ -z "$session" ] || [ -z "$path" ]; } && exit 0
+proj="${CLAUDE_PROJECT_DIR:-$PWD}"
+case "$path" in
+  */.agents/memory/*|*/.planning/*|"$HOME"/.claude/*|/tmp/*) exit 0 ;;
+  "${proj%/}"/*) ;;
+  *) exit 0 ;;
+esac
 
 state="${TMPDIR:-/tmp}/ai-kit-build-delegation-${session//[^A-Za-z0-9_-]/_}"
 grep -qxF -- "$path" "$state" 2>/dev/null && exit 0

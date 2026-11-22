@@ -25,38 +25,54 @@ print(json.loads(raw)["hookSpecificOutput"]["additionalContext"])' 2>/dev/null |
 
 echo "=== build-delegation-check: fires once on the 3rd distinct file ==="
 # section: build-delegation-check
-OUT=$(fire s1 Edit /p/a.ts)
+OUT=$(fire s1 Edit "$PROJ"/p/a.ts)
 assert "1st distinct file silent" '[ -z "$OUT" ]'
-OUT=$(fire s1 Write /p/b.ts)
+OUT=$(fire s1 Write "$PROJ"/p/b.ts)
 assert "2nd distinct file silent" '[ -z "$OUT" ]'
-OUT=$(fire s1 MultiEdit /p/c.ts)
+OUT=$(fire s1 MultiEdit "$PROJ"/p/c.ts)
 assert "3rd distinct file fires" '[ -n "$OUT" ]'
 assert "nudge names the builder subagent" 'grep -q "builder" <<<"$OUT"'
-OUT=$(fire s1 Edit /p/d.ts)
+OUT=$(fire s1 Edit "$PROJ"/p/d.ts)
 assert "4th distinct file silent (fires once)" '[ -z "$OUT" ]'
 
-OUT=$(fire s2 Edit /p/same.ts)
-OUT=$(fire s2 Edit /p/same.ts)
-OUT=$(fire s2 Edit /p/same.ts)
+OUT=$(fire s2 Edit "$PROJ"/p/same.ts)
+OUT=$(fire s2 Edit "$PROJ"/p/same.ts)
+OUT=$(fire s2 Edit "$PROJ"/p/same.ts)
 assert "same path 3x does not fire" '[ -z "$OUT" ]'
 
+OUT=$(fire s7 Edit "$PROJ"/p/a.ts)
+OUT=$(fire s7 Edit "$PROJ"/p/b.ts)
+OUT=$(fire s7 Write "$HOME/.claude/x.md")
+assert "write under \$HOME/.claude is not counted" '[ -z "$OUT" ]'
+OUT=$(fire s7 Write /elsewhere/c.ts)
+assert "write outside the project is not counted" '[ -z "$OUT" ]'
+OUT=$(fire s7 Write "$PROJ"/.agents/memory/n.md)
+assert "write under .agents/memory is not counted" '[ -z "$OUT" ]'
+OUT=$(fire s7 Write "$PROJ"/.planning/p.md)
+assert "write under .planning is not counted" '[ -z "$OUT" ]'
+OUT=$(fire s7 Edit "$PROJ"/p/c.ts)
+assert "3rd project file still fires" '[ -n "$OUT" ]'
+
+for f in a b c; do OUT=$(fire s8 Edit "$PROJ/p/$f.ts" "$PROJ/"); done
+assert "project dir with a trailing slash still counts" '[ -n "$OUT" ]'
+
 for f in a b c; do
-  OUT=$(CLAUDE_PROJECT_DIR="$PROJ" TMPDIR="$TMP_STATE" bash "$HOOK" <<<"{\"session_id\":\"sa\",\"agent_id\":\"x\",\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"/p/$f.ts\"}}")
+  OUT=$(CLAUDE_PROJECT_DIR="$PROJ" TMPDIR="$TMP_STATE" bash "$HOOK" <<<"{\"session_id\":\"sa\",\"agent_id\":\"x\",\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$PROJ/p/$f.ts\"}}")
 done
 assert "inside a subagent (agent_id set) never fires" '[ -z "$OUT" ]'
 
-OUT=$(fire s3 Bash /p/a.ts)
-OUT=$(fire s3 Bash /p/b.ts)
-OUT=$(fire s3 Bash /p/c.ts)
+OUT=$(fire s3 Bash "$PROJ"/p/a.ts)
+OUT=$(fire s3 Bash "$PROJ"/p/b.ts)
+OUT=$(fire s3 Bash "$PROJ"/p/c.ts)
 assert "Bash never fires" '[ -z "$OUT" ]'
 
 echo "=== build-delegation-check: state isolation + failure safety ==="
 # section: build-delegation-isolation
-OUT=$(fire s4 Edit /p/a.ts)
-OUT=$(fire s4 Edit /p/b.ts)
-OUT=$(fire s5 Edit /p/c.ts)
+OUT=$(fire s4 Edit "$PROJ"/p/a.ts)
+OUT=$(fire s4 Edit "$PROJ"/p/b.ts)
+OUT=$(fire s5 Edit "$PROJ"/p/c.ts)
 assert "different session_id does not share the count" '[ -z "$OUT" ]'
-OUT=$(fire s4 Edit /p/c.ts)
+OUT=$(fire s4 Edit "$PROJ"/p/c.ts)
 assert "original session still fires on its own 3rd file" '[ -n "$OUT" ]'
 
 set +e
@@ -73,13 +89,13 @@ set -e
 assert "empty payload exits clean" '[ "$EMPTY_RC" -eq 0 ]'
 
 set +e
-NOSESS_OUT=$(echo '{"tool_name":"Edit","tool_input":{"file_path":"/p/a.ts"}}' | CLAUDE_PROJECT_DIR="$PROJ" TMPDIR="$TMP_STATE" bash "$HOOK" 2>/dev/null)
+NOSESS_OUT=$(echo "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$PROJ/p/a.ts\"}}" | CLAUDE_PROJECT_DIR="$PROJ" TMPDIR="$TMP_STATE" bash "$HOOK" 2>/dev/null)
 NOSESS_RC=$?
 set -e
 assert "missing session_id is silent" '[ "$NOSESS_RC" -eq 0 ] && [ -z "$NOSESS_OUT" ]'
 
 set +e
-NOTMP_OUT=$(echo '{"session_id":"s6","tool_name":"Edit","tool_input":{"file_path":"/p/a.ts"}}' | CLAUDE_PROJECT_DIR="$PROJ" TMPDIR=/nonexistent bash "$HOOK" 2>&1)
+NOTMP_OUT=$(echo "{\"session_id\":\"s6\",\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$PROJ/p/a.ts\"}}" | CLAUDE_PROJECT_DIR="$PROJ" TMPDIR=/nonexistent bash "$HOOK" 2>&1)
 NOTMP_RC=$?
 set -e
 assert "unwritable temp dir exits 0 with no output on either stream" '[ "$NOTMP_RC" -eq 0 ] && [ -z "$NOTMP_OUT" ]'
@@ -89,11 +105,11 @@ echo "=== build-delegation-check: marker gate ==="
 # section: build-delegation-gate
 TMP_STATE=$(mktemp -d)
 NOMARK=$(mktemp -d)
-for f in a b c; do OUT=$(fire g1 Edit "/g/$f.ts" "$NOMARK"); done
+for f in a b c; do OUT=$(fire g1 Edit "$NOMARK/g/$f.ts" "$NOMARK"); done
 assert "silent without .ai-kit-setup" '[ -z "$OUT" ]'
 SKIP=$(mktemp -d)
 "$AIKIT/bin/write-setup-marker.sh" "$SKIP" --build-delegation-hook=skipped >/dev/null
-for f in a b c; do OUT=$(fire g2 Edit "/g/$f.ts" "$SKIP"); done
+for f in a b c; do OUT=$(fire g2 Edit "$SKIP/g/$f.ts" "$SKIP"); done
 assert "silent when marker says skipped" '[ -z "$OUT" ]'
 
 echo "=== build-delegation-check: plugin delivery ==="

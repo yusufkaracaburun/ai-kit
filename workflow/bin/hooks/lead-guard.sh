@@ -95,7 +95,7 @@ is_work_command() {
   local cmd="$1" re=""
   # A tool counts only at the head of a pipeline segment, after env assignments
   # and a path prefix, so `grep pest` or `cat Pest.php` stay reads.
-  local head='(^|[;&|(`])[[:space:]]*([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+)*([^[:space:];&|]*/)?'
+  local head='(^|[;&|(`])[[:space:]]*([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+)*(command[[:space:]]+)?([^[:space:];&|]*/)?'
   local end='($|[[:space:];&|)`])'
   re+="|git (commit|push|merge|rebase|cherry-pick|reset|restore|clean|add)|git checkout (\.|--)"
   re+="|git stash([[:space:]]+(push|pop|drop|apply|clear|save|branch|store|create))?[[:space:]]*($|[;&|)])"
@@ -120,7 +120,7 @@ is_work_command() {
 
   # quoted text is an argument, not a command: `grep -E 'pest|gradle'`
   local unquoted
-  unquoted="$(sed -E "s/'[^']*'/''/g; s/\"[^\"]*\"/\"\"/g" <<<"$cmd")"
+  unquoted="$(sed -E "s/'[^']*'/''/g; s/\"[^\"]*\"/\"\"/g; s/(^|[;&|(\`[:space:]/])git([[:space:]]+(-[Cc][[:space:]]+[^[:space:];&|]+|--no-pager|-[pP]))+/\1git/g" <<<"$cmd")"
 
   segment_is_work "$unquoted" && return 0
   # in-place perl edits; case-sensitive so `perl -Ilib` stays a read
@@ -161,6 +161,7 @@ case "$tool" in
 esac
 
 msg="lead-guard: this session is lead (claim role=lead). The lead dispatches, it never executes. $tool is work: hand it to a subagent (ai:builder for code, ai:designer for Paper designs and UI, general-purpose for CLI, browser and store consoles; the subagent default model applies; pass model only when another one fits the task). The lead keeps file reads, status commands, MCP reads, peer messages, claims and memos; browser actions and package runners count as work. Not the lead for this repo? \`ai-kit-claim.sh set role=build\`."
+[ "$tool" = Bash ] && msg+=" Memo or planning file (.agents/memory, .planning, ~/.claude, /tmp)? Use the Write tool instead; it passes there."
 
 if command -v jq >/dev/null 2>&1; then
   jq -n --arg r "$msg" \

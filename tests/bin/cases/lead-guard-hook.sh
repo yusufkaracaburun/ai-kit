@@ -67,6 +67,9 @@ OUT=$(bash_cmd "git status")
 assert "git status is silent" '[ -z "$OUT" ]'
 OUT=$(bash_cmd "git commit -m x")
 assert "git commit is denied" '[ -n "$OUT" ] && grep -q "Bash" <<<"$OUT"'
+assert "Bash deny points memo writes at the Write tool" 'grep -q "Write tool" <<<"$OUT" && grep -q ".agents/memory" <<<"$OUT"'
+OUT=$(fire lead1 Edit '{"file_path":"/repo/src/a.ts"}')
+assert "Edit deny carries no Write-tool hint" '[ -n "$OUT" ] && ! grep -q "Write tool" <<<"$OUT"'
 OUT=$(bash_cmd "flutter test")
 assert "flutter test is denied" '[ -n "$OUT" ]'
 OUT=$(bash_cmd "sed -n 1,5p f")
@@ -216,6 +219,22 @@ deny "git apply p.diff"
 allow "git apply --check p.diff"
 allow "git apply --stat p.diff"
 deny "git am p.patch"
+deny "git -C /x commit -m a"
+deny "git -c user.name=a commit"
+deny "git -C a -C b push"
+deny "cd r && git -C x add f"
+allow "git -C x status"
+allow "git -C x log"
+allow "git -c core.pager=cat diff"
+deny "/usr/bin/git -C x commit"
+deny "git --no-pager commit"
+deny "git -P commit"
+deny "git -C x --no-pager push"
+allow "git --no-pager log"
+allow "git -P diff"
+deny "command rm -f x"
+deny "command git commit"
+allow "command -v git"
 deny "wrangler deploy"
 allow "wrangler whoami"
 allow "wrangler --version"

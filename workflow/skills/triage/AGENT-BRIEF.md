@@ -42,6 +42,8 @@ Decisions in force are lines copied from the project's `docs/decisions.md`, whic
 
 This template is the only brief shape. `tdd`, `autonomous` and `design-to-code` pass the whole brief to `builder` and `designer`, and `review` passes the same brief to `reviewer`, which checks every acceptance criterion and the Out of scope list against the diff.
 
+Workers delete, move and copy with `command rm -f`, `command mv -f` and `command cp -f`. An interactive shell alias (`rm -i`) waits for a prompt nobody answers and hangs the run.
+
 ## Posting
 
 Any skill that sets `ready-for-agent` (`triage`, `to-issues`, `to-prd`) posts the brief in this order, so no issue ever carries the label without its brief:
