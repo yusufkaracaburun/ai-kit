@@ -37,3 +37,4 @@
 - 2026-11-22: ai-kit-issue-meta.sh --status moves the card on the derived board and then removes labels that clash with the column in one label write: Backlog drops needs-info, ready-for-agent, ready-for-human and status:in-progress; Next and Done drop needs-triage, needs-info and status:in-progress; Doing drops needs-triage and needs-info; Blocked drops status:in-progress. (source: grill #313)
 - 2026-11-22: In repos with a board the kit never sets status:in-progress; the Doing column is the source, and /ai:next still reads both. (source: grill #313)
 - 2026-11-22: Ship checks after the merge that the issue is closed and its card is Done; an epic-branch merge closes the issue with a comment linking the PR; refs #N slices stay open. (source: grill #313)
+- 2026-11-22: ready-for-agent and ready-for-human say who picks an issue up, not when; --status Backlog keeps them (source: user, after a board cleanup)

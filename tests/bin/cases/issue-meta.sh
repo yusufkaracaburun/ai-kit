@@ -146,6 +146,9 @@ write_meta "$TYPES" "$PRIO" "$BOARDS" '{"name":"area-x"}' false "$ITEMS"
 run_meta 69 --status Doing
 assert "issue-meta: --status Doing alone exits 0" '[ "$RC" -eq 0 ]'
 assert "issue-meta: --status Doing alone writes only Status" 'echo "$CALLS" | grep "updateProjectV2ItemFieldValue" | grep -q "optionId=S_doing" && ! echo "$CALLS" | grep -q "api -X PATCH\|setIssueFieldValue\|addProjectV2ItemById\|/labels" && [ "$(echo "$CALLS" | wc -l)" -eq 2 ]'
+write_meta "$TYPES" "$PRIO" "$BOARDS" '{"name":"ready-for-human"},{"name":"status:in-progress"}' false "$ITEMS"
+run_meta 70 --status Backlog
+assert "issue-meta: move to Backlog keeps ready-for-human, drops status:in-progress" 'echo "$CALLS" | grep "api -X PUT repos/{owner}/{repo}/issues/70/labels" | grep "labels\[\]=ready-for-human" | grep -vq "status:in-progress"'
 
 write_meta "$TYPES" "$PRIO" "$BOARDS"
 echo '{"data":{"addProjectV2ItemById":{"item":{"id":"PVTI_new","project":{"id":"PVT_b","field":'"$STATUS_FIELD"'}}}}}' > "$TMP_IM/add.json"

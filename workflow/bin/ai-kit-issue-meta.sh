@@ -236,7 +236,7 @@ if [ -n "$PROJECT_ID" ]; then
       DONE+=("Status $STATUS")
       # Column is where the work is, label who picks it up; these labels contradict the column.
       case "$STATUS" in
-        Backlog) CLASH="needs-info ready-for-agent ready-for-human status:in-progress" ;;
+        Backlog) CLASH="needs-info status:in-progress" ;;
         Next|Done) CLASH="needs-triage needs-info status:in-progress" ;;
         Doing) CLASH="needs-triage needs-info" ;;
         Blocked) CLASH="status:in-progress" ;;
