@@ -93,14 +93,13 @@ project/
 │       ├── diagnose  -> .../ai-kit/workflow/skills/diagnose
 │       └── ... (16 ai-kit skills symlinked alongside)
 ├── docs/
-│   ├── adr/ADR-template.md
-│   ├── agents/
-│   │   ├── agent-stack.md         # documents the brownfield coexistence
-│   │   └── dev-environment.md     # Laravel 11.x + Composer + Vite docs
-│   └── wiki/README.md
+│   └── agents/
+│       ├── agent-stack.md         # documents the brownfield coexistence
+│       ├── dev-environment.md     # Laravel 11.x + Composer + Vite docs
+│       ├── triage-labels.md
+│       └── workflow.md
 ├── AGENTS.md                       # added
 ├── CLAUDE.md                       # added
-├── CONTEXT.md                      # added (empty, to fill)
 └── .ai-kit-setup
 ```
 

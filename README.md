@@ -66,7 +66,7 @@ In any project, inside Claude Code or Cursor:
 /ai:setup
 ```
 
-`/ai:setup` writes `AGENTS.md` + `CONTEXT.md`, symlinks the skills into the project
+`/ai:setup` writes `AGENTS.md`, symlinks the skills into the project
 (when a global install already serves them, it asks first),
 drops a `.ai-kit-setup` marker, and detects your stack. The default mode
 (`solo-both`) needs no input.
@@ -156,7 +156,7 @@ Two install paths, pick one:
    hosts listed in `~/.config/ai-kit/hosts` (asked once, or detected).
    Skip with `--no-global` for project-only mode.
 
-Either way, **`/ai:setup`** bootstraps `AGENTS.md`, `CONTEXT.md`, project skills,
+Either way, **`/ai:setup`** bootstraps `AGENTS.md`, project skills,
 and the `.ai-kit-setup` marker — works the same against both install paths.
 
 `AGENTS.md` is the agent-agnostic entry point; skills route from there. Three-layer

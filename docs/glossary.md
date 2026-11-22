@@ -20,7 +20,7 @@ The agent-agnostic project entry-point in every ai-kit-bootstrapped repo. Templa
 
 ### Bootstrap
 
-The act of initializing ai-kit in a project: `bin/bootstrap-project.sh` or running `/ai:setup` in the host. Produces `AGENTS.md`, `CONTEXT.md`, the `.ai-kit-setup` marker, and symlinked skills/agents/commands.
+The act of initializing ai-kit in a project: `bin/bootstrap-project.sh` or running `/ai:setup` in the host. Produces `AGENTS.md`, `docs/agents/workflow.md`, `docs/agents/triage-labels.md`, the `.ai-kit-setup` marker, and symlinked skills/agents/commands.
 
 ### CHANGELOG.md
 
@@ -40,7 +40,7 @@ See *Slash command*.
 
 ### CONTEXT.md
 
-The per-project context file: domain model, stack, recent ADRs index. Skills read this first. Template at `context/templates/CONTEXT.md.template`.
+The per-project context file: domain model, stack, recent ADRs index. Skills read this first. Bootstrap does not write it; `grill-with-docs` creates it when the first term is resolved.
 
 ### Doctor
 

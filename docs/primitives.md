@@ -78,7 +78,7 @@ Start: "I want to add X to ai-kit"
    └─ YES → TEMPLATE
             Source: context/templates/<name>.template
             Consumer: bin/bootstrap-project.sh
-            Example: AGENTS.md.template, CONTEXT.md.template
+            Example: AGENTS.md.template, CLAUDE.md.template
 ```
 
 ---

@@ -103,21 +103,17 @@ if [ ! -f "$TARGET/AGENTS.md" ]; then
   echo "Created AGENTS.md"
 fi
 
-if [ ! -f "$TARGET/CONTEXT.md" ]; then
-  command cp "$TPL/CONTEXT.md.template" "$TARGET/CONTEXT.md"
-  echo "Created CONTEXT.md"
-fi
-
 if [ ! -f "$TARGET/CLAUDE.md" ]; then
   command cp "$TPL/CLAUDE.md.template" "$TARGET/CLAUDE.md"
   echo "Created CLAUDE.md"
 fi
 
-mkdir -p "$TARGET/docs/agents" "$TARGET/docs/adr" "$TARGET/docs/wiki"
+mkdir -p "$TARGET/docs/agents"
 # Agile workflow + triage-label mapping. verify-setup.sh checks both; without
 # this copy they were verified but never produced. /ai:setup branch 9 fills in
-# the framework section, branch 5 edits the label mapping.
-for f in docs/adr/ADR-template.md docs/wiki/README.md docs/agents/workflow.md docs/agents/triage-labels.md; do
+# the framework section, branch 5 edits the label mapping. Only docs a skill
+# reads are written; grill-with-docs creates CONTEXT.md on its first term.
+for f in docs/agents/workflow.md docs/agents/triage-labels.md; do
   if [ -f "$TPL/$f" ]; then
     command cp -n "$TPL/$f" "$TARGET/$f" 2>/dev/null || true
   else

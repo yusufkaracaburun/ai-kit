@@ -79,15 +79,12 @@ my-next-app/
 ├── .cursor/
 │   └── skills/        # parallel symlinks
 ├── docs/
-│   ├── adr/
-│   │   └── ADR-template.md
-│   ├── agents/
-│   │   └── dev-environment.md      # detected: Next.js + pnpm docs URLs
-│   └── wiki/
-│       └── README.md
+│   └── agents/
+│       ├── dev-environment.md      # detected: Next.js + pnpm docs URLs
+│       ├── triage-labels.md
+│       └── workflow.md
 ├── AGENTS.md          # generic, tool-agnostic
 ├── CLAUDE.md          # Claude Code wrapper
-├── CONTEXT.md         # empty domain glossary, ready to fill
 ├── .ai-kit-setup      # setup-mode=solo-both, tier=minimal
 └── (original files)
 ```
@@ -106,7 +103,7 @@ For a solo greenfield project, Tier A is usually enough until the team grows.
 
 ## What to do next
 
-1. Fill `CONTEXT.md` with your domain glossary (use `grill-with-docs` skill).
+1. Run `grill-with-docs` to start `CONTEXT.md`, your domain glossary; it creates the file on the first resolved term.
 2. Write the first PRD with `to-prd` — even rough; it gets refined.
 3. Open an issue list with `to-issues`.
 4. Pick the first ticket and run `tdd` on it.

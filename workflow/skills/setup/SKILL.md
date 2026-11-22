@@ -412,14 +412,14 @@ files (multi-context repos) carry the project's domain language — glossary,
 boundaries, invariants. Agents read these before acting so they don't drift to
 synonyms.
 
-Bootstrap (Branch 1) already copies `CONTEXT.md.template` to the repo root when
-no `CONTEXT.md` exists. This branch is the **fill / extend / skip** decision on
-top of that scaffold — independent of the issue tracker.
+Bootstrap does not write `CONTEXT.md`; `grill-with-docs` creates it when the
+first term is resolved. This branch is the **fill / defer / skip** decision,
+independent of the issue tracker.
 
 > Optional: `CONTEXT.md` holds the project's domain glossary, boundaries, and
-> invariants. Bootstrap left a template at the root.
+> invariants.
 > [1] Walk me through filling it (`grill-with-docs`)  → `filled`
-> [2] Keep the scaffold for later                     → `scaffolded`
+> [2] Later, the first `grill-with-docs` run creates it → `scaffolded`
 > [3] Skip — no domain language to capture yet        → `skipped`
 
 For monorepos or repos with multiple bounded contexts: offer to write
@@ -429,7 +429,8 @@ For monorepos or repos with multiple bounded contexts: offer to write
 Default: brownfield with domain-shaped folders (`app/Domain/`,
 `src/domain/`, `lib/<domain>/`) → offer `filled`; greenfield → `scaffolded`;
 no domain signal → `skipped`. Record the choice in the marker
-(`--domain-docs=scaffolded|filled|skipped`).
+(`--domain-docs=scaffolded|filled|skipped`). The value `scaffolded` now means
+deferred: `grill-with-docs` creates `CONTEXT.md` later.
 
 ### Branch 9 — Agile workflow (optional)
 
