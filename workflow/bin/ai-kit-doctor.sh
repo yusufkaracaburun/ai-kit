@@ -506,25 +506,25 @@ if [ -n "$TARGET" ]; then
       fi
 
       # Check 2 — branch-protection off (requires gh + admin scope).
-      if [ "$_is_gh" = true ] && command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
+      if [ "$_is_gh" = true ] && command -v gh >/dev/null 2>&1 && gh auth status --hostname github.com >/dev/null 2>&1; then
         _owner_repo="$(printf '%s' "$_gh_remote_url" | sed -E 's#.*github\.com[:/]([^/]+/[^/]+)(\.git)?$#\1#' | sed 's/\.git$//')"
         _default_branch="$(gh api "repos/$_owner_repo" --jq .default_branch 2>/dev/null || echo "master")"
         # 200 → protected; 404 → not protected (drift); 403 → not admin (silent skip).
-        _http_out="$(gh api "repos/$_owner_repo/branches/$_default_branch/protection" 2>&1 >/dev/null || true)"
-        case "$_http_out" in
-          *"HTTP 404"*|*"Not Found"*|*"404:"*)
-            warn "branch-protection off on $_owner_repo branch $_default_branch — run /ai:setup-gh-workflow"
-            ;;
-          *"HTTP 403"*|*"Forbidden"*|*"403:"*)
-            info "branch-protection check skipped — not repo admin"
-            ;;
-          "")
-            ok "branch-protection enabled on $_default_branch"
-            ;;
-          *)
-            info "branch-protection check inconclusive ($_http_out)"
-            ;;
-        esac
+        if _http_out="$(gh api "repos/$_owner_repo/branches/$_default_branch/protection" 2>&1 >/dev/null)"; then
+          ok "branch-protection enabled on $_default_branch"
+        else
+          case "$_http_out" in
+            *"HTTP 404"*|*"Not Found"*|*"Branch not protected"*|*"404:"*)
+              warn "branch-protection off on $_owner_repo branch $_default_branch — run /ai:setup-gh-workflow"
+              ;;
+            *"HTTP 403"*|*"Forbidden"*|*"403:"*)
+              info "branch-protection check skipped — not repo admin"
+              ;;
+            *)
+              info "branch-protection check inconclusive ($(printf '%s\n' "$_http_out" | head -1 | grep . || echo "no error output"))"
+              ;;
+          esac
+        fi
       elif [ "$_is_gh" = true ]; then
         info "branch-protection check skipped — gh CLI not authenticated"
       else

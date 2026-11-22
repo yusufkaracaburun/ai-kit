@@ -165,4 +165,31 @@ TMP_SKIP=$(mktemp -d)
 RC_SKIP=$(bash "$DRIVER" "$TMP_SKIP" --skip-dead-links --skip-repo-hygiene --skip-finished-work --no-prompt >/dev/null 2>&1; echo $?)
 assert "--skip-finished-work bypasses section (exit 0)" '[ "$RC_SKIP" = "0" ]'
 
+echo "=== gh-auth-hostname ==="
+# Plain auth status fails, as it does with a second GitHub host in hosts.yml.
+TMP_GHAUTH=$(mktemp -d)
+mkdir -p "$TMP_GHAUTH/stub-bin" "$TMP_GHAUTH/repo"
+(
+  cd "$TMP_GHAUTH/repo"
+  git init -q -b master
+  git config user.email "test@example.com"
+  git config user.name "Test"
+  echo "x" > x; git add x; git commit -q -m "x"
+) >/dev/null 2>&1
+cat > "$TMP_GHAUTH/stub-bin/gh" <<'STUB'
+#!/usr/bin/env bash
+case "$*" in
+  *"auth status --hostname github.com"*) exit 0 ;;
+  *"auth status"*) exit 1 ;;
+  *"pr list"*) echo '[{"number":9,"body":"closes #5","url":"https://example.test/pr/9"}]' ;;
+  *"issue view 5"*"state"*) echo OPEN ;;
+  *"issue view 5"*"title"*) echo "stub issue" ;;
+  *) exit 0 ;;
+esac
+STUB
+chmod +x "$TMP_GHAUTH/stub-bin/gh"
+OUT_GHAUTH="$(PATH="$TMP_GHAUTH/stub-bin:$PATH" bash "$FINISHED" "$TMP_GHAUTH/repo" --no-prompt 2>&1 || true)"
+assert "gh auth pinned to github.com: closable issue listed" 'echo "$OUT_GHAUTH" | grep -qF "#5"'
+rm -rf "$TMP_GHAUTH"
+
 print_summary_and_exit

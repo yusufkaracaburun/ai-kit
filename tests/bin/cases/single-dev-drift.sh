@@ -54,8 +54,10 @@ mkdir -p "$TMP/projB"
   git -c user.email=a@x -c user.name=A commit -q --allow-empty -m c6 )
 cat > "$TMP/stub-bin/gh" <<'STUB'
 #!/usr/bin/env bash
+# Plain auth status fails, as it does with a second GitHub host in hosts.yml.
 case "$*" in
-  *"auth status"*) exit 0 ;;
+  *"auth status --hostname github.com"*) exit 0 ;;
+  *"auth status"*) exit 1 ;;
   *"api repos/fake/projB"*"protection"*) echo "HTTP 404" >&2; exit 1 ;;
   *"api repos/fake/projB"*) echo '{"default_branch":"master"}'; exit 0 ;;
   *) exit 0 ;;
@@ -113,5 +115,33 @@ PATH="$TMP/stub-bin:$PATH" bash "$DOCTOR" "$TMP/projB" >/dev/null 2>&1
 EXIT_B=$?
 set -e
 assert "drift checks never raise to error (exit 2)" '[ "$EXIT_B" -ne 2 ]'
+
+# --- 6. Protection read fails for another reason: inconclusive, not off ---
+# $1 = stderr lines gh prints before exiting 1
+stub_protection_error() {
+  cat > "$TMP/stub-bin/gh" <<STUB
+#!/usr/bin/env bash
+case "\$*" in
+  *"auth status --hostname github.com"*) exit 0 ;;
+  *"api repos/fake/projB"*"protection"*) printf '$1' >&2; exit 1 ;;
+  *"api repos/fake/projB"*) echo '{"default_branch":"master"}'; exit 0 ;;
+  *) exit 0 ;;
+esac
+STUB
+  chmod +x "$TMP/stub-bin/gh"
+}
+stub_protection_error 'error connecting to api.github.com\nsecond line\n'
+OUT_F="$(PATH="$TMP/stub-bin:$PATH" bash "$DOCTOR" "$TMP/projB" 2>&1 || true)"
+assert "network error: protection not reported off" '! echo "$OUT_F" | grep -q "branch-protection off"'
+assert "network error: inconclusive with gh's first stderr line" \
+  'echo "$OUT_F" | grep -qF "branch-protection check inconclusive (error connecting to api.github.com)"'
+assert "network error: gh's later lines not printed" '! echo "$OUT_F" | grep -q "second line"'
+stub_protection_error ''
+OUT_G="$(PATH="$TMP/stub-bin:$PATH" bash "$DOCTOR" "$TMP/projB" 2>&1 || true)"
+assert "silent gh failure: protection not reported enabled" '! echo "$OUT_G" | grep -q "branch-protection enabled"'
+assert "silent gh failure: inconclusive" 'echo "$OUT_G" | grep -q "branch-protection check inconclusive"'
+stub_protection_error 'gh: Branch not protected (HTTP 404)\n'
+OUT_H="$(PATH="$TMP/stub-bin:$PATH" bash "$DOCTOR" "$TMP/projB" 2>&1 || true)"
+assert "Branch not protected: reported off" 'echo "$OUT_H" | grep -q "branch-protection off"'
 
 print_summary_and_exit

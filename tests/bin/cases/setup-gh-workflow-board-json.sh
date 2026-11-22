@@ -11,12 +11,14 @@ echo "=== setup-gh-workflow-board-json ==="
 # section: setup-gh-workflow-board-json
 mkdir -p "$TMP/stub-bin" "$TMP/project"
 ( cd "$TMP/project" && git init -q && git remote add origin git@github.com:acme/demo.git )
-# $1 = ok|fail for gh project list
+# $1 = ok|fail for gh project list, gqlfail for the Status field query.
+# Plain auth status fails, as it does with a second GitHub host in hosts.yml.
 stub_gh() {
   cat > "$TMP/stub-bin/gh" <<STUB
 #!/usr/bin/env bash
 case "\$*" in
-  *"auth status"*) exit 0 ;;
+  *"auth status --hostname github.com"*) exit 0 ;;
+  *"auth status"*) exit 1 ;;
   *"project list"*)
     if [ "$1" = fail ]; then
       echo "HTTP 401: Bad credentials (https://api.github.com/graphql)" >&2
@@ -28,6 +30,11 @@ case "\$*" in
 JSON
     ;;
   *"api graphql"*)
+    if [ "$1" = gqlfail ]; then
+      echo "HTTP 502: Bad Gateway (https://api.github.com/graphql)" >&2
+      echo "second line" >&2
+      exit 1
+    fi
     cat <<'JSON'
 {"data":{"user":{"projectV2":{"id":"PVT_7","field":{"id":"F1","options":[{"id":"O1","name":"Todo"},{"id":"O2","name":"Ready"}]}}}}}
 JSON
@@ -54,5 +61,11 @@ OUT="$(setup_run)"
 assert "gh error shows gh's first stderr line" 'echo "$OUT" | grep -qF "HTTP 401: Bad credentials"'
 assert "gh error does not print gh's later lines" '! echo "$OUT" | grep -q "second line"'
 assert "gh error is not reported as no board" '! echo "$OUT" | grep -q "no existing project board"'
+
+stub_gh gqlfail
+OUT="$(setup_run)"
+assert "graphql error shows gh's first stderr line" 'echo "$OUT" | grep -qF "HTTP 502: Bad Gateway"'
+assert "graphql error does not print gh's later lines" '! echo "$OUT" | grep -q "second line"'
+assert "graphql error is not reported as a missing Status field" '! echo "$OUT" | grep -q "could not resolve Status field"'
 
 print_summary_and_exit

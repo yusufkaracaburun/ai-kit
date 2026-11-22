@@ -59,14 +59,18 @@ echo "=== setup-gh-workflow-board-labels ==="
 # section: setup-gh-workflow-board-labels
 mkdir -p "$TMP/stub-bin" "$TMP/project"
 ( cd "$TMP/project" && git init -q && git remote add origin git@github.com:acme/demo.git )
-# $1 = number of project items the open issues report
+# $1 = number of project items the open issues report, or v2 for a board
+# that shows only in projectsV2 (owned by another owner than the repo).
 stub_gh() {
   cat > "$TMP/stub-bin/gh" <<STUB
 #!/usr/bin/env bash
 case "\$*" in
-  *"auth status"*) exit 0 ;;
+  *"auth status --hostname github.com"*) exit 0 ;;
+  *"auth status"*) exit 1 ;;
   *"api graphql"*"projectItems"*)
-    if [ "$1" -gt 0 ]; then
+    if [ "$1" = v2 ]; then
+      echo '{"data":{"repository":{"issues":{"nodes":[{"projectItems":{"nodes":[]},"projectsV2":{"nodes":[{"id":"PVT_2"}]}}]}}}}'
+    elif [ "$1" -gt 0 ]; then
       echo '{"data":{"repository":{"issues":{"nodes":[{"projectItems":{"nodes":[{"project":{"id":"PVT_1"}}]}}]}}}}'
     else
       echo '{"data":{"repository":{"issues":{"nodes":[{"projectItems":{"nodes":[]}}]}}}}'
@@ -87,6 +91,10 @@ assert "board: P labels not seeded" '! echo "$OUT" | grep -q "label: P0-critical
 assert "board: status:in-progress not seeded" '! echo "$OUT" | grep -q "label: status:in-progress"'
 assert "board: other labels still seeded" 'echo "$OUT" | grep -q "label: ready-for-agent"'
 assert "board: one line says why" '[ "$(echo "$OUT" | grep -c "board found")" -eq 1 ]'
+
+stub_gh v2
+OUT="$(setup_run)"
+assert "board via projectsV2 only: P labels not seeded" '! echo "$OUT" | grep -q "label: P0-critical"'
 
 stub_gh 0
 OUT="$(setup_run)"

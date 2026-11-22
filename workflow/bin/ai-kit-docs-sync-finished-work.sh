@@ -98,7 +98,7 @@ CLOSABLE_ISSUES=()  # entries like `<issue#>|<pr#>|<issue-title>|<pr-url>`
 GH_AVAILABLE=1
 if ! command -v gh >/dev/null 2>&1; then
   GH_AVAILABLE=0
-elif ! gh auth status >/dev/null 2>&1; then
+elif ! gh auth status --hostname github.com >/dev/null 2>&1; then
   GH_AVAILABLE=0
 fi
 

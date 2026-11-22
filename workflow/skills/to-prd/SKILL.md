@@ -41,7 +41,7 @@ If the lead is ambiguous, ask **one** clarifying question. Otherwise proceed.
 
 #### 2. Detect the local environment
 
-- `gh auth status` — is GitHub CLI authenticated?
+- `gh auth status --hostname github.com` — is GitHub CLI authenticated?
 - `git config --get remote.origin.url` — does the repo have a remote?
 - `test -f docs/roadmap.md` — does the roadmap file exist?
 - `gh label list --limit 200 | grep -w "<label>"` — does the chosen label exist?

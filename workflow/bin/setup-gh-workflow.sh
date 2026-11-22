@@ -178,18 +178,20 @@ copy_template "$TEMPLATE_DIR/workflows/gitleaks.yml"            "$TARGET/.github
 repo_has_board() {
   local json
   # shellcheck disable=SC2016
-  json="$(gh api graphql -F owner="$OWNER" -F name="$REPO" -f query='query($owner:String!,$name:String!){repository(owner:$owner,name:$name){issues(states:OPEN,first:50,orderBy:{field:CREATED_AT,direction:DESC}){nodes{projectItems(first:10){nodes{project{id}}}}}}}' 2>/dev/null)" || return 1
+  json="$(gh api graphql -F owner="$OWNER" -F name="$REPO" -f query='query($owner:String!,$name:String!){repository(owner:$owner,name:$name){issues(states:OPEN,first:50,orderBy:{field:CREATED_AT,direction:DESC}){nodes{projectItems(first:10){nodes{project{id}}}projectsV2(first:10){nodes{id}}}}}}' 2>/dev/null)" || return 1
   BOARD_JSON="$json" python3 -c '
 import json, os, sys
 repo = (json.loads(os.environ["BOARD_JSON"]).get("data") or {}).get("repository") or {}
-items = [i for n in (repo.get("issues") or {}).get("nodes") or [] for i in (n.get("projectItems") or {}).get("nodes") or [] if i.get("project")]
-sys.exit(0 if items else 1)
+nodes = (repo.get("issues") or {}).get("nodes") or []
+items = [i for n in nodes for i in (n.get("projectItems") or {}).get("nodes") or [] if i.get("project")]
+linked = [p for n in nodes for p in (n.get("projectsV2") or {}).get("nodes") or [] if p.get("id")]
+sys.exit(0 if items or linked else 1)
 ' 2>/dev/null
 }
 if [ "$SKIP_LABELS" = false ]; then
   if ! command -v gh >/dev/null 2>&1; then
     log "gh CLI not found — skipping label creation. Install: https://cli.github.com/"
-  elif ! gh auth status >/dev/null 2>&1; then
+  elif ! gh auth status --hostname github.com >/dev/null 2>&1; then
     log "gh not authenticated — skipping label creation. Run: gh auth login"
   else
     log "creating/updating labels via gh label create --force"
@@ -221,7 +223,7 @@ fi
 # 5. Detect existing project board, resolve IDs, substitute placeholders.
 # ----------------------------------------------------------------------------
 if [ "$SKIP_PROJECT" = false ]; then
-  if ! command -v gh >/dev/null 2>&1 || ! gh auth status >/dev/null 2>&1; then
+  if ! command -v gh >/dev/null 2>&1 || ! gh auth status --hostname github.com >/dev/null 2>&1; then
     log "gh CLI unavailable or unauthenticated — skipping project-board detection."
     log "  Manual steps after authenticating:"
     log "    gh project create --owner $OWNER --title \"$REPO\""
@@ -279,7 +281,8 @@ if match:
             }
           }
         }
-      ' -F owner="$OWNER" -F number="$PROJECT_NUMBER" 2>/dev/null || echo '{}')"
+      ' -F owner="$OWNER" -F number="$PROJECT_NUMBER" 2>"$GH_ERR")" || GH_FAILED="$(head -1 "$GH_ERR" | grep . || echo "no error output")"
+      rm -f "$GH_ERR"
       RESOLVED="$(FIELDS_JSON="$FIELDS_JSON" python3 -c "
 import json, os, sys
 try:
@@ -329,6 +332,8 @@ PYEOF
         log "  PROJECT_TOKEN secret required — add via:"
         log "    gh secret set PROJECT_TOKEN --repo $OWNER/$REPO"
         log "    (use a PAT with 'project' + 'repo' scope — GITHUB_TOKEN cannot touch Projects v2)"
+      elif [ -n "$GH_FAILED" ]; then
+        log "  gh api graphql failed: $GH_FAILED"
       else
         log "  could not resolve Status field on project #$PROJECT_NUMBER — verify the board has a Status field with Todo/Ready/In Progress/Done options."
       fi

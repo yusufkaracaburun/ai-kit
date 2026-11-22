@@ -174,4 +174,18 @@ assert "missing template dir exits non-zero" '[ "$RC_NOTPL" -ne 0 ]'
 assert "missing template dir names the path" 'echo "$OUT_NOTPL" | grep -qF "template dir not found: $TMP_NOTPL/kit/context/templates"'
 rm -rf "$TMP_NOTPL"
 
+echo "=== bootstrap: missing template file ==="
+TMP_NOFILE=$(mktemp -d)
+mkdir -p "$TMP_NOFILE/kit/context" "$TMP_NOFILE/proj"
+cp -RL "$AIKIT/context/templates" "$TMP_NOFILE/kit/context/"
+rm "$TMP_NOFILE/kit/context/templates/docs/wiki/README.md"
+OUT_NOFILE="$(AI_KIT_ROOT="$TMP_NOFILE/kit" "$AIKIT/bin/bootstrap-project.sh" --minimal --no-rules "$TMP_NOFILE/proj" 2>&1 || true)"
+assert "missing template file is named in a warning" \
+  'echo "$OUT_NOFILE" | grep -qF "warn: template file not found: $TMP_NOFILE/kit/context/templates/docs/wiki/README.md"'
+assert "present template files still copied" '[ -f "$TMP_NOFILE/proj/docs/agents/workflow.md" ]'
+echo "KEEP" > "$TMP_NOFILE/proj/docs/agents/workflow.md"
+AI_KIT_ROOT="$TMP_NOFILE/kit" "$AIKIT/bin/bootstrap-project.sh" --minimal --no-rules "$TMP_NOFILE/proj" >/dev/null 2>&1 || true
+assert "existing docs file not overwritten" 'grep -qx KEEP "$TMP_NOFILE/proj/docs/agents/workflow.md"'
+rm -rf "$TMP_NOFILE"
+
 print_summary_and_exit

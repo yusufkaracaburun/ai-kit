@@ -114,13 +114,16 @@ if [ ! -f "$TARGET/CLAUDE.md" ]; then
 fi
 
 mkdir -p "$TARGET/docs/agents" "$TARGET/docs/adr" "$TARGET/docs/wiki"
-cp -n "$TPL/docs/adr/ADR-template.md" "$TARGET/docs/adr/" 2>/dev/null || true
-cp -n "$TPL/docs/wiki/README.md" "$TARGET/docs/wiki/" 2>/dev/null || true
 # Agile workflow + triage-label mapping. verify-setup.sh checks both; without
 # this copy they were verified but never produced. /ai:setup branch 9 fills in
 # the framework section, branch 5 edits the label mapping.
-cp -n "$TPL/docs/agents/workflow.md" "$TARGET/docs/agents/" 2>/dev/null || true
-cp -n "$TPL/docs/agents/triage-labels.md" "$TARGET/docs/agents/" 2>/dev/null || true
+for f in docs/adr/ADR-template.md docs/wiki/README.md docs/agents/workflow.md docs/agents/triage-labels.md; do
+  if [ -f "$TPL/$f" ]; then
+    cp -n "$TPL/$f" "$TARGET/$f" 2>/dev/null || true
+  else
+    echo "warn: template file not found: $TPL/$f" >&2
+  fi
+done
 
 if [ "$NO_SKILLS" = true ]; then
   echo "Skipped project skill links (--no-skills; use global ~/.claude/skills and ~/.agents/skills)"
