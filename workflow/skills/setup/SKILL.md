@@ -21,6 +21,8 @@ One branch at a time: Explore → Finding → Recommendation → Question → Ap
 
 If `.ai-kit-setup` exists: **keep / change / skip** per branch.
 
+In a `role=lead` session, hand the write and verify steps to one general-purpose subagent. Lead-guard denies them inline.
+
 Guides: [agent-stack-guide.md](./agent-stack-guide.md) · [automation-guide.md](./automation-guide.md) · [docker-guide.md](./docker-guide.md) · [architecture-guide.md](./architecture-guide.md)
 
 Templates: `$AI_KIT_ROOT/context/templates/docs/agents/`
