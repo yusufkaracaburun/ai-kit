@@ -7,7 +7,7 @@ description: Ranked "what's next" list for the current project — combines open
 
 Show the highest-value open work for this project, ordered. Three sources merged into one ranked list:
 
-1. **GitHub issues** — `gh issue list --state open`, plus two `gh api graphql` calls: one reads each issue's Priority issue field (matched by name), the other the Status field of its GitHub Projects items. The Priority issue field wins; `P0-`/`P1-`/`P2-`/`P3-` labels (installed by `setup-gh-workflow.sh`) are the fallback for repos without a board. Bonus for `status:in-progress` or Status Doing (finish before start) and `ready-for-agent` or Status Next (queue-drainable). Items with Status Blocked or Done are left out. Each call fails on its own (no network, missing scope) and that part falls back to labels. Status needs the `read:project` scope; add it with `gh auth refresh -s read:project`.
+1. **GitHub issues** — `gh issue list --state open`, plus two `gh api graphql` calls: one reads each issue's Priority issue field (matched by name), the other the Status field of its GitHub Projects items. The Priority issue field wins; `P0-`/`P1-`/`P2-`/`P3-` labels (installed by `setup-gh-workflow.sh`) are the fallback for repos without a board. Bonus for `status:in-progress` or Status Doing (finish before start) and `ready-for-agent` or Status Next (queue-drainable). Items with Status Blocked or Done are left out. A card in Doing or Next that still carries `needs-triage` or `needs-info` gets one warning line above the list; ranking does not change. Each call fails on its own (no network, missing scope) and that part falls back to labels. Status needs the `read:project` scope; add it with `gh auth refresh -s read:project`.
 2. **Roadmap-only tasks** — open `- [ ] …` checkboxes in `docs/roadmap.md` (or `ROADMAP.md` / `.planning/roadmap.md`). Closed `[x]` and free prose bullets are skipped.
 3. **Setup-deferred branches** — anything in `.ai-kit-setup` with value `"deferred"` (e.g. `automation_recommender: deferred`).
 
@@ -44,7 +44,7 @@ Highest score first. Tie-broken by recency.
 
 The top item drives the recommendation. Propose it; do not run it. The user picks.
 
-- **`status:in-progress`** → continue the existing branch / WIP. Do not start anything new.
+- **Status Doing or `status:in-progress`** → continue the existing branch / WIP. Do not start anything new.
 - **`ready-for-agent`** → `/ai:autonomous` to drain the queue (or hand the issue # to a fresh chat).
 - **Roadmap-only** → `/ai:to-prd defer` to open a GH issue + roadmap link (so it earns a P-label).
 - **Setup-deferred** → re-run `/ai:setup` and pick `change` on the relevant branch.

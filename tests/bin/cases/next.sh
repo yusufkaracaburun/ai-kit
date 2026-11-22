@@ -120,7 +120,9 @@ cat > "$TMP_PF/issues.json" <<JSON
   {"number": 14, "title": "Next twice", "labels": [{"name":"ready-for-agent"}], "updatedAt": "$NOW", "url": "u14", "assignees": []},
   {"number": 15, "title": "Blocked item", "labels": [{"name":"P0-critical"}], "updatedAt": "$NOW", "url": "u15", "assignees": []},
   {"number": 16, "title": "Done item", "labels": [], "updatedAt": "$NOW", "url": "u16", "assignees": []},
-  {"number": 17, "title": "Doing field", "labels": [{"name":"P2-medium"}], "updatedAt": "$NOW", "url": "u17", "assignees": []}
+  {"number": 17, "title": "Doing field", "labels": [{"name":"P2-medium"}], "updatedAt": "$NOW", "url": "u17", "assignees": []},
+  {"number": 18, "title": "Doing untriaged", "labels": [{"name":"needs-triage"}], "updatedAt": "$NOW", "url": "u18", "assignees": []},
+  {"number": 19, "title": "Blocked plain", "labels": [], "updatedAt": "$NOW", "url": "u19", "assignees": []}
 ]
 JSON
 cat > "$TMP_PF/graphql.json" <<'JSON'
@@ -132,7 +134,9 @@ cat > "$TMP_PF/graphql.json" <<'JSON'
   {"number": 14, "issueFieldValues": {"nodes": []}, "projectItems": {"nodes": [{"status": {"name": "Next"}}]}},
   {"number": 15, "issueFieldValues": {"nodes": [{"name": "Urgent", "field": {"name": "Priority"}}]}, "projectItems": {"nodes": [{"status": {"name": "Blocked"}}]}},
   {"number": 16, "issueFieldValues": {"nodes": [{"name": "Low", "field": {"name": "Priority"}}]}, "projectItems": {"nodes": [{"status": {"name": "Done"}}]}},
-  {"number": 17, "issueFieldValues": {"nodes": []}, "projectItems": {"nodes": [{"status": {"name": "Doing"}}]}}
+  {"number": 17, "issueFieldValues": {"nodes": []}, "projectItems": {"nodes": [{"status": {"name": "Doing"}}]}},
+  {"number": 18, "issueFieldValues": {"nodes": []}, "projectItems": {"nodes": [{"status": {"name": "Doing"}}]}},
+  {"number": 19, "issueFieldValues": {"nodes": []}, "projectItems": {"nodes": [{"status": {"name": "Blocked"}}]}}
 ]}}}}
 JSON
 pf_field() {
@@ -147,6 +151,11 @@ assert "next: Status Next gives +20" '[ "$(pf_field "$OUT_PF" 13 score)" -eq 25 
 assert "next: Status Next + ready-for-agent label counts +20 once" '[ "$(pf_field "$OUT_PF" 14 score)" -eq 25 ]'
 assert "next: Status Blocked item absent" '[ "$(pf_field "$OUT_PF" 15 number)" = "absent" ]'
 assert "next: Status Done item absent" '[ "$(pf_field "$OUT_PF" 16 number)" = "absent" ]'
+
+OUT_PF_TEXT="$(STUB_DATA="$TMP_PF" PATH="$TMP_PF/stubs:$PATH" "$AIKIT/bin/ai-kit-next.sh" "$TMP_PF" --no-roadmap 2>&1)"
+assert "next: Doing with needs-triage warns once" '[ "$(echo "$OUT_PF_TEXT" | grep -c "warning: #18 is in Doing but labelled needs-triage")" -eq 1 ]'
+assert "next: clean cards and plain Blocked do not warn" '[ "$(echo "$OUT_PF_TEXT" | grep -c "warning:")" -eq 1 ]'
+assert "next: clash warning does not change ranking" '[ "$(pf_field "$OUT_PF" 18 score)" -eq 55 ]'
 
 OUT_PF_STATUS="$(STUB_STATUS_FAIL=1 STUB_DATA="$TMP_PF" PATH="$TMP_PF/stubs:$PATH" "$AIKIT/bin/ai-kit-next.sh" "$TMP_PF" --no-roadmap --json 2>&1)"
 assert "next: Status query failure keeps Priority field ranking" '[ "$(pf_field "$OUT_PF_STATUS" 10 priority)" = "P1" ] && [ "$(pf_field "$OUT_PF_STATUS" 15 priority)" = "P0" ]'

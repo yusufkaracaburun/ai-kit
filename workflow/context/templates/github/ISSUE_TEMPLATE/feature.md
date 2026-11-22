@@ -7,7 +7,7 @@ labels: [enhancement]
 
 ## Triage
 
-- **Priority:** P0-critical / P1-high / P2-medium / P3-low
+- **Priority:** Priority-veld (Urgent / High / Medium / Low), of een P-label (P0-critical / P1-high / P2-medium / P3-low) als de repo geen veld heeft
 - **Epic:** epic/<name>
 - **Area:** area/<name> (kies één of meer)
 - **Depends on:** #N / extern (<wat>) / geen
@@ -26,7 +26,7 @@ labels: [enhancement]
 
 ## Definition of Ready (vóór "In Progress")
 
-- [ ] Priority + Epic + Area labels gezet
+- [ ] Priority-veld gezet (of een P-label als de repo geen veld heeft) + Epic + Area labels gezet
 - [ ] Depends-on expliciet (issue#, externe afhankelijkheid, of "geen")
 - [ ] Ready to start: YES — geen onbeantwoorde vragen of missende inputs
 

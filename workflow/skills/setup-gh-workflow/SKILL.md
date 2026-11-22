@@ -29,11 +29,11 @@ Also fires automatically as part of `/ai:setup` when the project has a GitHub re
 | `.github/ISSUE_TEMPLATE/spike.md` | Time-boxed research template — adds Time-box + ADR-output DoD |
 | `.github/ISSUE_TEMPLATE/config.yml` | Disables blank issues; links to project board |
 | `.github/workflows/dor-dod-enforcement.yml` | On close → check DoD, reopen if unchecked. On `labeled status:in-progress` → check DoR, strip label if unchecked. |
-| `.github/workflows/auto-promote-ready.yml` | Todo → Ready on board when DoR all checked + `P[0-3]-*` + `epic/*` + `area/*` labels set. Forward-only. |
+| `.github/workflows/auto-promote-ready.yml` | Todo → Ready on board when DoR all checked + priority (Priority issue field, or a `P[0-3]-*` label) + `epic/*` + `area/*` labels set. Forward-only. |
 | `.github/workflows/gitleaks.yml` | Blocks secrets *added* by the pushed range — not full history, which goes red forever on any pre-existing finding. `ai-kit-secrets-gate.sh` checks for this file. |
 | `.github/PULL_REQUEST_TEMPLATE.md` | DoR/DoD PR checklist — scaffolded only when absent from all three GitHub-honored paths |
 | Branch protection on the default branch | `gh api PUT` — ≥1 approving review, no force-push, no deletion. 403 → prints manual checklist, exits 0 |
-| Labels (via `gh label create --force`) | Priority `P0-critical`…`P3-low` · epics `epic/core`, `epic/ux` · areas `area/backend`, `area/frontend`, `area/infra`, `area/docs` · flow `status:in-progress` · triage `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix` |
+| Labels (via `gh label create --force`) | Priority `P0-critical`…`P3-low` (skipped when the repo has a board) · epics `epic/core`, `epic/ux` · areas `area/backend`, `area/frontend`, `area/infra`, `area/docs` · flow `status:in-progress` (skipped when the repo has a board) · triage `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix` |
 
 ## Process
 
@@ -49,7 +49,7 @@ The script:
 
 1. **Detects** the GitHub remote (`git remote get-url origin`). Silent exit if not `github.com`.
 2. **Copies** templates + workflows from `context/templates/github/`. **Never overwrites** existing files — pass `--force` to opt in.
-3. **Bulk-creates labels** via `gh label create --force` (idempotent — updates color/description on re-run).
+3. **Bulk-creates labels** via `gh label create --force` (idempotent — updates color/description on re-run). When the repo's open issues are on a Projects v2 board, it skips `P0-P3` and `status:in-progress` and prints one line why: the Priority field and the Doing column are the source there.
 4. **Detects** existing GitHub Project for the repo owner; if found, resolves the Status field ID + Todo/Ready option IDs via `gh api graphql` and substitutes them into `auto-promote-ready.yml`. If no project board, prints the manual setup steps.
 5. **Scaffolds** `.github/PULL_REQUEST_TEMPLATE.md` — skipped when a template already sits at any of the three paths GitHub honors.
 6. **Applies** branch protection on the default branch (≥1 approving review). A 403 means no admin scope: the script prints the exact `gh api PUT` command for an admin and exits 0. Drift warns, never breaks.
@@ -79,13 +79,13 @@ Two things the script intentionally does not do silently (config anti-pattern):
 
 Every new issue must carry:
 
-- One `P[0-3]-*` label (priority).
+- A priority: the Priority issue field (Urgent / High / Medium / Low), or one `P[0-3]-*` label if the repo has no field.
 - One `epic/*` label (epic membership).
 - One or more `area/*` labels (where in the codebase).
 
-To start work, add `status:in-progress`. The DoR workflow strips the label if any DoR checkbox is unchecked. To close, every DoD checkbox must be ticked or the close workflow reopens the issue.
+To start work, move the card to Doing on the board. In a repo without a board, add `status:in-progress`. The DoR workflow strips the label if any DoR checkbox is unchecked. To close, every DoD checkbox must be ticked or the close workflow reopens the issue.
 
-Issues already on the project board with all DoR checkboxes + the three required label categories filled auto-promote Todo → Ready.
+Issues already on the project board with all DoR checkboxes + a priority, an `epic/*` and an `area/*` label auto-promote Todo → Ready.
 
 ## Boundaries
 

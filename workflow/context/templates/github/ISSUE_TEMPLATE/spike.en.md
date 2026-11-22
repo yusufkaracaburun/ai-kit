@@ -7,7 +7,7 @@ labels: [enhancement]
 
 ## Triage
 
-- **Priority:** P0-critical / P1-high / P2-medium / P3-low
+- **Priority:** Priority field (Urgent / High / Medium / Low), or a P label (P0-critical / P1-high / P2-medium / P3-low) if the repo has no field
 - **Epic:** epic/<name>
 - **Area:** area/<name>
 - **Depends on:** #N / external / none
@@ -27,7 +27,7 @@ labels: [enhancement]
 
 ## Definition of Ready (before "In Progress")
 
-- [ ] Priority + Epic + Area labels set
+- [ ] Priority field set (or a P label if the repo has no field) + Epic + Area labels set
 - [ ] Time-box explicit
 - [ ] Goal + decision list concrete (no "research X" without scope)
 

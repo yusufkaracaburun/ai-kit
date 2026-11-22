@@ -11,10 +11,12 @@ cat > "$TMP_IM/stubs/gh" <<'STUB'
 printf '%s\n' "$*" >> "$STUB_DATA/calls.log"
 [ -z "${STUB_FAIL:-}" ] || { echo "HTTP 403: Resource not accessible" >&2; echo "second line" >&2; exit 1; }
 case "$*" in
-  *setIssueFieldValue*|*addProjectV2ItemById*) echo '{"data":{}}' ;;
+  *updateProjectV2ItemFieldValue*) [ -z "${STUB_FAIL_STATUS:-}" ] || { echo "HTTP 403: Resource not accessible" >&2; exit 1; }; echo '{"data":{}}' ;;
+  *addProjectV2ItemById*) cat "$STUB_DATA/add.json" 2>/dev/null || echo '{"data":{}}' ;;
+  *setIssueFieldValue*) echo '{"data":{}}' ;;
   *issueTypes*) cat "$STUB_DATA/meta.json" ;;
   *issueFieldValues*) cat "$STUB_DATA/parent.json" ;;
-  "api -X PATCH "*|"api -X POST "*|"api -X PUT "*) echo '{}' ;;
+  "api -X PATCH "*|"api -X POST "*|"api -X PUT "*|"api -X DELETE "*) echo '{}' ;;
   *) exit 1 ;;
 esac
 STUB
@@ -22,13 +24,13 @@ chmod +x "$TMP_IM/stubs/gh"
 (cd "$TMP_IM" && git init -q && git remote add origin git@github.com:acme/demo.git)
 
 write_meta() {
-  local types="$1" fields="$2" projects="$3" own="${4:-}" more="${5:-false}"
+  local types="$1" fields="$2" projects="$3" own="${4:-}" more="${5:-false}" items="${6:-}"
   cat > "$TMP_IM/meta.json" <<JSON
 {"data":{"repository":{
   "issueTypes":{"nodes":[$types]},
   "issueFields":{"nodes":[$fields]},
   "issues":{"nodes":[$projects]},
-  "issue":{"id":"I_new","labels":{"nodes":[$own],"pageInfo":{"hasNextPage":$more}},"issueFieldValues":{"nodes":[$own]}}}}}
+  "issue":{"id":"I_new","labels":{"nodes":[$own],"pageInfo":{"hasNextPage":$more}},"issueFieldValues":{"nodes":[$own]},"projectItems":{"nodes":[$items]}}}}}
 JSON
 }
 TYPES='{"id":"IT_t","name":"Task"},{"id":"IT_b","name":"Bug"},{"id":"IT_f","name":"Feature"}'
@@ -122,6 +124,59 @@ assert "issue-meta: no board says so" 'echo "$OUT" | grep -q "no board"'
 assert "issue-meta: Priority still set without types or board" 'echo "$CALLS" | grep -q setIssueFieldValue'
 
 echo ""
+echo "=== ai-kit-issue-meta: --status moves the card and drops clashing labels ==="
+STATUS_FIELD='{"id":"F_st","options":[{"id":"S_bl","name":"Backlog"},{"id":"S_next","name":"Next"},{"id":"S_doing","name":"Doing"},{"id":"S_blocked","name":"Blocked"},{"id":"S_done","name":"Done"}]}'
+ITEMS='{"id":"PVTI_other","project":{"id":"PVT_a","field":'"$STATUS_FIELD"'}},{"id":"PVTI_on","project":{"id":"PVT_b","field":'"$STATUS_FIELD"'}}'
+write_meta "$TYPES" "$PRIO" "$BOARDS" '{"name":"needs-triage"},{"name":"area-x"}' false "$ITEMS"
+run_meta 61 --status Next
+assert "issue-meta: --status exits 0" '[ "$RC" -eq 0 ]'
+assert "issue-meta: --status sets the option on the derived board's item" 'echo "$CALLS" | grep "updateProjectV2ItemFieldValue" | grep "projectId=PVT_b" | grep "itemId=PVTI_on" | grep "fieldId=F_st" | grep -q "optionId=S_next"'
+assert "issue-meta: move to Next drops needs-triage in one replace" 'echo "$CALLS" | grep "api -X PUT repos/{owner}/{repo}/issues/61/labels" | grep "labels\[\]=area-x" | grep -vq "needs-triage" && [ "$(echo "$CALLS" | grep -c "/labels")" -eq 1 ]'
+assert "issue-meta: --status alone sets no type, Priority or board" '! echo "$CALLS" | grep -q "type=\|setIssueFieldValue\|addProjectV2ItemById"'
+assert "issue-meta: --status summary" 'echo "$OUT" | grep -q "#61 set Status Next, removed needs-triage$"'
+
+write_meta "$TYPES" "$PRIO" "$BOARDS" '{"name":"needs-info"}' false "$ITEMS"
+run_meta 62 --status Blocked
+assert "issue-meta: move to Blocked sets Blocked" 'echo "$CALLS" | grep "updateProjectV2ItemFieldValue" | grep -q "optionId=S_blocked"'
+assert "issue-meta: move to Blocked keeps needs-info" '! echo "$CALLS" | grep -q "/labels"'
+write_meta "$TYPES" "$PRIO" "$BOARDS" '{"name":"needs-info"}' false "$ITEMS"
+run_meta 62 --status Doing
+assert "issue-meta: leaving Blocked drops needs-info, the last label, in one delete" 'echo "$CALLS" | grep -q "api -X DELETE repos/{owner}/{repo}/issues/62/labels$" && [ "$(echo "$CALLS" | grep -c "/labels")" -eq 1 ]'
+
+write_meta "$TYPES" "$PRIO" "$BOARDS"
+echo '{"data":{"addProjectV2ItemById":{"item":{"id":"PVTI_new","project":{"id":"PVT_b","field":'"$STATUS_FIELD"'}}}}}' > "$TMP_IM/add.json"
+run_meta 63 --status Doing
+assert "issue-meta: card not on the board yet is added first" 'echo "$CALLS" | grep "addProjectV2ItemById" | grep -q "projectId=PVT_b"'
+assert "issue-meta: added card gets its Status" 'echo "$CALLS" | grep "updateProjectV2ItemFieldValue" | grep "itemId=PVTI_new" | grep -q "optionId=S_doing"'
+
+write_meta "$TYPES" "" "$BOARDS" '{"name":"needs-triage"},{"name":"area-x"}' false "$ITEMS"
+run_meta 64 --type Task --priority Low --status Next
+assert "issue-meta: P label and clash removal share one label write" 'echo "$CALLS" | grep "api -X PUT repos/{owner}/{repo}/issues/64/labels" | grep "labels\[\]=area-x" | grep "labels\[\]=P3-low" | grep -vq "needs-triage" && [ "$(echo "$CALLS" | grep -c "/labels")" -eq 1 ]'
+assert "issue-meta: card already on board is not re-added" '! echo "$CALLS" | grep -q addProjectV2ItemById'
+rm -f "$TMP_IM/add.json"
+
+MULTI_FIELD='{"id":"F_st","options":[{"id":"S_nd","name":"Not Done"},{"id":"S_ip","name":"In Progress"},{"id":"S_done","name":"Done"}]}'
+write_meta "$TYPES" "$PRIO" "$BOARDS" "" false '{"id":"PVTI_on","project":{"id":"PVT_b","field":'"$MULTI_FIELD"'}}'
+run_meta 67 --status Done
+assert "issue-meta: Status Done matches only Done, not Not Done" 'echo "$CALLS" | grep "updateProjectV2ItemFieldValue" | grep -q "optionId=S_done -f query" && [ "$(echo "$CALLS" | grep -c updateProjectV2ItemFieldValue)" -eq 1 ]'
+VERY='{"id":"F_prio","name":"Priority","options":[{"id":"O_vh","name":"Very High"},{"id":"O_h","name":"High"}]}'
+write_meta "$TYPES" "$VERY" "$BOARDS"
+run_meta 68 --type Task --priority High
+assert "issue-meta: Priority High matches only High, not Very High" 'echo "$CALLS" | grep "setIssueFieldValue" | grep -q "optionId=O_h -f query"'
+
+write_meta "$TYPES" "$PRIO" '{"projectItems":{"nodes":[]}}' '{"name":"needs-triage"}'
+run_meta 65 --status Next
+assert "issue-meta: --status without board exits 0" '[ "$RC" -eq 0 ]'
+assert "issue-meta: --status without board skips status and labels" '! echo "$CALLS" | grep -q "updateProjectV2ItemFieldValue\|/labels" && echo "$OUT" | grep -q "no board.*Status skipped"'
+
+write_meta "$TYPES" "$PRIO" "$BOARDS" '{"name":"needs-triage"}' false "$ITEMS"
+RC_ST=0
+OUT_ST="$(cd "$TMP_IM" && STUB_FAIL_STATUS=1 STUB_DATA="$TMP_IM" PATH="$TMP_IM/stubs:$PATH" "$AIKIT/bin/ai-kit-issue-meta.sh" 66 --status Next 2>&1)" || RC_ST=$?
+assert "issue-meta: Status write failure exits 0" '[ "$RC_ST" -eq 0 ]'
+assert "issue-meta: Status failure carries gh's first stderr line" 'echo "$OUT_ST" | grep -q "setting Status Next failed: HTTP 403: Resource not accessible$"'
+assert "issue-meta: Status failure leaves labels alone" '! echo "$OUT_ST" | grep -q "removed"'
+
+echo ""
 echo "=== ai-kit-issue-meta: API failure and bad args ==="
 write_meta "$TYPES" "$PRIO" "$BOARDS"
 RC_FAIL=0
@@ -146,7 +201,8 @@ mv "$TMP_IM/gh.ok" "$TMP_IM/stubs/gh"
 
 rm -f "$TMP_IM/calls.log"
 for bad in "" "--type Task" "42" "42 --type Epic" "42 --type Task --priority P1" "42 --type Task --bogus" \
-  "https://github.com/ac\$me/demo/issues/1 --type Task" "https://github.com/acme/demo/issues/45abc --type Task"; do
+  "https://github.com/ac\$me/demo/issues/1 --type Task" "https://github.com/acme/demo/issues/45abc --type Task" \
+  "42 --status Doing2" "42 --priority High" "42 --status Next --parent 40"; do
   RC_BAD=0
   # shellcheck disable=SC2086
   (cd "$TMP_IM" && STUB_DATA="$TMP_IM" PATH="$TMP_IM/stubs:$PATH" "$AIKIT/bin/ai-kit-issue-meta.sh" $bad >/dev/null 2>&1) || RC_BAD=$?

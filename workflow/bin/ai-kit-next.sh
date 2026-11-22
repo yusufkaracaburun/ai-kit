@@ -15,6 +15,7 @@
 #   +50  status:in-progress or Status Doing  (finish before start)
 #   +20  ready-for-agent or Status Next       (queue-drainable)
 #   Status Blocked or Done: left out of the list.
+#   Doing or Next with needs-triage or needs-info: one warning line, ranking unchanged.
 #   +10  area/* matches current branch name
 #   -1   per week since last update (stale penalty)
 #
@@ -179,6 +180,7 @@ def project_fields():
 
 fields = project_fields()
 items = []
+warnings = []
 gh_issue_numbers = set()
 now = datetime.now(timezone.utc)
 
@@ -186,6 +188,9 @@ for iss in gh_issues:
     labels = label_names(iss)
     field_prios, statuses = fields.get(iss.get("number"), (set(), set()))
     gh_issue_numbers.add(iss.get("number"))
+    columns, clashes = sorted(statuses & {"Doing", "Next"}), sorted(set(labels) & {"needs-triage", "needs-info"})
+    if columns and clashes:
+        warnings.append(f"  warning: #{iss.get('number')} is in {' and '.join(columns)} but labelled {', '.join(clashes)}")
     if statuses & {"Blocked", "Done"}:
         continue
     p_score = 0
@@ -302,6 +307,9 @@ print(f"ai-kit next — top {len(top)} for {os.path.basename(TARGET.rstrip('/'))
 if CURRENT_BRANCH:
     print(f"  branch: {CURRENT_BRANCH}")
 print("")
+if warnings:
+    print("\n".join(warnings))
+    print("")
 for i, it in enumerate(top, 1):
     p = it.get("priority") or "P?"
     if it["kind"] == "gh":

@@ -173,7 +173,7 @@ Do not run phase-2 inside this skill. The whole point of capture-and-bundle is t
 The skill defaults all come from a manual session 2026-05-28 on a Laravel app — the user emitted 89 findings across 4 roles on 2 hosts in 2-3 hours, ending with:
 - app issue A — 72 findings, 3 rollen, ouder/gast/schooladmin op demo.example, `area/portal`
 - app issue B — 17 findings, 2 rollen, central_admin + schoolbestuur op admin.example, `area/admin`
-- app issue C — follow-up todo voor 3 nog-te-doen rol-sessies, `P1-high`
-- app issue D — design-system tracker dat opkwam tijdens sessie, `P0-critical`
+- app issue C — follow-up todo voor 3 nog-te-doen rol-sessies, Priority High (fallback label `P1-high`)
+- app issue D — design-system tracker dat opkwam tijdens sessie, Priority Urgent (fallback label `P0-critical`)
 
 Plan file from that run: `<app>/.agents/plans/ik-wil-nu-handmatige-lively-rainbow.md`.

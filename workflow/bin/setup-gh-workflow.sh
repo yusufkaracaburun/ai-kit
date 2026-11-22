@@ -9,7 +9,7 @@
 #      Plus gitleaks.yml — the secrets gate ai-kit-secrets-gate.sh checks for.
 #   3. Bulk-create labels (P0-P3 priorities, epic/* placeholders, area/*
 #      categories, status:in-progress, triage roles) via `gh label create`
-#      — idempotent.
+#      — idempotent. Repos with a board skip P0-P3 and status:in-progress.
 #   4. Detect existing GitHub Project for the repo owner; if found, resolve
 #      PROJECT_NUMBER / STATUS_FIELD_ID / option IDs via `gh api graphql`
 #      and substitute the AI_KIT_PROJECT_* placeholders in
@@ -171,7 +171,21 @@ copy_template "$TEMPLATE_DIR/workflows/gitleaks.yml"            "$TARGET/.github
 # ----------------------------------------------------------------------------
 # 4. Bulk-create labels via `gh label create`.
 #    Idempotent: --force updates color/description on existing labels.
+#    A repo whose open issues sit on a Projects v2 board gets no P0-P3 or
+#    status:in-progress: the Priority field and the Doing column replace them.
 # ----------------------------------------------------------------------------
+# shortcut: looks at the 50 newest open issues like ai-kit-issue-meta.sh; page if repos outgrow that.
+repo_has_board() {
+  local json
+  # shellcheck disable=SC2016
+  json="$(gh api graphql -F owner="$OWNER" -F name="$REPO" -f query='query($owner:String!,$name:String!){repository(owner:$owner,name:$name){issues(states:OPEN,first:50,orderBy:{field:CREATED_AT,direction:DESC}){nodes{projectItems(first:10){nodes{project{id}}}}}}}' 2>/dev/null)" || return 1
+  BOARD_JSON="$json" python3 -c '
+import json, os, sys
+repo = (json.loads(os.environ["BOARD_JSON"]).get("data") or {}).get("repository") or {}
+items = [i for n in (repo.get("issues") or {}).get("nodes") or [] for i in (n.get("projectItems") or {}).get("nodes") or [] if i.get("project")]
+sys.exit(0 if items else 1)
+' 2>/dev/null
+}
 if [ "$SKIP_LABELS" = false ]; then
   if ! command -v gh >/dev/null 2>&1; then
     log "gh CLI not found — skipping label creation. Install: https://cli.github.com/"
@@ -180,6 +194,11 @@ if [ "$SKIP_LABELS" = false ]; then
   else
     log "creating/updating labels via gh label create --force"
     LABELS_JSON="$TEMPLATE_DIR/labels.json"
+    BOARD_LABELS=keep
+    if repo_has_board; then
+      BOARD_LABELS=skip
+      log "  board found on open issues: skipping P0-P3 and status:in-progress (Priority field and Doing column are the source)"
+    fi
     while IFS=$'\t' read -r name color description; do
       [ -z "$name" ] && continue
       run gh label create "$name" \
@@ -189,8 +208,10 @@ if [ "$SKIP_LABELS" = false ]; then
         --force >/dev/null 2>&1 || log "  warn: label create failed for '$name'"
       log "  label: $name"
     done < <(python3 -c "
-import json, sys
+import json, re, sys
 for l in json.load(open('$LABELS_JSON')):
+    if '$BOARD_LABELS' == 'skip' and (re.match(r'P[0-3]-', l['name']) or l['name'] == 'status:in-progress'):
+        continue
     print(l['name'] + '\t' + l['color'] + '\t' + l['description'])
 ")
   fi

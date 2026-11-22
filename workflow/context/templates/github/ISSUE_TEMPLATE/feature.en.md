@@ -7,7 +7,7 @@ labels: [enhancement]
 
 ## Triage
 
-- **Priority:** P0-critical / P1-high / P2-medium / P3-low
+- **Priority:** Priority field (Urgent / High / Medium / Low), or a P label (P0-critical / P1-high / P2-medium / P3-low) if the repo has no field
 - **Epic:** epic/<name>
 - **Area:** area/<name> (pick one or more)
 - **Depends on:** #N / external (<what>) / none
@@ -26,7 +26,7 @@ labels: [enhancement]
 
 ## Definition of Ready (before "In Progress")
 
-- [ ] Priority + Epic + Area labels set
+- [ ] Priority field set (or a P label if the repo has no field) + Epic + Area labels set
 - [ ] Depends-on explicit (issue#, external dependency, or "none")
 - [ ] Ready to start: YES — no unanswered questions or missing inputs
 

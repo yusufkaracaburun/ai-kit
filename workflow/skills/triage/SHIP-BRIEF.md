@@ -12,6 +12,7 @@ Skills that hand off to it: `to-prd` (Defer mode), `autonomous`, `harvest`, `dia
 - A failed hook, a denied commit or push, or a red CI check is a stop: report the command and its output, change nothing else.
 - Merge only when the field says so and the project's merge policy allows it. Deploy only when the user approved this deploy in this conversation; otherwise stop before it and print the deploy command (see the `deployment-on-demand` rule).
 - Never `git reset`, `git checkout --`, `git stash` or `git clean`.
+- After a merge for `Fixes #N`, check the issue closed: `gh issue view N --json state,projectItems`. A merge into an `epic/*` branch does not auto-close, so close it with `gh issue close N --comment "Shipped in <PR url>"`. A card not yet in `Done` moves with `bash "${CLAUDE_PLUGIN_ROOT:-$HOME/.config/ai-kit/plugin-current}/bin/ai-kit-issue-meta.sh" N --status Done`. A `refs #N` slice stays open.
 
 ## Template
 
@@ -36,6 +37,7 @@ Skills that hand off to it: `to-prd` (Defer mode), `autonomous`, `harvest`, `dia
 - PR: <url> | none
 - Merge: <state> | none
 - Deploy: <state> | not approved: <command> | none
+- #N closed, board Done | #N open: <why, for example refs slice or no board>
 
 ## Stopped at
 <step, exact command, the failing output's decisive line>   (omit when nothing stopped)
