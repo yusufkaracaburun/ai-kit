@@ -12,7 +12,7 @@ printf '%s\n' "$*" >> "$STUB_DATA/calls.log"
 [ -z "${STUB_FAIL:-}" ] || { echo "HTTP 403: Resource not accessible" >&2; echo "second line" >&2; exit 1; }
 case "$*" in
   *updateProjectV2ItemFieldValue*) [ -z "${STUB_FAIL_STATUS:-}" ] || { echo "HTTP 403: Resource not accessible" >&2; exit 1; }; echo '{"data":{}}' ;;
-  *addProjectV2ItemById*) cat "$STUB_DATA/add.json" 2>/dev/null || echo '{"data":{}}' ;;
+  *addProjectV2ItemById*) [ -z "${STUB_FAIL_ADD:-}" ] || { echo "HTTP 403: Resource not accessible" >&2; exit 1; }; cat "$STUB_DATA/add.json" 2>/dev/null || echo '{"data":{}}' ;;
   *setIssueFieldValue*) echo '{"data":{}}' ;;
   *issueTypes*) cat "$STUB_DATA/meta.json" ;;
   *issueFieldValues*) cat "$STUB_DATA/parent.json" ;;
@@ -24,18 +24,18 @@ chmod +x "$TMP_IM/stubs/gh"
 (cd "$TMP_IM" && git init -q && git remote add origin git@github.com:acme/demo.git)
 
 write_meta() {
-  local types="$1" fields="$2" projects="$3" own="${4:-}" more="${5:-false}" items="${6:-}"
+  local types="$1" fields="$2" projects="$3" own="${4:-}" more="${5:-false}" items="${6:-}" boards="${7:-}"
   cat > "$TMP_IM/meta.json" <<JSON
 {"data":{"repository":{
   "issueTypes":{"nodes":[$types]},
   "issueFields":{"nodes":[$fields]},
   "issues":{"nodes":[$projects]},
-  "issue":{"id":"I_new","labels":{"nodes":[$own],"pageInfo":{"hasNextPage":$more}},"issueFieldValues":{"nodes":[$own]},"projectItems":{"nodes":[$items]}}}}}
+  "issue":{"id":"I_new","labels":{"nodes":[$own],"pageInfo":{"hasNextPage":$more}},"issueFieldValues":{"nodes":[$own]},"projectItems":{"nodes":[$items]},"projectsV2":{"nodes":[$boards]}}}}}
 JSON
 }
 TYPES='{"id":"IT_t","name":"Task"},{"id":"IT_b","name":"Bug"},{"id":"IT_f","name":"Feature"}'
 PRIO='{"id":"F_prio","name":"Priority","options":[{"id":"O_u","name":"Urgent"},{"id":"O_h","name":"High"},{"id":"O_m","name":"Medium"},{"id":"O_l","name":"Low"}]},{},{"id":"F_eff","name":"Effort","options":[{"id":"O_eh","name":"High"}]}'
-BOARDS='{"projectItems":{"nodes":[{"project":{"id":"PVT_a"}}]}},{"projectItems":{"nodes":[{"project":{"id":"PVT_b"}}]}},{"projectItems":{"nodes":[{"project":{"id":"PVT_b"}},{"project":{"id":"PVT_a"}}]}},{"projectItems":{"nodes":[{"project":{"id":"PVT_b"}}]}}'
+BOARDS='{"projectsV2":{"nodes":[{"id":"PVT_a"}]}},{"projectsV2":{"nodes":[{"id":"PVT_b"}]}},{"projectsV2":{"nodes":[{"id":"PVT_b"},{"id":"PVT_a"}]}},{"projectsV2":{"nodes":[{"id":"PVT_b"}]}}'
 
 RC=0
 run_meta() {
@@ -114,7 +114,7 @@ assert "issue-meta: P label migrates to the Priority field" 'echo "$CALLS" | gre
 
 echo ""
 echo "=== ai-kit-issue-meta: no types, no board ==="
-write_meta "" "$PRIO" '{"projectItems":{"nodes":[]}}'
+write_meta "" "$PRIO" '{"projectsV2":{"nodes":[]}}'
 run_meta 48 --type Feature
 assert "issue-meta: no types or board exits 0" '[ "$RC" -eq 0 ]'
 assert "issue-meta: no types skips type call" '! echo "$CALLS" | grep -q "type=Feature"'
@@ -156,6 +156,27 @@ run_meta 63 --status Doing
 assert "issue-meta: card not on the board yet is added first" 'echo "$CALLS" | grep "addProjectV2ItemById" | grep -q "projectId=PVT_b"'
 assert "issue-meta: added card gets its Status" 'echo "$CALLS" | grep "updateProjectV2ItemFieldValue" | grep "itemId=PVTI_new" | grep -q "optionId=S_doing"'
 
+# GitHub hides a card on a board of another owner (org board, user repo) from issue.projectItems; projectsV2 lists the board.
+write_meta "$TYPES" "$PRIO" "$BOARDS" "" false "" '{"id":"PVT_org"}'
+echo '{"data":{"addProjectV2ItemById":{"item":{"id":"PVTI_org","project":{"id":"PVT_org","field":'"$STATUS_FIELD"'}}}}}' > "$TMP_IM/add.json"
+run_meta 71 --status Done
+assert "issue-meta: issue on another owner's board uses that board" 'echo "$CALLS" | grep "updateProjectV2ItemFieldValue" | grep "projectId=PVT_org" | grep "itemId=PVTI_org" | grep -q "optionId=S_done" && ! echo "$OUT" | grep -q "no board"'
+assert "issue-meta: issue already on a board is not reported as added" 'echo "$OUT" | grep -q "#71 set Status Done$"'
+write_meta "$TYPES" "$PRIO" '{"projectsV2":{"nodes":[{"id":"PVT_org"}]}}'
+run_meta 72 --status Backlog
+assert "issue-meta: issue on no board is added to the derived org board" 'echo "$CALLS" | grep "addProjectV2ItemById" | grep -q "projectId=PVT_org" && echo "$CALLS" | grep "updateProjectV2ItemFieldValue" | grep -q "projectId=PVT_org"'
+assert "issue-meta: added issue reports board" 'echo "$OUT" | grep -q "#72 set board, Status Backlog$"'
+write_meta "$TYPES" "$PRIO" "$BOARDS" "" false "" '{"id":"PVT_org"}'
+RC=0
+OUT="$(cd "$TMP_IM" && STUB_FAIL_ADD=1 STUB_DATA="$TMP_IM" PATH="$TMP_IM/stubs:$PATH" "$AIKIT/bin/ai-kit-issue-meta.sh" 73 --status Done 2>&1)" || RC=$?
+assert "issue-meta: hidden card lookup failure says reading, not adding" '[ "$RC" -eq 0 ] && echo "$OUT" | grep -q "reading the board card failed, Status skipped: HTTP 403" && ! echo "$OUT" | grep -q "adding to board"'
+write_meta "$TYPES" "$PRIO" "$BOARDS" "" false "$ITEMS" '{"id":"PVT_b"}'
+run_meta 74 --status Next
+assert "issue-meta: same-owner card is used without an add call" '! echo "$CALLS" | grep -q addProjectV2ItemById && echo "$CALLS" | grep "updateProjectV2ItemFieldValue" | grep -q "itemId=PVTI_on"'
+write_meta "$TYPES" "$PRIO" '{"projectsV2":{"nodes":[null,{"id":"PVT_b"}]}},{"projectsV2":null}' "" false "" 'null'
+run_meta 75 --status Next
+assert "issue-meta: null board nodes are skipped" 'echo "$CALLS" | grep "addProjectV2ItemById" | grep -q "projectId=PVT_b" && ! echo "$OUT" | grep -q "could not parse"'
+
 write_meta "$TYPES" "" "$BOARDS" '{"name":"needs-triage"},{"name":"area-x"}' false "$ITEMS"
 run_meta 64 --type Task --priority Low --status Next
 assert "issue-meta: P label and clash removal share one label write" 'echo "$CALLS" | grep "api -X PUT repos/{owner}/{repo}/issues/64/labels" | grep "labels\[\]=area-x" | grep "labels\[\]=P3-low" | grep -vq "needs-triage" && [ "$(echo "$CALLS" | grep -c "/labels")" -eq 1 ]'
@@ -171,7 +192,7 @@ write_meta "$TYPES" "$VERY" "$BOARDS"
 run_meta 68 --type Task --priority High
 assert "issue-meta: Priority High matches only High, not Very High" 'echo "$CALLS" | grep "setIssueFieldValue" | grep -q "optionId=O_h -f query"'
 
-write_meta "$TYPES" "$PRIO" '{"projectItems":{"nodes":[]}}' '{"name":"needs-triage"}'
+write_meta "$TYPES" "$PRIO" '{"projectsV2":{"nodes":[]}}' '{"name":"needs-triage"}'
 run_meta 65 --status Next
 assert "issue-meta: --status without board exits 0" '[ "$RC" -eq 0 ]'
 assert "issue-meta: --status without board skips status and labels" '! echo "$CALLS" | grep -q "updateProjectV2ItemFieldValue\|/labels" && echo "$OUT" | grep -q "no board.*Status skipped"'

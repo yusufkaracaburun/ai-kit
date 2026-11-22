@@ -84,13 +84,32 @@ if [ "$NO_GH" = false ] && command -v gh >/dev/null 2>&1 && (cd "$TARGET" && git
   # shellcheck disable=SC2016
   PRIORITY_QUERY='query($owner:String!,$name:String!){repository(owner:$owner,name:$name){issues(states:OPEN,first:100,orderBy:{field:CREATED_AT,direction:DESC}){nodes{number issueFieldValues(first:10){nodes{... on IssueFieldSingleSelectValue{name field{... on IssueFieldSingleSelect{name}}}}}}}}}'
   # shellcheck disable=SC2016
-  STATUS_QUERY='query($owner:String!,$name:String!){repository(owner:$owner,name:$name){issues(states:OPEN,first:100,orderBy:{field:CREATED_AT,direction:DESC}){nodes{number projectItems(first:10){nodes{status:fieldValueByName(name:"Status"){... on ProjectV2ItemFieldSingleSelectValue{name}}}}}}}}'
+  STATUS_QUERY='query($owner:String!,$name:String!){repository(owner:$owner,name:$name){issues(states:OPEN,first:100,orderBy:{field:CREATED_AT,direction:DESC}){nodes{number projectItems(first:10){nodes{status:fieldValueByName(name:"Status"){... on ProjectV2ItemFieldSingleSelectValue{name}}}} projectsV2(first:10){nodes{id}}}}}}'
   PRIORITY_JSON=$(cd "$TARGET" && gh api graphql -F owner='{owner}' -F name='{repo}' -f query="$PRIORITY_QUERY" 2>/dev/null) || PRIORITY_JSON='{}'
   STATUS_JSON=$(cd "$TARGET" && gh api graphql -F owner='{owner}' -F name='{repo}' -f query="$STATUS_QUERY" 2>/dev/null) || STATUS_JSON='{}'
+  # projectItems hides cards on a board of another owner (org board, user repo); read those boards' own items.
+  BOARD_ARGS=()
+  while IFS= read -r id; do [ -z "$id" ] || BOARD_ARGS+=(-f "ids[]=$id"); done < <(STATUS_JSON="$STATUS_JSON" python3 -c '
+import json, os
+try:
+    issues = json.loads(os.environ["STATUS_JSON"])["data"]["repository"]["issues"]["nodes"]
+except (ValueError, KeyError, TypeError):
+    issues = []
+nodes = lambda o, k: ((o or {}).get(k) or {}).get("nodes") or []
+print("\n".join(sorted({p["id"] for n in issues if not nodes(n, "projectItems") for p in nodes(n, "projectsV2") if p})))
+' 2>/dev/null)
+  BOARD_JSON='{}'
+  if [ ${#BOARD_ARGS[@]} -gt 0 ]; then
+    # shortcut: first 100 open cards per board in a column that changes ranking; page once a board has more.
+    # shellcheck disable=SC2016
+    BOARD_QUERY='query($ids:[ID!]!,$q:String!){nodes(ids:$ids){... on ProjectV2{items(first:100,query:$q){nodes{content{... on Issue{number}} status:fieldValueByName(name:"Status"){... on ProjectV2ItemFieldSingleSelectValue{name}}}}}}}'
+    BOARD_JSON=$(cd "$TARGET" && gh api graphql "${BOARD_ARGS[@]}" -F q='repo:{owner}/{repo} is:open status:Doing,Next,Blocked,Done' -f query="$BOARD_QUERY" 2>/dev/null) || BOARD_JSON='{}'
+  fi
 else
   GH_JSON='[]'
   PRIORITY_JSON='{}'
   STATUS_JSON='{}'
+  BOARD_JSON='{}'
 fi
 
 ROADMAP_FILE=""
@@ -117,6 +136,7 @@ fi
 GH_JSON="$GH_JSON" \
 PRIORITY_JSON="$PRIORITY_JSON" \
 STATUS_JSON="$STATUS_JSON" \
+BOARD_JSON="$BOARD_JSON" \
 ROADMAP_FILE="$ROADMAP_FILE" \
 MARKER_FILE="$MARKER_FILE" \
 CURRENT_BRANCH="$CURRENT_BRANCH" \
@@ -176,6 +196,16 @@ def project_fields():
             continue
         statuses = {(it.get("status") or {}).get("name") for it in (n.get("projectItems") or {}).get("nodes") or [] if it}
         out.setdefault(n.get("number"), (set(), set()))[1].update(statuses - {None})
+    try:
+        boards = json.loads(os.environ.get("BOARD_JSON") or "{}")["data"]["nodes"]
+    except (json.JSONDecodeError, KeyError, TypeError):
+        boards = []
+    for b in boards:
+        for it in ((b or {}).get("items") or {}).get("nodes") or []:
+            name = ((it or {}).get("status") or {}).get("name")
+            number = ((it or {}).get("content") or {}).get("number")
+            if name and number:
+                out.setdefault(number, (set(), set()))[1].add(name)
     return out
 
 fields = project_fields()

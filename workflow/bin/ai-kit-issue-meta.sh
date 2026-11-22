@@ -5,7 +5,8 @@
 # Priority: --priority, else the Priority the issue already has is kept, else the
 #   --parent issue's Priority, else Medium. Set as
 #   the Priority issue field; repos without that field get the P label instead.
-# Board: the project most open issues of the repo are on; none found, skipped.
+# Board: the project the issue is on, else the one most open issues of the repo are
+#   on; none found, skipped.
 # Status: --status sets the card's Status column on that board, then removes labels
 #   that clash with the column. Without --type only the card moves.
 #
@@ -127,7 +128,7 @@ for l in (issue.get("labels") or {}).get("nodes") or []:
 ISSUE_PRIORITY_FIELDS='labels(first:100){nodes{name} pageInfo{hasNextPage}} issueFieldValues(first:10){nodes{... on IssueFieldSingleSelectValue{name field{... on IssueFieldSingleSelect{name}}}}}'
 ITEM_FIELDS='id project{id field(name:"Status"){... on ProjectV2SingleSelectField{id options{id name}}}}'
 # shellcheck disable=SC2016
-META_QUERY='query($owner:String!,$name:String!,$number:Int!){repository(owner:$owner,name:$name){issueTypes(first:20){nodes{id name}} issueFields(first:20){nodes{... on IssueFieldSingleSelect{id name options{id name}}}} issues(states:OPEN,first:50,orderBy:{field:CREATED_AT,direction:DESC}){nodes{projectItems(first:10){nodes{project{id}}}}} issue(number:$number){id '"$ISSUE_PRIORITY_FIELDS"' projectItems(first:10){nodes{'"$ITEM_FIELDS"'}}}}}'
+META_QUERY='query($owner:String!,$name:String!,$number:Int!){repository(owner:$owner,name:$name){issueTypes(first:20){nodes{id name}} issueFields(first:20){nodes{... on IssueFieldSingleSelect{id name options{id name}}}} issues(states:OPEN,first:50,orderBy:{field:CREATED_AT,direction:DESC}){nodes{projectsV2(first:10){nodes{id}}}} issue(number:$number){id '"$ISSUE_PRIORITY_FIELDS"' projectItems(first:10){nodes{'"$ITEM_FIELDS"'}} projectsV2(first:10){nodes{id}}}}}'
 if ! command -v python3 >/dev/null 2>&1; then
   note "python3 not found, nothing set"
   exit 0
@@ -136,6 +137,7 @@ if ! META_JSON=$(gh api graphql -F owner="$OWNER" -F name="$NAME" -F number="$NU
   fail "reading #$NUM failed, nothing set"
   exit 0
 fi
+# projectItems hides cards on a board of another owner (org board, user repo); projectsV2 lists every board.
 # shortcut: board = most common project over the 50 newest open issues; page if repos outgrow that.
 if ! PARSED=$(META_JSON="$META_JSON" TYPE="$TYPE" python3 -c '
 import json, os
@@ -145,13 +147,15 @@ nodes = lambda o, k: ((o or {}).get(k) or {}).get("nodes") or []
 has_type = any(t.get("name") == os.environ["TYPE"] for t in nodes(repo, "issueTypes"))
 field = next((f for f in nodes(repo, "issueFields") if f.get("name") == "Priority"), {})
 options = "\x1e".join(o["name"] + "\x1f" + o["id"] for o in field.get("options") or [])
-boards = Counter(i["project"]["id"] for n in nodes(repo, "issues") for i in nodes(n, "projectItems") if i.get("project"))
-print("|".join([(repo.get("issue") or {}).get("id", ""), "1" if has_type else "", field.get("id", ""), options, boards.most_common(1)[0][0] if boards else ""]))
+boards = Counter(p["id"] for n in nodes(repo, "issues") for p in nodes(n, "projectsV2") if p)
+own = [p["id"] for p in nodes(repo.get("issue"), "projectsV2") if p]
+board = max(own, key=lambda p: boards[p]) if own else (boards.most_common(1)[0][0] if boards else "")
+print("|".join([(repo.get("issue") or {}).get("id", ""), "1" if has_type else "", field.get("id", ""), options, board, "1" if own else ""]))
 ' 2>/dev/null); then
   note "could not parse gh's reply for #$NUM, nothing set"
   exit 0
 fi
-IFS='|' read -r ISSUE_ID HAS_TYPE FIELD_ID OPTIONS PROJECT_ID <<<"$PARSED"
+IFS='|' read -r ISSUE_ID HAS_TYPE FIELD_ID OPTIONS PROJECT_ID ON_BOARD <<<"$PARSED"
 if [ -z "${ISSUE_ID:-}" ]; then
   note "#$NUM not found, nothing set"
   exit 0
@@ -215,13 +219,16 @@ fi
 if [ -n "$PROJECT_ID" ]; then
   IFS='|' read -r ITEM_ID STATUS_FIELD_ID STATUS_OPTIONS <<<"$(status_item "$META_JSON")"
   if [ -z "${ITEM_ID:-}" ]; then
+    # Already on the board but hidden from projectItems: the add returns the existing card.
     # shellcheck disable=SC2016
     ADD_QUERY='mutation($projectId:ID!,$contentId:ID!){addProjectV2ItemById(input:{projectId:$projectId,contentId:$contentId}){item{'"$ITEM_FIELDS"'}}}'
     if ADD_JSON=$(gh api graphql -f projectId="$PROJECT_ID" -f contentId="$ISSUE_ID" -f query="$ADD_QUERY" 2>"$ERR_FILE"); then
-      DONE+=("board")
+      [ -n "$ON_BOARD" ] || DONE+=("board")
       IFS='|' read -r ITEM_ID STATUS_FIELD_ID STATUS_OPTIONS <<<"$(status_item "$ADD_JSON")"
     else
-      fail "adding to board failed${STATUS:+, Status skipped}"
+      ADD_STEP="adding to board"
+      [ -z "$ON_BOARD" ] || ADD_STEP="reading the board card"
+      fail "$ADD_STEP failed${STATUS:+, Status skipped}"
     fi
   fi
   STATUS_OPTION=$(option_id "$STATUS" "${STATUS_OPTIONS:-}")

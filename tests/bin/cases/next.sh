@@ -103,7 +103,7 @@ cat > "$TMP_PF/stubs/gh" <<'STUB'
 case "$1 $2" in
   "issue list") cat "$STUB_DATA/issues.json" ;;
   "api graphql")
-    case "$*" in *projectItems*) [ -z "${STUB_STATUS_FAIL:-}" ] || exit 1 ;; esac
+    case "$*" in *projectItems*) [ -z "${STUB_STATUS_FAIL:-}" ] || exit 1 ;; *"{items(first"*) cat "$STUB_DATA/board.json"; exit ;; esac
     [ -f "$STUB_DATA/graphql.json" ] || exit 1; cat "$STUB_DATA/graphql.json" ;;
   *) exit 1 ;;
 esac
@@ -122,7 +122,8 @@ cat > "$TMP_PF/issues.json" <<JSON
   {"number": 16, "title": "Done item", "labels": [], "updatedAt": "$NOW", "url": "u16", "assignees": []},
   {"number": 17, "title": "Doing field", "labels": [{"name":"P2-medium"}], "updatedAt": "$NOW", "url": "u17", "assignees": []},
   {"number": 18, "title": "Doing untriaged", "labels": [{"name":"needs-triage"}], "updatedAt": "$NOW", "url": "u18", "assignees": []},
-  {"number": 19, "title": "Blocked plain", "labels": [], "updatedAt": "$NOW", "url": "u19", "assignees": []}
+  {"number": 19, "title": "Blocked plain", "labels": [], "updatedAt": "$NOW", "url": "u19", "assignees": []},
+  {"number": 20, "title": "Doing on other owner's board", "labels": [], "updatedAt": "$NOW", "url": "u20", "assignees": []}
 ]
 JSON
 cat > "$TMP_PF/graphql.json" <<'JSON'
@@ -136,9 +137,12 @@ cat > "$TMP_PF/graphql.json" <<'JSON'
   {"number": 16, "issueFieldValues": {"nodes": [{"name": "Low", "field": {"name": "Priority"}}]}, "projectItems": {"nodes": [{"status": {"name": "Done"}}]}},
   {"number": 17, "issueFieldValues": {"nodes": []}, "projectItems": {"nodes": [{"status": {"name": "Doing"}}]}},
   {"number": 18, "issueFieldValues": {"nodes": []}, "projectItems": {"nodes": [{"status": {"name": "Doing"}}]}},
-  {"number": 19, "issueFieldValues": {"nodes": []}, "projectItems": {"nodes": [{"status": {"name": "Blocked"}}]}}
+  {"number": 19, "issueFieldValues": {"nodes": []}, "projectItems": {"nodes": [{"status": {"name": "Blocked"}}]}},
+  {"number": 20, "issueFieldValues": {"nodes": []}, "projectItems": {"nodes": []}, "projectsV2": {"nodes": [{"id": "PVT_org"}]}}
 ]}}}}
 JSON
+# GitHub hides a card on another owner's board from projectItems; the board's own items show it.
+echo '{"data": {"nodes": [{"items": {"nodes": [{"content": {"number": 20}, "status": {"name": "Doing"}}, null]}}]}}' > "$TMP_PF/board.json"
 pf_field() {
   echo "$1" | python3 -c "import json,sys; d=json.load(sys.stdin); print(next((str(x['$3']) for x in d['items'] if x.get('number')==$2), 'absent'))"
 }
@@ -150,6 +154,7 @@ assert "next: Status Doing alone gives +50" '[ "$(pf_field "$OUT_PF" 17 score)" 
 assert "next: Status Next gives +20" '[ "$(pf_field "$OUT_PF" 13 score)" -eq 25 ]'
 assert "next: Status Next + ready-for-agent label counts +20 once" '[ "$(pf_field "$OUT_PF" 14 score)" -eq 25 ]'
 assert "next: Status Blocked item absent" '[ "$(pf_field "$OUT_PF" 15 number)" = "absent" ]'
+assert "next: Status on another owner's board gives +50" '[ "$(pf_field "$OUT_PF" 20 score)" -eq 55 ]'
 assert "next: Status Done item absent" '[ "$(pf_field "$OUT_PF" 16 number)" = "absent" ]'
 
 OUT_PF_TEXT="$(STUB_DATA="$TMP_PF" PATH="$TMP_PF/stubs:$PATH" "$AIKIT/bin/ai-kit-next.sh" "$TMP_PF" --no-roadmap 2>&1)"
@@ -162,7 +167,7 @@ assert "next: Status query failure keeps Priority field ranking" '[ "$(pf_field 
 
 rm "$TMP_PF/graphql.json"
 RC_PF=0
-OUT_PF_FAIL="$(STUB_DATA="$TMP_PF" PATH="$TMP_PF/stubs:$PATH" "$AIKIT/bin/ai-kit-next.sh" "$TMP_PF" --no-roadmap --json 2>&1)" || RC_PF=$?
+OUT_PF_FAIL="$(STUB_DATA="$TMP_PF" PATH="$TMP_PF/stubs:$PATH" "$AIKIT/bin/ai-kit-next.sh" "$TMP_PF" --no-roadmap --json --limit 20 2>&1)" || RC_PF=$?
 assert "next: GraphQL failure exits 0" '[ "$RC_PF" -eq 0 ]'
 assert "next: GraphQL failure ranks by label only" '[ "$(pf_field "$OUT_PF_FAIL" 10 priority)" = "P3" ] && [ "$(pf_field "$OUT_PF_FAIL" 15 priority)" = "P0" ]'
 rm -rf "$TMP_PF"
