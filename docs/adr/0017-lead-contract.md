@@ -114,7 +114,8 @@ The rule existed and was skipped. More prose would be skipped the same way.
 - No inline exceptions, not even `gh issue comment`. Small writes are batched
   into an agent that is already running.
 - A classifier or permission denial is final for the session: the lead hands
-  the user the exact `!` command once and stops asking.
+  the user the exact `!` command once and stops asking. The command fits on
+  one terminal line: a script is copied to a short `/tmp/ak-<name>.sh` first.
 - The Bash patterns have known gaps and one false deny (#199).
 
 **Consensus with the live leads.** On 2026-10-10 the three live lead sessions
