@@ -25,6 +25,8 @@ When an issue number is in play, move its card to `Doing` before the first faili
 
 **Bad tests** are coupled to implementation. They mock internal collaborators, test private methods, or verify through external means (like querying a database directly instead of using the interface). The warning sign: your test breaks when you refactor, but behavior hasn't changed. If you rename an internal function and tests fail, those tests were testing implementation, not behavior.
 
+**Tautological tests** build the expected value with the formula the code itself uses, for example asserting an invoice total equals `price * qty` copied from the implementation. A bug in that formula then sits on both sides of the assertion. Write the expected value out yourself: a number you worked out by hand, or one the issue or a fixture states. Ideas from mattpocock/skills abeeaf9.
+
 See [tests.md](tests.md) for examples and [mocking.md](mocking.md) for mocking guidelines.
 
 ## Anti-Pattern: Horizontal Slices
@@ -61,7 +63,7 @@ When exploring the codebase, use the project's domain glossary so that test name
 Before writing any code:
 
 - [ ] Confirm with user what interface changes are needed
-- [ ] Confirm with user which behaviors to test (prioritize)
+- [ ] List each seam you will test at, with one line on the bugs it would catch and the ones it would let through. Get the user's OK on that list before a test goes there; seams named in the Agent Brief's Key interfaces or acceptance criteria already count as agreed
 - [ ] Identify opportunities for [deep modules](deep-modules.md) (small interface, deep implementation)
 - [ ] Design interfaces for [testability](interface-design.md)
 - [ ] List the behaviors to test (not implementation steps)
