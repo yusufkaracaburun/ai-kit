@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.32.0 — 2026-11-23
+
+### Fixed
+- The review gate now sees a commit made inside a shell case arm (#333).
+- Agent briefs and the builder read the test command and inputs from the repo, never from a scratchpad path (#337, #338).
+- A narrowed test command is kept in the brief, and the inputs section is pinned.
+
+### Added
+- A new SubagentStart and SubagentStop plugin hook keeps one marker file per running builder or designer under the git dir's ai-kit/subagents/ folder (#341).
+- The test-suite-stop-gate recipe gains requirement 5, so a project Stop gate skips while a builder is mid-change (#341).
+- The marker path resolves through `git rev-parse --absolute-git-dir`, so linked worktrees work.
+
 ## 2.31.0 — 2026-11-23
 
 Agent worktrees stay out of client tooling (#266), PR bodies show each change with the smallest view, and a changed business rule must reach every copy (#335).
