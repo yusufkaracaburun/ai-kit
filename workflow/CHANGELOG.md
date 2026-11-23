@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.32.1 — 2026-11-23
+
+Subagent markers now live under the git common dir, so a test gate in the main checkout sees builders working in linked worktrees, and start and stop always use the same path (#341). A release that adds a hook event needs a full session restart; /reload-plugins does not register new hook events.
+
 ## 2.32.0 — 2026-11-23
 
 ### Fixed
