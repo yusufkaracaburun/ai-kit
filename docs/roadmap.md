@@ -7,7 +7,7 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-11-23 against 119 open issues (#341-#343 rows added; #333 closed and removed; #337 and #338 closed and removed; #338-#340 rows added; #335 closed and removed; #334-#337 rows added; #266 closed and removed; #333 row added; #332 row added; #172 closed by v2.30.0 and removed; #329-#331 rows added; closed rows removed: #171 #320 #321 #322; #320-#322 rows added as the three slices of #171; 25 closed rows removed (#116 #127 #128 #138 #139 #147 #148 #149 #150 #170 #174 #187 #198 #202 #206 #207 #208 #210 #246 #247 #248 #263 #269 #284 #316); #300 row removed; #186 and #299 rows removed; #298 and #299 rows added; #285 closed by v2.21.1 and removed; #289-#297 rows added; #275 and #288 done 2026-11-16, closed by the heavy-run lock slice; #276-#283 done, #283 with this reconcile; #199, #258-#262 and #267 closed and removed; #270 closed by #280; #216 partly done in v2.19.0; rows added for #264, #284, #286, #287; #257, #263 and #264 labelled P3, P1 and P3 to match their sections; earlier reconciliation notes live in [roadmap-archive.md](roadmap-archive.md#reconciliation-notes))._
+_Last reconciled: 2026-11-23 against 117 open issues (#344 row added; #331 stays open; #173 and #178 closed, #334 fixed, row removed; #331 and #339 not shipped yet; #341-#343 rows added; #333 closed and removed; #337 and #338 closed and removed; #338-#340 rows added; #335 closed and removed; #334-#337 rows added; #266 closed and removed; #333 row added; #332 row added; #172 closed by v2.30.0 and removed; #329-#331 rows added; closed rows removed: #171 #320 #321 #322; #320-#322 rows added as the three slices of #171; 25 closed rows removed (#116 #127 #128 #138 #139 #147 #148 #149 #150 #170 #174 #187 #198 #202 #206 #207 #208 #210 #246 #247 #248 #263 #269 #284 #316); #300 row removed; #186 and #299 rows removed; #298 and #299 rows added; #285 closed by v2.21.1 and removed; #289-#297 rows added; #275 and #288 done 2026-11-16, closed by the heavy-run lock slice; #276-#283 done, #283 with this reconcile; #199, #258-#262 and #267 closed and removed; #270 closed by #280; #216 partly done in v2.19.0; rows added for #264, #284, #286, #287; #257, #263 and #264 labelled P3, P1 and P3 to match their sections; earlier reconciliation notes live in [roadmap-archive.md](roadmap-archive.md#reconciliation-notes))._
 
 ## P1 — broken in the wild
 
@@ -15,12 +15,6 @@ _Last reconciled: 2026-11-23 against 119 open issues (#341-#343 rows added; #333
 
 ## P2 — next up
 
-- **#178** `bug` — `dedupe` reported `total: 0` on 12 repos + personal scope that
-  held 200+ duplicates: it reads only `~/.claude/skills`, never `~/.agents/skills`
-  / `~/.cursor/skills` (84 plugin symlinks, 16 gsd remnants lived there), no
-  project `.claude/skills` / `.agents/skills` / `.claude/agents`, no hook-script
-  drift, no catalog cross-check for user-scope skills. Fixture: the pre-cleanup
-  snapshot in `~/.claude/.backups/20260919T004749/`.
 - **#179** `enhancement` — ship the hook scripts `hooks-patterns.json` only
   names: `test-suite-stop-gate` (3 hand-written variants across the hub app /
   the portal app / the legacy app), `block-env-edits`, `block-lockfile-edits`,
@@ -29,9 +23,6 @@ _Last reconciled: 2026-11-23 against 119 open issues (#341-#343 rows added; #333
   tsc. Same `bin/hooks/` + `workflow/hooks/hooks.json` shape as the plugin hooks that already ship;
   doctor then reports "drifted from shipped".
 
-- **#173** `bug` — `/ai:setup` on a non-git monorepo root (an umbrella folder) writes a marker +
-  `${CLAUDE_PROJECT_DIR}` hook wiring that no session can ever resolve (cwd is
-  always an app below it); doctor never sees the parent. Refuse/warn, no walk-up.
 - **#144** `enhancement · primitive:rule` — `always-on` means two different things
   per host. 30 rules carry `default_mode: always-on` (22 in `standards/rules/`, 8 in
   `standards/rules/feedback/`), 21 of them `universal: true`. On **Cursor** the mode is
@@ -363,9 +354,9 @@ _Last reconciled: 2026-11-23 against 119 open issues (#341-#343 rows added; #333
 - **#330** `enhancement`: /ai:upgrade lists kept project rule copies by name only; diff each against `~/.claude/rules/ai-kit/` with header and link notation normalised, offer delete when identical, show the diff otherwise. Deferred: small script change plus a test case. 2026-11-23.
 - **#331** `bug`: `emit_generic` rebuilds `docs/agents/active-rules.md` and drops project text outside the ai-kit markers; rewrite only the marked block, stock intro only for a new file, plus a test. Deferred: reported by an app session after v2.30.0; app restores by hand. 2026-11-23.
 - **#332** `enhancement`: a ship-brief subagent that runs /ai:review ends its turn before the reviewer verdict arrives and commits nothing; make the brief wait for the verdict in the same turn, or run the reviewer in the foreground from a subagent. Deferred: worked around per brief; needs a check of how review spawns its reviewer. 2026-11-23.
-- **#334** `bug`: issue-meta finds no board when no open issue sits on it yet; also read the projects linked to the repository. Deferred: found in the measured full-flow run on a Laravel app. 2026-11-23.
 - **#336** `bug`: lead-guard blocks `/update-config` in a lead session; allow settings edits for that skill or say to hand it to one subagent. Deferred: found in the measured full-flow run on a Laravel app. 2026-11-23.
 - **#339** `bug`: ship brief: after a confirmed squash merge, delete the local branch with `git branch -D`. Deferred: found in the measured full-flow run on a Laravel app. 2026-11-23.
 - **#340** `enhancement`: docs-sync skips gitignored paths in the dead-link scan via `git check-ignore`. Deferred: found in the measured full-flow run on a Laravel app. 2026-11-23.
 - **#342** `enhancement`: review waits for a busy test suite via the heavy-run lock instead of a conditional APPROVE. Deferred: found in the third measured full-flow run on a Laravel app. 2026-11-23.
 - **#343** `enhancement`: verify after APPROVE diffs the approved tree (review-ok line 1) against the final tree. Deferred: found in the third measured full-flow run on a Laravel app. 2026-11-23.
+- **#344** `bug`: docs-sync finished-work sweep deletes merged branches with `git branch -d` and hides errors, so squash-merged branches are never cleaned; use the PR state from gh to decide on -D, as the ship brief now does. Deferred: found while fixing #339; out of that slice's scope. 2026-11-23.
