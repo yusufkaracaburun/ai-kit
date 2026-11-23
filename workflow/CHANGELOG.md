@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 2.29.0 — 2026-11-23
+
+Merges `grill-me` into `grill-with-docs` and folds in ideas from mattpocock/skills v1.3.2 (#297).
 
 ### Changed
 - Ideas from mattpocock/skills abeeaf9 (v1.3.2) merged into existing files, no new skills (#297):
