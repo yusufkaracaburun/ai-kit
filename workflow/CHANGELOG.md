@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.34.2 — 2026-11-23
+
+### Fixed
+
+- The heavy-run gate no longer treats a `<<` inside `$(( ))` arithmetic as a heredoc opener, so a heavy command after it is no longer hidden from the lock.
+- The update steps now include `claude plugin update ai@yusufkaracaburun`; a marketplace update alone leaves the plugin cache on the old version.
+
+### Changed
+
+- grill-first: grill opens with its questions in grill-with-docs' prose question format.
+
 ## 2.34.1 — 2026-11-23
 
 ### Fixed
