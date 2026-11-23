@@ -70,7 +70,7 @@ assert "test-suite-stop-gate carries requirement (5)" \
 import json
 d = json.load(open(\"$AIKIT/workflow/standards/external/hooks-patterns.json\"))
 v = [p for p in d[\"recommendations\"] if p[\"name\"] == \"test-suite-stop-gate\"][0][\"value\"]
-assert \"(5)\" in v and \"test gate skipped: builder active\" in v and \".git/ai-kit/subagents/\" in v and \"2 hours\" in v, v
+assert \"(5)\" in v and \"test gate skipped: builder active\" in v and \"rev-parse --absolute-git-dir)/ai-kit/subagents/\" in v and \"2 hours\" in v, v
 "'
 
 print_summary_and_exit
