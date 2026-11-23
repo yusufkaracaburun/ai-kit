@@ -254,10 +254,10 @@ fi
 cd "$AIKIT"
 
 # Postscript: surface the user-side steps the agent's auto-classifier blocks
-# on. Plugin lifecycle commands (marketplace update) write under ~/.claude/
-# and trigger the self-modification refusal even when the intent is benign,
-# so they have to be run by the user. See docs/auto-classifier-
-# boundaries.md for the full classifier policy + workarounds.
+# on. Plugin lifecycle commands (marketplace update, plugin update) write
+# under ~/.claude/ and trigger the self-modification refusal even when the
+# intent is benign, so they have to be run by the user. See docs/auto-
+# classifier-boundaries.md for the full classifier policy + workarounds.
 cat <<POSTSCRIPT
 
 Released v$NEW_VERSION end-to-end (ai-kit + marketplace).
@@ -265,15 +265,17 @@ Released v$NEW_VERSION end-to-end (ai-kit + marketplace).
 Next steps (user-runnable; agent is blocked by the auto-classifier on
 plugin lifecycle + ~/.claude/** writes):
 
-  1. Refresh the marketplace; it auto-updates the plugin to v$NEW_VERSION
+  1. Refresh the marketplace so the new ref is visible
      (once per machine, the plugin cache is user-level):
        /plugin marketplace update yusufkaracaburun
-  2. In every other open session run:
+  2. Update the plugin to v$NEW_VERSION, from the prompt:
+       ! claude plugin update ai@yusufkaracaburun
+  3. In every other open session run:
        /reload-plugins
      (a session started later picks up the new version itself)
      A release that adds a hook event needs a full session restart;
      /reload-plugins does not register new hook events.
-  3. In downstream projects already on ai-kit, re-stamp the marker:
+  4. In downstream projects already on ai-kit, re-stamp the marker:
        /ai:upgrade
 
 Why this isn't automated: see docs/auto-classifier-boundaries.md.

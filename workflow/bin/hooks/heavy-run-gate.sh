@@ -28,13 +28,13 @@ cmd="$(jq -r '.tool_input.command // empty' <<<"$payload" 2>/dev/null)"
 # a commit message naming `pnpm test` is never a segment of its own. One
 # leftmost pass, as in bash: a quote opened first hides a `<<`, a heredoc
 # opened first hides the quotes in its body. A backslash escapes the next
-# char outside single quotes.
-# shortcut: `$((1<<x))` reads as a heredoc opener and fails open; parse
-# arithmetic if that ever hides a real run.
+# char outside single quotes. Arithmetic `$(( ))` is masked too, so its `<<`
+# is a shift, never a heredoc opener.
+# shortcut: bare `(( y = 1<<x ))` and `for ((..<<x..))` still fail open; mask them if one hides a run.
 command -v perl >/dev/null 2>&1 || exit 0
 masked="$(perl -0777 -p \
   -e 'sub hide { (my $s = shift) =~ tr{;&|()\n \t}{\x01-\x08}; $s }' \
-  -e 'my $quoted = qr/"(?:[^"\\]|\\.)*"|\x27[^\x27]*\x27|\\./s;' \
+  -e 'my $quoted = qr/"(?:[^"\\]|\\.)*"|\x27[^\x27]*\x27|\\.|\$\((\((?:[^()\$]++|\$(?!\()|(?-1))*+\))\)/s;' \
   -e 's{(?<!<)(<<(-)?[ \t]*(["\x27]?)([A-Za-z_]\w*)\3)([^\n]*\n)(.*?)(?=^(?(2)\t*)\4$|\z)|($quoted)}' \
   -e '{ defined $7 ? hide($7) : do { my ($h, $r, $b) = ($1, $5, $6); $h . ($r =~ s/$quoted/hide($&)/ger) . hide($b) } }gsme' \
   <<<"$cmd")"

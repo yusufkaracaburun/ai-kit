@@ -63,7 +63,7 @@ OLD_VERSION="$(marker_get "$MARKER" ai_kit_version unknown)"
 SEMVER='^[0-9]+\.[0-9]+\.[0-9]+$'
 if [[ $OLD_VERSION =~ $SEMVER && $VERSION =~ $SEMVER && $OLD_VERSION != "$VERSION" ]] &&
    [ "$(printf '%s\n' "$OLD_VERSION" "$VERSION" | sort -t. -k1,1n -k2,2n -k3,3n | tail -1)" = "$OLD_VERSION" ]; then
-  echo "marker is newer than the running kit ($OLD_VERSION > $VERSION); run /reload-plugins after the marketplace update (a full restart only when a release adds a hook event)" >&2
+  echo "marker is newer than the running kit ($OLD_VERSION > $VERSION); run /reload-plugins after claude plugin update ai@yusufkaracaburun (a full restart only when a release adds a hook event)" >&2
   exit 1
 fi
 

@@ -16,6 +16,7 @@ stop and surface a copy-paste command.
 | `~/.claude/**` writes | `Edit`, `Write`, `git commit` inside the dir | Agent self-config / plugin surface that loads at startup |
 | `claude plugin uninstall` | Bash invocation | Mutates running plugin set; treated as self-modification |
 | `claude plugin install` | Bash invocation | Same as uninstall |
+| `claude plugin update` | Bash invocation | Same as uninstall |
 | MCP config edits | `~/.claude/settings.json` writes | Self-config; affects every future session |
 | `/plugin marketplace update` | Bash invocation of the slash form | Same self-modification policy as install/uninstall |
 
@@ -59,6 +60,7 @@ Don't loop on the refusal — it's policy, not a bug.
 `bin/release.sh` does this in its tail postscript: after the marketplace
 push, it prints a numbered checklist of user-runnable steps
 (`/plugin marketplace update yusufkaracaburun`,
+`! claude plugin update ai@yusufkaracaburun`,
 `/reload-plugins` in every other open session,
 `/ai:upgrade` in downstream projects). The user runs them; the agent
 moves on.

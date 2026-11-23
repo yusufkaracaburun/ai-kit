@@ -155,13 +155,16 @@ for c in "$WRAP pnpm test" "cd app && $WRAP composer test" "$WRAP vendor/bin/pes
   assert "allow: $c" '[ -z "$OUT" ]'
 done
 for c in $'git commit -F - <<\'EOF\'\nfix: run npm install\n\npnpm test\nEOF' $'cat <<\'EOF\'\npnpm build\nEOF' \
-  $'cat <<-EOF\n\tpnpm test\n\tEOF' $'cat <<"END" >x\nnpm ci\nEND\necho ok'; do
+  $'cat <<-EOF\n\tpnpm test\n\tEOF' $'cat <<"END" >x\nnpm ci\nEND\necho ok' \
+  $'echo $((1<<x)); cat <<EOF\npnpm test\nEOF'; do
   OUT=$(fire "$c")
   assert "allow heredoc body: ${c%%$'\n'*}" '[ -z "$OUT" ]'
 done
 for c in $'cat <<EOF\nnpm ci\nEOF\npnpm install' $'pnpm test <<EOF\nx\nEOF' $'cat <<-EOF\n\tx\n\tEOF\nnpm ci' \
   $'cat <<EOF\nit\'s\nEOF\npnpm test; echo \'x\'' $'cat <<EOF\na"b\nEOF\npnpm test "x"' \
-  $'echo "a <<b"\npnpm test' $'git commit -m "use x<<y"\npnpm test' $'echo $((1<<2))\npnpm test'; do
+  $'echo "a <<b"\npnpm test' $'git commit -m "use x<<y"\npnpm test' $'echo $((1<<2))\npnpm test' \
+  $'echo $((1<<x))\npnpm test' $'x=$(( a << b ))\nnpm ci' \
+  'n=$(( $(pnpm test 2>&1 | grep -c FAIL) + 0 ))'; do
   OUT=$(fire "$c")
   assert "deny outside heredoc body: ${c//$'\n'/ / }" 'grep -qF "$WRAP" <<<"$OUT"'
 done

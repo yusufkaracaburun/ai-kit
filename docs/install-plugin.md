@@ -1,6 +1,6 @@
 # Install ai-kit as a Claude Code plugin
 
-A third install channel (alongside the symlink-install and project-bootstrap). Plugin install gives you marketplace-style discovery and `/plugin marketplace update` updates inside Claude Code, but **only for Claude Code** — Cursor users keep using the symlink-install.
+A third install channel (alongside the symlink-install and project-bootstrap). Plugin install gives you marketplace-style discovery and `claude plugin update ai@yusufkaracaburun` updates inside Claude Code, but **only for Claude Code** — Cursor users keep using the symlink-install.
 
 ## Install
 
@@ -27,10 +27,11 @@ After install, Claude Code namespace-prefixes plugin skills: `/ai:setup`, `/ai:t
 
 ```text
 /plugin marketplace update yusufkaracaburun
+! claude plugin update ai@yusufkaracaburun
 /reload-plugins
 ```
 
-The marketplace auto-updates the plugin, so no separate `/plugin update` step. Run the marketplace update once per machine (the plugin cache is user-level), then `/reload-plugins` in every other open session (a session started later picks up the new version itself), then `/ai:upgrade` per app. A release that adds a hook event needs a full session restart; `/reload-plugins` does not register new hook events.
+The marketplace update alone leaves the plugin cache on the old version; `! claude plugin update ai@yusufkaracaburun` from the prompt moves it. Run both once per machine (the plugin cache is user-level), then `/reload-plugins` in every other open session (a session started later picks up the new version itself), then `/ai:upgrade` per app. A release that adds a hook event needs a full session restart; `/reload-plugins` does not register new hook events.
 
 The catalog repo pins `source.ref` to a release tag. After each ai-kit
 release, the catalog repo's `.claude-plugin/marketplace.json` is bumped
@@ -98,7 +99,7 @@ Bundled (via `workflow/.claude-plugin/plugin.json`):
   `~/.claude/rules/ai-kit` pointing at the `rules/` dir of the newest version
   in the plugin cache. That dir holds every universal always-on rule,
   pre-emitted by `bin/sync-plugin-rules.sh`, so Claude Code loads them natively
-  in every project on the machine. The session that ran the marketplace update
+  in every project on the machine. The session that ran `claude plugin update`
   re-points the link when it ends, so the next session starts on the new
   rules. Opt out machine-wide: `bin/ai-kit-no-global-rules.sh on`.
 - The PreToolUse lead-guard hook (`workflow/bin/hooks/lead-guard.sh`). In a
