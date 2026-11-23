@@ -56,3 +56,6 @@
 - 2026-11-23: inputs a builder needs live in the issue body or a committed file; a session scratchpad path is never part of a brief (source: grill #337, #338)
 - 2026-11-23: an approved `git commit -F- <<EOF ... EOF && git push` in one Bash call stays allowed; regression asserts pin heredoc bodies with quotes, `;` and `|` (source: grill #333)
 - 2026-11-23: an approve step and a commit in one Bash call stay denied; the deny message says to run the approve step as its own call (source: grill #333)
+- 2026-11-23: SubagentStart/SubagentStop plugin hooks keep one file per running builder or designer under .git/ai-kit/subagents/; a file older than 2 hours counts as stale (source: #341 grill)
+- 2026-11-23: the kit ships the marker hooks and a 5th test-suite-stop-gate recipe requirement; apps update their own gate copy, the kit copies no gate script (source: #341 grill)
+- 2026-11-23: while a builder is active the gate exits 0 with one stderr line and writes no green cache (source: #341 grill)
