@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.31.0 — 2026-11-23
+
+Agent worktrees stay out of client tooling (#266), PR bodies show each change with the smallest view, and a changed business rule must reach every copy (#335).
+
+### Added
+- `/ai:doctor`: a "Worktree excludes" check. In a repo with `package.json`, it warns per tool when a vitest, eslint or tsc config misses `.agents/worktrees` or `.claude/worktrees`, with a snippet to paste (#266).
+- Agent Brief: a `Rule changed` field. When it names a rule, the brief adds acceptance criteria for every user-facing description and every other computation of it; the builder sweeps them and review treats a leftover as a blocker, pinned by a review eval (#335).
+
+### Changed
+- `bootstrap-project.sh`: adds `.agents/worktrees/` and `.claude/worktrees/` to the client `.gitignore`, once (#266).
+- `git-hygiene` rule: a PR body shows the change with the smallest view: an old/new table for text, the before/after screenshot for UI, a mermaid block for a flow, state or data shape, one line for an invisible refactor.
+
 ## 2.30.0 — 2026-11-23
 
 Bootstrap stops merging skill links on machines where the Claude Code plugin serves skills (#172), and grill questions get a fixed layout.
