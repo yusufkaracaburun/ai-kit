@@ -61,3 +61,4 @@
 - 2026-11-23: while a builder is active the gate exits 0 with one stderr line and writes no green cache (source: #341 grill)
 - 2026-11-23: subagent markers live under the git common dir so the main checkout and every worktree share one marker directory (source: #341 live check)
 - 2026-11-23: a release that adds a hook event needs a full session restart; /reload-plugins does not register new hook events (source: #341 live check)
+- 2026-11-23: lead-guard lets a lead edit Claude Code settings files (.claude/settings.json, .claude/settings.local.json) by path; a hook cannot see the active skill, so the exception is not limited to /update-config. Claude Code's own permission prompt still guards the edit. (source: #336, user approval)

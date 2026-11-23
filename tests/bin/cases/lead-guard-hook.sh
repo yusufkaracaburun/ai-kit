@@ -49,6 +49,18 @@ OUT=$(fire lead1 Write '{"file_path":"/repo/.agents/memory/project/note.md"}')
 assert "Write under .agents/memory is silent" '[ -z "$OUT" ]'
 OUT=$(fire lead1 Write '{"file_path":"/repo/.planning/plan.md"}')
 assert "Write under .planning is silent" '[ -z "$OUT" ]'
+OUT=$(fire lead1 Edit '{"file_path":"/repo/.claude/settings.json"}')
+assert "Edit of project .claude/settings.json is silent" '[ -z "$OUT" ]'
+OUT=$(fire lead1 Write '{"file_path":"/repo/.claude/settings.local.json"}')
+assert "Write of .claude/settings.local.json is silent" '[ -z "$OUT" ]'
+OUT=$(fire lead1 Edit '{"file_path":".claude/settings.json"}')
+assert "Edit of relative .claude/settings.json is silent" '[ -z "$OUT" ]'
+OUT=$(fire lead1 Edit '{"file_path":"/repo/src/settings.json"}')
+assert "Edit of a settings.json outside .claude is denied" '[ -n "$OUT" ]'
+OUT=$(fire lead1 Edit '{"file_path":"/repo/.claude/hooks/x.sh"}')
+assert "Edit of other files under .claude is denied" '[ -n "$OUT" ]'
+OUT=$(fire lead1 Edit '{"file_path":"/repo/workflow/bin/foo.sh"}')
+assert "Edit of a source script is denied" '[ -n "$OUT" ]'
 OUT=$(fire lead1 Edit '{"file_path":"/repo/.agents/worktrees/w/src/a.ts"}')
 assert "Edit of code in an .agents worktree is denied" '[ -n "$OUT" ]'
 OUT=$(fire lead1 Edit '{"file_path":"/repo/src/memory/cache.ts"}')

@@ -83,8 +83,10 @@ The rule existed and was skipped. More prose would be skipped the same way.
    the claim role: only a session whose claim says `role=lead` is gated.
    `agent_id` in the payload separates subagents, which pass. Memo and scratch
    paths pass (`~/.claude/`, `.agents/memory/`, `.planning/`, `/tmp`,
-   `$TMPDIR`). The override is the role itself: `ai-kit-claim.sh set
-   role=build`.
+   `$TMPDIR`). Amended 2026-11-23 (#336): Claude Code settings files
+   (`.claude/settings.json`, `.claude/settings.local.json`) pass too, so the
+   lead can apply a settings change the user asked for via `/update-config`.
+   The override is the role itself: `ai-kit-claim.sh set role=build`.
 3. **The model split lives in settings, not agent frontmatter.** Kit agents
    run on the consumer's default. A frontmatter `model:` pin is allowed only
    with a `<!-- model-pin: <reason> -->` line, which `eval-structure.sh`

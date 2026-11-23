@@ -3,7 +3,8 @@
 # A lead (claim role=lead, bin/ai-kit-claim.sh) still did design edits, browser
 # runs and store writes inline with the prose rule loaded, so this is a gate:
 # work tool calls from the lead's main thread (no agent_id) are denied, naming
-# the subagent to hand them to. Memo and temp-dir writes pass.
+# the subagent to hand them to. Memo, temp-dir and Claude Code settings-file
+# (.claude/settings.json, .claude/settings.local.json) writes pass.
 # Override: `ai-kit-claim.sh set role=build`.
 # shortcut: mkdir/touch/ln are denied even under $TMPDIR; carve out temp paths if leads need scratch dirs.
 # Always exits 0. Fails open (silent) without jq or python3, on purpose.
@@ -144,6 +145,8 @@ case "$tool" in
     [ -z "$path" ] && path="$(read_field '.tool_input.notebook_path')"
     case "$path" in
       */.agents/memory/*|*/.planning/*|"$HOME"/.claude/*|/tmp/*|/private/tmp/*|"${TMPDIR:-/tmp/}"*) exit 0 ;;
+      # a settings change the user asked for (/update-config) is not execution work
+      .claude/settings.json|.claude/settings.local.json|*/.claude/settings.json|*/.claude/settings.local.json) exit 0 ;;
     esac
     ;;
   Bash) is_work_command "$(read_field '.tool_input.command')" || exit 0 ;;
@@ -160,7 +163,7 @@ case "$tool" in
   *) exit 0 ;;
 esac
 
-msg="lead-guard: this session is lead (claim role=lead). The lead dispatches, it never executes. $tool is work: hand it to a subagent (ai:builder for code, ai:designer for Paper designs and UI, general-purpose for CLI, browser and store consoles; the subagent default model applies; pass model only when another one fits the task). The lead keeps file reads, status commands, MCP reads, peer messages, claims and memos; browser actions and package runners count as work. Not the lead for this repo? \`ai-kit-claim.sh set role=build\`."
+msg="lead-guard: this session is lead (claim role=lead). The lead dispatches, it never executes. $tool is work: hand it to a subagent (ai:builder for code, ai:designer for Paper designs and UI, general-purpose for CLI, browser and store consoles; the subagent default model applies; pass model only when another one fits the task). The lead keeps file reads, status commands, MCP reads, peer messages, claims, memos and .claude/settings*.json edits; browser actions and package runners count as work. Not the lead for this repo? \`ai-kit-claim.sh set role=build\`."
 [ "$tool" = Bash ] && msg+=" Memo or planning file (.agents/memory, .planning, ~/.claude, /tmp)? Use the Write tool instead; it passes there."
 
 if command -v jq >/dev/null 2>&1; then
