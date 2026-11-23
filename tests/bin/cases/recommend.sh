@@ -250,8 +250,10 @@ assert "link-all symlink" '[ -L "$TMP_LINK/.cursor/skills" ]'
 rm -rf "$TMP_LINK"
 
 TMP_MERGE=$(mktemp -d)
+# Empty HOME: an installed ai-kit plugin makes bootstrap skip the skill merge.
+NO_PLUGIN_HOME=$(mktemp -d)
 cp -R "$AIKIT/tests/fixtures/brownfield-custom-skills/.cursor" "$TMP_MERGE/"
-"$AIKIT/bin/bootstrap-project.sh" --minimal --merge-skills "$TMP_MERGE"
+HOME="$NO_PLUGIN_HOME" "$AIKIT/bin/bootstrap-project.sh" --minimal --merge-skills "$TMP_MERGE"
 assert "merge keeps custom skill" '[ -d "$TMP_MERGE/.cursor/skills/my-custom-skill" ] || [ -L "$TMP_MERGE/.cursor/skills/my-custom-skill" ]'
 assert "merge adds setup" '[ -e "$TMP_MERGE/.cursor/skills/setup" ]'
 assert "merge adds .claude/skills/setup" '[ -e "$TMP_MERGE/.claude/skills/setup" ]'
@@ -266,12 +268,12 @@ assert "no-skills skips .cursor/skills" '[ ! -e "$TMP_NO_SK/.cursor/skills" ]'
 rm -rf "$TMP_NO_SK"
 
 TMP_NO_AG=$(mktemp -d)
-"$AIKIT/bin/bootstrap-project.sh" --minimal --no-agents --no-commands "$TMP_NO_AG"
+HOME="$NO_PLUGIN_HOME" "$AIKIT/bin/bootstrap-project.sh" --minimal --no-agents --no-commands "$TMP_NO_AG"
 assert "--no-agents skips .claude/agents" '[ ! -e "$TMP_NO_AG/.claude/agents" ]'
 assert "--no-commands skips .claude/commands" '[ ! -e "$TMP_NO_AG/.claude/commands" ]'
 assert "--no-commands skips .cursor/commands" '[ ! -e "$TMP_NO_AG/.cursor/commands" ]'
 assert "no-agents/no-commands still links skills" '[ -d "$TMP_NO_AG/.claude/skills" ]'
-rm -rf "$TMP_NO_AG"
+rm -rf "$TMP_NO_AG" "$NO_PLUGIN_HOME"
 
 
 print_summary_and_exit

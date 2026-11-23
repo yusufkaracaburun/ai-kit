@@ -148,11 +148,13 @@ assert "json still valid overall" 'echo "$JSON_MONO" | python3 -c "import json,s
 echo "=== detect-bootstrap-state ==="
 # section: detect-bootstrap-state
 TMP_BS_MERGE=$(mktemp -d)
-"$AIKIT/bin/bootstrap-project.sh" --minimal --merge-skills "$TMP_BS_MERGE" >/dev/null
+# Empty HOME: an installed ai-kit plugin makes bootstrap skip the skill merge.
+NO_PLUGIN_HOME=$(mktemp -d)
+HOME="$NO_PLUGIN_HOME" "$AIKIT/bin/bootstrap-project.sh" --minimal --merge-skills "$TMP_BS_MERGE" >/dev/null
 detect_bootstrap_state "$TMP_BS_MERGE"
 assert "merge-skills detected complete" '[ "$BOOTSTRAP_STATE" = "complete" ]'
 assert "merge-skills no missing dirs" '[ "${#BOOTSTRAP_MISSING[@]}" -eq 0 ]'
-rm -rf "$TMP_BS_MERGE"
+rm -rf "$TMP_BS_MERGE" "$NO_PLUGIN_HOME"
 
 TMP_BS_LINK=$(mktemp -d)
 "$AIKIT/bin/bootstrap-project.sh" --minimal --link-all "$TMP_BS_LINK" >/dev/null
