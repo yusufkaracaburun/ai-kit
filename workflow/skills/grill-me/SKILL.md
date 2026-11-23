@@ -6,7 +6,7 @@ model: fable
 
 Interview the user relentlessly about every aspect of this plan until shared understanding is reached. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one. For each question, provide your recommended answer.
 
-Ask one question at a time. If a question can be answered by exploring the codebase, explore instead.
+Ask one question at a time, or one frontier round (Phase 2). If a question can be answered by exploring the codebase, explore instead.
 
 See [DEEPENING.md](DEEPENING.md) for worked example question chains across PRD, ADR, design, migration, and scope-cut grilling.
 
@@ -24,10 +24,12 @@ If a branch can be settled from the codebase, settle it silently first and repor
 
 For each branch:
 
-1. **Ask the question.** Single, concrete, no compound sub-questions.
+1. **Ask the question** (or a frontier round, below). Single, concrete, no compound sub-questions.
 2. **Offer your recommended answer** with a one-line *why* — this gives the user something to push against, which is faster than open-ended brainstorming. Word the question so "yes" accepts your recommendation.
 3. **Wait.** Don't preempt with the next question.
 4. **Resolve before moving on.** If the answer reveals a new sub-branch, push it onto the agenda and announce that explicitly ("That opens a question about X — I'll come back to it after we finish Y").
+
+**Frontier round (optional).** When several questions no longer hang on any open answer, ask them as one numbered batch, each with its recommendation, then recompute the batch from the answers; a question that depends on another one in the batch waits for the next round. Send a wide fact lookup to the `explore` subagent and ask the questions that do not depend on it meanwhile. In this mode the grill is done when no unblocked question is left. Ideas from mattpocock/skills abeeaf9.
 
 If the user gives a vague answer, ask the smallest follow-up that pins it down — usually "what would make you choose differently?" or "what does failure look like?".
 
