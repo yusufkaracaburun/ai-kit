@@ -125,6 +125,8 @@ and append "..." to indicate truncation.
   word boundaries
 - Any function that reads SKILL.md frontmatter and extracts the description
 
+**Rule changed:** none
+
 **Acceptance criteria:**
 - [ ] Descriptions under 1024 chars are unchanged
 - [ ] Descriptions over 1024 chars are truncated at the last word boundary
@@ -169,6 +171,8 @@ checked for matches.
   and a `**Prior requests:**` list with issue links
 - The triage workflow should read all `.out-of-scope/*.md` files early
   and match incoming issues against them by concept similarity
+
+**Rule changed:** none
 
 **Acceptance criteria:**
 - [ ] Closing a feature as wontfix creates/updates a file in `.out-of-scope/`
