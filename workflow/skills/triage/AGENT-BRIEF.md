@@ -38,6 +38,10 @@ State what is out of scope. This prevents the agent from gold-plating or making 
 
 When **Rule changed** names a rule, add two acceptance criteria, each with the grep terms to use: every user-facing description of the rule (labels, explainers, emails, help text) is updated, and no other backend or frontend computation of the old rule is left.
 
+### Inputs from the repo, not from memory
+
+Read the test command from the repo before writing it down: `composer.json` scripts and whether it requires `pestphp/pest` or only `phpunit/phpunit`, or `package.json` scripts. Data the builder needs (fixtures, source tables, example figures) goes in the issue body or a committed file; a session scratchpad path never goes in a brief, because a later session cannot read it.
+
 ### Decisions quoted, not paraphrased
 
 Decisions in force are lines copied from the project's `docs/decisions.md`, which `grill-with-docs` appends to. Quote only the lines that bear on this issue. No file or no relevant line → write "none".
@@ -91,7 +95,7 @@ Be specific about edge cases and error conditions.
 - Adjacent feature that might seem related but is separate
 
 **Test command:**
-`pnpm test` (or the project's own command), plus any run budget: which heavy runs are granted
+the project's own command, read from the repo (e.g. `pnpm test`, `composer test`), plus any run budget: which heavy runs are granted
 
 **Base SHA:** `git rev-parse HEAD` at hand-off; required when the builder works in a worktree or on a non-default branch
 **Worktree path:** absolute path of the worktree the lead created; required when the builder works in a worktree

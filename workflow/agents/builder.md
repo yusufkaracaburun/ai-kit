@@ -37,7 +37,7 @@ The skill passes the full Agent Brief, in the shape of `triage/AGENT-BRIEF.md`:
 - **Base SHA**: the lead's `git rev-parse HEAD` at hand-off
 - **Worktree path**: the absolute path of the worktree the lead created, when there is one
 
-If the test command is missing, find it (`composer.json`, `package.json`, `Makefile`, `justfile`, CI config) and name it in the report — use the project's command, not a generic one you assume works. If the criteria are missing or too thin to write a first failing test, stop and report that; don't guess.
+Before the first test run, check the test command against the repo (`composer.json` scripts and its pest/phpunit dependency, `package.json`, `Makefile`, `justfile`, CI config). Missing or different from the repo: use the repo's command and name the mismatch in the report — never a generic one you assume works. If the criteria are missing or too thin to write a first failing test, stop and report that; don't guess.
 
 ## Process
 
