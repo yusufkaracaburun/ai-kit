@@ -218,6 +218,16 @@ assert "active-rules: start marker without end keeps rows and app text" \
 "$AIKIT/bin/emit-rules.sh" "$AR_TMP" --rules git-hygiene --agents generic >/dev/null
 assert "active-rules: empty file gets the block without a leading blank line" \
   'head -1 "$AR" | grep -q "ai-kit:active-rules:start"'
+PROSE='We never edit <!-- ai-kit:active-rules:end --> by hand.'
+printf '%s\n' "$PROSE" >> "$AR"
+"$AIKIT/bin/emit-rules.sh" "$AR_TMP" --rules quality-floor --agents generic >/dev/null
+assert "active-rules: prose that mentions the marker is kept" 'grep -qxF "$PROSE" "$AR"'
+mkdir -p "$AR_TMP/stub"
+printf '#!/bin/sh\ncase "$*" in *ai-kit:active-rules*) exit 1;; esac\nexec %s "$@"\n' "$(command -v awk)" > "$AR_TMP/stub/awk"
+chmod +x "$AR_TMP/stub/awk"
+cp "$AR" "$AR_TMP/before-fail"
+PATH="$AR_TMP/stub:$PATH" "$AIKIT/bin/emit-rules.sh" "$AR_TMP" --rules legacy-code --agents generic >/dev/null 2>&1 || true
+assert "active-rules: failed awk leaves the file unchanged" 'cmp -s "$AR" "$AR_TMP/before-fail"'
 rm -rf "$AR_TMP"
 
 

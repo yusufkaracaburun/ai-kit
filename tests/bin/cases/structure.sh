@@ -249,6 +249,7 @@ assert "autonomous queue reads the label from triage-labels.md" 'grep -qF "docs/
 assert "autonomous verifier gets staged and untracked new files" 'grep -qF "staged (\`A\`) or" "$AUTO" && grep -qF "untracked (\`??\`)" "$AUTO"'
 assert "ship brief requires a review APPROVE on the staged tree" 'grep -qF "stage nothing beyond the reviewed paths" "$SK/triage/SHIP-BRIEF.md"'
 assert "ship brief deletes a squash-merged branch with -D" 'grep -qF "git branch -D <branch>" "$SK/triage/SHIP-BRIEF.md" && grep -qF "says \`MERGED\`" "$SK/triage/SHIP-BRIEF.md" && grep -qF "git worktree remove <path>" "$SK/triage/SHIP-BRIEF.md"'
+assert "ship brief checks headRefOid before -D and never forces a worktree remove" 'grep -qF "headRefOid" "$SK/triage/SHIP-BRIEF.md" && grep -qF "never \`--force\`" "$SK/triage/SHIP-BRIEF.md"'
 assert "review: role=lead staging goes to a subagent" 'grep -qF "a subagent stages by explicit path" "$SK/review/SKILL.md"'
 assert "autonomous has no exit-gate security row" '! grep -qF "exit-gate security" "$AUTO"'
 assert "autonomous runs no git switch -c or gh pr create itself" '! grep -qF "git switch -c" "$AUTO" && ! grep -qF "gh pr create" "$AUTO"'

@@ -39,8 +39,8 @@ emit_generic() {
       print ""
       print "<!-- ai-kit:active-rules:end -->"
     }
-    /<!-- ai-kit:active-rules:start -->/ { in_block=1; seen=1; next }
-    /<!-- ai-kit:active-rules:end -->/ { in_block=0; k=0; block(); next }
+    /^<!-- ai-kit:active-rules:start -->[[:space:]]*$/ { in_block=1; seen=1; next }
+    /^<!-- ai-kit:active-rules:end -->[[:space:]]*$/ { in_block=0; k=0; block(); next }
     in_block && /^\| / && $0 !~ /^\| Rule \|/ && $0 !~ /^\| -/ {
       split($0, parts, /[[:space:]]*\|[[:space:]]*/)
       if (parts[2] == skip) { rows[++n]=ENVIRON["ROW"]; found=1 } else rows[++n]=$0
@@ -52,8 +52,6 @@ emit_generic() {
       if (in_block) { block(); for (i = 1; i <= k; i++) print kept[i] }
       else if (!seen) { if (NR) print ""; block() }
     }
-  ' "$index" > "$tmp"
-
-  command mv -f "$tmp" "$index"
+  ' "$index" > "$tmp" && command mv -f "$tmp" "$index" || { command rm -f "$tmp"; return 1; }
   echo "emit:generic  ${index#$target/} (+ ${rule_name})"
 }
