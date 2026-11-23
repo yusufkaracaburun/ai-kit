@@ -1,12 +1,13 @@
-<!-- ai-kit global rule (ADR-0015): When presenting choices via AskUserQuestion, put the recommended option first and label it "(Recommended)" -->
+<!-- ai-kit global rule (ADR-0015): Ask every question or choice through AskUserQuestion, recommended option first and labelled "(Recommended)" -->
 <!-- Source: standards/rules/feedback/mark-recommended-option.mini.md — re-stamp with bin/sync-plugin-rules.sh -->
 
 # Mark the recommended option
 
-Never present choices as a flat unranked list. Put the option **you would pick** first, suffix its label `(Recommended)` — `(Aanbevolen)` in a Dutch session — and keep its one-line description honest about the tradeoff so the user can override. A flat list hands the decision back and costs a round-trip ("which would you pick?"); a recommendation states the agent's judgment so the user can disagree faster, at the price of one click. Applies to `AskUserQuestion`, multi-select, and any free-form "A or B?".
+Never present choices as a flat unranked list. Put the option **you would pick** first, suffix its label `(Recommended)` — `(Aanbevolen)` in a Dutch session — and keep its one-line description honest about the tradeoff so the user can override. A flat list hands the decision back and costs a round-trip ("which would you pick?"); a recommendation states the agent's judgment so the user can disagree faster, at the price of one click. Applies to every `AskUserQuestion` and multi-select, and to grill's ❓/➡️ prose questions.
 
+- Every question or choice for the user goes through `AskUserQuestion` where the host offers it, a single one included; a question asked only in prose is a defect, except grill's ❓/➡️ question format.
 - No clear winner → two leading options at 1 and 2, both `(Recommended — tradeoff)`, with the tie-breaker in the question; prefer the reversible one.
 - Skip only for commodities with no decision content ("badge colour: red / blue / green") or when the user said "don't recommend, just ask".
-- A turn that ends with a question to the user carries the recommendation in that same turn, also in prose, not only in `AskUserQuestion`. The user typing "advies?" means this rule was missed.
+- When a turn asks the user something, the recommendation also stands in that turn's prose, not only in the `AskUserQuestion` labels. The user typing "advies?" means this rule was missed.
 
 Recommending is the grilling pattern collapsed to one turn (`grill-first.mini.md`).
