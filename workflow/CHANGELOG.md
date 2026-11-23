@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.30.0 — 2026-11-23
+
+Bootstrap stops merging skill links on machines where the Claude Code plugin serves skills (#172), and grill questions get a fixed layout.
+
+### Changed
+- `bootstrap-project.sh`: on a machine where the plugin serves skills, the `.claude/skills` and `.agents/skills` merge is skipped. Those links pointed at an absolute home path and showed every skill twice. `--link-all` still links. Cursor keeps its skills (#172).
+- `/ai:setup`: no merge question when the plugin serves skills; it records `project_skills_merged=false` and bootstraps with plain `--minimal`. The question stays for a symlink-install-only machine. This replaces the old default toward "merge" when the plugin was the only channel (#172).
+- `grill-with-docs`: each question and its advice stand apart in a fixed layout, also in the worked examples.
+
 ## 2.29.0 — 2026-11-23
 
 Merges `grill-me` into `grill-with-docs` and folds in ideas from mattpocock/skills v1.3.2 (#297).
