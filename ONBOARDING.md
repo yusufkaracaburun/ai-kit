@@ -82,7 +82,7 @@ See [docs/architecture.md](docs/architecture.md) for the full diagram.
   version header.
 - **Releases:** `bin/release.sh` commits the VERSION bump + CHANGELOG entry
   and tags `vX.Y.Z`. The marketplace pins `source.ref` to that tag;
-  `--bump-marketplace` pushes and bumps it so downstream `/plugin update`
+  `--bump-marketplace` pushes and bumps it so the marketplace update
   picks it up.
 - **Tests:** `./tests/bin/run-all.sh` must stay green.
   Count assertions in `structure.sh` and `release-install.sh` are the

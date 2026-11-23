@@ -6,7 +6,7 @@ allowed-tools: Bash
 
 Refresh the project's `.ai-kit-setup` marker after pulling a new ai-kit version. Branch choices are preserved verbatim — only the version field changes.
 
-Order: run `/plugin update`, restart the session, then `/ai:upgrade`. A marker already on the running version is left alone (`already on <version>, marker left as is`); the link, rule and hook-copy repairs still run.
+Order: run `/plugin marketplace update yusufkaracaburun` (the marketplace auto-updates the plugin; once per machine, the plugin cache is user-level), then `/reload-plugins` in every other open session (a session started later picks up the new version itself; a full restart only when a release adds a hook event), then `/ai:upgrade` per app. A marker already on the running version is left alone (`already on <version>, marker left as is`); the link, rule and hook-copy repairs still run.
 
 !`bash "${CLAUDE_PLUGIN_ROOT}/bin/ai-kit-upgrade.sh" "${ARGUMENTS:-$(pwd)}"`
 

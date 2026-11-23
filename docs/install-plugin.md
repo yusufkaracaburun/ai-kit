@@ -1,6 +1,6 @@
 # Install ai-kit as a Claude Code plugin
 
-A third install channel (alongside the symlink-install and project-bootstrap). Plugin install gives you marketplace-style discovery and `/plugin update ai` updates inside Claude Code, but **only for Claude Code** — Cursor users keep using the symlink-install.
+A third install channel (alongside the symlink-install and project-bootstrap). Plugin install gives you marketplace-style discovery and `/plugin marketplace update` updates inside Claude Code, but **only for Claude Code** — Cursor users keep using the symlink-install.
 
 ## Install
 
@@ -26,11 +26,11 @@ After install, Claude Code namespace-prefixes plugin skills: `/ai:setup`, `/ai:t
 ## Update
 
 ```text
-/plugin marketplace update yusufkaracaburun/marketplace
-/plugin update ai
+/plugin marketplace update yusufkaracaburun
+/reload-plugins
 ```
 
-A release that adds a hook event needs a full session restart; `/reload-plugins` does not register new hook events.
+The marketplace auto-updates the plugin, so no separate `/plugin update` step. Run the marketplace update once per machine (the plugin cache is user-level), then `/reload-plugins` in every other open session (a session started later picks up the new version itself), then `/ai:upgrade` per app. A release that adds a hook event needs a full session restart; `/reload-plugins` does not register new hook events.
 
 The catalog repo pins `source.ref` to a release tag. After each ai-kit
 release, the catalog repo's `.claude-plugin/marketplace.json` is bumped
@@ -98,7 +98,7 @@ Bundled (via `workflow/.claude-plugin/plugin.json`):
   `~/.claude/rules/ai-kit` pointing at the `rules/` dir of the newest version
   in the plugin cache. That dir holds every universal always-on rule,
   pre-emitted by `bin/sync-plugin-rules.sh`, so Claude Code loads them natively
-  in every project on the machine. The session that ran `/plugin update`
+  in every project on the machine. The session that ran the marketplace update
   re-points the link when it ends, so the next session starts on the new
   rules. Opt out machine-wide: `bin/ai-kit-no-global-rules.sh on`.
 - The PreToolUse lead-guard hook (`workflow/bin/hooks/lead-guard.sh`). In a

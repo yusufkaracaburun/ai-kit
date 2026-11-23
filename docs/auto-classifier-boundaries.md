@@ -59,7 +59,7 @@ Don't loop on the refusal — it's policy, not a bug.
 `bin/release.sh` does this in its tail postscript: after the marketplace
 push, it prints a numbered checklist of user-runnable steps
 (`/plugin marketplace update yusufkaracaburun`,
-`/plugin uninstall ai && /plugin install ai@yusufkaracaburun`,
+`/reload-plugins` in every other open session,
 `/ai:upgrade` in downstream projects). The user runs them; the agent
 moves on.
 

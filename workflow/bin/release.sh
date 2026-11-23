@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Bump VERSION, prepend a CHANGELOG entry, commit, tag. Optionally push the
 # ai-kit release AND bump the downstream marketplace catalog so
-# /plugin update picks it up (a single end-to-end publish).
+# the marketplace update picks it up (a single end-to-end publish).
 set -euo pipefail
 
 SCRIPT_BIN="$(cd "$(dirname "$0")" && pwd)"
@@ -200,7 +200,7 @@ if [ "$BUMP_MARKETPLACE" = false ]; then
     echo "  git push origin master"
   fi
   echo ""
-  echo "Next: bump the marketplace catalog so /plugin update picks this up."
+  echo "Next: bump the marketplace catalog so the marketplace update picks this up."
   # -f on the mv: this recipe is pasted into an interactive shell, where `mv`
   # is commonly aliased to `mv -i`. That prompts, declines, and still exits 0,
   # so the `&&` chain "succeeds" with the catalog never bumped — which is how
@@ -254,10 +254,9 @@ fi
 cd "$AIKIT"
 
 # Postscript: surface the user-side steps the agent's auto-classifier blocks
-# on. Plugin lifecycle commands (uninstall/install) write under ~/.claude/
+# on. Plugin lifecycle commands (marketplace update) write under ~/.claude/
 # and trigger the self-modification refusal even when the intent is benign,
-# so they have to be run by the user. Same goes for `/plugin marketplace
-# update` if the client hasn't auto-refreshed. See docs/auto-classifier-
+# so they have to be run by the user. See docs/auto-classifier-
 # boundaries.md for the full classifier policy + workarounds.
 cat <<POSTSCRIPT
 
@@ -266,11 +265,12 @@ Released v$NEW_VERSION end-to-end (ai-kit + marketplace).
 Next steps (user-runnable; agent is blocked by the auto-classifier on
 plugin lifecycle + ~/.claude/** writes):
 
-  1. Refresh the local marketplace clone so the new ref is visible:
+  1. Refresh the marketplace; it auto-updates the plugin to v$NEW_VERSION
+     (once per machine, the plugin cache is user-level):
        /plugin marketplace update yusufkaracaburun
-  2. Reinstall the plugin to pick up v$NEW_VERSION:
-       /plugin uninstall ai && /plugin install ai@yusufkaracaburun
-     (or, when supported in your client: /plugin update ai@yusufkaracaburun)
+  2. In every other open session run:
+       /reload-plugins
+     (a session started later picks up the new version itself)
      A release that adds a hook event needs a full session restart;
      /reload-plugins does not register new hook events.
   3. In downstream projects already on ai-kit, re-stamp the marker:

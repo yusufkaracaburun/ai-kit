@@ -35,7 +35,7 @@ Cursor and other hosts: see [Install](#install).
 
 ## Install
 
-**Claude Code plugin (recommended).** Self-contained — no global clone, `/plugin update` handles version bumps:
+**Claude Code plugin (recommended).** Self-contained — no global clone, `/plugin marketplace update` handles version bumps:
 
 ```text
 /plugin marketplace add yusufkaracaburun/marketplace
