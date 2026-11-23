@@ -205,6 +205,7 @@ for a in builder reviewer designer; do
 done
 assert "builder no longer points at refactoring.md next to this skill" '! grep -qF "refactoring.md\` next to this skill" "$AG/builder.md"'
 assert "builder report gives per-criterion evidence" 'grep -q "^## Criteria" "$AG/builder.md"'
+assert "builder report opens with outcome and next action, before ## Changed" 'sed -n "/^\`\`\`markdown/{n;p;q;}" "$AG/builder.md" | grep -q "^<outcome.*next action"'
 for f in "$SK/review/SKILL.md" "$AG/reviewer.md"; do
   for item in '"not met" (a blocker)' 'outside the brief' 'quality-floor violation' 'Parity sweep'; do
     assert "${f##*/workflow/} checklist: $item" "grep -qF '$item' \"$f\""
