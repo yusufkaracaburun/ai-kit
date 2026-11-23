@@ -34,22 +34,22 @@ Only the symlink-install half counts here.
 If false: `project_skills_merged=true`, no question — nothing else would
 serve this project's skills.
 
-If true:
+If the plugin is installed (`plugin_serves_skills && echo yes`, and not
+running under Cursor): `project_skills_merged=false`, no question.
+Bootstrap skips the `.claude/skills` and `.agents/skills` merge here
+anyway: the links would point at a home path outside the repo.
+
+If true through the symlink-install only:
 
 > ai-kit's skills are already available globally on this machine (via
-> **the plugin** / **the global install** — name whichever was actually
-> detected). Should this project also get its own copy in
+> the global install). Should this project also get its own copy in
 > `.claude/skills` etc — useful if you (or a teammate) ever open it
 > without that install, or on a different host?
 > [1] No, just use the global one
 > [2] Yes, merge into this project too
 
-Default **[1]** when the symlink-install is the channel found (covers
-every host already, safe to skip project-merge). Default **[2]** instead
-when the plugin is the *only* channel found — it never covers Cursor, so
-defaulting to "no" would risk silently under-serving a teammate or a
-future session on a different host with this same repo. Whichever
-default is shown, the human's explicit answer wins.
+Default **[1]**: the symlink-install covers every host already, so
+skipping the project merge is safe. The human's explicit answer wins.
 
 ## 3. Brownfield (auto-detected, unrelated to §1-2)
 

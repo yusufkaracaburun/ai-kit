@@ -4,10 +4,10 @@ skill: setup
 expects:
   - auto-detects global_channel_available via bin/lib/ai-kit-root.sh without asking the user
   - does NOT present a 4-way solo-both/solo-global/project-only/brownfield menu
-  - asks the one project_skills_merged question only when global_channel_available is true
+  - asks the one project_skills_merged question only when the symlink-install channel was found
   - when global_channel_available is false, sets project_skills_merged=true silently, no question
   - when running under Cursor, ignores the plugin half of global_channel_available (only the symlink-install half counts)
-  - defaults the question toward "yes, merge" when only the plugin channel was found (never covers Cursor)
+  - plugin installed (Claude Code): no merge question, project_skills_merged=false, bootstrap with --no-skills
   - defaults toward "no, skip merge" when the symlink-install channel was found (covers every host already)
   - brownfield detection (detect-tooling.sh needs_doc) stays separate and only affects Tier-B defaults, never this question
   - records both new fields plus a derived legacy --setup-mode= value via write-setup-marker.sh

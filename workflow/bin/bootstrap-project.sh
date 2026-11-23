@@ -34,7 +34,7 @@ usage() {
   echo ""
   echo "Options:"
   echo "  --minimal       Install ai-kit skeleton only (default)"
-  echo "  --merge-skills  Symlink ai-kit skills individually (default; preserves custom skills)"
+  echo "  --merge-skills  Symlink ai-kit skills individually (default; preserves custom skills; skipped when the Claude Code plugin serves skills)"
   echo "  --link-all      Symlink entire skills dir to ai-kit (greenfield / explicit replace)"
   echo "  --copy-skills   Copy skills into project instead of symlink"
   echo "  --no-skills     Skip .agents/skills, .claude/skills and .cursor/skills (use global install only)"
@@ -128,6 +128,8 @@ if [ "$NO_SKILLS" = true ]; then
 elif [ "$SKILLS_MODE" = "link-all" ]; then
   link_skills_all "$TARGET/.claude" ".claude/skills" "$PRIMITIVES" "$COPY_SKILLS"
   link_skills_all "$TARGET/.agents" ".agents/skills" "$PRIMITIVES" "$COPY_SKILLS"
+elif plugin_serves_skills; then
+  echo "Skipped .claude/skills and .agents/skills merge (the Claude Code plugin serves ai-kit skills)"
 else
   merge_skills "$TARGET/.claude" ".claude/skills" "$PRIMITIVES"
   merge_skills "$TARGET/.agents" ".agents/skills" "$PRIMITIVES"

@@ -61,9 +61,14 @@ sync_plugin_current_link() {
 # install-global.sh)? Read-only fact, no side effects, no behavior change
 # yet — phase (b) of the setup_mode decomposition.
 global_channel_available() {
-  [ -d "${HOME}/.claude/plugins/cache/yusufkaracaburun/ai" ] && return 0
+  plugin_serves_skills && return 0
   [ -f "${HOME}/.config/ai-kit/root" ] && return 0
   return 1
+}
+
+# The Claude Code plugin is installed, so it serves ai-kit skills.
+plugin_serves_skills() {
+  [ -d "${HOME}/.claude/plugins/cache/yusufkaracaburun/ai" ]
 }
 
 # ADR-0015: Claude Code already loads ai-kit's universal rules from the

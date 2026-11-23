@@ -45,3 +45,5 @@
 - 2026-11-22: /ai:upgrade removes a per-repo universal rule copy only when it matches a released version of that rule. The plugin ships a checksum list of every released rule version. Copies that match none are kept and listed in the upgrade output. (source: grill #171)
 - 2026-11-23: Bootstrap skips universal rules per repo only when the ai-kit rules link (~/.claude/rules/ai-kit) resolves and the no-global-rules opt-out is absent; the skills channel alone does not count. (source: user, #320 review)
 - 2026-11-23: Doctor has no "loaded twice" WARN and none is built; the kept-copy list that /ai:upgrade prints is the report of universal rule copies that load twice. (source: review #322)
+- 2026-11-23: on a machine where the plugin serves skills, bootstrap never merges ai-kit skill links into a project and /ai:setup no longer asks the merge question; relative links are not a fix because the target lives outside the repo (source: grill #172)
+- 2026-11-23: no doctor check for home-path ai-kit links; a sweep of local repos found none (source: grill #172)
