@@ -472,6 +472,41 @@ if [ -n "$TARGET" ]; then
       fi
     done
 
+    # vitest, eslint flat config and tsc do not read .gitignore; without an
+    # exclude they pick up files from a parallel worktree (#266).
+    if [ -f "$TARGET/package.json" ]; then
+      echo ""
+      echo "Worktree excludes"
+      for _tool in vitest eslint tsc; do
+        _cfg=""
+        case "$_tool" in
+          vitest)
+            for _f in "$TARGET"/vitest.config.* "$TARGET"/vite.config.*; do
+              [ -f "$_f" ] || continue
+              case "$_f" in */vite.config.*) grep -qE '(^|[^[:alnum:]_])test[[:space:]]*:' "$_f" || continue ;; esac
+              _cfg="$_f"; break
+            done
+            _snip='test: { exclude: [...configDefaults.exclude, ".agents/**", ".claude/**"] }' ;;
+          eslint)
+            for _f in "$TARGET"/eslint.config.*; do [ -f "$_f" ] && { _cfg="$_f"; break; }; done
+            _snip='{ ignores: [".agents/**", ".claude/worktrees/**"] }' ;;
+          tsc)
+            [ -f "$TARGET/tsconfig.json" ] && _cfg="$TARGET/tsconfig.json"
+            _snip='"exclude": ["node_modules", ".agents", ".claude"]' ;;
+        esac
+        [ -n "$_cfg" ] || continue
+        _missing=""
+        for _d in agents claude; do
+          grep -qE "[\"']\\.$_d(/worktrees)?/?(\\*\\*)?[\"']" "$_cfg" || _missing="$_missing${_missing:+ and }.$_d/worktrees"
+        done
+        if [ -z "$_missing" ]; then
+          ok "$_tool excludes agent worktrees (${_cfg#"$TARGET"/})"
+        else
+          warn "$_tool picks up $_missing, add to ${_cfg#"$TARGET"/}: $_snip"
+        fi
+      done
+    fi
+
     # ------------------------------------------------------------------
     # Single-dev drift — 3 checks. ai-kit issue #69 (parent #52).
     # All warn-only; never raise to error. Each gated on its preconditions

@@ -123,6 +123,16 @@ for f in docs/agents/workflow.md docs/agents/triage-labels.md; do
   fi
 done
 
+# Agent worktrees: .agents/worktrees (protocol) and .claude/worktrees (Claude
+# Code isolation). Runner configs need their own exclude; /ai:doctor checks.
+GITIGNORE="$TARGET/.gitignore"
+for line in .agents/worktrees/ .claude/worktrees/; do
+  grep -qxF -- "$line" "$GITIGNORE" 2>/dev/null && continue
+  [ -s "$GITIGNORE" ] && [ -n "$(tail -c1 "$GITIGNORE")" ] && echo >> "$GITIGNORE"
+  echo "$line" >> "$GITIGNORE"
+  echo "Added $line to .gitignore"
+done
+
 if [ "$NO_SKILLS" = true ]; then
   echo "Skipped project skill links (--no-skills; use global ~/.claude/skills and ~/.agents/skills)"
 elif [ "$SKILLS_MODE" = "link-all" ]; then

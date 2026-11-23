@@ -47,3 +47,5 @@
 - 2026-11-23: Doctor has no "loaded twice" WARN and none is built; the kept-copy list that /ai:upgrade prints is the report of universal rule copies that load twice. (source: review #322)
 - 2026-11-23: on a machine where the plugin serves skills, bootstrap never merges ai-kit skill links into a project and /ai:setup no longer asks the merge question; relative links are not a fix because the target lives outside the repo (source: grill #172)
 - 2026-11-23: no doctor check for home-path ai-kit links; a sweep of local repos found none (source: grill #172)
+- 2026-11-23: setup adds `.agents/worktrees/` and `.claude/worktrees/` to a client repo's `.gitignore` but never edits vitest, eslint or tsc configs; doctor names the missing exclude per tool with a copy-paste snippet (source: grill #266)
+- 2026-11-23: the doctor worktree check covers vitest, eslint and tsc only, runs only when `package.json` exists, and reads the configs whether or not a worktree exists yet (source: grill #266)

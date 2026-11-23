@@ -43,11 +43,21 @@ assert "triage-labels.md maps ready-for-agent" \
 rm -rf "$TMP_BOOT"
 
 TMP_NORULES=$(mktemp -d)
+printf 'node_modules' > "$TMP_NORULES/.gitignore"
 "$AIKIT/bin/bootstrap-project.sh" --minimal --no-rules "$TMP_NORULES"
 assert "--no-rules skips .cursor/rules" '[ ! -d "$TMP_NORULES/.cursor/rules" ]'
 assert "--no-rules skips .claude/rules" '[ ! -d "$TMP_NORULES/.claude/rules" ]'
 assert "--no-rules skips active-rules"  '[ ! -f "$TMP_NORULES/docs/agents/active-rules.md" ]'
+"$AIKIT/bin/bootstrap-project.sh" --minimal --no-rules --no-gh-workflow "$TMP_NORULES" >/dev/null
+assert "gitignore: existing line kept on its own line" 'grep -qx "node_modules" "$TMP_NORULES/.gitignore"'
+for WT in .agents/worktrees/ .claude/worktrees/; do
+  assert "gitignore: $WT added once over two runs" '[ "$(grep -cxF "$WT" "$TMP_NORULES/.gitignore")" = 1 ]'
+done
 rm -rf "$TMP_NORULES"
+TMP_NOGI=$(mktemp -d)
+"$AIKIT/bin/bootstrap-project.sh" --minimal --no-rules --no-gh-workflow "$TMP_NOGI" >/dev/null
+assert "gitignore: created when missing" 'grep -qxF ".claude/worktrees/" "$TMP_NOGI/.gitignore"'
+rm -rf "$TMP_NOGI"
 
 echo "=== bootstrap: rules per global rules link ==="
 # section: bootstrap-rules-channel
