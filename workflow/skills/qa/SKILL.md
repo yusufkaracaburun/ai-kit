@@ -43,7 +43,7 @@ Opt-in only. The caller picks the lenses per run; default is all 5. They run one
 - **literal reader:** a second-language speaker of the UI's own language, who follows only the literal UI text.
 - **breaker:** junk input, back mid-flow, double-clicks.
 
-Run every full suite through `bash "${CLAUDE_PLUGIN_ROOT:-$HOME/.config/ai-kit/plugin-current}/bin/ai-kit-heavy-run.sh" <cmd>`; exit 75 means another run holds the lock: report it and stop. Playwright runs with at most 2 workers.
+Run every full suite, production build and dependency install through `bash "${CLAUDE_PLUGIN_ROOT:-$HOME/.config/ai-kit/plugin-current}/bin/ai-kit-heavy-run.sh" <cmd>`; exit 75 means another run holds the lock: report it and stop. Playwright runs with at most 2 workers.
 
 Money guard, mandatory unless the caller states the flow has no payments or orders. Run on non-prod only. Print the payment key mode and abort on a live key: a key in page source or .env with prefix `pk_live_`/`sk_live_` (Stripe) or `live_` (Mollie). Route-abort the payment-provider hosts and the order-create endpoint. Never submit checkout. Use test-domain e-mail only: `@example.test` or the project's own test domain. No non-prod env: stop and report it as a blocker; the caller asks the user. Never fall back to prod.
 

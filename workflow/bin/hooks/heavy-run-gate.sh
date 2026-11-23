@@ -24,11 +24,20 @@ command -v jq >/dev/null 2>&1 || exit 0
 cmd="$(jq -r '.tool_input.command // empty' <<<"$payload" 2>/dev/null)"
 [ -z "$cmd" ] && exit 0
 
-# Quoted text keeps its separators and spaces masked, so a commit message
-# naming `pnpm test` is never a segment of its own. A backslash escapes the
-# next char outside single quotes, as in bash.
+# Quoted text and heredoc bodies keep their separators and spaces masked, so
+# a commit message naming `pnpm test` is never a segment of its own. One
+# leftmost pass, as in bash: a quote opened first hides a `<<`, a heredoc
+# opened first hides the quotes in its body. A backslash escapes the next
+# char outside single quotes.
+# shortcut: `$((1<<x))` reads as a heredoc opener and fails open; parse
+# arithmetic if that ever hides a real run.
 command -v perl >/dev/null 2>&1 || exit 0
-masked="$(perl -0777 -pe 's/("(?:[^"\\]|\\.)*"|\x27[^\x27]*\x27|\\.)/my $q = $1; $q =~ tr{;&|()\n \t}{\x01-\x08}; $q/gse' <<<"$cmd")"
+masked="$(perl -0777 -p \
+  -e 'sub hide { (my $s = shift) =~ tr{;&|()\n \t}{\x01-\x08}; $s }' \
+  -e 'my $quoted = qr/"(?:[^"\\]|\\.)*"|\x27[^\x27]*\x27|\\./s;' \
+  -e 's{(?<!<)(<<(-)?[ \t]*(["\x27]?)([A-Za-z_]\w*)\3)([^\n]*\n)(.*?)(?=^(?(2)\t*)\4$|\z)|($quoted)}' \
+  -e '{ defined $7 ? hide($7) : do { my ($h, $r, $b) = ($1, $5, $6); $h . ($r =~ s/$quoted/hide($&)/ger) . hide($b) } }gsme' \
+  <<<"$cmd")"
 
 prefix_re='^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*|timeout([[:space:]]+[0-9]+[smh]?)?|time|env|command|nice|exec|sudo|npx|bunx|pnpx|\{|!|then|do)[[:space:]]+(.*)$'
 # Flags before `test` (pnpm --filter web, npm --prefix app) pick the package, not the tests.
