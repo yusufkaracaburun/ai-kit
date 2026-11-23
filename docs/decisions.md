@@ -59,3 +59,5 @@
 - 2026-11-23: SubagentStart/SubagentStop plugin hooks keep one file per running builder or designer under .git/ai-kit/subagents/; a file older than 2 hours counts as stale (source: #341 grill)
 - 2026-11-23: the kit ships the marker hooks and a 5th test-suite-stop-gate recipe requirement; apps update their own gate copy, the kit copies no gate script (source: #341 grill)
 - 2026-11-23: while a builder is active the gate exits 0 with one stderr line and writes no green cache (source: #341 grill)
+- 2026-11-23: subagent markers live under the git common dir so the main checkout and every worktree share one marker directory (source: #341 live check)
+- 2026-11-23: a release that adds a hook event needs a full session restart; /reload-plugins does not register new hook events (source: #341 live check)

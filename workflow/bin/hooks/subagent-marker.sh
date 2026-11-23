@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # Claude Code SubagentStart + SubagentStop hook: keep one empty file per
-# running builder or designer subagent at <git-dir>/ai-kit/subagents/<agent_id>.
+# running builder or designer subagent at <git-common-dir>/ai-kit/subagents/<agent_id>.
 #
 # A project's Stop gate reads that directory to skip the test suite while a
 # builder is still editing (test-suite-stop-gate recipe, requirement 5).
 # SubagentStart creates the file for agent_type builder/designer (plugin
 # prefix ai: accepted); SubagentStop removes it for any agent type. The git
-# dir comes from the payload's cwd. Silent, always exit 0. Ships in
+# common dir comes from the payload's cwd, so the main checkout and every
+# linked worktree share one marker directory. Silent, always exit 0. Ships in
 # workflow/hooks/hooks.json.
 
 set -uo pipefail
@@ -32,7 +33,7 @@ id="$(read_field '.agent_id')"
 case "$id" in ''|*/*|.|..) exit 0 ;; esac
 cwd="$(read_field '.cwd')"
 [ -n "$cwd" ] || exit 0
-git_dir="$(cd "$cwd" 2>/dev/null && git rev-parse --absolute-git-dir 2>/dev/null)" || exit 0
+git_dir="$(cd "$cwd" 2>/dev/null && git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)" || exit 0
 marks="$git_dir/ai-kit/subagents"
 
 case "$(read_field '.hook_event_name')" in

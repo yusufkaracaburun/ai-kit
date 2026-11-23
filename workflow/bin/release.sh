@@ -271,6 +271,8 @@ plugin lifecycle + ~/.claude/** writes):
   2. Reinstall the plugin to pick up v$NEW_VERSION:
        /plugin uninstall ai && /plugin install ai@yusufkaracaburun
      (or, when supported in your client: /plugin update ai@yusufkaracaburun)
+     A release that adds a hook event needs a full session restart;
+     /reload-plugins does not register new hook events.
   3. In downstream projects already on ai-kit, re-stamp the marker:
        /ai:upgrade
 

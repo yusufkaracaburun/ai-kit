@@ -34,6 +34,15 @@ assert "stop removes its marker" '[ ! -e "$MARKS/b1" ]'
 assert "stop keeps other markers" '[ -f "$MARKS/d1" ]'
 assert "stop prints nothing" '[ -z "$OUT" ]'
 
+echo "=== subagent-marker: linked worktree ==="
+# section: subagent-marker-worktree
+git -C "$REPO" -c user.email=t@t -c user.name=t commit -q --allow-empty -m init
+git -C "$REPO" worktree add -q "$TMP_S/wt" 2>/dev/null
+fire SubagentStart builder w1 "$TMP_S/wt" >/dev/null
+assert "worktree start marks under the common dir" '[ -f "$MARKS/w1" ]'
+fire SubagentStop builder w1 "$REPO" >/dev/null
+assert "main-checkout stop removes the worktree marker" '[ ! -e "$MARKS/w1" ]'
+
 echo "=== subagent-marker: failure safety ==="
 # section: subagent-marker-safety
 set +e
@@ -49,7 +58,7 @@ assert "malformed payload exits 0 silent" '[ "$BAD_RC" -eq 0 ] && [ -z "$BAD_OUT
 assert "outside git exits 0 silent, no file" '[ "$NOGIT_RC" -eq 0 ] && [ -z "$NOGIT_OUT" ] && [ ! -e "$NOGIT/.git" ]'
 assert "missing agent_id exits 0 silent" '[ "$NOID_RC" -eq 0 ] && [ -z "$NOID_OUT" ] && [ "$(ls "$MARKS")" = d1 ]'
 assert "agent_id with a slash writes nothing" '[ "$TRAV_RC" -eq 0 ] && [ -z "$TRAV_OUT" ] && [ ! -e "$REPO/.git/x" ]'
-rm -rf "$TMP_S"
+command rm -rf "$TMP_S"
 
 echo "=== subagent-marker: plugin delivery ==="
 # section: subagent-marker-plugin
@@ -70,7 +79,7 @@ assert "test-suite-stop-gate carries requirement (5)" \
 import json
 d = json.load(open(\"$AIKIT/workflow/standards/external/hooks-patterns.json\"))
 v = [p for p in d[\"recommendations\"] if p[\"name\"] == \"test-suite-stop-gate\"][0][\"value\"]
-assert \"(5)\" in v and \"test gate skipped: builder active\" in v and \"rev-parse --absolute-git-dir)/ai-kit/subagents/\" in v and \"2 hours\" in v, v
+assert \"(5)\" in v and \"test gate skipped: builder active\" in v and \"rev-parse --path-format=absolute --git-common-dir)/ai-kit/subagents/\" in v and \"2 hours\" in v, v
 "'
 
 print_summary_and_exit

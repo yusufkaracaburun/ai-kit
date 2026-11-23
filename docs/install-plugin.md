@@ -30,6 +30,8 @@ After install, Claude Code namespace-prefixes plugin skills: `/ai:setup`, `/ai:t
 /plugin update ai
 ```
 
+A release that adds a hook event needs a full session restart; `/reload-plugins` does not register new hook events.
+
 The catalog repo pins `source.ref` to a release tag. After each ai-kit
 release, the catalog repo's `.claude-plugin/marketplace.json` is bumped
 to the new tag (see `bin/release.sh` — it prints a copy-paste reminder).
@@ -145,7 +147,7 @@ Test plugin changes without re-publishing:
 claude --plugin-dir /Users/<you>/Sites/localhost/ws/ai-kit/workflow
 ```
 
-Inside Claude Code, `/reload-plugins` picks up edits without restart.
+Inside Claude Code, `/reload-plugins` picks up edits without restart, except a newly added hook event: that needs a full restart.
 
 To validate the manifest before committing:
 
