@@ -162,6 +162,8 @@ PY
 bash "$SCRIPT_BIN/sync-plugin-version.sh"
 # Keep the plugin-bundled global rules (ADR-0015) stamped from standards/rules/.
 bash "$SCRIPT_BIN/sync-plugin-rules.sh"
+# Add this release's universal rule versions, so /ai:upgrade can delete copies of them.
+python3 "$SCRIPT_BIN/lib/rule-checksums.py" build "$AIKIT"
 # The kit's own marker gates the plugin hooks here; keep its version in step.
 if [ -f .ai-kit-setup ]; then
   python3 - "$NEW_VERSION" <<'PY'
@@ -177,7 +179,7 @@ PY
 fi
 
 git add VERSION workflow/CHANGELOG.md workflow/.claude-plugin/plugin.json \
-  workflow/hooks workflow/rules
+  workflow/hooks workflow/rules workflow/standards/rule-checksums.txt
 git commit -m "chore(release): v$NEW_VERSION"
 
 if [ "$DO_TAG" = true ]; then

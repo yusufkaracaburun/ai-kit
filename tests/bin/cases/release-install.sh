@@ -41,6 +41,7 @@ trap 'rm -rf "$REL_TMP"' EXIT
 REL="$REL_TMP/kit"
 git clone --quiet "$AIKIT" "$REL"
 cp "$AIKIT/bin/release.sh" "$REL/bin/release.sh"
+cp "$AIKIT/bin/lib/rule-checksums.py" "$REL/bin/lib/rule-checksums.py"
 git config --file "$REL_TMP/gitconfig" user.email t@t
 git config --file "$REL_TMP/gitconfig" user.name t
 relgit() { GIT_CONFIG_GLOBAL="$REL_TMP/gitconfig" git -C "$REL" "$@"; }
@@ -58,6 +59,14 @@ assert "release: the release commit carries the marker" 'relgit show --name-only
 assert "release: folds Unreleased into the new entry" 'awk "/^## /{f=(\$2==\"9.9.9\")} f" "$REL/CHANGELOG.md" | grep -qx -- "- pending line"'
 assert "release: drops the Unreleased heading" '! grep -q "^## Unreleased" "$REL/CHANGELOG.md"'
 assert "release: leaves a clean tree" '[ -z "$(relgit status --porcelain)" ]'
+
+echo "=== release-sh: rule checksums ==="
+# section: release-sh-rule-checksums
+echo "- a line this release adds" >> "$REL/standards/rules/git-hygiene.mini.md"
+relgit add -A && relgit commit --quiet -m "rule edit"
+GIT_CONFIG_GLOBAL="$REL_TMP/gitconfig" bash "$REL/bin/release.sh" 9.9.10 --notes-file="$TMP_NOTES" --no-tag >/dev/null 2>&1 || true
+REL_SUM="git-hygiene $(python3 "$REL/bin/lib/rule-checksums.py" hash "$REL/standards/rules/git-hygiene.mini.md")"
+assert "release: the checksum list gains the edited rule" 'relgit show HEAD:workflow/standards/rule-checksums.txt | grep -qxF -- "$REL_SUM"'
 rm -rf "$REL_TMP"
 
 rm -f "$TMP_NOTES"
