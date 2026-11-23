@@ -58,7 +58,10 @@ Slices may be 'HITL' or 'AFK'. HITL slices require human interaction, such as an
 - Each slice delivers a narrow but COMPLETE path through every layer (schema, API, UI, tests)
 - A completed slice is demoable or verifiable on its own
 - Prefer many thin slices over few thick ones
+- A prefactor that makes the change easy lands first, as its own slice
 </vertical-slice-rules>
+
+**Sweeping mechanical changes get a parallel change instead.** Moving a shared helper to a new module or changing a widely used function's argument order touches so many files that no single slice can ship green. Split it in three: one issue adds the new form next to the old one; then one issue per group of callers (per package or directory) switches them over, each depending on the first; a last issue removes the old form once every switch-over issue is done. Ideas from mattpocock/skills abeeaf9.
 
 ### 4. Quiz the user
 
