@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.34.0 — 2026-11-23
+
+### Changed
+
+- The heavy-run gate now covers production builds (vite, next) and dependency installs (pnpm, npm), which peaked at several cores while a test suite ran. They go through the machine-wide lock; eslint and tsc stay free because they run in every edit loop and use about one core.
+
 ## 2.33.0 — 2026-11-23
 
 ### Fixed
