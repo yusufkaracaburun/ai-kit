@@ -164,7 +164,8 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
    of `triage/AGENT-BRIEF.md`: summary, key interfaces, acceptance
    criteria, Out of scope, test command and Decisions in force) — that
    is the fresh context per issue. The brief passes the hard cap (≤3 attempts per red→green
-   cycle) to builder, whose report carries a `## Cycles` block
+   cycle) to builder and fills the brief's run budget (under Test command)
+   with the nearest test file per cycle and one full-suite run at the end (idea from mattpocock/skills abeeaf9). Builder's report carries a `## Cycles` block
    (`<C-id> attempts=<n> result=<pass|fail>` per cycle); after it
    returns, write from that block one
    `cycle-attempt <C-id> attempt=<n> result=<pass|fail>` line per
