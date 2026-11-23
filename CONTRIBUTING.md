@@ -36,6 +36,8 @@ Skills live in `workflow/skills/<name>/SKILL.md`. Each SKILL.md must:
 
 These rules are enforced by `tests/bin/eval-structure.sh`. If your skill warrants depth, add sibling `.md` files (e.g. `DEEPENING.md`) and link them from SKILL.md.
 
+Write for the agent that reads it. A skill description or a link to another file is a context pointer: the agent opens the material only when the pointer's own words match its situation, so name the case that should send it there. State the behaviour you want rather than the one you ban; a ban puts the unwanted behaviour in context. Idea from mattpocock/skills abeeaf9.
+
 For high-signal skills, also add at least one fixture under `tests/eval/prompts/<skill>/<scenario>.md` with an `expects[]` rubric so future edits can be evaluated.
 
 ## Modifying bash scripts
