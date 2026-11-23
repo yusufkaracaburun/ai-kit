@@ -1,13 +1,13 @@
 # Mental model
 
-How the 32 skills fit together, plus the 7 subagents and 9 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
+How the 31 skills fit together, plus the 7 subagents and 9 slash commands they call. Read this once; refer back when picking the right skill (or subagent, or command) for a turn.
 
 For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossary.md). For "I want to add X — which primitive?" see [primitives.md](primitives.md).
 
 ## The lifecycle loop
 
 ```
-   ┌─→ IDEATION      grill-me · grill-with-docs · to-prd · validate-idea
+   ┌─→ IDEATION      grill-with-docs · to-prd · validate-idea
    │      │
    │      ▼
    │   DEVELOPMENT   to-issues → triage → tdd
@@ -30,7 +30,6 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
 
 | You are about to … | Use this skill |
 | ------------------ | -------------- |
-| Stress-test an idea by being interviewed | `grill-me` |
 | Stress-test a plan against `CONTEXT.md` and ADRs, updating them as decisions land | `grill-with-docs` |
 | Turn a vague idea into a PRD | `to-prd` |
 | Shatter a plan / PRD into N independently-grabbable tracer-bullet issues | `to-issues` |

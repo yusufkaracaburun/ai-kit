@@ -8,7 +8,7 @@ source "$AIKIT/tests/bin/lib/harness.sh"
 echo "=== skills-count ==="
 # section: skills-count
 SKILL_COUNT=$(find "$AIKIT/workflow/skills" -name SKILL.md | wc -l | tr -d ' ')
-assert "32 skills" '[ "$SKILL_COUNT" -eq 32 ]'
+assert "31 skills" '[ "$SKILL_COUNT" -eq 31 ]'
 assert "plugin payload carries the changelog" '[ -f "$AIKIT/workflow/CHANGELOG.md" ]'
 assert "checkpoint skill exists" '[ -f "$AIKIT/workflow/skills/checkpoint/SKILL.md" ]'
 assert "resume skill exists" '[ -f "$AIKIT/workflow/skills/resume/SKILL.md" ]'
@@ -229,9 +229,7 @@ for f in "$SK/review/SKILL.md" "$AG/reviewer.md"; do
 done
 assert "reviewer falls back to the PR or issue text" 'grep -qF "review against the PR or issue text" "$AG/reviewer.md"'
 assert "AGENT-BRIEF has Test command and Decisions in force" 'grep -qF "**Test command:**" "$SK/triage/AGENT-BRIEF.md" && grep -qF "**Decisions in force:**" "$SK/triage/AGENT-BRIEF.md" && grep -qF "docs/decisions.md" "$SK/triage/AGENT-BRIEF.md"'
-for g in grill-me grill-with-docs; do
-  assert "$g appends decisions to docs/decisions.md" "grep -qF 'docs/decisions.md' \"\$SK/$g/SKILL.md\""
-done
+assert "grill-with-docs appends decisions to docs/decisions.md" 'grep -qF "docs/decisions.md" "$SK/grill-with-docs/SKILL.md"'
 
 
 echo "=== chain-seams ==="
@@ -263,7 +261,7 @@ assert "design-to-code reviewer targets the uncommitted working tree" 'grep -qF 
 assert "design-to-code fixes drift frame first, then code" 'grep -qF "frame first, then code" "$D2C" && grep -qF "Drift is fixed frame-first." "$AIKIT/standards/rules/design-leads.mini.md"'
 assert "design-to-code drops the stale mobile and quota lines" '! grep -qF "Mobile is not designed in Paper yet" "$D2C" && ! grep -qF "100 MCP calls per week" "$D2C" "$AG/designer.md"'
 GF="$AIKIT/standards/rules/grill-first.mini.md"
-for s in grill-me validate-idea design-to-code; do
+for s in grill-with-docs validate-idea design-to-code; do
   assert "grill-first phase table lists $s" "grep -E '^ +\\|' \"\$GF\" | grep -qF '\`$s\`'"
 done
 assert "grill-first names the real deployment-on-demand path" 'p=standards/rules/feedback/deployment-on-demand.mini.md; grep -qF "$p" "$GF" && [ -f "$AIKIT/$p" ]'

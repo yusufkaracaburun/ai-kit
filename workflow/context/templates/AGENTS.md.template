@@ -8,7 +8,7 @@ This project uses the ai-kit workflow (Claude Code + Cursor).
 
 | Fase | Doel | Skills |
 | ---- | ---- | ------ |
-| **Ideation** | Scope, requirements, alignment | `grill-me`, `grill-with-docs`, `to-prd` |
+| **Ideation** | Scope, requirements, alignment | `grill-with-docs`, `to-prd` |
 | **Development** | Backlog → incrementeel bouwen | `to-issues` → `triage` → `tdd` (+ Sandcastle voor AFK) |
 | **Testing** | Continuous test & fix | `tdd`, `review`, `qa`, `diagnose` |
 | **Deployment** | Release naar productie | project release procedure (`deployment-on-demand` rule) |

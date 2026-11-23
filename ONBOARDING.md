@@ -10,7 +10,7 @@ Stack-agnostic. Pure Bash + Markdown. One canonical source emits skills,
 slash commands and rules to both hosts, and subagents and hooks to Claude
 Code. No per-host duplication, no runtime daemon, no network calls, no telemetry.
 
-Today: **32 skills · 7 subagents · 9 slash commands · 14 plugin-wired hook entries ·
+Today: **31 skills · 7 subagents · 9 slash commands · 14 plugin-wired hook entries ·
 47 canonical mini-rules · 24 curated MCP servers · 28 curated hook recipes ·
 23 curated plugins · 5 baseline repo templates.**
 
@@ -42,7 +42,7 @@ curl -fsSL https://raw.githubusercontent.com/yusufkaracaburun/ai-kit/master/inst
 ## 3. The shape of the codebase
 
 - `workflow/` — the canonical primitives that ship to hosts.
-  - `skills/<name>/SKILL.md` (32) · `agents/<name>.md` (7) ·
+  - `skills/<name>/SKILL.md` (31) · `agents/<name>.md` (7) ·
     `commands/<name>.md` (9) · `hooks/hooks.json` (14 entries, run from `bin/hooks/`) ·
     `.claude-plugin/plugin.json` (manifest).
 - `standards/rules/` — agent-agnostic mini-rules; `bin/emit-rules.sh`
@@ -157,4 +157,4 @@ After reading this, run:
 - `/ai:setup` — wire ai-kit into a new project (Tier A is ~5 min).
 - `/ai:doctor` — verify the install end-to-end before opening a PR.
 - `/ai:next` — pick the first issue from the prioritised backlog.
-- `/ai:grill-me` — if anything in this guide is still ambiguous.
+- `/ai:grill-with-docs` — if anything in this guide is still ambiguous.

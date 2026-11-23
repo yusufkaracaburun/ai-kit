@@ -23,7 +23,7 @@ Cursor and other hosts: see [Install](#install).
 
 | Primitive | Count | Reaches |
 | --------- | -----:| ------- |
-| Skills | 32 | Claude Code · Cursor |
+| Skills | 31 | Claude Code · Cursor |
 | Subagents | 7 | Claude Code |
 | Slash commands | 9 | Claude Code · Cursor |
 | Hooks | 14 plugin-wired entries over 12 scripts (`workflow/hooks/hooks.json`) | Claude Code |
@@ -74,17 +74,17 @@ drops a `.ai-kit-setup` marker, and detects your stack. The default mode
 First moves:
 
 - `/ai:status` — confirm install is healthy.
-- `/ai:grill-me` — stress-test your next idea before you build it.
+- `/ai:grill-with-docs` — stress-test your next idea before you build it.
 - `/ai:review` — second pass on a diff before opening the PR.
 - `/ai:which "<intent>"` — pick a skill if unsure.
 
 ## The agile lifecycle
 
-32 skills covering one loop — idea to retro:
+31 skills covering one loop — idea to retro:
 
 | Phase | Skills |
 | ----- | ------ |
-| Ideation | `grill-me` · `grill-with-docs` · `to-prd` · `should-i-use` · `validate-idea` |
+| Ideation | `grill-with-docs` · `to-prd` · `should-i-use` · `validate-idea` |
 | Development | `to-issues` → `triage` → `tdd` · `design-to-code` · `clone-website` |
 | Testing | `review` · `qa` · `diagnose` |
 | Deployment | project release procedure (see `deployment-on-demand` rule) |

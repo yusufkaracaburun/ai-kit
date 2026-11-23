@@ -1,4 +1,4 @@
-# grill-me — worked examples
+# grill-with-docs: worked examples
 
 Five canonical grilling scenarios. Use them as templates, not scripts — the questions you actually ask depend on what's missing from the user's plan.
 

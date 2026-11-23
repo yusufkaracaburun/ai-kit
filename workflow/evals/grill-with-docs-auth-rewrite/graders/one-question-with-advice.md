@@ -9,4 +9,4 @@ criteria: |
   recommendation to the question it asks.
 ---
 
-Phase 2 contract of grill-me: one question at a time, recommendation attached.
+Phase 2 contract of grill-with-docs: one question at a time, recommendation attached.

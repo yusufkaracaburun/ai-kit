@@ -36,7 +36,7 @@ Plan (run in order; stop on the first failure and report it):
        ~/.agents/skills, agents and commands into ~/.claude, and commands into
        ~/.cursor/commands, for the hosts in ~/.config/ai-kit/hosts or, without
        that file, the hosts it detects). Primitives surface WITHOUT a /ai: prefix
-       (`/setup`, `/tdd`, `/grill-me`, …) — substitute `/ai:foo` → `/foo`
+       (`/setup`, `/tdd`, `/grill-with-docs`, …) — substitute `/ai:foo` → `/foo`
        in steps 5, 6, 7.
 
            curl -fsSL https://raw.githubusercontent.com/yusufkaracaburun/ai-kit/master/install.sh | bash
@@ -61,8 +61,8 @@ Plan (run in order; stop on the first failure and report it):
          PLUGIN_PRESENT=true
 
    - If PLUGIN_PRESENT=true OR `~/.claude/commands/ai:*` exists → use
-     `/ai:setup`, `/ai:tdd`, `/ai:grill-me`, `/ai:which`, `/ai:status`.
-   - Else (symlink/legacy install) → use `/setup`, `/tdd`, `/grill-me`,
+     `/ai:setup`, `/ai:tdd`, `/ai:grill-with-docs`, `/ai:which`, `/ai:status`.
+   - Else (symlink/legacy install) → use `/setup`, `/tdd`, `/grill-with-docs`,
      `/which`, `/status` (no prefix).
 
 6. Bootstrap the current project. From the project root, invoke the
@@ -78,7 +78,7 @@ Plan (run in order; stop on the first failure and report it):
 
 8. Suggest two next moves, picked from the human's intent (using the
    right prefix variant from step 5):
-   - If they want to plan: `grill-me` to stress-test the plan first.
+   - If they want to plan: `grill-with-docs` to stress-test the plan first.
    - If they are unsure: `which "<one-line intent>"` to pick a skill.
 
 Rules:

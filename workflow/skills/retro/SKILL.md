@@ -11,7 +11,7 @@ The project's `docs/agents/workflow.md`, written by `/ai:setup`, says whether it
 
 ## Process
 
-Ask **one topic at a time** (grill-me-lite). Provide a recommendation based on git/issue history before each question.
+Ask **one topic at a time** (a light grill). Provide a recommendation based on git/issue history before each question.
 
 1. **What shipped**
    - Explore: merged PRs, closed issues, tags since last retro (or last 1–4 weeks)

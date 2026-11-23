@@ -4,7 +4,7 @@ Audit the idea-to-release skill chain in the ai-kit repo at `<kit root>`.
 
 ## Scope
 
-Chain skills under `workflow/skills/`: grill-me, grill-with-docs, validate-idea, to-prd, to-issues, triage, tdd, autonomous, review, qa, diagnose, design-to-code, harvest, retro, checkpoint, resume, next. Plus the rules they lean on: `workflow/standards/rules/` (session-coordination, grill-first, quality-floor, design-leads), `workflow/standards/rules/feedback/deployment-on-demand.mini.md`, and `docs/adr/`.
+Chain skills under `workflow/skills/`: grill-with-docs, validate-idea, to-prd, to-issues, triage, tdd, autonomous, review, qa, diagnose, design-to-code, harvest, retro, checkpoint, resume, next. Plus the rules they lean on: `workflow/standards/rules/` (session-coordination, grill-first, quality-floor, design-leads), `workflow/standards/rules/feedback/deployment-on-demand.mini.md`, and `docs/adr/`.
 
 ## Part 1: one row per skill
 

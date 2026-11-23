@@ -36,7 +36,7 @@ State what is out of scope. This prevents the agent from gold-plating or making 
 
 ### Decisions quoted, not paraphrased
 
-Decisions in force are lines copied from the project's `docs/decisions.md`, which `grill-me` and `grill-with-docs` append to. Quote only the lines that bear on this issue. No file or no relevant line → write "none".
+Decisions in force are lines copied from the project's `docs/decisions.md`, which `grill-with-docs` appends to. Quote only the lines that bear on this issue. No file or no relevant line → write "none".
 
 ### One brief for every worker
 

@@ -257,7 +257,7 @@ cat > "$TMP_L/AGENTS.md" <<'MD'
 
 | Fase | Doel | Skills |
 | ---- | ---- | ------ |
-| Ideatie | Scope en requirements | `grill-me`, `to-prd` |
+| Ideatie | Scope en requirements | `grill-with-docs`, `to-prd` |
 | Bouwen | Backlog incrementeel bouwen | `to-issues`, `tdd` |
 
 Skills staan in `.claude/skills/`.

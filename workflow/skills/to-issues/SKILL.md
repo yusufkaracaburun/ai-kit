@@ -42,7 +42,7 @@ Work from whatever is already in the conversation context. If the user passes an
 
 ### 1.5. Grill-first gate
 
-Before drafting slices, apply [`grill-first.mini.md`](../../../standards/rules/grill-first.mini.md). Issue bodies and PRDs look complete but are almost always under-specified — scope split, detection logic, override patterns, and bundle-vs-defer decisions are usually implicit. Route to `grill-with-docs` (if domain docs exist) or `grill-me` and wait for answers before drafting slices. Skip only when the user has answered the open questions in the same turn or said "go" / "skip grill".
+Before drafting slices, apply [`grill-first.mini.md`](../../../standards/rules/grill-first.mini.md). Issue bodies and PRDs look complete but are almost always under-specified — scope split, detection logic, override patterns, and bundle-vs-defer decisions are usually implicit. Route to `grill-with-docs` (it creates `CONTEXT.md` when missing) and wait for answers before drafting slices. Skip only when the user has answered the open questions in the same turn or said "go" / "skip grill".
 
 ### 2. Explore the codebase (optional)
 

@@ -64,7 +64,7 @@ echo "=== phase-check: message content ==="
 # section: phase-check-message
 OUT=$(fire "implementeer de nieuwe endpoint")
 assert "names the phases" 'grep -q "Ideation" <<<"$OUT" && grep -q "Deployment" <<<"$OUT"'
-assert "lists the same skills as the grill-first table" 'grep -q "grill-me" <<<"$OUT" && grep -q "validate-idea" <<<"$OUT" && grep -q "design-to-code" <<<"$OUT"'
+assert "lists the same skills as the grill-first table" 'grep -q "grill-with-docs" <<<"$OUT" && grep -q "validate-idea" <<<"$OUT" && grep -q "design-to-code" <<<"$OUT"'
 assert "points at an existing issue first" 'grep -q "ai:next" <<<"$OUT"'
 assert "carries the skip list" 'grep -qi "typo" <<<"$OUT"'
 

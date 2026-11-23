@@ -1,5 +1,5 @@
 ---
-name: grill-me-auth-rewrite
+name: grill-with-docs-auth-rewrite
 tags: [conversational]
 max_turns: 6
 ---

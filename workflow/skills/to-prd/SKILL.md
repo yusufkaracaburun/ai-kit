@@ -149,7 +149,7 @@ When the user wants a full spec, not a parking-lot capture.
 
 ### Process
 
-1. **Grill-first gate.** Apply [`grill-first.mini.md`](../../../standards/rules/grill-first.mini.md) before drafting anything — route to `grill-with-docs` (domain docs exist) or `grill-me`, and wait for answers. Skip only if the open questions were already answered in this turn or the user said "go" / "skip grill".
+1. **Grill-first gate.** Apply [`grill-first.mini.md`](../../../standards/rules/grill-first.mini.md) before drafting anything — route to `grill-with-docs` (it creates `CONTEXT.md` when missing), and wait for answers. Skip only if the open questions were already answered in this turn or the user said "go" / "skip grill".
 
 2. Explore the repo to understand the current state of the codebase, if you haven't already. Use the project's domain glossary vocabulary throughout the PRD, and respect any ADRs in the area you're touching.
 

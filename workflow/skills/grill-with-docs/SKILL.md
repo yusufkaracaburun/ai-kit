@@ -1,6 +1,6 @@
 ---
 name: grill-with-docs
-description: Grilling session that challenges your plan against the existing domain model, sharpens terminology, and updates documentation (CONTEXT.md, ADRs) inline as decisions crystallise. Use when user wants to stress-test a plan against their project's language and documented decisions.
+description: Interview the user relentlessly about a plan or design until shared understanding, challenging it against the domain model and writing terms and decisions to CONTEXT.md, ADRs and docs/decisions.md as they settle, creating those files when missing. Use when the user wants to stress-test a plan, get grilled on their design, or mentions "grill me".
 model: fable
 ---
 
@@ -8,9 +8,22 @@ model: fable
 
 Interview me relentlessly about every aspect of this plan until we reach a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one. For each question, provide your recommended answer.
 
-Ask the questions one at a time, waiting for feedback on each question before continuing.
+Ask the questions one at a time, waiting for feedback on each question before continuing, or ask one frontier round (below).
 
 If a question can be answered by exploring the codebase, explore the codebase instead. For wide sweeps, delegate to a sub-agent (`Explore`) so raw findings stay out of this conversation's context — see [`context-discipline.mini.md`](../../../standards/rules/context-discipline.mini.md).
+
+Every grill writes docs. If the repo has no `CONTEXT.md` or `docs/adr/`, create them as the first term or decision settles, so nothing decided stays in chat only.
+
+See [DEEPENING.md](DEEPENING.md) for worked question chains for PRD, ADR, design, migration and scope-cut grilling.
+
+## Process
+
+1. **Scope the tree.** Before the first question, restate in one sentence what is being grilled and why, then list the 3 to 7 top-level branches you will walk (for a feature: constraints, user model, data shape, failure modes, rollout, what we are not doing). Settle branches the codebase answers first and report what you found.
+2. **Walk one branch at a time.** One concrete question, no compound sub-questions, with your recommended answer and a one-line why, worded so "yes" accepts it. Wait. A new sub-branch goes onto the agenda, announced out loud. A vague answer gets the smallest follow-up that pins it down ("what would make you choose differently?").
+3. **Frontier round (optional).** When several questions no longer hang on any open answer, ask them as one numbered batch, each with its recommendation, then recompute the batch from the answers; a question that depends on another one in the batch waits for the next round. Send a wide fact lookup to the `explore` subagent and ask the questions that do not depend on it meanwhile. In this mode the grill is done when no unblocked question is left. Ideas from mattpocock/skills abeeaf9.
+4. **Converge.** Summarise the decisions and their reasons in 5 to 15 bullets and ask "Anything that feels wrong now that you see it written down?" Then route on: [to-prd](../to-prd/SKILL.md), [to-issues](../to-issues/SKILL.md), or an ADR.
+
+Anti-patterns: compound questions, open-ended "what do you think about X?", grilling the UI before the data model is settled, stopping at the first plausible answer, and not saying which questions you settled from the code.
 
 </what-to-do>
 

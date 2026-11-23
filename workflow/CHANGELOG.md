@@ -14,6 +14,9 @@
   - `git-hygiene` rule: the fallback PR body asks for before/after evidence and a merge-danger line (one-way or two-way door, blast radius).
   - `autonomous`: the builder brief carries a run budget of the nearest test file per cycle and one full-suite run at the end.
 
+### Removed
+- `grill-me` is merged into `grill-with-docs`, so `/ai:grill-me` no longer exists; use `/ai:grill-with-docs`. It keeps the agenda, the one question with a recommendation, the frontier round and the worked examples (`DEEPENING.md`). Every grill now writes docs, and creates `CONTEXT.md` and `docs/adr/` when the repo has none.
+
 ## 2.28.0 — 2026-11-23
 
 ### Added

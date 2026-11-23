@@ -21,13 +21,13 @@ Any of: an issue number / URL / spec path is passed · "implement this", "pak je
 ## How
 
 1. Open with 3–7 questions via `AskUserQuestion`, at minimum: **scope split** (one PR or several, what ships first), **detection / trigger logic** (how is "when X happens" actually detected in the data), **override pattern** (hard block or escape hatch), **bundle vs defer** (what goes now, what becomes a follow-up issue), **data contract** (what owns each piece of state).
-2. Route: domain docs exist (`CONTEXT.md`, ADRs, glossary) → `grill-with-docs`; otherwise → `grill-me`.
+2. Route: every grill → `grill-with-docs`, also when no `CONTEXT.md` or ADRs exist yet; it creates them as the first term or decision settles, so a domain decision never stays chat-only.
 3. Wait for the answers before drafting plan, issues or code.
 4. Then name, out loud, the phase the work sits in and the skill that carries it — an unnamed phase is how the workflow gets skipped while the work still looks fine:
 
    | Phase | Skill |
    | ----- | ----- |
-   | Ideation — scope, requirements | `validate-idea`, `grill-me`, `grill-with-docs`, `to-prd` |
+   | Ideation — scope, requirements | `validate-idea`, `grill-with-docs`, `to-prd` |
    | Development — backlog → build | `to-issues` → `triage` → `tdd`; `design-to-code` for screens with a design |
    | Testing — test & fix | `tdd`, `review`, `qa`, `diagnose` |
    | Deployment — release | the project's release procedure (`deployment-on-demand` rule, `standards/rules/feedback/deployment-on-demand.mini.md`) |
@@ -39,4 +39,4 @@ Any of: an issue number / URL / spec path is passed · "implement this", "pak je
 
 The user answered the open questions in the same turn · says "go", "skip grill", "no questions", "geen vragen, gewoon doen" · the task is a trivial one-liner the issue body fully specifies (typo, lint, version bump).
 
-Completeness of the source doc ≠ completeness of the implementation spec; the grill closes the gap. See `grill-me` / `grill-with-docs` (the workflows) and `bin/hooks/phase-check.sh` (the enforcement half on Claude Code — it repeats the table on every work-start prompt; the plugin serves it in every project with an `.ai-kit-setup` marker).
+Completeness of the source doc ≠ completeness of the implementation spec; the grill closes the gap. See `grill-with-docs` (the workflow) and `bin/hooks/phase-check.sh` (the enforcement half on Claude Code — it repeats the table on every work-start prompt; the plugin serves it in every project with an `.ai-kit-setup` marker).

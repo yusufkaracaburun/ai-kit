@@ -6,4 +6,4 @@ criteria: |
   top-level branches/topics it intends to walk through?
 ---
 
-Phase 1 contract of grill-me: restatement + surfaced agenda before question one.
+Phase 1 contract of grill-with-docs: restatement + surfaced agenda before question one.
