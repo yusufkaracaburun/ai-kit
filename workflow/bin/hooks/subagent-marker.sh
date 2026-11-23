@@ -41,6 +41,6 @@ case "$(read_field '.hook_event_name')" in
       builder|designer|ai:builder|ai:designer)
         mkdir -p "$marks" 2>/dev/null && : > "$marks/$id" 2>/dev/null ;;
     esac ;;
-  SubagentStop) rm -f "$marks/$id" 2>/dev/null ;;
+  SubagentStop) command rm -f "$marks/$id" 2>/dev/null ;;
 esac
 exit 0
