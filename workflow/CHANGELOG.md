@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.33.0 — 2026-11-23
+
+### Fixed
+
+- The generic emitter rewrites only the ai-kit block in docs/agents/active-rules.md, so lines an app added by hand survive an upgrade. An unclosed marker or a prose line that mentions the marker no longer wipes text, and a failed rewrite leaves the file as it was (#331).
+- ai-kit-issue-meta.sh finds a board linked to the repo even before any issue is on it (#334).
+- lead-guard lets a lead edit the Claude Code settings files .claude/settings.json and .claude/settings.local.json, so /update-config works in a lead session. Everything else stays denied (#336).
+- The ship brief deletes a squash-merged local branch with git branch -D, only after the PR is MERGED and the local branch matches the PR head, removing a linked worktree first (#339).
+
 ## 2.32.1 — 2026-11-23
 
 Subagent markers now live under the git common dir, so a test gate in the main checkout sees builders working in linked worktrees, and start and stop always use the same path (#341). A release that adds a hook event needs a full session restart; /reload-plugins does not register new hook events.
