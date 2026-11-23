@@ -185,6 +185,41 @@ assert "emit-rules: re-emitting a middle rule keeps its row position" \
   '[ "$(grep "^| " "$EMIT_TMP/docs/agents/active-rules.md" | sed -n "3,\$p" | cut -d"|" -f2)" = "$ROWS_BEFORE" ]'
 rm -rf "$EMIT_TMP"
 
+# active-rules.md: only the marked block is ours (#331).
+AR_TMP=$(mktemp -d)
+AR="$AR_TMP/docs/agents/active-rules.md"
+"$AIKIT/bin/emit-rules.sh" "$AR_TMP" --rules git-hygiene --agents generic >/dev/null
+assert "active-rules: missing file created with the block" \
+  'head -1 "$AR" | grep -qx "# Active rules" && grep -q "^| git-hygiene " "$AR" && grep -q "ai-kit:active-rules:end" "$AR"'
+printf '# App rules\n\nOur own line 3.\n\n' > "$AR_TMP/above"
+printf '\nFooter the app wrote.\n' > "$AR_TMP/below"
+{ cat "$AR_TMP/above"; sed -n '/ai-kit:active-rules:start/,/ai-kit:active-rules:end/p' "$AR"; cat "$AR_TMP/below"; } > "$AR_TMP/custom"
+cp "$AR_TMP/custom" "$AR"
+"$AIKIT/bin/emit-rules.sh" "$AR_TMP" --rules quality-floor --agents generic >/dev/null
+assert "active-rules: text above the markers survives byte for byte" \
+  'sed "/ai-kit:active-rules:start/,\$d" "$AR" | cmp -s - "$AR_TMP/above"'
+assert "active-rules: text below the markers survives byte for byte" \
+  'sed "1,/ai-kit:active-rules:end/d" "$AR" | cmp -s - "$AR_TMP/below"'
+assert "active-rules: emit updates the block between the markers" \
+  'grep -q "^| git-hygiene " "$AR" && grep -q "^| quality-floor " "$AR"'
+printf 'Hand-written notes.\n' > "$AR"
+"$AIKIT/bin/emit-rules.sh" "$AR_TMP" --rules git-hygiene --agents generic >/dev/null
+cp "$AR" "$AR_TMP/first"
+"$AIKIT/bin/emit-rules.sh" "$AR_TMP" --rules git-hygiene --agents generic >/dev/null
+assert "active-rules: file without markers keeps its content" 'head -1 "$AR" | grep -qx "Hand-written notes."'
+assert "active-rules: file without markers gets the block appended once" \
+  '[ "$(grep -c "ai-kit:active-rules:start" "$AR")" = 1 ] && grep -q "^| git-hygiene " "$AR"'
+assert "active-rules: second emit changes nothing" 'cmp -s "$AR" "$AR_TMP/first"'
+printf 'Top\n<!-- ai-kit:active-rules:start -->\n| git-hygiene | always | old |\nTail line.\n' > "$AR"
+"$AIKIT/bin/emit-rules.sh" "$AR_TMP" --rules quality-floor --agents generic >/dev/null
+assert "active-rules: start marker without end keeps rows and app text" \
+  'head -1 "$AR" | grep -qx Top && grep -q "^| git-hygiene " "$AR" && grep -q "^| quality-floor " "$AR" && grep -qx "Tail line." "$AR" && [ "$(grep -c "ai-kit:active-rules:end" "$AR")" = 1 ]'
+: > "$AR"
+"$AIKIT/bin/emit-rules.sh" "$AR_TMP" --rules git-hygiene --agents generic >/dev/null
+assert "active-rules: empty file gets the block without a leading blank line" \
+  'head -1 "$AR" | grep -q "ai-kit:active-rules:start"'
+rm -rf "$AR_TMP"
+
 
 echo "=== emit-agents ==="
 # section: emit-agents
