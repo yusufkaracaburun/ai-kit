@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
-# Claude Code PreToolUse hook on Bash: a full test suite runs only through
-# ai-kit-heavy-run.sh, which holds the machine-wide heavy-run lock. A hook
-# alone cannot serialise runs, because it exits before the command starts.
+# Claude Code PreToolUse hook on Bash: a full test suite, a production build
+# or a dependency install runs only through ai-kit-heavy-run.sh, which holds
+# the machine-wide heavy-run lock. A hook alone cannot serialise runs,
+# because it exits before the command starts.
 #
 # Heavy: pest, paratest, phpunit, vitest, jest, playwright, patrol, maestro,
-# xcodebuild, gradle(w), and npm|pnpm|yarn|bun [run] test, composer test,
-# php artisan test, anywhere in a chain. Free: --filter, -t, a test-file
-# argument, a segment run through the wrapper, and non-run calls (playwright
+# xcodebuild, gradle(w), vite|next|astro build, npm|pnpm|yarn|bun [run]
+# test|build, composer test, php artisan test, and pnpm|npm|yarn|bun
+# install|i|ci, anywhere in a chain. eslint and tsc stay free: they run in
+# every edit loop, and queuing them behind the lock costs more than their
+# peak. Free: a test run with --filter, -t or a test-file argument, a
+# segment run through the wrapper, and non-run calls (playwright
 # install|show-report|codegen, --version, xcodebuild -list). No override: the
 # user runs a suite in a terminal or with `!`.
 #
@@ -29,8 +33,10 @@ masked="$(perl -0777 -pe 's/("(?:[^"\\]|\\.)*"|\x27[^\x27]*\x27|\\.)/my $q = $1;
 prefix_re='^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*|timeout([[:space:]]+[0-9]+[smh]?)?|time|env|command|nice|exec|sudo|npx|bunx|pnpx|\{|!|then|do)[[:space:]]+(.*)$'
 # Flags before `test` (pnpm --filter web, npm --prefix app) pick the package, not the tests.
 alias_re='^((npm|pnpm|yarn|bun|composer)([[:space:]]+-[^[:space:]]+([[:space:]]+[^-[:space:]][^[:space:]]*)?)*([[:space:]]+run)?|php[[:space:]]+artisan)[[:space:]]+test([[:space:]]+(.*))?$'
+# Builds and installs have no test filter, so --filter or -t never frees them.
+build_install_re='^(npm|pnpm|yarn|bun)([[:space:]]+-[^[:space:]]+([[:space:]]+[^-[:space:]][^[:space:]]*)?)*[[:space:]]+(install|i|ci|(run[[:space:]]+)?build)([[:space:]]|$)'
 launcher_re='^(npm|pnpm|yarn|bun|php)[[:space:]]+((exec|dlx|x)[[:space:]]+)?(.*)$'
-runner_re='^([^[:space:]]*/)?(pest|paratest|phpunit|vitest|jest|playwright|patrol|maestro|xcodebuild|gradlew?)([[:space:]]+(.*))?$'
+runner_re='^([^[:space:]]*/)?(pest|paratest|phpunit|vitest|jest|playwright|patrol|maestro|xcodebuild|gradlew?|vite|next|astro)([[:space:]]+(.*))?$'
 
 filtered() {
   local w words
@@ -54,7 +60,7 @@ deny() {
   fi
   at="$1"
   [[ $2 =~ ^((([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*|\{|!|then|do)[[:space:]]+)*) ]] && at=$((at + ${#BASH_REMATCH[1]}))
-  jq -n --arg r "heavy-run: full test suites run under the machine-wide lock. Rerun as: $(
+  jq -n --arg r "heavy-run: test suites, builds and installs run under the machine-wide lock. Rerun as: $(
     tr '\001\002\003\004\005\006\007\010' ';&|()\n \t' <<<"${masked:0:at}$wrapper ${masked:at}")" \
     '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $r}}'
   exit 0
@@ -73,6 +79,7 @@ while [ -n "$left" ]; do
   shown="$seg"
   while [[ $seg =~ $prefix_re ]]; do seg="${BASH_REMATCH[3]}"; done
   [ -z "$seg" ] && continue
+  [[ $seg =~ $build_install_re ]] && deny "$start" "$shown"
   if [[ $seg =~ $alias_re ]]; then
     args="${BASH_REMATCH[7]}"
   else
@@ -82,6 +89,8 @@ while [ -n "$left" ]; do
     tool="${BASH_REMATCH[2]}" args="${BASH_REMATCH[4]}"
     case "$tool $args " in
       "playwright install "*|"playwright show-report "*|"playwright codegen "*|*" --version "*|*" -version "*|"xcodebuild -list "*|"xcodebuild "*" -list "*) continue ;;
+      "vite build "*|"next build "*|"astro build "*) deny "$start" "$shown" ;;
+      "vite "*|"next "*|"astro "*) continue ;;
     esac
   fi
   filtered "$args" || deny "$start" "$shown"

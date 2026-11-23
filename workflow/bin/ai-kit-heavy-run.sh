@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Run a heavy command (a full test suite) under the machine-wide heavy-run
-# lock, so two agents never run one at the same time.
+# Run a heavy command (a full test suite, a production build or a dependency
+# install) under the machine-wide heavy-run lock, so two agents never run
+# one at the same time.
 #
 #   ai-kit-heavy-run.sh <cmd> [args...]
 #

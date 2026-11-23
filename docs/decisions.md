@@ -62,3 +62,4 @@
 - 2026-11-23: subagent markers live under the git common dir so the main checkout and every worktree share one marker directory (source: #341 live check)
 - 2026-11-23: a release that adds a hook event needs a full session restart; /reload-plugins does not register new hook events (source: #341 live check)
 - 2026-11-23: lead-guard lets a lead edit Claude Code settings files (.claude/settings.json, .claude/settings.local.json) by path; a hook cannot see the active skill, so the exception is not limited to /update-config. Claude Code's own permission prompt still guards the edit. (source: #336, user approval)
+- 2026-11-23: the heavy-run gate also counts production builds (vite, next, astro build and the build script through npm, pnpm, yarn, bun) and dependency installs (pnpm/npm/yarn/bun install, npm ci); eslint and tsc stay free because they run in every edit loop and waiting on the 600 s lock costs more than their peak (source: user decision, fan-monitor peaks)

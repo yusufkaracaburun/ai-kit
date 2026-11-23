@@ -114,6 +114,13 @@ for c in "pnpm --filter web test" "pnpm -C app test" "npm --prefix app test" "ti
   OUT=$(fire "$c")
   assert "deny with the wrapper path: $c" 'grep -qF "$WRAP" <<<"$OUT"'
 done
+for c in "vite build" "npx vite build" "pnpm exec next build" "./node_modules/.bin/astro build" "pnpm vite build" \
+  "pnpm build" "yarn build" "npm run build" "bun run build" "pnpm -C app build" \
+  "pnpm install --frozen-lockfile" "pnpm i" "npm ci" "npm install" "npm i" "yarn install" "bun install" \
+  "npm --prefix app ci" "cd app && pnpm install" "pnpm build --filter web" "npm run build -- -t x"; do
+  OUT=$(fire "$c")
+  assert "deny build or install with the wrapper path: $c" 'grep -qF "$WRAP" <<<"$OUT"'
+done
 OUT=$(fire "cd app && composer test")
 assert "deny echoes the full command with only the heavy segment wrapped" \
   'grep -qF "Rerun as: cd app && $WRAP composer test" <<<"$OUT"'
@@ -140,7 +147,10 @@ for c in "$WRAP pnpm test" "cd app && $WRAP composer test" "$WRAP vendor/bin/pes
   "pnpm --filter web test --filter Foo" "npx playwright install" "npx playwright install --with-deps chromium" \
   "npx playwright show-report" "npx playwright codegen" "vitest --version" "xcodebuild -version" \
   "xcodebuild -workspace App.xcworkspace -list" "xcodebuild -list" "git status" "ls" "git commit -m 'run pnpm test; then jest'" "grep -r vitest package.json" "pnpm test:unit" \
-  'git commit -m "run pnpm test"' "$ESCAPED_QUOTE_LOAD_CHECK"; do
+  'git commit -m "run pnpm test"' "$ESCAPED_QUOTE_LOAD_CHECK" \
+  "vite" "pnpm vite" "npx vite --port 3000" "next dev" "npx next dev" "astro dev" "tsc --noEmit" \
+  "pnpm exec tsc --noEmit" "eslint ." "npx eslint ." "pnpm add zod" "pnpm build:css" "$WRAP pnpm install" \
+  "composer build" "php artisan build"; do
   OUT=$(fire "$c")
   assert "allow: $c" '[ -z "$OUT" ]'
 done
