@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.28.0 — 2026-11-23
+
+### Added
+- `ai-kit-upstream-drift.sh` tracks mattpocock/skills by GitHub release through a new `distilled` list in `vendored.json`. A release newer than the pin lists each changed upstream SKILL.md as sharpening an ai-kit file, skipped with a reason, or a new skill to park. A SessionStart hook shows that list in the ai-kit repo only, at most one check per 24 h (#291).
+- `/ai:upgrade` removes per-repo universal rule copies when the global rules link serves that rule and the copy is equal to a released version's emitted text (frontmatter and the emitter's header lines ignored, links counted), checked against a shipped checksum list (`rule-checksums.txt`) that `release.sh` regenerates. Copies that differ are kept and listed, never deleted (#322, slice 3 of #171).
+
+### Fixed
+- Bootstrap emits universal rules per repo only when the `~/.claude/rules/ai-kit` link does not resolve or the no-global-rules opt-out is set. With the link it writes stack rules only. The Cursor `.mdc` set is written only when `.cursor/` already exists. `emit-rules.sh` gains `--set universal|stack|all` and `--no-index` (#320, slice 1 of #171).
+- Bootstrap writes only the docs files a skill reads: `docs/agents/triage-labels.md` and `docs/agents/workflow.md`. It no longer writes `CONTEXT.md`, the ADR template or the wiki README; `grill-with-docs` creates `CONTEXT.md` when the first term is resolved (#321, slice 2 of #171).
+- `ai-kit-issue-meta.sh` reads bare `P0` to `P3` labels as priority, next to the suffixed `P0-critical` forms. New labels stay suffixed.
+
+### Changed
+- The builder report opens with one line before `## Changed`: the outcome (done or not, tests green or red) and the one action the caller or human takes next. A blind trial (n=1) scored a report with that line 7/10 against 5/10 without.
+- Docs: ADR-0015 is amended after the #171 grill. Universal rules are also emitted per repo under the opt-out, bootstrap writes only the docs files a skill reads, and upgrade deletes only copies that match a released version. Doctor has no "loaded twice" warning; the kept-copy list in the upgrade output is the report.
+- Catalog: `i-have-adhd` is recorded as Ignore after a blind trial in `plugins-excluded.json`; its measured gain, the opening report line, is ported into the builder.
+
 ## 2.27.0 — 2026-11-22
 
 ### Added
