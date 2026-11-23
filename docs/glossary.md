@@ -69,7 +69,7 @@ The machine-wide install path. `bin/install-global.sh` creates symlinks under `~
 
 ### Global rules
 
-Every `universal: true` + `default_mode: always-on` rule, pre-emitted into the plugin's `rules/` and linked at `~/.claude/rules/ai-kit` by the plugin's SessionStart hook, so Claude Code loads them in every session on the machine (ADR-0015). Pathless ones load at start; `paths:`-scoped ones on touch. Opt-out: `~/.config/ai-kit/no-global-rules`. `/ai:setup` still writes per-repo copies too, until ADR-0015 release 2 ships.
+Every `universal: true` + `default_mode: always-on` rule, pre-emitted into the plugin's `rules/` and linked at `~/.claude/rules/ai-kit` by the plugin's SessionStart hook, so Claude Code loads them in every session on the machine (ADR-0015). Pathless ones load at start; `paths:`-scoped ones on touch. Opt-out: `~/.config/ai-kit/no-global-rules`. Bootstrap writes per-repo copies only when that link does not resolve or the opt-out is set.
 
 **Not** the same as *stack rules*, which stay per repo.
 
@@ -135,7 +135,7 @@ A prompt template invoked by `/<name>` in the host. File: `workflow/commands/<na
 
 ### Stack rule
 
-A rule with `universal: false` and a `paths:` scope (laravel-conventions, flutter-conventions, tailwind, …). Chosen per project by `recommend-rules`, emitted into that repo's `.claude/rules/`. ADR-0015 makes them the only rules `/ai:setup` writes into a plugin-served Claude Code repo once its release 2 ships; today setup also writes the universal set.
+A rule with `universal: false` and a `paths:` scope (laravel-conventions, flutter-conventions, tailwind, …). Chosen per project by `recommend-rules`, emitted into that repo's `.claude/rules/`. Bootstrap writes only these into `.claude/rules` when the global rules link serves the universal set (ADR-0015).
 
 ### Subagent
 

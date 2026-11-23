@@ -43,3 +43,4 @@
 - 2026-11-22: Cursor keeps the full .mdc set per repo, only when .cursor/ exists before bootstrap, because Cursor has no global rules channel. (source: grill #171)
 - 2026-11-22: Bootstrap writes only the docs files a skill reads: docs/agents/triage-labels.md and docs/agents/workflow.md. ADR-template.md and wiki/README.md are dropped; CONTEXT.md is created lazily by grill-with-docs. No setup question and no docs_scaffold marker field. (source: grill #171)
 - 2026-11-22: /ai:upgrade removes a per-repo universal rule copy only when it matches a released version of that rule. The plugin ships a checksum list of every released rule version. Copies that match none are kept and listed in the upgrade output. (source: grill #171)
+- 2026-11-23: Bootstrap skips universal rules per repo only when the ai-kit rules link (~/.claude/rules/ai-kit) resolves and the no-global-rules opt-out is absent; the skills channel alone does not count. (source: user, #320 review)

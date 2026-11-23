@@ -243,7 +243,7 @@ elif [ -e "$GLOBAL_RULES_LINK" ] && [ ! -L "$GLOBAL_RULES_LINK" ]; then
   warn "global rules: $GLOBAL_RULES_LINK is a real directory, not ai-kit's link — move it aside so the SessionStart hook can link the plugin's rules/"
 elif [ -L "$GLOBAL_RULES_LINK" ]; then
   GLOBAL_RULES_TARGET="$(readlink "$GLOBAL_RULES_LINK")"
-  if [ ! -d "$GLOBAL_RULES_TARGET" ]; then
+  if ! global_rules_served; then
     warn "global rules: $GLOBAL_RULES_LINK dangles ($GLOBAL_RULES_TARGET gone) — the next session start re-points it"
   elif [[ "$GLOBAL_RULES_DIR" == */plugins/cache/* && "$(cd "$GLOBAL_RULES_TARGET" && pwd -P)" != "$(cd "$GLOBAL_RULES_DIR/../.." && pwd -P)"/* ]]; then
     warn "global rules: $GLOBAL_RULES_LINK points at $GLOBAL_RULES_TARGET, outside the plugin cache; the next session start re-points it"

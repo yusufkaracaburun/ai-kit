@@ -15,6 +15,8 @@ source "$AIKIT/bin/lib/emitters/cursor.sh"
 source "$AIKIT/bin/lib/emitters/claude-code.sh"
 # shellcheck source=lib/emitters/generic.sh
 source "$AIKIT/bin/lib/emitters/generic.sh"
+# shellcheck source=lib/recommend-lib.sh
+source "$AIKIT/bin/lib/recommend-lib.sh"
 
 AIKIT_VERSION="$(resolve_ai_kit_version "$AIKIT")"
 
@@ -26,9 +28,12 @@ Emit canonical rules from \$AI_KIT_ROOT/standards/rules/*.mini.md to the
 target project in formats appropriate for Cursor and Claude Code.
 
 Options:
-  --rules NAME[,NAME...]  Rules to emit. Default: every universal rule.
+  --rules NAME[,NAME...]  Rules to emit. Default: the --set selection.
+  --set SET               universal (default) | stack | all. stack = the
+                          non-universal rules recommend-rules matches.
   --agents A[,A...]       Override detection (cursor, claude-code).
   --mode MODE             always-on | on-demand. Default: rule-frontmatter.
+  --no-index              Leave docs/agents/active-rules.md alone.
   --dry-run               Print what would be emitted, don't write.
   --list                  List available rules + their universal flag, exit.
   -h, --help              Show this help.
@@ -43,6 +48,8 @@ PROJECT=""
 RULES_CSV=""
 AGENTS_CSV=""
 MODE_OVERRIDE=""
+RULE_SET="universal"
+WITH_INDEX=true
 DRY_RUN=false
 LIST_ONLY=false
 
@@ -51,6 +58,8 @@ while [ $# -gt 0 ]; do
     --rules) RULES_CSV="$2"; shift 2 ;;
     --agents) AGENTS_CSV="$2"; shift 2 ;;
     --mode) MODE_OVERRIDE="$2"; shift 2 ;;
+    --set) RULE_SET="$2"; shift 2 ;;
+    --no-index) WITH_INDEX=false; shift ;;
     --dry-run) DRY_RUN=true; shift ;;
     --list) LIST_ONLY=true; shift ;;
     -h|--help) usage ;;
@@ -82,6 +91,11 @@ if [ "$LIST_ONLY" = true ]; then
   exit 0
 fi
 
+case "$RULE_SET" in
+  universal|stack|all) ;;
+  *) echo "Unknown --set: $RULE_SET" >&2; usage ;;
+esac
+
 [ -z "$PROJECT" ] && usage
 [ -d "$PROJECT" ] || { echo "Project not found: $PROJECT" >&2; exit 2; }
 PROJECT="$(cd "$PROJECT" && pwd)"
@@ -93,10 +107,10 @@ else
   detect_agents "$PROJECT"
 fi
 
-# Always include generic so AGENTS.md index reflects active set.
+# Include generic so AGENTS.md index reflects active set.
 case " ${DETECTED_AGENTS[*]+${DETECTED_AGENTS[*]}} " in
   *" generic "*) ;;
-  *) DETECTED_AGENTS+=("generic") ;;
+  *) [ "$WITH_INDEX" = false ] || DETECTED_AGENTS+=("generic") ;;
 esac
 
 # Resolve rule list.
@@ -104,21 +118,29 @@ declare -a RULES=()
 if [ -n "$RULES_CSV" ]; then
   IFS=',' read -r -a RULES <<< "$RULES_CSV"
 else
+  STACK=" "
+  if [ "$RULE_SET" != universal ]; then
+    while IFS=$'\t' read -r name _; do
+      [ -n "$name" ] && STACK="${STACK}${name} "
+    done <<< "$(recommend_rules "$AIKIT" "$PROJECT")"
+  fi
   for f in "$RULES_DIR"/*.mini.md "$RULES_DIR"/*.nano.md \
            "$RULES_DIR"/feedback/*.mini.md "$RULES_DIR"/feedback/*.nano.md; do
     [ -f "$f" ] || continue
     universal="$(_emitter_extract_meta "$f" universal)"
+    name="$(basename "$f")"
+    name="${name%.mini.md}"
+    name="${name%.nano.md}"
     if [ "$universal" = "true" ]; then
-      name="$(basename "$f")"
-      name="${name%.mini.md}"
-      name="${name%.nano.md}"
-      RULES+=("$name")
+      [ "$RULE_SET" = stack ] || RULES+=("$name")
+    else
+      case "$STACK" in *" $name "*) RULES+=("$name") ;; esac
     fi
   done
 fi
 
 if [ "${#RULES[@]}" -eq 0 ]; then
-  echo "No rules selected (no universal=true rules found and no --rules given)" >&2
+  echo "No rules selected (--set $RULE_SET matched none and no --rules given)" >&2
   exit 0
 fi
 

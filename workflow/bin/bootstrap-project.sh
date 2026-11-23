@@ -41,7 +41,7 @@ usage() {
   echo "  --no-agents     Skip .claude/agents (Claude Code subagents)"
   echo "  --no-commands   Skip .claude/commands and .cursor/commands (slash commands)"
   echo "  --with-mcp      Copy baseline .cursor/mcp.json.template to .cursor/mcp.json (opt-in)"
-  echo "  --no-rules      Skip emit-rules.sh (no universal canonical rules in this project)"
+  echo "  --no-rules      Skip emit-rules.sh (no canonical rules in this project)"
   echo "  --no-gh-workflow  Skip GH workflow setup (issue templates + DoR/DoD enforcement + auto-promote)"
   echo "  --gh-lang=en|nl Language for issue templates (default: nl)"
   echo ""
@@ -92,6 +92,8 @@ if [ ! -d "$TARGET" ]; then
 fi
 
 TARGET="$(cd "$TARGET" && pwd)"
+CURSOR_BEFORE=false
+[ -d "$TARGET/.cursor" ] && CURSOR_BEFORE=true
 TPL="$AIKIT/context/templates"
 if [ ! -d "$TPL" ]; then
   echo "template dir not found: $TPL (reinstall ai-kit or set AI_KIT_ROOT)" >&2
@@ -172,9 +174,18 @@ if [ "$WITH_MCP" = true ]; then
   fi
 fi
 
+# ADR-0015: the global channel serves universal rules to Claude Code; Cursor
+# has none, so it gets the full set, but only in a repo that already used it.
 if [ "$EMIT_RULES" = true ]; then
   echo ""
-  "$AIKIT/bin/emit-rules.sh" "$TARGET" || echo "warn: emit-rules.sh failed (non-fatal)"
+  CLAUDE_RULE_SET=all
+  global_rules_served && CLAUDE_RULE_SET=stack
+  "$AIKIT/bin/emit-rules.sh" "$TARGET" --agents claude-code --set "$CLAUDE_RULE_SET" \
+    || echo "warn: emit-rules.sh failed (non-fatal)"
+  if [ "$CURSOR_BEFORE" = true ]; then
+    "$AIKIT/bin/emit-rules.sh" "$TARGET" --agents cursor --set all --no-index \
+      || echo "warn: emit-rules.sh failed (non-fatal)"
+  fi
 fi
 
 # Tier-A: GH workflow hygiene (issue templates + DoR/DoD enforcement +

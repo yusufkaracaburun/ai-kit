@@ -49,8 +49,9 @@ Universal always-on rules also reach Claude Code without `emit-rules.sh`:
 `bin/sync-plugin-rules.sh` stamps them with `emit_claude_code_global` into
 `workflow/rules/`, and the plugin's SessionStart hook links that directory at
 `~/.claude/rules/ai-kit`, which the host loads in every project (ADR-0015).
-`emit-rules.sh` still emits them per project until ADR-0015's second release
-drops universals from the per-repo set. `bin/ai-kit-context-lean.sh` reports
+`bootstrap-project.sh` therefore asks `emit-rules.sh --set stack` for
+`.claude/rules`, and `--set all` only when that link does not resolve or the
+`no-global-rules` opt-out is set. `bin/ai-kit-context-lean.sh` reports
 the global set as one note and a project's own pathless rules as its tax.
 
 **Consequence for rule authors:** `always-on` without `paths:` costs every

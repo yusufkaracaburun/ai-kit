@@ -122,7 +122,7 @@ Bundled (via `workflow/.claude-plugin/plugin.json`):
 
 **Not bundled** (intentionally):
 
-- Project rules — emitted into a project at `/ai:setup` time (`bin/emit-rules.sh`); plugin context can't write into your project repo. `bin/bootstrap-project.sh` still emits the full universal set plus stack rules; the stack-rules-only step (ADR-0015 release 2) has not shipped.
+- Project rules — emitted into a project at `/ai:setup` time (`bin/emit-rules.sh`); plugin context can't write into your project repo. `bin/bootstrap-project.sh` emits only stack rules into `.claude/rules` while `~/.claude/rules/ai-kit` resolves and the opt-out is absent; otherwise it adds the universal set (ADR-0015).
 
 `bin/*.sh` (everything the slash-commands invoke) lives at `workflow/bin/`; the
 repo-root `bin/` (like `standards/`, `context/`, `orchestration/`, `CHANGELOG.md`) is a

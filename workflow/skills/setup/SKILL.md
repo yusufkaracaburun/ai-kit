@@ -104,7 +104,18 @@ See [agent-stack-guide.md](./agent-stack-guide.md) for the full procedure.
 
 ### Branch 1 — Bootstrap
 
-Run bootstrap per mode (branch 0).
+Run bootstrap per mode (branch 0):
+
+```bash
+$AI_KIT_ROOT/bin/bootstrap-project.sh "$(pwd)" --minimal                    # project_skills_merged=true
+$AI_KIT_ROOT/bin/bootstrap-project.sh "$(pwd)" --minimal --no-skills  # project_skills_merged=false
+```
+
+No rule flag: bootstrap decides the rule set itself. When the
+`~/.claude/rules/ai-kit` link resolves and the
+`~/.config/ai-kit/no-global-rules` opt-out is absent, `.claude/rules` gets
+the stack rules only; otherwise it also gets every universal rule. Cursor gets
+the full set as `.mdc` only when `.cursor/` existed before bootstrap ran.
 
 If `boost.detected`: ai-kit writes its sections to `CONTEXT.md` and the root
 `CLAUDE.md`, never to a Boost-managed `AGENTS.md`. Tell the user which file
@@ -526,7 +537,8 @@ every session.
 
 ### Branch 12 — Rule recommendation (optional refinement)
 
-Bootstrap (Branch 1) emits every `universal: true` canonical rule, including
+Bootstrap (Branch 1) emits the stack rules, plus every `universal: true`
+canonical rule when the global rules link does not serve them (see Branch 1), including
 the cross-project workflow / style / tool-gotcha rules under
 `standards/rules/feedback/` (the canonical feedback-rules layer — see
 [`docs/adr/0007-canonical-feedback-rules.md`](../../../docs/adr/0007-canonical-feedback-rules.md)).

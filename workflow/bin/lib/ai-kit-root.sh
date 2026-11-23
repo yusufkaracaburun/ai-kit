@@ -66,6 +66,13 @@ global_channel_available() {
   return 1
 }
 
+# ADR-0015: Claude Code already loads ai-kit's universal rules from the
+# ~/.claude/rules/ai-kit link, unless the machine opted out.
+global_rules_served() {
+  [ -L "${HOME}/.claude/rules/ai-kit" ] && [ -d "${HOME}/.claude/rules/ai-kit/" ] \
+    && [ ! -f "${HOME}/.config/ai-kit/no-global-rules" ]
+}
+
 # Is $1 a symlink into ai-kit's skills (plugin-current or this marketplace's
 # cache)? A dead link is judged by its raw target, a live one by where it resolves.
 aikit_skill_link() {

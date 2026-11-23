@@ -3,11 +3,15 @@ set -euo pipefail
 AIKIT="$(cd "$(dirname "$0")/../../.." && pwd)"
 # shellcheck source=../lib/harness.sh
 source "$AIKIT/tests/bin/lib/harness.sh"
+SANDBOX_HOME="$(mktemp -d)"
+export HOME="$SANDBOX_HOME"
+trap 'rm -rf "$SANDBOX_HOME"' EXIT
 
 
 echo "=== bootstrap ==="
 # section: bootstrap
 TMP_BOOT=$(mktemp -d)
+mkdir -p "$TMP_BOOT/.cursor"
 "$AIKIT/bin/bootstrap-project.sh" --minimal "$TMP_BOOT"
 assert "AGENTS.md" '[ -f "$TMP_BOOT/AGENTS.md" ]'
 assert ".claude/skills dir" '[ -d "$TMP_BOOT/.claude/skills" ]'
@@ -44,6 +48,64 @@ assert "--no-rules skips .cursor/rules" '[ ! -d "$TMP_NORULES/.cursor/rules" ]'
 assert "--no-rules skips .claude/rules" '[ ! -d "$TMP_NORULES/.claude/rules" ]'
 assert "--no-rules skips active-rules"  '[ ! -f "$TMP_NORULES/docs/agents/active-rules.md" ]'
 rm -rf "$TMP_NORULES"
+
+echo "=== bootstrap: rules per global rules link ==="
+# section: bootstrap-rules-channel
+rule_is_universal() {
+  grep -qs "^universal: true" "$AIKIT/standards/rules/$1.mini.md" "$AIKIT/standards/rules/$1.nano.md" \
+    "$AIKIT/standards/rules/feedback/$1.mini.md" "$AIKIT/standards/rules/feedback/$1.nano.md"
+}
+has_universal_rule() {
+  local f
+  for f in "$1"/.claude/rules/*.md; do rule_is_universal "$(basename "$f" .md)" && return 0; done
+  return 1
+}
+has_stack_rule() {
+  local f dir="${2:-.claude/rules}" ext="${3:-.md}"
+  for f in "$1/$dir"/*"$ext"; do [ -f "$f" ] && ! rule_is_universal "$(basename "$f" "$ext")" && return 0; done
+  return 1
+}
+boot_stack_project() {
+  local home="$1" proj
+  proj="$(mktemp -d)"
+  cp -R "$AIKIT/tests/fixtures/architecture-laravel/." "$proj"
+  [ -z "${2:-}" ] || mkdir -p "$proj/.cursor"
+  HOME="$home" "$AIKIT/bin/bootstrap-project.sh" --minimal --no-gh-workflow "$proj" >/dev/null 2>&1
+  echo "$proj"
+}
+sandbox_home() {
+  local h
+  h="$(mktemp -d)"
+  mkdir -p "$h/.config/ai-kit" "$h/.claude/rules"
+  echo "$AIKIT" > "$h/.config/ai-kit/root"
+  [ "$1" = channel-only ] || ln -s "$AIKIT/workflow/rules" "$h/.claude/rules/ai-kit"
+  [ "$1" != opt-out ] || : > "$h/.config/ai-kit/no-global-rules"
+  echo "$h"
+}
+H_LINK="$(sandbox_home link)"
+H_CH="$(sandbox_home channel-only)"
+H_OO="$(sandbox_home opt-out)"
+H_NONE="$(mktemp -d)"
+P_LINK="$(boot_stack_project "$H_LINK")"
+P_CH="$(boot_stack_project "$H_CH")"
+P_OO="$(boot_stack_project "$H_OO")"
+P_NONE="$(boot_stack_project "$H_NONE")"
+assert "rules link resolves: no universal rule in .claude/rules" '! has_universal_rule "$P_LINK"'
+assert "rules link resolves: stack rule emitted" 'has_stack_rule "$P_LINK"'
+assert "skills channel without rules link: universal rules emitted" '[ -f "$P_CH/.claude/rules/git-hygiene.md" ]'
+assert "skills channel without rules link: stack rule emitted" 'has_stack_rule "$P_CH"'
+assert "opt-out with rules link: universal rules emitted" '[ -f "$P_OO/.claude/rules/git-hygiene.md" ]'
+assert "opt-out with rules link: stack rule emitted" 'has_stack_rule "$P_OO"'
+assert "no channel: universal rules emitted" '[ -f "$P_NONE/.claude/rules/git-hygiene.md" ]'
+assert "no channel: stack rule emitted" 'has_stack_rule "$P_NONE"'
+assert "no .cursor before bootstrap: no .cursor/rules" '[ ! -d "$P_LINK/.cursor/rules" ] && [ ! -d "$P_NONE/.cursor/rules" ]'
+P_CUR="$(boot_stack_project "$H_LINK" with-cursor)"
+assert ".cursor before bootstrap: full universal set as .mdc" '[ -f "$P_CUR/.cursor/rules/git-hygiene.mdc" ]'
+assert ".cursor before bootstrap: stack rules as .mdc" 'has_stack_rule "$P_CUR" .cursor/rules .mdc'
+assert ".cursor before bootstrap: .claude/rules still stack-only" '! has_universal_rule "$P_CUR"'
+assert ".cursor before bootstrap: index lists no universal rule .claude/rules lacks" \
+  '! grep -q "^| git-hygiene " "$P_CUR/docs/agents/active-rules.md"'
+rm -rf "$H_LINK" "$H_CH" "$H_OO" "$H_NONE" "$P_LINK" "$P_CH" "$P_OO" "$P_NONE" "$P_CUR"
 
 
 echo "=== emit-rules ==="
