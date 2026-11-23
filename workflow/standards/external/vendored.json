@@ -1,7 +1,7 @@
 {
   "_meta": {
     "title": "Verbatim-vendored upstream sources",
-    "notes": "Copies ai-kit took from an upstream repo and still ships largely as-is. Only VERBATIM copies belong here — distilled work (the lifecycle skills whose ideas came from mattpocock/skills, gstack, superpowers) is deliberately divergent and must NOT be resynced; see plugins-excluded.json for why. Each entry pins the upstream commit the copy was taken from, so bin/ai-kit-upstream-drift.sh can report when upstream has moved. `local_deltas` records edits ai-kit made on purpose — a re-vendor must reapply them, never clobber them. Field names match the external-rule frontmatter convention documented in VETTING.md.",
+    "notes": "Copies ai-kit took from an upstream repo and still ships largely as-is. Only VERBATIM copies belong here — distilled work (the lifecycle skills whose ideas came from mattpocock/skills, gstack, superpowers) is deliberately divergent and must NOT be resynced; see plugins-excluded.json for why. Each entry pins the upstream commit the copy was taken from, so bin/ai-kit-upstream-drift.sh can report when upstream has moved. `local_deltas` records edits ai-kit made on purpose — a re-vendor must reapply them, never clobber them. Field names match the external-rule frontmatter convention documented in VETTING.md. The separate `distilled` array tracks idea sources by GitHub release, with no content hash: each `skills` entry maps an upstream skill dir to the ai-kit file it sharpens (`ai_kit`) or a `skip` reason, and an unmapped dir is a new skill.",
     "vendored_at": "2026-08-27"
   },
   "sources": [
@@ -43,6 +43,52 @@
       "vendored_at": "2026-08-27",
       "paths": ["standards/rules/external/laravel-php-83.mini.md"],
       "local_deltas": "No substantive body change — four lines had trailing whitespace stripped, so a blind re-vendor reintroduces it and produces a spurious diff. ai-kit replaces upstream's own frontmatter (description/globs/alwaysApply) with its rule frontmatter and adds the do-not-edit-in-place banner. Re-pinned 2026-08-27 from 4467ad4: the repo HEAD had moved but zero commits touched this file, and the body compared identical, so only the pin advanced. The rule file carries the same pinned_sha in its own frontmatter — the two must be bumped together."
+    }
+  ],
+  "distilled": [
+    {
+      "name": "mattpocock/skills",
+      "repo": "https://github.com/mattpocock/skills",
+      "pinned_sha": "abeeaf95660ba9e8b7c753eb38f441ca707a8823",
+      "pinned_release": "v1.3.2",
+      "track": "release",
+      "skills": {
+        "engineering/code-review": {"ai_kit": "workflow/skills/review/SKILL.md"},
+        "engineering/codebase-design": {"ai_kit": "workflow/skills/tdd/deep-modules.md"},
+        "engineering/diagnosing-bugs": {"ai_kit": "workflow/skills/diagnose/SKILL.md"},
+        "engineering/domain-modeling": {"ai_kit": "workflow/skills/grill-with-docs/SKILL.md"},
+        "engineering/grill-with-docs": {"ai_kit": "workflow/skills/grill-with-docs/SKILL.md"},
+        "engineering/implement": {"ai_kit": "workflow/skills/autonomous/SKILL.md"},
+        "engineering/implement-spec": {"ai_kit": "workflow/skills/autonomous/SKILL.md"},
+        "engineering/improve-codebase-architecture": {"ai_kit": "workflow/skills/audit-architecture/SKILL.md"},
+        "engineering/pr": {"ai_kit": "standards/rules/git-hygiene.mini.md"},
+        "engineering/retro": {"ai_kit": "workflow/skills/retro/SKILL.md"},
+        "engineering/tdd": {"ai_kit": "workflow/skills/tdd/SKILL.md"},
+        "engineering/to-spec": {"ai_kit": "workflow/skills/to-prd/SKILL.md"},
+        "engineering/to-tickets": {"ai_kit": "workflow/skills/to-issues/SKILL.md"},
+        "engineering/triage": {"ai_kit": "workflow/skills/triage/SKILL.md"},
+        "productivity/grill-me": {"ai_kit": "workflow/skills/grill-me/SKILL.md"},
+        "productivity/grilling": {"ai_kit": "workflow/skills/grill-me/SKILL.md"},
+        "productivity/handoff": {"ai_kit": "workflow/skills/checkpoint/transfer-briefing.md"},
+        "productivity/writing-for-agents": {"ai_kit": "CONTRIBUTING.md"},
+        "engineering/ask-matt": {"skip": "covered by the grill-first phase table and context-discipline"},
+        "engineering/setup-matt-pocock-skills": {"skip": "ai-kit setup supersedes it; GitHub-only"},
+        "productivity/teach": {"skip": "course authoring"},
+        "misc/scaffold-exercises": {"skip": "course authoring"},
+        "in-progress/writing-beats": {"skip": "blog authoring"},
+        "in-progress/writing-fragments": {"skip": "blog authoring"},
+        "in-progress/writing-shape": {"skip": "blog authoring"},
+        "misc/migrate-to-shoehorn": {"skip": "no TS test signal yet"},
+        "in-progress/chief-of-staff": {"skip": "overlaps autonomous and the lead contract"},
+        "in-progress/loop-me": {"skip": "overlaps autonomous and the lead contract"},
+        "in-progress/software-factory": {"skip": "overlaps autonomous and the lead contract"},
+        "engineering/wayfinder": {"skip": "revisit when an effort exceeds one epic"},
+        "engineering/research": {"skip": "no app signal yet"},
+        "productivity/to-questionnaire": {"skip": "no app signal yet"},
+        "productivity/wait-what": {"skip": "no app signal yet"},
+        "in-progress/claude-handoff": {"skip": "no app signal yet"},
+        "in-progress/setup-ts-deep-modules": {"skip": "no app signal yet"}
+      }
     }
   ]
 }

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- `ai-kit-upstream-drift.sh` tracks mattpocock/skills by GitHub release through a new `distilled` list in `vendored.json`. A release newer than the pin lists each changed upstream SKILL.md as sharpening an ai-kit file, skipped with a reason, or a new skill to park. A SessionStart hook shows that list in the ai-kit repo only, at most one check per 24 h (#291).
+
 ## 2.27.0 — 2026-11-22
 
 ### Added
