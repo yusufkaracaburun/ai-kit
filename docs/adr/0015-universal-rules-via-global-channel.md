@@ -109,4 +109,5 @@ Catalog: 17 universal always-on pathless rules (5,239 words) + 6 universal
   is resolved. A question plus a marker field costs more than it saves.
 - Decision 4 is refined: upgrade removes only copies that match a released
   version, checked against a shipped checksum list. Other copies are reported,
-  never deleted. The doctor "loaded twice" WARN stays.
+  never deleted. Doctor has no "loaded twice" WARN and none is built; the
+  kept-copy list in the upgrade output is the report (review #322).
