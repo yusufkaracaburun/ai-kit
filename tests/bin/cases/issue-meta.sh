@@ -24,12 +24,13 @@ chmod +x "$TMP_IM/stubs/gh"
 (cd "$TMP_IM" && git init -q && git remote add origin git@github.com:acme/demo.git)
 
 write_meta() {
-  local types="$1" fields="$2" projects="$3" own="${4:-}" more="${5:-false}" items="${6:-}" boards="${7:-}"
+  local types="$1" fields="$2" projects="$3" own="${4:-}" more="${5:-false}" items="${6:-}" boards="${7:-}" linked="${8:-}"
   cat > "$TMP_IM/meta.json" <<JSON
 {"data":{"repository":{
   "issueTypes":{"nodes":[$types]},
   "issueFields":{"nodes":[$fields]},
   "issues":{"nodes":[$projects]},
+  "projectsV2":{"nodes":[$linked]},
   "issue":{"id":"I_new","labels":{"nodes":[$own],"pageInfo":{"hasNextPage":$more}},"issueFieldValues":{"nodes":[$own]},"projectItems":{"nodes":[$items]},"projectsV2":{"nodes":[$boards]}}}}}
 JSON
 }
@@ -169,6 +170,14 @@ write_meta "$TYPES" "$PRIO" '{"projectsV2":{"nodes":[{"id":"PVT_org"}]}}'
 run_meta 72 --status Backlog
 assert "issue-meta: issue on no board is added to the derived org board" 'echo "$CALLS" | grep "addProjectV2ItemById" | grep -q "projectId=PVT_org" && echo "$CALLS" | grep "updateProjectV2ItemFieldValue" | grep -q "projectId=PVT_org"'
 assert "issue-meta: added issue reports board" 'echo "$OUT" | grep -q "#72 set board, Status Backlog$"'
+# A board linked to the repo with no open issue on it yet is still found.
+write_meta "$TYPES" "$PRIO" '{"projectsV2":{"nodes":[]}}' "" false "" "" '{"id":"PVT_linked"}'
+echo '{"data":{"addProjectV2ItemById":{"item":{"id":"PVTI_linked","project":{"id":"PVT_linked","field":'"$STATUS_FIELD"'}}}}}' > "$TMP_IM/add.json"
+run_meta 76 --status Doing
+assert "issue-meta: empty board linked to the repo is found and the issue added" 'echo "$CALLS" | grep "addProjectV2ItemById" | grep -q "projectId=PVT_linked" && echo "$CALLS" | grep "updateProjectV2ItemFieldValue" | grep "itemId=PVTI_linked" | grep -q "optionId=S_doing" && echo "$OUT" | grep -q "#76 set board, Status Doing$"'
+write_meta "$TYPES" "$PRIO" '{"projectsV2":{"nodes":[]}}' "" false "" "" '{"id":"PVT_l1"},{"id":"PVT_l2"}'
+run_meta 77 --status Doing
+assert "issue-meta: two linked boards and no issue on either is no board" '! echo "$CALLS" | grep -q addProjectV2ItemById && echo "$OUT" | grep -q "no board"'
 write_meta "$TYPES" "$PRIO" "$BOARDS" "" false "" '{"id":"PVT_org"}'
 RC=0
 OUT="$(cd "$TMP_IM" && STUB_FAIL_ADD=1 STUB_DATA="$TMP_IM" PATH="$TMP_IM/stubs:$PATH" "$AIKIT/bin/ai-kit-issue-meta.sh" 73 --status Done 2>&1)" || RC=$?

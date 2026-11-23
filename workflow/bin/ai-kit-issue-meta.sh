@@ -6,7 +6,7 @@
 #   --parent issue's Priority, else Medium. Set as
 #   the Priority issue field; repos without that field get the P label instead.
 # Board: the project the issue is on, else the one most open issues of the repo are
-#   on; none found, skipped.
+#   on, else the only project linked to the repo; none found, skipped.
 # Status: --status sets the card's Status column on that board, then removes labels
 #   that clash with the column. Without --type only the card moves.
 #
@@ -129,7 +129,7 @@ for l in (issue.get("labels") or {}).get("nodes") or []:
 ISSUE_PRIORITY_FIELDS='labels(first:100){nodes{name} pageInfo{hasNextPage}} issueFieldValues(first:10){nodes{... on IssueFieldSingleSelectValue{name field{... on IssueFieldSingleSelect{name}}}}}'
 ITEM_FIELDS='id project{id field(name:"Status"){... on ProjectV2SingleSelectField{id options{id name}}}}'
 # shellcheck disable=SC2016
-META_QUERY='query($owner:String!,$name:String!,$number:Int!){repository(owner:$owner,name:$name){issueTypes(first:20){nodes{id name}} issueFields(first:20){nodes{... on IssueFieldSingleSelect{id name options{id name}}}} issues(states:OPEN,first:50,orderBy:{field:CREATED_AT,direction:DESC}){nodes{projectsV2(first:10){nodes{id}}}} issue(number:$number){id '"$ISSUE_PRIORITY_FIELDS"' projectItems(first:10){nodes{'"$ITEM_FIELDS"'}} projectsV2(first:10){nodes{id}}}}}'
+META_QUERY='query($owner:String!,$name:String!,$number:Int!){repository(owner:$owner,name:$name){issueTypes(first:20){nodes{id name}} issueFields(first:20){nodes{... on IssueFieldSingleSelect{id name options{id name}}}} issues(states:OPEN,first:50,orderBy:{field:CREATED_AT,direction:DESC}){nodes{projectsV2(first:10){nodes{id}}}} projectsV2(first:2){nodes{id}} issue(number:$number){id '"$ISSUE_PRIORITY_FIELDS"' projectItems(first:10){nodes{'"$ITEM_FIELDS"'}} projectsV2(first:10){nodes{id}}}}}'
 if ! command -v python3 >/dev/null 2>&1; then
   note "python3 not found, nothing set"
   exit 0
@@ -150,7 +150,8 @@ field = next((f for f in nodes(repo, "issueFields") if f.get("name") == "Priorit
 options = "\x1e".join(o["name"] + "\x1f" + o["id"] for o in field.get("options") or [])
 boards = Counter(p["id"] for n in nodes(repo, "issues") for p in nodes(n, "projectsV2") if p)
 own = [p["id"] for p in nodes(repo.get("issue"), "projectsV2") if p]
-board = max(own, key=lambda p: boards[p]) if own else (boards.most_common(1)[0][0] if boards else "")
+linked = [p["id"] for p in nodes(repo, "projectsV2") if p]
+board = max(own, key=lambda p: boards[p]) if own else (boards.most_common(1)[0][0] if boards else (linked[0] if len(linked) == 1 else ""))
 print("|".join([(repo.get("issue") or {}).get("id", ""), "1" if has_type else "", field.get("id", ""), options, board, "1" if own else ""]))
 ' 2>/dev/null); then
   note "could not parse gh's reply for #$NUM, nothing set"
