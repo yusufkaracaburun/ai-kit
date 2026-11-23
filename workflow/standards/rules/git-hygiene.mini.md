@@ -40,6 +40,7 @@ Types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `ci`, `perf`. Never `
 
 - Base: the project's main branch, or `epic/<name>` for a slice of an epic.
 - Project template if present; otherwise **Summary** (what + why), **Test plan** with before/after evidence (the test that failed and now passes, output, or a screenshot for a visual change), **Merge danger** (one-way or two-way door, and the blast radius), **Out of scope**. Door and blast radius from mattpocock/skills abeeaf9.
+- Show the change in the body with the smallest view that makes it clear, also under a project template: changed text or copy gets a table (where, old, new); UI uses the before/after screenshot from the test plan; a changed flow, state machine or data shape gets a mermaid block; a refactor or backend change with no visible behaviour gets one line saying so, no picture.
 - Diff ≤ 400 lines where possible; split into vertical slices (`/ai:to-issues`). Link issues with `Fixes #N`. Title in the Conventional Commits form the squash commit will carry.
 
 ## Epic branches

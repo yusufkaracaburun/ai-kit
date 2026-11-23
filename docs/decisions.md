@@ -49,3 +49,4 @@
 - 2026-11-23: no doctor check for home-path ai-kit links; a sweep of local repos found none (source: grill #172)
 - 2026-11-23: setup adds `.agents/worktrees/` and `.claude/worktrees/` to a client repo's `.gitignore` but never edits vitest, eslint or tsc configs; doctor names the missing exclude per tool with a copy-paste snippet (source: grill #266)
 - 2026-11-23: the doctor worktree check covers vitest, eslint and tsc only, runs only when `package.json` exists, and reads the configs whether or not a worktree exists yet (source: grill #266)
+- 2026-11-23: PR bodies show the change with the smallest view per kind (text: old/new table; UI: before/after screenshot; flow, state or data shape: mermaid; invisible refactor: one line) as a git-hygiene rule line, not by calling the show-me skill; re-check in two apps on 2026-12-07 (source: user)
