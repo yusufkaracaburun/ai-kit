@@ -19,8 +19,16 @@ See [DEEPENING.md](DEEPENING.md) for worked question chains for PRD, ADR, design
 ## Process
 
 1. **Scope the tree.** Before the first question, restate in one sentence what is being grilled and why, then list the 3 to 7 top-level branches you will walk (for a feature: constraints, user model, data shape, failure modes, rollout, what we are not doing). Settle branches the codebase answers first and report what you found.
-2. **Walk one branch at a time.** One concrete question, no compound sub-questions, with your recommended answer and a one-line why, worded so "yes" accepts it. Wait. A new sub-branch goes onto the agenda, announced out loud. A vague answer gets the smallest follow-up that pins it down ("what would make you choose differently?").
+2. **Walk one branch at a time.** One concrete question, no compound sub-questions, with your recommended answer and a one-line why, worded so "yes" accepts it, in the question format below. Wait. A new sub-branch goes onto the agenda, announced out loud. A vague answer gets the smallest follow-up that pins it down ("what would make you choose differently?").
 3. **Frontier round (optional).** When several questions no longer hang on any open answer, ask them as one numbered batch, each with its recommendation, then recompute the batch from the answers; a question that depends on another one in the batch waits for the next round. Send a wide fact lookup to the `explore` subagent and ask the questions that do not depend on it meanwhile. In this mode the grill is done when no unblocked question is left. Ideas from mattpocock/skills abeeaf9.
+   **Question format.** Every question, single or in a batch, uses this layout so question and advice stand apart in a one-colour terminal. Numbers run on for the whole grill; a reworded question keeps its number with `(revised)`. Put a `---` line between questions in a batch, and wrap file paths and symbols in backticks.
+
+   ```
+   ❓ **Q3 - <short title>**: <the question, one sentence where possible>
+
+   ➡️ <recommended answer>. <one-line why>
+   ```
+
 4. **Converge.** Summarise the decisions and their reasons in 5 to 15 bullets and ask "Anything that feels wrong now that you see it written down?" Then route on: [to-prd](../to-prd/SKILL.md), [to-issues](../to-issues/SKILL.md), or an ADR.
 
 Anti-patterns: compound questions, open-ended "what do you think about X?", grilling the UI before the data model is settled, stopping at the first plausible answer, and not saying which questions you settled from the code.
