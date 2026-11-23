@@ -235,6 +235,7 @@ assert "grill-with-docs appends decisions to docs/decisions.md" 'grep -qF "docs/
 echo "=== chain-seams ==="
 # section: chain-seams
 assert "AGENT-BRIEF has a Posting section" 'grep -q "^## Posting" "$SK/triage/AGENT-BRIEF.md"'
+assert "AGENT-BRIEF reads inputs from the repo, never a scratchpad" 'grep -q "^### Inputs from the repo, not from memory" "$SK/triage/AGENT-BRIEF.md" && grep -qF "scratchpad" "$SK/triage/AGENT-BRIEF.md"'
 for s in to-issues to-prd; do
   assert "$s posts the Agent Brief comment with the label" "grep -qF 'post the \`## Agent Brief\` comment with the label' \"\$SK/$s/SKILL.md\" && grep -qF 'AGENT-BRIEF.md' \"\$SK/$s/SKILL.md\""
 done

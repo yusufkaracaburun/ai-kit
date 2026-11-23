@@ -40,7 +40,7 @@ When **Rule changed** names a rule, add two acceptance criteria, each with the g
 
 ### Inputs from the repo, not from memory
 
-Read the test command from the repo before writing it down: `composer.json` scripts and whether it requires `pestphp/pest` or only `phpunit/phpunit`, or `package.json` scripts. Data the builder needs (fixtures, source tables, example figures) goes in the issue body or a committed file; a session scratchpad path never goes in a brief, because a later session cannot read it.
+Read the test command from the repo before writing it down: `composer.json` scripts and whether it requires `pestphp/pest` or only `phpunit/phpunit`, `package.json` scripts, or a `Makefile`, `justfile` or CI config. Data the builder needs (fixtures, source tables, example figures) goes in the issue body or a committed file; a session scratchpad path never goes in a brief, because a later session cannot read it.
 
 ### Decisions quoted, not paraphrased
 
