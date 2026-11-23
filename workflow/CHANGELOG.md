@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Ideas from mattpocock/skills abeeaf9 (v1.3.2) merged into existing files, no new skills (#297):
+  - `tdd`: write down each seam under test with what it catches and misses, and confirm it first; tautological tests named as an anti-pattern.
+  - `tdd/deep-modules.md`: the deletion test, and one adapter as a hypothetical seam against two as a real one.
+  - `to-issues`: a prefactor lands first as its own slice; a sweeping mechanical change splits as a parallel change (add the new form, switch callers per group, remove the old form).
+  - `to-prd`: Testing Decisions name the seams, preferring existing and the highest that reaches the behaviour.
+  - `diagnose`: a Redact section, and Phase 2 waits for a red-capable command that has already run.
+  - `grill-me`: an optional frontier round of unblocked questions, wide fact lookups sent to `explore`, done when no unblocked question is left.
+  - `CONTRIBUTING.md`: write skill links and descriptions as context pointers, and state the wanted behaviour rather than the ban.
+  - `git-hygiene` rule: the fallback PR body asks for before/after evidence and a merge-danger line (one-way or two-way door, blast radius).
+  - `autonomous`: the builder brief carries a run budget of the nearest test file per cycle and one full-suite run at the end.
+
 ## 2.28.0 — 2026-11-23
 
 ### Added
