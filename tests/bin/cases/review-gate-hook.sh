@@ -218,6 +218,28 @@ for c in 'git commit -m "a \" b" -a' "git commit --message=x --all" "git commit 
   OUT=$(fire "$H" "$c")
   assert "approved tree, still denied: $c" 'grep -q "stage explicitly, then /ai:review" <<<"$OUT"'
 done
+STDIN_HEREDOC="git commit -F- <<'EOF' && git push origin master
+fix: it doesn't break
+EOF"
+STDIN_HEREDOC_SEPS="git commit -F- <<'EOF' && git push origin master
+fix: a; b | c, it's fine
+EOF"
+CASE_ARM="cd $H; t=\$(git write-tree); echo \$t; case \$t in abc*) git commit -m \"\$(cat <<'EOF'
+refactor(x): body with a ; and the server's value
+EOF
+)\" && git rev-parse HEAD && git push origin master 2>&1 | tail -5;; *) echo MISMATCH;; esac"
+for c in "$STDIN_HEREDOC" "$STDIN_HEREDOC_SEPS" "$CASE_ARM"; do
+  OUT=$(fire "$H" "$c")
+  assert "approved, heredoc commit then push is silent: ${c#*$'\n'}" '[ -z "$OUT" ]'
+done
+git -C "$H" add c
+OUT=$(fire "$H" "$STDIN_HEREDOC")
+assert "unapproved, stdin heredoc commit then push is denied" 'grep -q "staged tree .* has no APPROVE" <<<"$OUT"'
+OUT=$(fire "$H" "$CASE_ARM")
+assert "unapproved, commit inside a case arm is denied" 'grep -q "staged tree .* has no APPROVE" <<<"$OUT"'
+OUT=$(fire "$H" "bash \"\${CLAUDE_PLUGIN_ROOT}/bin/hooks/review-gate.sh\" --approve && git commit -m x")
+assert "approve and commit in one call: deny says to approve in its own call" \
+  'grep -q "Run the approve step as its own call, then commit." <<<"$OUT"'
 
 echo "=== review-gate: marker gate and failure safety ==="
 # section: review-gate-safety

@@ -54,3 +54,5 @@
 - 2026-11-23: review treats a leftover computation or description of a rule the brief changed as a blocker, pinned by one review eval prompt (source: grill #335)
 - 2026-11-23: the brief's Test command is read from the repo (composer.json scripts and its pest/phpunit dependency, package.json scripts), never from memory; the builder checks it against the repo before its first run and uses the repo's command on a mismatch, saying so in its report (source: grill #337)
 - 2026-11-23: inputs a builder needs live in the issue body or a committed file; a session scratchpad path is never part of a brief (source: grill #337, #338)
+- 2026-11-23: an approved `git commit -F- <<EOF ... EOF && git push` in one Bash call stays allowed; regression asserts pin heredoc bodies with quotes, `;` and `|` (source: grill #333)
+- 2026-11-23: an approve step and a commit in one Bash call stay denied; the deny message says to run the approve step as its own call (source: grill #333)

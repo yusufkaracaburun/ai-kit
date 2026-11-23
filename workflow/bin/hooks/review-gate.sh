@@ -135,10 +135,12 @@ check() {
     tree="$(git -C "$dir" rev-parse 'HEAD^{tree}' 2>/dev/null)" what="HEAD tree"
   fi
   [ -n "$tree" ] && [ "$tree" = "$(head -1 "$gd/ai-kit/review-ok" 2>/dev/null)" ] && return 0
-  deny "review-gate: $what ${tree:0:7} has no APPROVE. Run /ai:review (verdict APPROVE), then retry; a rebase, pull or merge needs a fresh review before push.$skip_hint"
+  deny "review-gate: $what ${tree:0:7} has no APPROVE. Run /ai:review (verdict APPROVE), then retry; a rebase, pull or merge needs a fresh review before push.$skip_hint$approve_hint"
 }
 
 skip_hint=' Override is a user-only step: review-gate.sh --approve --skip "<reason>" (logged).'
+approve_hint=''
+[[ $cmd == *review-gate.sh*--approve* ]] && approve_hint=' Run the approve step as its own call, then commit.'
 
 # A form the hook cannot resolve is gated when the cwd's repo or the session's project is.
 gated_here() {
@@ -171,6 +173,7 @@ unquoted="$(perl -0777 -pe '
   my @sub;
   s/`([^`]*)`|\$\(([^()]*)\)/push @sub, (defined $1 ? $1 : $2); q{$SUB}/ge;
   $_ .= "\n" . join("\n", @sub) . "\n";
+  s/(?:\bcase\s+\S+\s+in|;;)\s*\(?[^\s();&]+\)/;/g;
 ' <<<"$code")"
 prefix_re='^[[:space:]]*(\{|!|then|do|else|time|env|command|eval|exec|nice|sudo|xargs)[[:space:]]+(.*)$'
 git_re='^[[:space:]]*(([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+)*)([^[:space:]]*/)?git(([[:space:]]+(-[Cc][[:space:]]+[^[:space:]]+|--(git-dir|work-tree|namespace)[[:space:]]+[^[:space:]]+|--[a-z-]+(=[^[:space:]]+)?|-[A-Za-z]))*)[[:space:]]+([a-z-]+)([[:space:]]+(.*))?$'
