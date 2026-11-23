@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.34.1 — 2026-11-23
+
+### Fixed
+
+- The heavy-run gate no longer denies commands whose heredoc body or quoted text mentions a test, build or install command.
+
+### Changed
+
+- Every question or choice for the user goes through AskUserQuestion where the host offers it, a single one included.
+
 ## 2.34.0 — 2026-11-23
 
 ### Changed
