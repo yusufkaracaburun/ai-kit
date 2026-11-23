@@ -7,7 +7,7 @@ rationale) is frozen in [roadmap-archive.md](roadmap-archive.md).
 Every open GitHub issue has a row here (roadmap ↔ issues sync rule) — reconcile
 drift before planning. Priorities mirror the issue labels.
 
-_Last reconciled: 2026-11-23 against 106 open issues (closed rows removed: #171 #320 #321 #322; #320-#322 rows added as the three slices of #171; 25 closed rows removed (#116 #127 #128 #138 #139 #147 #148 #149 #150 #170 #174 #187 #198 #202 #206 #207 #208 #210 #246 #247 #248 #263 #269 #284 #316); #300 row removed; #186 and #299 rows removed; #298 and #299 rows added; #285 closed by v2.21.1 and removed; #289-#297 rows added; #275 and #288 done 2026-11-16, closed by the heavy-run lock slice; #276-#283 done, #283 with this reconcile; #199, #258-#262 and #267 closed and removed; #270 closed by #280; #216 partly done in v2.19.0; rows added for #264, #284, #286, #287; #257, #263 and #264 labelled P3, P1 and P3 to match their sections; earlier reconciliation notes live in [roadmap-archive.md](roadmap-archive.md#reconciliation-notes))._
+_Last reconciled: 2026-11-23 against 113 open issues (#172 closed by v2.30.0 and removed; #329-#331 rows added; closed rows removed: #171 #320 #321 #322; #320-#322 rows added as the three slices of #171; 25 closed rows removed (#116 #127 #128 #138 #139 #147 #148 #149 #150 #170 #174 #187 #198 #202 #206 #207 #208 #210 #246 #247 #248 #263 #269 #284 #316); #300 row removed; #186 and #299 rows removed; #298 and #299 rows added; #285 closed by v2.21.1 and removed; #289-#297 rows added; #275 and #288 done 2026-11-16, closed by the heavy-run lock slice; #276-#283 done, #283 with this reconcile; #199, #258-#262 and #267 closed and removed; #270 closed by #280; #216 partly done in v2.19.0; rows added for #264, #284, #286, #287; #257, #263 and #264 labelled P3, P1 and P3 to match their sections; earlier reconciliation notes live in [roadmap-archive.md](roadmap-archive.md#reconciliation-notes))._
 
 ## P1 — broken in the wild
 
@@ -33,10 +33,6 @@ _Last reconciled: 2026-11-23 against 106 open issues (closed rows removed: #171 
 - **#173** `bug` — `/ai:setup` on a non-git monorepo root (an umbrella folder) writes a marker +
   `${CLAUDE_PROJECT_DIR}` hook wiring that no session can ever resolve (cwd is
   always an app below it); doctor never sees the parent. Refuse/warn, no walk-up.
-- **#172** `bug` — `link-primitives` writes absolute `$HOME` symlinks into repos and
-  merges skills a plugin-served machine already exposes as `ai:*` (double
-  listing, #116). Skip the merge when the plugin serves; relative links otherwise.
-
 - **#144** `enhancement · primitive:rule` — `always-on` means two different things
   per host. 30 rules carry `default_mode: always-on` (22 in `standards/rules/`, 8 in
   `standards/rules/feedback/`), 21 of them `universal: true`. On **Cursor** the mode is
