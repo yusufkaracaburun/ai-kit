@@ -21,6 +21,8 @@
 # - `--approve` is an honour system: any agent can run it, only `--skip` is
 #   logged, and a non-lead subagent can write the marker file directly;
 # - a push compares HEAD only: other refspecs, `--all` and `--tags` are not.
+# - a case arm written as `a | b)` (spaces around `|`) or ended by `;;&` / `;&`
+#   hides a local `git commit` in it; a later push in its own call is still checked.
 #
 # Gated on .ai-kit-setup branches.review_gate_hook (default wired); silent
 # without a marker. Always exits 0 in hook mode. Fails open (silent) without
@@ -140,7 +142,7 @@ check() {
 
 skip_hint=' Override is a user-only step: review-gate.sh --approve --skip "<reason>" (logged).'
 approve_hint=''
-[[ $cmd == *review-gate.sh*--approve* ]] && approve_hint=' Run the approve step as its own call, then commit.'
+[[ $cmd == *review-gate.sh*--approve* ]] && approve_hint=' Run the approve step as its own call, then commit or push.'
 
 # A form the hook cannot resolve is gated when the cwd's repo or the session's project is.
 gated_here() {

@@ -239,7 +239,7 @@ OUT=$(fire "$H" "$CASE_ARM")
 assert "unapproved, commit inside a case arm is denied" 'grep -q "staged tree .* has no APPROVE" <<<"$OUT"'
 OUT=$(fire "$H" "bash \"\${CLAUDE_PLUGIN_ROOT}/bin/hooks/review-gate.sh\" --approve && git commit -m x")
 assert "approve and commit in one call: deny says to approve in its own call" \
-  'grep -q "Run the approve step as its own call, then commit." <<<"$OUT"'
+  'grep -q "Run the approve step as its own call, then commit or push." <<<"$OUT"'
 
 echo "=== review-gate: marker gate and failure safety ==="
 # section: review-gate-safety
