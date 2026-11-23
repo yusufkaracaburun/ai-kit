@@ -346,12 +346,6 @@
       "pinned_sha": "64eb3deb9a5fbfa041faf783e0bc3fd635872e9c",
       "reason": "MIT, markdown-only, 20 skills at HEAD (13 when added 2026-09-15). Added as a companion on a gap-check without a measured trial. Removed 2026-11-21. Confirmed: 1 Skill call in 2 months (usage.jsonl), 0 in the hub app where 5 skills were installed. Confirmed: the legacy app retired, and the React app's ReUI rule forbids retiming/restyling shipped components, which is the main action of improve-animations. Untested: output quality, because the trial in the React app was blocked by auto mode. Also note: animate-expo duplicates the installed expo:expo-animation plugin. should-i-use verdict: Ignore (no consuming repo has the pain).",
       "alternative": "If an app with heavy custom motion appears, run one trial there first: `npx skills@latest add emilkowalski/skills -a claude-code -y -s improve-animations` in a worktree, judge score before and after."
-    },
-    {
-      "name": "i-have-adhd",
-      "pinned_sha": "1ecea1993b7fce257ffbd686c070948b5e07eda6",
-      "reason": "MIT, Claude Code plugin (ayghri/i-have-adhd, checked 2026-11-23): one opt-in output-style skill with 10 response rules (action first, numbered steps, one \"Next:\" closer, state line each turn, time estimates, lists capped at 5, no preamble) plus an optional SessionStart hook that injects about 1,190 words every session when a flag file exists. Confirmed: about 7 of its 10 rules already ship in the caveman companion and the writing-style rule (answer first, no preamble or closer, terse errors); checked by reading both. Confirmed: the forced \"Next:\" closer on every reply conflicts with caveman's pre-send check, and its \"explain fully\" override conflicts with conclusion-first replies. Untested: whether numbered steps plus time estimates improve replies over caveman alone; needs a side-by-side trial in a consuming repo. Note: the install path is \"paste a prompt telling your agent to install\"; if ever trialled, pin via marketplace SHA instead. Star count (about 62k on a one-file skill) is no quality signal. should-i-use verdict: Ignore.",
-      "alternative": "Re-measure only if a session shows a concrete need for step numbering or time estimates; then run one side-by-side trial in a consuming repo first. Until then use the caveman companion and the writing-style rule."
     }
   ],
   "reversed": [
