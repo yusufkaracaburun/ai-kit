@@ -205,6 +205,7 @@ A list of testing decisions that were made. Include:
 
 - A description of what makes a good test (only test external behavior, not implementation details)
 - Which modules will be tested
+- The seams the tests sit at: prefer existing seams, and the highest one that reaches the behavior; fewer seams is better (idea from mattpocock/skills abeeaf9)
 - Prior art for the tests (i.e. similar types of tests in the codebase)
 
 ## Out of Scope
