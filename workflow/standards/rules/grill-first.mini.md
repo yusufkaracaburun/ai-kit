@@ -21,7 +21,7 @@ Any of: an issue number / URL / spec path is passed · "implement this", "pak je
 ## How
 
 1. Open with 3–7 questions via `AskUserQuestion`, at minimum: **scope split** (one PR or several, what ships first), **detection / trigger logic** (how is "when X happens" actually detected in the data), **override pattern** (hard block or escape hatch), **bundle vs defer** (what goes now, what becomes a follow-up issue), **data contract** (what owns each piece of state).
-2. Route: every grill → `grill-with-docs`, also when no `CONTEXT.md` or ADRs exist yet; it creates them as the first term or decision settles, so a domain decision never stays chat-only.
+2. Route: every grill → `grill-with-docs`, also when no `CONTEXT.md` or ADRs exist yet; it creates `CONTEXT.md` at the first term and `docs/decisions.md` at the first decision, so a domain decision never stays chat-only.
 3. Wait for the answers before drafting plan, issues or code.
 4. Then name, out loud, the phase the work sits in and the skill that carries it — an unnamed phase is how the workflow gets skipped while the work still looks fine:
 

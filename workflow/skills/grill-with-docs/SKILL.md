@@ -12,7 +12,7 @@ Ask the questions one at a time, waiting for feedback on each question before co
 
 If a question can be answered by exploring the codebase, explore the codebase instead. For wide sweeps, delegate to a sub-agent (`Explore`) so raw findings stay out of this conversation's context — see [`context-discipline.mini.md`](../../../standards/rules/context-discipline.mini.md).
 
-Every grill writes docs. If the repo has no `CONTEXT.md` or `docs/adr/`, create them as the first term or decision settles, so nothing decided stays in chat only.
+Every grill writes docs. If the repo has none yet, create `CONTEXT.md` at the first resolved term and `docs/decisions.md` at the first decision, so nothing decided stays in chat only. `docs/adr/` waits for the first real ADR.
 
 See [DEEPENING.md](DEEPENING.md) for worked question chains for PRD, ADR, design, migration and scope-cut grilling.
 
