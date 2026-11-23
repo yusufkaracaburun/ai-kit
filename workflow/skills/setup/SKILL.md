@@ -88,8 +88,9 @@ See [agent-stack-guide.md](./agent-stack-guide.md) for the full procedure.
 1. Auto-detect `global_channel_available` (plugin or symlink-install) —
    no question.
 2. Plugin installed (`plugin_serves_skills`, Claude Code only)?
-   `project_skills_merged=false`, no question; bootstrap with
-   `--no-skills`. Otherwise ask the one merge question **only if** that
+   `project_skills_merged=false`, no question; bootstrap with plain
+   `--minimal` (it skips the `.claude`/`.agents` merge itself and still
+   serves Cursor). Otherwise ask the one merge question **only if** that
    fact is true (symlink-install); otherwise `project_skills_merged=true`
    silently.
 3. Brownfield stays auto-detected (`detect-tooling.sh --json`'s
@@ -110,8 +111,8 @@ See [agent-stack-guide.md](./agent-stack-guide.md) for the full procedure.
 Run bootstrap per mode (branch 0):
 
 ```bash
-$AI_KIT_ROOT/bin/bootstrap-project.sh "$(pwd)" --minimal                    # project_skills_merged=true
-$AI_KIT_ROOT/bin/bootstrap-project.sh "$(pwd)" --minimal --no-skills  # project_skills_merged=false
+$AI_KIT_ROOT/bin/bootstrap-project.sh "$(pwd)" --minimal                    # project_skills_merged=true, or the plugin serves skills
+$AI_KIT_ROOT/bin/bootstrap-project.sh "$(pwd)" --minimal --no-skills  # project_skills_merged=false via symlink-install only
 ```
 
 No rule flag: bootstrap decides the rule set itself. When the

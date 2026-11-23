@@ -29,14 +29,15 @@ has no plugin channel, so a plugin-cache hit on this machine (e.g. the
 same machine also runs Claude Code) means nothing for a Cursor session.
 Only the symlink-install half counts here.
 
-## 2. Ask ONE question — only when `global_channel_available` is true
+## 2. Ask ONE question — only for the symlink-install channel
 
 If false: `project_skills_merged=true`, no question — nothing else would
 serve this project's skills.
 
 If the plugin is installed (`plugin_serves_skills && echo yes`, and not
 running under Cursor): `project_skills_merged=false`, no question.
-Bootstrap skips the `.claude/skills` and `.agents/skills` merge here
+Bootstrap with plain `--minimal`, never `--no-skills`, so Cursor keeps its
+skills. Bootstrap skips the `.claude/skills` and `.agents/skills` merge here
 anyway: the links would point at a home path outside the repo.
 
 If true through the symlink-install only:

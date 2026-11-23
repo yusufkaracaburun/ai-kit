@@ -7,7 +7,7 @@ expects:
   - asks the one project_skills_merged question only when the symlink-install channel was found
   - when global_channel_available is false, sets project_skills_merged=true silently, no question
   - when running under Cursor, ignores the plugin half of global_channel_available (only the symlink-install half counts)
-  - plugin installed (Claude Code): no merge question, project_skills_merged=false, bootstrap with --no-skills
+  - plugin installed (Claude Code): no merge question, project_skills_merged=false, bootstrap with plain --minimal (bootstrap skips the merge itself, Cursor still served)
   - defaults toward "no, skip merge" when the symlink-install channel was found (covers every host already)
   - brownfield detection (detect-tooling.sh needs_doc) stays separate and only affects Tier-B defaults, never this question
   - records both new fields plus a derived legacy --setup-mode= value via write-setup-marker.sh
