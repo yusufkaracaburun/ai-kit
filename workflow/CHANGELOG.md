@@ -1,13 +1,5 @@
 # Changelog
 
-## Unreleased
-
-### Added
-- `ai-kit-upstream-drift.sh` tracks mattpocock/skills by GitHub release through a new `distilled` list in `vendored.json`. A release newer than the pin lists each changed upstream SKILL.md as sharpening an ai-kit file, skipped with a reason, or a new skill to park. A SessionStart hook shows that list in the ai-kit repo only, at most one check per 24 h (#291).
-
-### Changed
-- The builder report opens with one line before `## Changed`: the outcome (done or not, tests green or red) and the one action the caller or human takes next. A blind trial (n=1) scored a report with that line 7/10 against 5/10 without. `i-have-adhd` is recorded as Ignore in `plugins-excluded.json`, since this line was its measured gain.
-
 ## 2.27.0 — 2026-11-22
 
 ### Added
