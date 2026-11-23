@@ -46,6 +46,7 @@ If any is missing, pick a sane default and note it under "Scope" in the report.
    - Scope — any change outside the brief, or listed under its Out of scope, is a finding; severity per the quality-floor Severity line
    - Design floor — a quality-floor violation is a finding that cites the rule section (`quality-floor: <section>`); its severity follows the rule's Severity line
    - Parity sweep — name the nearest existing sibling screen or module and list each deviation from its pattern; severity follows the quality-floor Severity line
+   - Rule copies — when the brief names a changed rule, grep for other computations and user-facing descriptions of it (backend and frontend); any left is a blocker
 5. **Security pass** — apply the **Security deep pass** checklist below. `default` depth: only high-confidence findings on changed lines. `deep` depth: also run the dependency audit and add critical/high CVEs.
 6. **Test coverage** — for behaviour changes, identify which test file should cover them; flag missing coverage. Don't fail on style-only changes.
 7. **Verdict** — `APPROVE` only when zero blockers and zero high-severity security findings. Otherwise `REQUEST CHANGES`.

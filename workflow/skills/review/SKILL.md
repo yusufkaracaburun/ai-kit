@@ -33,6 +33,7 @@ For wide cross-file impact analysis where you don't need a full verdict, prefer 
    - Scope — any change outside the brief, or listed under its Out of scope, is a finding; severity per the quality-floor Severity line
    - Design floor — a quality-floor violation is a finding that cites the rule section (`quality-floor: <section>`); its severity follows the rule's Severity line
    - Parity sweep — name the nearest existing sibling screen or module and list each deviation from its pattern; severity follows the quality-floor Severity line
+   - Rule copies — when the brief names a changed rule, grep for other computations and user-facing descriptions of it (backend and frontend); any left is a blocker
 4. **Report** — blockers first, then suggestions. Be specific (file + line).
 5. **Fix** — send blockers to a builder brief (`subagent_type=ai:builder`); the lead never fixes them. Re-review the new diff before approving.
 

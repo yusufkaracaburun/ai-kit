@@ -94,7 +94,7 @@ Iterate until the user approves the breakdown.
 
 ### 5. Publish the issues to the issue tracker
 
-For each approved slice, publish a new issue to the issue tracker. Use the issue body template below. These issues are considered ready for AFK agents, so publish them with the correct triage label unless instructed otherwise, and post the `## Agent Brief` comment with the label, in the order [`triage/AGENT-BRIEF.md`](../triage/AGENT-BRIEF.md) § Posting gives. The brief restates the slice in that template's shape: its acceptance criteria inline, Out of scope, the test command and the Decisions in force.
+For each approved slice, publish a new issue to the issue tracker. Use the issue body template below. These issues are considered ready for AFK agents, so publish them with the correct triage label unless instructed otherwise, and post the `## Agent Brief` comment with the label, in the order [`triage/AGENT-BRIEF.md`](../triage/AGENT-BRIEF.md) § Posting gives. The brief restates the slice in that template's shape: Rule changed, its acceptance criteria inline, Out of scope, the test command and the Decisions in force.
 
 Publish issues in dependency order (blockers first) so you can reference real issue identifiers in the "Blocked by" field.
 

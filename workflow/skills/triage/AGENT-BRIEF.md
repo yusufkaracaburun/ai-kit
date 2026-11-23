@@ -34,6 +34,10 @@ The agent needs to know when it's done. Every agent brief must have concrete, te
 
 State what is out of scope. This prevents the agent from gold-plating or making assumptions about adjacent features.
 
+### Rule changes reach every copy
+
+When **Rule changed** names a rule, add two acceptance criteria, each with the grep terms to use: every user-facing description of the rule (labels, explainers, emails, help text) is updated, and no other backend or frontend computation of the old rule is left.
+
 ### Decisions quoted, not paraphrased
 
 Decisions in force are lines copied from the project's `docs/decisions.md`, which `grill-with-docs` appends to. Quote only the lines that bear on this issue. No file or no relevant line → write "none".
@@ -74,6 +78,8 @@ Be specific about edge cases and error conditions.
 - `TypeName` — what needs to change and why
 - `functionName()` return type — what it currently returns vs what it should return
 - Config shape — any new configuration options needed
+
+**Rule changed:** none | <rule>: <old> → <new>
 
 **Acceptance criteria:**
 - [ ] Specific, testable criterion 1
