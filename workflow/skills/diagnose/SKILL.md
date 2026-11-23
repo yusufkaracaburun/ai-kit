@@ -15,6 +15,10 @@ When exploring the codebase, use the project's domain glossary to get a clear me
 - **Claude Code:** when you need to map the bug's code area — find callers, trace a data path, locate the seam a fix would sit at — delegate that read to the `explore` subagent via the Task tool with `subagent_type=ai:explore`, and work from its ≤300-line summary. Keeps wide file dumps out of the diagnosis loop. The loop itself stays in this context — it is iterative and checkpoints with the user — except the Phase 5 fix, which goes to `builder` and then a ship brief.
 - **Hosts without subagents:** read the files inline, filtered per [`context-discipline.mini.md`](../../../standards/rules/context-discipline.mini.md).
 
+## Redact
+
+Secrets never appear in what you show the user: replace each with `<REDACTED>` in commands, logs and pasted payloads. Read credentials from env vars inside the loop instead of typing them into it, and from a captured request or log quote only the lines that matter for the bug. Ideas from mattpocock/skills abeeaf9.
+
 ## Phase 1 — Build a feedback loop
 
 **This is the skill.** Everything else is mechanical. If you have a fast, deterministic, agent-runnable pass/fail signal for the bug, you will find the cause — bisection, hypothesis-testing, and instrumentation all just consume that signal. If you don't have one, no amount of staring at code will save you.
@@ -56,7 +60,7 @@ Never fix a flake with a retry. Prove the fix the way you proved the bug: "passe
 
 Stop and say so explicitly. List what you tried. Ask the user for: (a) access to whatever environment reproduces it, (b) a captured artifact (HAR file, log dump, core dump, screen recording with timestamps), or (c) permission to add temporary production instrumentation. Do **not** proceed to hypothesise without a loop.
 
-Do not proceed to Phase 2 until you have a loop you believe in.
+Phase 2 starts only once the loop has failed on this bug at least once: one command, already run, its output shown with secrets removed, that fails on the symptom the user reported and would pass after a fix. A loop that has never failed has not proved it can catch the bug.
 
 ## Phase 2 — Reproduce
 
