@@ -30,7 +30,7 @@ Types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `ci`, `perf`. Never `
 ## Pull requests
 
 - Base: the project's main branch, or `epic/<name>` for a slice of an epic.
-- Project template if present; otherwise **Summary** (what + why), **Test plan**, **Out of scope**.
+- Project template if present; otherwise **Summary** (what + why), **Test plan** with before/after evidence (the test that failed and now passes, output, or a screenshot for a visual change), **Merge danger** (one-way or two-way door, and the blast radius), **Out of scope**. Door and blast radius from mattpocock/skills abeeaf9.
 - Diff ≤ 400 lines where possible; split into vertical slices (`/ai:to-issues`). Link issues with `Fixes #N`. Title in the Conventional Commits form the squash commit will carry.
 
 ## Epic branches
