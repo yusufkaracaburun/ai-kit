@@ -346,6 +346,12 @@
       "pinned_sha": "64eb3deb9a5fbfa041faf783e0bc3fd635872e9c",
       "reason": "MIT, markdown-only, 20 skills at HEAD (13 when added 2026-09-15). Added as a companion on a gap-check without a measured trial. Removed 2026-11-21. Confirmed: 1 Skill call in 2 months (usage.jsonl), 0 in the hub app where 5 skills were installed. Confirmed: the legacy app retired, and the React app's ReUI rule forbids retiming/restyling shipped components, which is the main action of improve-animations. Untested: output quality, because the trial in the React app was blocked by auto mode. Also note: animate-expo duplicates the installed expo:expo-animation plugin. should-i-use verdict: Ignore (no consuming repo has the pain).",
       "alternative": "If an app with heavy custom motion appears, run one trial there first: `npx skills@latest add emilkowalski/skills -a claude-code -y -s improve-animations` in a worktree, judge score before and after."
+    },
+    {
+      "name": "i-have-adhd",
+      "pinned_sha": "1ecea1993b7fce257ffbd686c070948b5e07eda6",
+      "reason": "MIT, ayghri/i-have-adhd, checked 2026-11-23. One output-style skill (10 rules) plus an opt-in SessionStart hook, about 1,190 words per session when on. Confirmed by a rule-by-rule read: of its 10 rules, 1 matches caveman, 3 partly overlap, 5 are not in the kit (numbered steps, time estimates, progress line, list cap of 5, try-this command), and 1 conflicts (its closing next-action line versus ponytail's closing risk line). Confirmed by a blind trial: one refactor in a consuming repo, two builder runs with and without the skill, scored by a judge on a fixed 10-item checklist. With the skill: 7/10, 526 words. Without: 5/10, 657 words. The gain came from the first line naming the next action. That gain now ships as a builder report rule (the report opens with the outcome plus the next action), so the skill is not needed. Confirmed by reading the lead contract: the kit's lead status block already gives the state and next action in lead replies. Untested: whether the skill helps in long non-lead sessions; n=1. should-i-use verdict: Ignore (gain ported to the builder report).",
+      "alternative": "Builder report first line (outcome plus next action). Re-measure only if a non-lead session shows a need for step numbering or time estimates."
     }
   ],
   "reversed": [
