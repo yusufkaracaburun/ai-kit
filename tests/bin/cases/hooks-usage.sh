@@ -24,6 +24,24 @@ assert "usage-stats reports diagnose" 'echo "$STATS_OUT" | grep -q "diagnose"'
 JSON_OUT="$(XDG_STATE_HOME="$USAGE_STATE" "$AIKIT/bin/usage-stats.sh" --json)"
 assert "usage-stats --json parses" 'echo "$JSON_OUT" | grep -q "\"events\":2"'
 
+NOW_TS="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+cat > "$USAGE_STATE/ai-kit/usage.jsonl" <<EOF
+{"ts":"2020-01-01T00:00:00Z","skill":"tdd","event":"start","project":"p","cwd_hash":"h1"}
+{"ts":"2024-02-29T12:00:00Z","skill":"retro","event":"start","project":"p","cwd_hash":"h1"}
+{"ts":"$NOW_TS","skill":"tdd","event":"start","project":"p","cwd_hash":"h2"}
+{"ts":"$NOW_TS","skill":"tdd","event":"done","project":"p","cwd_hash":"h2"}
+{"ts":"$NOW_TS","skill":"qa","event":"start","project":"p","cwd_hash":"h3"}
+EOF
+# /usr/bin/awk is BSD awk on macOS; pin it when present so gawk on PATH cannot hide a gawk-only call.
+AWK_PIN=$(mktemp -d)
+[ -x /usr/bin/awk ] && ln -s /usr/bin/awk "$AWK_PIN/awk"
+SINCE_OUT="$(PATH="$AWK_PIN:$PATH" XDG_STATE_HOME="$USAGE_STATE" "$AIKIT/bin/usage-stats.sh" --since=7d --json 2>&1 || true)"
+assert "usage-stats --since=7d counts only recent events" 'echo "$SINCE_OUT" | grep -q "\"events\":3,\"projects\":2,"'
+assert "usage-stats --since=7d tdd counts" 'echo "$SINCE_OUT" | grep -q "{\"skill\":\"tdd\",\"starts\":1,\"completes\":1,\"aborts\":0,\"abandon_pct\":0}"'
+assert "usage-stats --since=7d qa counts" 'echo "$SINCE_OUT" | grep -q "{\"skill\":\"qa\",\"starts\":1,\"completes\":0,\"aborts\":0,\"abandon_pct\":100}"'
+assert "usage-stats --since=7d drops old skill" '! echo "$SINCE_OUT" | grep -q "retro"'
+rm -rf "$AWK_PIN"
+
 XDG_STATE_HOME="$USAGE_STATE" "$AIKIT/bin/usage-purge.sh" --yes >/dev/null
 assert "usage-purge removes log" '[ ! -f "$USAGE_STATE/ai-kit/usage.jsonl" ]'
 rm -rf "$USAGE_STATE"

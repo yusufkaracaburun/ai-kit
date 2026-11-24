@@ -63,24 +63,16 @@ function jval(line, key,    re, s, e) {
   if (e == 0) return ""
   return substr(line, s, e - 1)
 }
-function iso_to_epoch(ts,    y, m, d, H, M, S) {
+# UTC civil date to epoch without gawk mktime (Hinnant days_from_civil, years >= 0).
+function iso_to_epoch(ts,    y, m, d, yoe, doy, days) {
   y = substr(ts, 1, 4) + 0
   m = substr(ts, 6, 2) + 0
   d = substr(ts, 9, 2) + 0
-  H = substr(ts, 12, 2) + 0
-  M = substr(ts, 15, 2) + 0
-  S = substr(ts, 18, 2) + 0
-  return mktime(sprintf("%d %02d %02d %02d %02d %02d", y, m, d, H, M, S)) - tz_offset()
-}
-function tz_offset(   t, gm, local) {
-  # Approximate: rely on system mktime treating fields as local time;
-  # subtract the offset between local now and UTC now.
-  t = systime()
-  gm = strftime("%Y %m %d %H %M %S", t, 1)
-  local = strftime("%Y %m %d %H %M %S", t, 0)
-  # If awk does not support the third arg of strftime (POSIX-only), this
-  # falls back to 0 — close enough for buckets of days.
-  return 0
+  if (m <= 2) y--
+  yoe = y % 400
+  doy = int((153 * (m > 2 ? m - 3 : m + 9) + 2) / 5) + d - 1
+  days = int(y / 400) * 146097 + yoe * 365 + int(yoe / 4) - int(yoe / 100) + doy - 719468
+  return days * 86400 + substr(ts, 12, 2) * 3600 + substr(ts, 15, 2) * 60 + substr(ts, 18, 2)
 }
 {
   ts = jval($0, "ts")
