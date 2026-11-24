@@ -2,7 +2,7 @@
 
 One change gets one ship brief. A single general-purpose subagent (Task tool) runs commit, PR, merge and deploy, in that order, and stops at the first red check or at a deploy the user has not approved. The lead writes the brief and reads the report; it never runs these steps itself. One spawn for the whole chain, because a spawn per step mostly pays start-up cost.
 
-Skills that hand off to it: `to-prd` (Defer mode), `autonomous`, `harvest`, `diagnose`.
+Skills that hand off to it: `to-prd` (Idea mode), `autonomous`, `harvest`, `diagnose`.
 
 ## Rules for the subagent
 
@@ -13,7 +13,7 @@ Skills that hand off to it: `to-prd` (Defer mode), `autonomous`, `harvest`, `dia
 - Merge only when the field says so and the project's merge policy allows it. Deploy only when the user approved this deploy in this conversation; otherwise stop before it and print the deploy command (see the `deployment-on-demand` rule).
 - After a squash merge, delete the local branch only once `gh pr view <n> --json state` says `MERGED`: switch to the base, then `git branch -D <branch>`. `-d` refuses it, because squashed commits are not ancestors of the base. Before `-D`, `git rev-parse <branch>` must equal `gh pr view <n> --json headRefOid -q .headRefOid`; if not, stop and report the local commits the PR lacks. A branch checked out in a linked worktree needs `git worktree remove <path>` from the main checkout first, since the switch and the delete both fail there; if it refuses a dirty worktree, stop and report, never `--force`.
 - Never `git reset`, `git checkout --`, `git stash` or `git clean`.
-- After a merge for `Fixes #N`, check the issue closed: `gh issue view N --json state,projectItems`. A merge into an `epic/*` branch does not auto-close, so close it with `gh issue close N --comment "Shipped in <PR url>"`. A card not yet in `Done` moves with `bash "${CLAUDE_PLUGIN_ROOT:-$HOME/.config/ai-kit/plugin-current}/bin/ai-kit-issue-meta.sh" N --status Done`. A `refs #N` slice stays open.
+- After a merge for `Fixes #N`, check the issue closed: `gh issue view N --json state,projectItems`. A merge into an `epic/*` branch does not auto-close, so close it with `gh issue close N --comment "Shipped in <PR url>"`. A card not yet in `Done` moves with `bash "${CLAUDE_PLUGIN_ROOT:-$HOME/.config/ai-kit/plugin-current}/bin/ai-kit-issue-meta.sh" N --status Done`. A `refs #N` story stays open.
 
 ## Template
 
@@ -38,7 +38,7 @@ Skills that hand off to it: `to-prd` (Defer mode), `autonomous`, `harvest`, `dia
 - PR: <url> | none
 - Merge: <state> | none
 - Deploy: <state> | not approved: <command> | none
-- #N closed, board Done | #N open: <why, for example refs slice or no board>
+- #N closed, board Done | #N open: <why, for example refs story or no board>
 
 ## Stopped at
 <step, exact command, the failing output's decisive line>   (omit when nothing stopped)

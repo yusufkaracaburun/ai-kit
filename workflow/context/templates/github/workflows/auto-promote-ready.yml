@@ -1,6 +1,6 @@
 name: Auto-promote to Ready
 
-# Wanneer alle DoR-vakjes in een issue body zijn afgevinkt EN priority (Priority-veld of P-label) en epic/area labels zijn gezet,
+# Wanneer alle DoR-vakjes in een issue body zijn afgevinkt EN priority (Priority-veld of P-label) en een area label zijn gezet,
 # verplaats het project-item automatisch naar de "Ready" kolom op het project board.
 #
 # Vereist secret: PROJECT_TOKEN — Personal Access Token (classic) met `project` + `repo` scope,
@@ -64,7 +64,7 @@ jobs:
               return;
             }
 
-            // 2. Priority (the Priority issue field, else a Pn-* label) + epic/* + area/*
+            // 2. Priority (the Priority issue field, else a Pn-* label) + area/*
             let hasPriorityField = false;
             try {
               const res = await github.graphql(`
@@ -89,10 +89,9 @@ jobs:
               console.log(`#${issue.number}: Priority field not readable (${e.message}), checking P labels`);
             }
             const hasPriority = hasPriorityField || labels.some(l => /^P[0-3]-/.test(l));
-            const hasEpic = labels.some(l => l.startsWith('epic/'));
             const hasArea = labels.some(l => l.startsWith('area/'));
-            if (!hasPriority || !hasEpic || !hasArea) {
-              console.log(`#${issue.number}: missing required labels (priority=${hasPriority}, epic=${hasEpic}, area=${hasArea}) — skip`);
+            if (!hasPriority || !hasArea) {
+              console.log(`#${issue.number}: missing required labels (priority=${hasPriority}, area=${hasArea}) — skip`);
               return;
             }
 
@@ -158,5 +157,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issue.number,
-              body: `✅ **Auto-promoted to Ready** — alle DoR-vakjes aangevinkt + priority (veld of label) en epic/area labels gezet. Pak op wanneer je In Progress wilt.`,
+              body: `✅ **Auto-promoted to Ready** — alle DoR-vakjes aangevinkt + priority (veld of label) en area label gezet. Pak op wanneer je In Progress wilt.`,
             });

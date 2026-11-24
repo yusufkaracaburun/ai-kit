@@ -38,16 +38,16 @@ Types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `ci`, `perf`. Never `
 
 ## Pull requests
 
-- Base: the project's main branch, or `epic/<name>` for a slice of an epic.
+- Base: the project's main branch, or `epic/<name>` for a story of an epic.
 - Project template if present; otherwise **Summary** (what + why), **Test plan** with before/after evidence (the test that failed and now passes, output, or a screenshot for a visual change), **Merge danger** (one-way or two-way door, and the blast radius), **Out of scope**. Door and blast radius from mattpocock/skills abeeaf9.
 - Show the change in the body with the smallest view that makes it clear, also under a project template: changed text or copy gets a table (where, old, new); UI uses the before/after screenshot from the test plan; a changed flow, state machine or data shape gets a mermaid block; a refactor or backend change with no visible behaviour gets one line saying so, no picture.
-- Diff ≤ 400 lines where possible; split into vertical slices (`/ai:to-issues`). Link issues with `Fixes #N`. Title in the Conventional Commits form the squash commit will carry.
+- Diff ≤ 400 lines where possible; split into stories (`/ai:to-issues`). Link issues with `Fixes #N`. Title in the Conventional Commits form the squash commit will carry.
 
 ## Epic branches
 
-For slices that only make sense reviewed together. `epic/<name>` is cut from main once; slice branches keep their normal prefix and target it (`gh pr create --base epic/<name>`); the epic lands on main as one PR at the end. `/ai:to-issues` asks which model applies before publishing.
+For stories that only make sense reviewed together. `epic/<name>` is cut from main once; story branches keep their normal prefix and target it (`gh pr create --base epic/<name>`); the epic lands on main as one PR at the end. `/ai:to-issues` asks which model applies before publishing.
 
-**Never merge a slice into the epic branch locally.** Once its commits are in the base, GitHub refuses to open the PR (`422 There are no new commits between base branch and head branch`) and the slice lands with no PR and no merge record. Push, open the PR against `epic/<name>`, merge there.
+**Never merge a story into the epic branch locally.** Once its commits are in the base, GitHub refuses to open the PR (`422 There are no new commits between base branch and head branch`) and the story lands with no PR and no merge record. Push, open the PR against `epic/<name>`, merge there.
 
 Review an epic in a worktree (`git worktree add .agents/worktrees/<name> epic/<name>`) and run a real `composer install` / `npm install` in it: a worktree shares only tracked files, and symlinked `vendor/` resolves Composer's autoload paths against the checkout it was built in, so the suite tests the *origin* tree and passes for the wrong reason.
 

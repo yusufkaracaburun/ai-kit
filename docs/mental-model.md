@@ -48,7 +48,7 @@ For "what is a skill vs a subagent vs a slash command?" see [glossary.md](glossa
 | Context is big and you want to keep working | `/compact` — not `checkpoint`, which writes a memo without shrinking context |
 | Recommend canonical rules for the detected stack | `recommend-rules` |
 | Wire optional companion tools (graphify, caveman) | `recommend-tools` |
-| Defer ONE surfaced lead — one issue + one roadmap paragraph (not for breaking down planned work; use `to-issues` for that) | `to-prd` (defer mode) |
+| Capture ONE surfaced lead as an idea — one issue + one roadmap paragraph (not for breaking down planned work; use `to-issues` for that) | `to-prd` (Idea mode) |
 | Drain a `ready-for-agent` queue end-to-end (spike) | `autonomous` |
 
 ## Subagents (Claude Code only)
@@ -75,7 +75,7 @@ Subagents are Claude Code-only. Cursor and other hosts fall back to the inline c
 | Show project ai-kit status (version, marker, drift) | `/ai:status` |
 | Toggle the global-check opt-out | `/ai:no-globals on\|off\|status` |
 | Re-stamp the project marker after pulling new ai-kit | `/ai:upgrade` |
-| Defer a lead in one shot (issue + roadmap entry) | `/ai:to-prd defer "<lead>"` |
+| Capture an idea in one shot (issue + roadmap entry) | `/ai:to-prd idea "<lead>"` |
 
 Slash commands wrap `bin/ai-kit-*.sh` scripts. They're optional — you can always run the underlying script directly.
 

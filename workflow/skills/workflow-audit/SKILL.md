@@ -5,7 +5,7 @@ description: Audit the ai-kit idea-to-release workflow with three read-only expl
 
 # Workflow audit
 
-Measure the kit's own workflow, compare with the previous run, and propose slices only for what moved. Runs in the ai-kit repo.
+Measure the kit's own workflow, compare with the previous run, and propose stories only for what moved. Runs in the ai-kit repo.
 
 ## 1. Find the previous report
 
@@ -37,11 +37,11 @@ Wait for all three. Do not start the next step on a partial set. An agent that r
 
 ## 4. Delta rule
 
-Each key figure is in one of five states against the previous report: **new**, **worse**, **better**, **stable**, or **not measured** (no value this run; never guess one). Stable when |Δ| ≤ max(1, 10% of the previous value); for percentages, |Δ| ≤ 5 percentage points. Stable figures get the word "stable" and no slice. A new or worse item gets a slice. A better item goes under Resolved and names the commit or release that resolved it. A not-measured figure says why.
+Each key figure is in one of five states against the previous report: **new**, **worse**, **better**, **stable**, or **not measured** (no value this run; never guess one). Stable when |Δ| ≤ max(1, 10% of the previous value); for percentages, |Δ| ≤ 5 percentage points. Stable figures get the word "stable" and no story. A new or worse item gets a story. A better item goes under Resolved and names the commit or release that resolved it. A not-measured figure says why.
 
 ## 5. Write the report
 
-Path: `docs/audits/workflow-audit-<YYYY-MM-DD>.md`. Sections come from: Key figures and Per repo from evidence; Claim versus reality, Models and Test coverage gaps from delivery; Chain breaks from chain; Patterns, Delta and Recommended slices from the merge. Sections in this order, none empty (write "none found" when true):
+Path: `docs/audits/workflow-audit-<YYYY-MM-DD>.md`. Sections come from: Key figures and Per repo from evidence; Claim versus reality, Models and Test coverage gaps from delivery; Chain breaks from chain; Patterns, Delta and Recommended stories from the merge. Sections in this order, none empty (write "none found" when true):
 
 ```markdown
 # Workflow audit <date> (kit v<VERSION>)
@@ -71,7 +71,7 @@ open kit issues. Source quotes the exact command or file:line)
 ### Worse
 ### Stable
 ### Not measured
-## Recommended slices
+## Recommended stories
 (one line each: title, why, evidence; max 7, ranked)
 ```
 
@@ -79,4 +79,4 @@ Role check before writing: if this session's claim says `role=lead`, lead-guard 
 
 ## 6. Hand off
 
-Print the report path, the key-figures table, and the slice list. Ask which slices become issues; route accepted ones to `/ai:to-issues`. Never open issues unasked and never commit the report unasked.
+Print the report path, the key-figures table, and the story list. Ask which stories become issues; route accepted ones to `/ai:to-issues`. Never open issues unasked and never commit the report unasked.

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Install ai-kit's GitHub workflow hygiene into a target project:
 #
-#   1. Copy ISSUE_TEMPLATE/ (feature.md + spike.md + config.yml) into
+#   1. Copy ISSUE_TEMPLATE/ (epic, story, task, bug, spike, idea .md + config.yml) into
 #      TARGET/.github/ISSUE_TEMPLATE/ — Dutch by default, English via --lang en.
 #   2. Copy workflows (dor-dod-enforcement.yml + auto-promote-ready.yml) into
 #      TARGET/.github/workflows/. Both verbatim from the portal app — battle-tested
@@ -142,16 +142,14 @@ copy_template() {
   log "  wrote ${dst#"$TARGET"/}"
 }
 
-case "$LANG_VARIANT" in
-  nl)
-    copy_template "$TEMPLATE_DIR/ISSUE_TEMPLATE/feature.md" "$TARGET/.github/ISSUE_TEMPLATE/feature.md"
-    copy_template "$TEMPLATE_DIR/ISSUE_TEMPLATE/spike.md"   "$TARGET/.github/ISSUE_TEMPLATE/spike.md"
-    ;;
-  en)
-    copy_template "$TEMPLATE_DIR/ISSUE_TEMPLATE/feature.en.md" "$TARGET/.github/ISSUE_TEMPLATE/feature.md"
-    copy_template "$TEMPLATE_DIR/ISSUE_TEMPLATE/spike.en.md"   "$TARGET/.github/ISSUE_TEMPLATE/spike.md"
-    ;;
-esac
+TEMPLATE_SUFFIX=""
+[ "$LANG_VARIANT" = nl ] || TEMPLATE_SUFFIX=".$LANG_VARIANT"
+if [ -f "$TARGET/.github/ISSUE_TEMPLATE/feature.md" ]; then
+  log "  feature.md found: story.md replaces it, rename or remove feature.md yourself"
+fi
+for type in epic story task bug spike idea; do
+  copy_template "$TEMPLATE_DIR/ISSUE_TEMPLATE/$type$TEMPLATE_SUFFIX.md" "$TARGET/.github/ISSUE_TEMPLATE/$type.md"
+done
 
 # config.yml uses placeholder AI_KIT_PROJECT_BOARD_URL — substitute later
 # once project board is detected. For now copy with placeholder intact.

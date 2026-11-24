@@ -1,19 +1,19 @@
 ---
 name: to-prd
-description: Turn the current conversation context into a PRD and publish it to the project issue tracker. Also supports Defer mode — when the user wants a short parking-lot capture ("defer this", "track this for later", "follow-up on …", "we'll do this in N") instead of a full PRD, produce a one-line issue + roadmap entry. Use when user wants to create a PRD, defer a lead, or capture a follow-up.
+description: Turn the current conversation context into a PRD and publish it to the project issue tracker. Also supports Idea mode — when the user wants a short parking-lot capture ("defer this", "track this for later", "follow-up on …", "we'll do this in N") instead of a full PRD, produce an idea card (a one-line issue + roadmap entry). Use when user wants to create a PRD, defer a lead, or capture a follow-up.
 model: fable
 ---
 
 This skill takes the current conversation context and codebase understanding and produces either:
 
-- a **full PRD** (default) — when the user wants to commit to building a feature and lock scope, or
-- a **defer capture** (Defer mode) — when the user wants to park a lead so future planning sessions can grab it without re-discovering the context.
+- a **full PRD** (default) — when the user wants to commit to building an epic and lock scope, or
+- an **idea card** (Idea mode) — when the user wants to park a lead so future planning sessions can grab it without re-discovering the context.
 
-Pick by intent: PRD = "this is happening, lock requirements before we start". Defer = "remember this, not now".
+Pick by intent: PRD = "this is happening, lock requirements before we start". Idea = "remember this, not decided or not now".
 
 The issue tracker and triage label vocabulary should have been provided to you — run `/ai:setup` if not.
 
-## Defer mode
+## Idea mode
 
 Trigger when the user says:
 
@@ -22,11 +22,11 @@ Trigger when the user says:
 - "we'll do this in N"
 - "follow-up on …"
 - "open an issue + add to roadmap"
-- `/ai:to-prd defer <one-line lead>`
+- `/ai:to-prd idea <one-line lead>`
 
-Do **not** invoke Defer mode when the user wants the work done now — Defer is for deferral, not execution. Also distinct from [`to-issues`](../to-issues/SKILL.md), which breaks ONE plan into N tracer-bullet tickets. Defer is ONE surfaced lead → ONE issue + ONE roadmap paragraph.
+Do **not** invoke Idea mode when the user wants the work done now — an idea is never executed as it is. A known fault is always a bug card, also when it waits in Backlog: use `bug.md` and type `Bug`, the rest of this mode stays the same. Also distinct from [`to-issues`](../to-issues/SKILL.md), which breaks ONE plan into N stories. Idea mode is ONE surfaced lead → ONE issue + ONE roadmap paragraph.
 
-### Process (Defer mode)
+### Process (Idea mode)
 
 #### 1. Read context
 
@@ -53,43 +53,21 @@ If the lead is ambiguous, ask **one** clarifying question. Otherwise proceed.
 | no `gh` / no remote, roadmap present | **Local-only mode**: append roadmap entry with `(no issue — gh unavailable)`, surface to user |
 | nothing | Refuse — there's nowhere to capture; ask the user where to put it |
 
-If the label does not exist, fall back to no label rather than failing — and tell the user which label was dropped. Default label: `enhancement`.
+If the label does not exist, fall back to no label rather than failing — and tell the user which label was dropped. Default label: the one in the template's frontmatter, per [`triage/ISSUE-BODY.md`](../triage/ISSUE-BODY.md) (`bug` for a fault).
 
 #### 3. Draft the issue body
 
-Follow the house style — look at recent issues for shape (e.g. `gh issue view 14`). Use this template:
-
-```markdown
-## Pain
-
-What hurts today, in 2-4 lines. Concrete and observable — not "code feels off".
-
-## Proposed delivery
-
-The shape of the fix. New primitive? Edit existing one? Cross-link to any
-related ADR or skill. Surface the smallest plausible delivery, not the
-ideal one — leave room for the eventual planner to refine.
-
-## Why-not (now)
-
-Why this is being deferred — scope, dependency, decision pending, owner
-absent. One paragraph. Future-you needs to know if the blocker is still
-live before picking this up.
-
-## Roadmap pointer
-
-`docs/roadmap.md` § <Section> — added <date>.
-```
+Use `idea.md`, or `bug.md` for a known fault, per [`triage/ISSUE-BODY.md`](../triage/ISSUE-BODY.md). Keep it concrete and observable, and name the smallest plausible delivery, not the ideal one. Future-you needs to know if the blocker is still live before picking this up. Link any related ADR, skill or issue.
 
 #### 4. Create the issue — no approval gate
 
-Defer mode is light parking, not scope-lock. Skip the "Capture as drafted, edit, or abort?" approval step — produce issue + roadmap entry immediately. Per `feedback_followup_no_approval_gate` memory: deferred leads do not warrant a round of approval; users redirect after the fact if needed.
+Idea mode is light parking, not scope-lock. Skip the "Capture as drafted, edit, or abort?" approval step — produce issue + roadmap entry immediately. Per `feedback_followup_no_approval_gate` memory: deferred leads do not warrant a round of approval; users redirect after the fact if needed.
 
 ```bash
 gh issue create \
   --title "<title>" \
   --label "<label>" \
-  --body "<body>"
+  --body-file <path>
 ```
 
 Capture the returned issue number — needed for the roadmap pointer. Then set its type, Priority and board spot (type `Bug` when the lead is a fault, else `Task`; add `--priority` only when the user named one):
@@ -117,9 +95,9 @@ If the agent cannot find a `## What's next` heading, **do not invent one** — s
 Run `review` on the staged `docs/roadmap.md` change, then hand the commit to one ship brief ([`triage/SHIP-BRIEF.md`](../triage/SHIP-BRIEF.md)), per the [git-hygiene rule](../../../standards/rules/git-hygiene.mini.md): paths `docs/roadmap.md`, deploy `none`, branch, PR and merge as the project's own git policy says. One commit:
 
 ```
-chore(defer): capture #<N> in roadmap
+chore(idea): capture #<N> in roadmap
 
-<one-line context — what prompted the deferral>
+<one-line context — what prompted the idea>
 ```
 
 Single-line report, once the ship brief reports the commit:
@@ -128,20 +106,20 @@ Single-line report, once the ship brief reports the commit:
 Captured: <issue URL> + docs/roadmap.md § What's next entry N.
 ```
 
-### Decisions baked in (Defer mode)
+### Decisions baked in (Idea mode)
 
 | Choice | Default | Why |
 | ------ | ------- | --- |
-| Label | `enhancement` | Matches existing issue labels. Override via `--label`. |
+| Label | the template's own | One source for the label. Override via `--label`. |
 | Roadmap section | last `## What's next` | New work converges there; topic-matching is fragile. |
 | Local-only mode | append roadmap entry, no issue | Better to capture *something* than refuse. Surfaces clearly. |
-| Approval gate | **none** | Defer is light parking; users redirect after the fact. |
+| Approval gate | **none** | An idea is light parking; users redirect after the fact. |
 
-### What Defer mode does NOT do
+### What Idea mode does NOT do
 
 - Does **not** start the work — that's the next `tdd` / `to-issues` cycle.
 - Does **not** close other issues, even if the new one supersedes them.
-- Does **not** edit `CHANGELOG.md` — defer is forward-looking, not historical.
+- Does **not** edit `CHANGELOG.md` — an idea is forward-looking, not historical.
 
 ## PRD mode (default)
 
@@ -159,7 +137,7 @@ A deep module (as opposed to a shallow module) is one which encapsulates a lot o
 
 Check with the user that these modules match their expectations. Check with the user which modules they want tests written for.
 
-4. Write the PRD using the template below, then publish it to the project issue tracker. Apply the `ready-for-agent` triage label — no need for additional triage — and post the `## Agent Brief` comment with the label, in the order [`triage/AGENT-BRIEF.md`](../triage/AGENT-BRIEF.md) § Posting gives. The brief distils the PRD into that template's shape, with the acceptance criteria inline. Then run `bash "${CLAUDE_PLUGIN_ROOT:-$HOME/.config/ai-kit/plugin-current}/bin/ai-kit-issue-meta.sh" <issue> --type Feature`, adding `--priority` when the grill set one.
+4. Write the PRD using the template below, then publish it to the project issue tracker, posted as [`triage/ISSUE-BODY.md`](../triage/ISSUE-BODY.md) says. A PRD is the worked-out text of an epic: the headings of `epic.md` come first, in the repo's language, then the extras in the template below. Its boxes follow [provable checkboxes](../triage/ISSUE-BODY.md#provable-checkboxes). Apply the `ready-for-agent` triage label — no need for additional triage — and post the `## Agent Brief` comment with the label, in the order [`triage/AGENT-BRIEF.md`](../triage/AGENT-BRIEF.md) § Posting gives. The brief distils the PRD into that template's shape, with the acceptance criteria inline. Then run `bash "${CLAUDE_PLUGIN_ROOT:-$HOME/.config/ai-kit/plugin-current}/bin/ai-kit-issue-meta.sh" <issue> --type Epic`, adding `--priority` when the grill set one.
 
 <prd-template>
 
@@ -175,13 +153,13 @@ The solution to the problem, from the user's perspective.
 
 A LONG, numbered list of user stories. Each user story should be in the format of:
 
-1. As an <actor>, I want a <feature>, so that <benefit>
+1. As an <actor>, I want a <capability>, so that <benefit>
 
 <user-story-example>
 1. As a mobile bank customer, I want to see balance on my accounts, so that I can make better informed decisions about my spending
 </user-story-example>
 
-This list of user stories should be extremely extensive and cover all aspects of the feature.
+This list of user stories should be extremely extensive and cover all aspects of the epic.
 
 ## Implementation Decisions
 
@@ -208,12 +186,8 @@ A list of testing decisions that were made. Include:
 - The seams the tests sit at: prefer existing seams, and the highest one that reaches the behavior; fewer seams is better (idea from mattpocock/skills abeeaf9)
 - Prior art for the tests (i.e. similar types of tests in the codebase)
 
-## Out of Scope
-
-A description of the things that are out of scope for this PRD.
-
 ## Further Notes
 
-Any further notes about the feature.
+Any further notes about the epic.
 
 </prd-template>

@@ -234,6 +234,30 @@ assert "grill-with-docs appends decisions to docs/decisions.md" 'grep -qF "docs/
 
 echo "=== chain-seams ==="
 # section: chain-seams
+for s in to-issues to-prd exploratory-test triage; do
+  assert "$s takes the issue body shape from triage/ISSUE-BODY.md" "grep -qE '\\((\.\./triage/)?ISSUE-BODY\.md\\)' \"\$SK/$s/SKILL.md\""
+done
+assert "ISSUE-BODY names the repo templates, the kit fallback and --body-file" 'grep -qF ".github/ISSUE_TEMPLATE/*.md" "$SK/triage/ISSUE-BODY.md" && grep -qF "plugin-current}/context/templates/github/ISSUE_TEMPLATE" "$SK/triage/ISSUE-BODY.md" && grep -qF -- "--body-file" "$SK/triage/ISSUE-BODY.md"'
+assert "ISSUE-BODY states the proof rule with a good and a bad example" 'grep -q "^Good: .*(proof: " "$SK/triage/ISSUE-BODY.md" && grep -q "^Bad: " "$SK/triage/ISSUE-BODY.md" && grep -qF "INVEST" "$SK/triage/ISSUE-BODY.md"'
+for f in to-issues/SKILL.md to-prd/SKILL.md triage/SKILL.md triage/AGENT-BRIEF.md; do
+  assert "$f links the proof rule" "grep -qE 'ISSUE-BODY\.md#provable-checkboxes' \"\$SK/$f\""
+done
+assert "to-issues carries no issue body of its own" '! grep -qE "<issue-template>|^## (What to build|Acceptance criteria)" "$SK/to-issues/SKILL.md"'
+assert "to-prd Idea mode carries no issue body of its own" '! grep -qE "^## (Pain|Proposed delivery|Why-not|Roadmap pointer)|house style" "$SK/to-prd/SKILL.md"'
+assert "to-prd has Idea mode and no Defer mode" 'grep -q "^## Idea mode" "$SK/to-prd/SKILL.md" && ! grep -q "Defer mode" "$SK/to-prd/SKILL.md"'
+assert "to-prd still triggers on defer, track and follow-up" 'sed -n 3p "$SK/to-prd/SKILL.md" | grep "defer this" | grep "track this for later" | grep -q "follow-up"'
+for s in exploratory-test setup; do
+  assert "$s marks its untemplated card" "grep -qF '<!-- card: other -->' \"\$SK/$s/SKILL.md\""
+done
+assert "a PRD takes epic.md's headings by reference, without a card marker" 'grep -qF "the headings of \`epic.md\` come first" "$SK/to-prd/SKILL.md" && ! grep -qE "card: other|^## (Goal|Done when|Out of scope|Definition of Done)" "$SK/to-prd/SKILL.md"'
+assert "ISSUE-BODY applies the template's labels and title prefix" 'grep -qF "frontmatter labels and title prefix" "$SK/triage/ISSUE-BODY.md" && ! grep -qF "Default label: \`enhancement\`" "$SK/to-prd/SKILL.md"'
+assert "autonomous never builds an idea card" 'grep -qF "\`idea-card\`" "$SK/autonomous/SKILL.md"'
+# PyYAML is not guaranteed on the CI images: in a plain scalar ": " is the break strict parsers reject.
+for f in "$SK"/*/SKILL.md; do
+  # shellcheck disable=SC2034
+  DESC="$(sed -n '2,/^---$/s/^description: //p' "$f")"
+  assert "$(basename "$(dirname "$f")"): description is valid YAML" '[ -n "$DESC" ] && { [[ "$DESC" == [\"\>\|\'"'"']* ]] || ! grep -q ": " <<<"$DESC"; }'
+done
 assert "AGENT-BRIEF has a Posting section" 'grep -q "^## Posting" "$SK/triage/AGENT-BRIEF.md"'
 assert "AGENT-BRIEF reads inputs from the repo, never a scratchpad" 'grep -q "^### Inputs from the repo, not from memory" "$SK/triage/AGENT-BRIEF.md" && grep -qF "scratchpad" "$SK/triage/AGENT-BRIEF.md"'
 for s in to-issues to-prd; do

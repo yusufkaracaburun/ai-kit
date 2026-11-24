@@ -350,7 +350,8 @@ redacted — paths, lines, rule ids, entropy, never a value), then ask:
 On [1]: `gh issue create` with the scanner's printed report (verbatim, it is
 already redacted) as the body — an app issue is the worked example of
 the format (rotate-first ordering, remediation checklist, no secrets in the
-body). Record `--secrets-scan=findings-issue-filed`. If `gh` fails or has no
+body), with the line `<!-- card: other -->` on top and posted through
+`--body-file` with a literal path. Record `--secrets-scan=findings-issue-filed`. If `gh` fails or has no
 remote to file against, degrade visibly (print the failure, don't retry) and
 fall back to `findings-acknowledged`.
 On [2]: record `--secrets-scan=findings-acknowledged`.

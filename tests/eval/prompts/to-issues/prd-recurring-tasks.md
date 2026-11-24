@@ -2,9 +2,9 @@
 id: prd-recurring-tasks
 skill: to-issues
 expects:
-  - breaks the plan into vertical slices (each cuts through ALL layers)
-  - labels each slice AFK or HITL, prefers AFK
-  - lists dependencies between slices explicitly (blocked-by)
+  - breaks the plan into stories, cut as vertical slices (each cuts through ALL layers)
+  - labels each story AFK or HITL, prefers AFK
+  - lists dependencies between stories explicitly (depends on)
   - issue titles use the project's domain vocabulary and respect ADRs
   - branch-name suggestions follow the git-hygiene rule (feat/, fix/, etc.)
 ---

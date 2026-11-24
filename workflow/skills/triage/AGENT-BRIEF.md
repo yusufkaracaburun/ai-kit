@@ -25,9 +25,9 @@ Describe **what** the system should do, not **how** to implement it. The agent w
 
 ### Complete acceptance criteria
 
-The agent needs to know when it's done. Every agent brief must have concrete, testable acceptance criteria. Each criterion should be independently verifiable.
+The agent needs to know when it's done. Every agent brief must have concrete, testable acceptance criteria. Each criterion should be independently verifiable and names its proof ([provable checkboxes](ISSUE-BODY.md#provable-checkboxes)).
 
-- **Good:** "Running `gh issue list --label needs-triage` returns issues that have been through initial classification"
+- **Good:** "Running `gh issue list --label needs-triage` returns issues that have been through initial classification (proof: that command's output)"
 - **Bad:** "Triage should work correctly"
 
 ### Explicit scope boundaries
@@ -86,9 +86,9 @@ Be specific about edge cases and error conditions.
 **Rule changed:** none | <rule>: <old> → <new>
 
 **Acceptance criteria:**
-- [ ] Specific, testable criterion 1
-- [ ] Specific, testable criterion 2
-- [ ] Specific, testable criterion 3
+- [ ] Specific, testable criterion 1 (proof: ...)
+- [ ] Specific, testable criterion 2 (proof: ...)
+- [ ] Specific, testable criterion 3 (proof: ...)
 
 **Out of scope:**
 - Thing that should NOT be changed or addressed in this issue
@@ -132,11 +132,11 @@ and append "..." to indicate truncation.
 **Rule changed:** none
 
 **Acceptance criteria:**
-- [ ] Descriptions under 1024 chars are unchanged
+- [ ] Descriptions under 1024 chars are unchanged (proof: unit test)
 - [ ] Descriptions over 1024 chars are truncated at the last word boundary
-      before 1024 chars
-- [ ] Truncated descriptions end with "..."
-- [ ] The total length including "..." does not exceed 1024 chars
+      before 1024 chars (proof: unit test)
+- [ ] Truncated descriptions end with "..." (proof: unit test)
+- [ ] The total length including "..." does not exceed 1024 chars (proof: unit test)
 
 **Out of scope:**
 - Changing the 1024 char limit itself
@@ -179,12 +179,12 @@ checked for matches.
 **Rule changed:** none
 
 **Acceptance criteria:**
-- [ ] Closing a feature as wontfix creates/updates a file in `.out-of-scope/`
-- [ ] The file includes the decision, reasoning, and link to the closed issue
+- [ ] Closing a feature as wontfix creates/updates a file in `.out-of-scope/` (proof: triage run on a test issue)
+- [ ] The file includes the decision, reasoning, and link to the closed issue (proof: that file)
 - [ ] If a matching `.out-of-scope/` file already exists, the new issue is
-      appended to its "Prior requests" list rather than creating a duplicate
+      appended to its "Prior requests" list rather than creating a duplicate (proof: second run)
 - [ ] During triage, existing `.out-of-scope/` files are checked and surfaced
-      when a new issue matches a prior rejection
+      when a new issue matches a prior rejection (proof: triage output)
 
 **Out of scope:**
 - Automated matching (human confirms the match)

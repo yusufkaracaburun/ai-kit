@@ -18,8 +18,8 @@ Every comment or issue posted to the issue tracker during triage **must** start 
 Every issue this skill promotes to `ready-for-agent` (or `ready-for-human`)
 must contain enough context that a **second dev** — teammate, AFK agent, or
 returning maintainer — who has never seen the conversation can act on it
-cold. Acceptance criteria must be inline and machine-checkable where
-possible. The atomic `## Agent Brief` comment is the contract surface; the
+cold. Acceptance criteria must be inline and follow the
+[provable checkboxes](ISSUE-BODY.md#provable-checkboxes) rule. The atomic `## Agent Brief` comment is the contract surface; the
 linked issue body is context, not specification.
 
 Rationale: the defaults assume ≥2 devs (one writer, one reviewer). Issues prepared for cold-pickup keep that invariant
@@ -29,6 +29,7 @@ stand on its own, route to `needs-info` instead.
 ## Reference docs
 
 - [AGENT-BRIEF.md](AGENT-BRIEF.md) — how to write durable agent briefs
+- [ISSUE-BODY.md](ISSUE-BODY.md): the body shape per issue type, for every issue triage creates (the disclaimer line goes above the template)
 - [OUT-OF-SCOPE.md](OUT-OF-SCOPE.md) — how the `.out-of-scope/` knowledge base works
 
 ## Roles
@@ -81,7 +82,8 @@ Show counts and a one-line summary per issue. Let the maintainer pick.
 
 4. **Grill (if needed).** If the issue needs fleshing out, run a `/ai:grill-with-docs` session.
 
-5. **Apply the outcome.** Once the category is settled, set it as the issue type (`Bug` for a fault, `Feature` for new functionality, `Task` for a chore; in doubt `Task`), with `--priority` only when triage decided one: `bash "${CLAUDE_PLUGIN_ROOT:-$HOME/.config/ai-kit/plugin-current}/bin/ai-kit-issue-meta.sh" <issue> --type <Type> [--priority Urgent|High|Medium|Low] --status <column>`. The column follows the new state: `needs-triage` → `Backlog`, `ready-for-agent` / `ready-for-human` → `Next`, `needs-info` → `Blocked`, `wontfix` → `Done`. The script moves the card on the repo's board and removes labels that clash with the column (for example `needs-triage` on a move to `Next`); you still apply the new state label. A state change without a category change uses `--status` alone. In a repo with a board, never set `status:in-progress`: the `Doing` column says the work has started. Then:
+5. **Apply the outcome.** Once the category is settled, set it as the issue type (`Bug` for a fault, `Epic` for an epic or PRD, `Story` for one deliverable piece, `Task` for a subtask, chore, spike or idea; in doubt `Task`), with `--priority` only when triage decided one: `bash "${CLAUDE_PLUGIN_ROOT:-$HOME/.config/ai-kit/plugin-current}/bin/ai-kit-issue-meta.sh" <issue> --type <Type> [--priority Urgent|High|Medium|Low] --status <column>`. The column follows the new state: `needs-triage` → `Backlog`, `ready-for-agent` / `ready-for-human` → `Next`, `needs-info` → `Blocked`, `wontfix` → `Done`. The script moves the card on the repo's board and removes labels that clash with the column (for example `needs-triage` on a move to `Next`); you still apply the new state label. A state change without a category change uses `--status` alone. In a repo with a board, never set `status:in-progress`: the `Doing` column says the work has started. Then:
+   - An idea card is never labelled ready: first rewrite its title, body and labels to the new type per [ISSUE-BODY.md](ISSUE-BODY.md) and set that type.
    - `ready-for-agent` — **MUST** post an Agent Brief comment ([AGENT-BRIEF.md](AGENT-BRIEF.md)) **atomically with the label change** (same triage call, not a follow-up). The comment **MUST** start with the literal header `## Agent Brief` (not `## Triage outcome` — that header is reserved for `needs-info` triage notes). The brief **MUST** contain inline acceptance criteria — referencing an external plan-doc or any file path is insufficient, because downstream skills (e.g. `autonomous`) read this comment cold and do not follow links. If you cannot produce a complete brief from issue context, **do not apply the `ready-for-agent` label** — route to `needs-info` instead.
    - `ready-for-human` — same structure as an Agent Brief (header `## Agent Brief`, inline acceptance criteria), but note why it can't be delegated (judgment calls, external access, design decisions, manual testing).
    - `needs-info` — post triage notes (template below).

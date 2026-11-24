@@ -23,7 +23,7 @@ defer-then-resume.
 
 1. **Before each edit, ask: "is this in scope of the stated task?"** If
    no, stop. Capture as a follow-up.
-2. **For follow-ups, use defer-mode** — `/ai:to-prd` Defer mode opens a
+2. **For follow-ups, use Idea mode** — `/ai:to-prd` Idea mode opens a
    GH issue + roadmap entry without prompting. One-line capture, then
    continue.
 3. **No mixed commits.** Refactor + feature + format = three commits, or

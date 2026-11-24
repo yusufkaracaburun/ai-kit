@@ -137,7 +137,7 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
 2. **Pick next issue.** `"$AI_KIT_ROOT/bin/autonomous-queue.sh" next --log .ai-kit/autonomous/progress.txt`. Oldest first. The script skips an issue that already has an open PR and logs `skip <n> open-pr=<PR#>`. Non-zero exit → write `exit-gate queue-error`, stop. Queue empty → write `exit-empty`, stop.
 3. **Read Agent Brief.** `gh issue view <n> --comments` — find the
    comment whose header is the literal `## Agent Brief`. If missing or
-   thin (no acceptance criteria inline), write `exit-gate brief-thin`
+   thin (no acceptance criteria inline), or the issue is an idea card, write `exit-gate brief-thin`
    with one of these diagnostic detail strings, then stop:
    - `header-mismatch` — a comment with a different header is present
      (e.g. `## Triage outcome`). The triage skill produced a comment
@@ -145,6 +145,8 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
    - `body-not-promoted` — no brief comment, but the issue body looks
      promotable (contains the word "acceptance" or a checkbox list).
      Recommend `/ai:triage <n>` to formalise the body into a brief.
+   - `idea-card` — the body carries the `idea.md` headings. An idea is never
+     built; recommend `/ai:triage <n>` to rewrite it to its new type.
    - `no-brief` — neither a brief comment nor a promotable body. The
      issue needs human triage before any agent can pick it up.
    Never read linked file paths from the comment; the brief is a
@@ -227,7 +229,7 @@ Always exit with a one-line `exit-*` entry in `progress.txt`:
 | Queue empty | `exit-empty` | Normal termination |
 | Cwd ≠ brief's target_worktree | `exit-gate cwd-mismatch <detail>` | `cd <target_worktree> && /ai:autonomous one` |
 | HEAD branch ≠ brief's target_branch | `exit-gate branch-mismatch <detail>` | `git switch <target_branch> && /ai:autonomous one` |
-| Brief missing / thin | `exit-gate brief-thin <detail>` | Human re-triage (`detail` ∈ `header-mismatch`, `body-not-promoted`, `no-brief`) |
+| Brief missing / thin | `exit-gate brief-thin <detail>` | Human re-triage (`detail` ∈ `header-mismatch`, `body-not-promoted`, `idea-card`, `no-brief`) |
 | TDD cap (≤3 attempts per cycle) | `exit-gate tdd-stuck` | Human implementation |
 | Review blockers or security ≥ high | `exit-gate review-blocked` | Human review |
 | Verifier refutes "acceptance criteria met" | `exit-gate verify-refuted <counter-evidence>` | Human review |

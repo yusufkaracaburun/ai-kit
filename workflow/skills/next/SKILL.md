@@ -46,9 +46,9 @@ The top item drives the recommendation. Propose it; do not run it. The user pick
 
 - **Status Doing or `status:in-progress`** → continue the existing branch / WIP. Do not start anything new.
 - **`ready-for-agent`** → `/ai:autonomous` to drain the queue (or hand the issue # to a fresh chat).
-- **Roadmap-only** → `/ai:to-prd defer` to open a GH issue + roadmap link (so it earns a P-label).
+- **Roadmap-only** → `/ai:to-prd idea` to open a GH issue + roadmap link (so it earns a P-label).
 - **Setup-deferred** → re-run `/ai:setup` and pick `change` on the relevant branch.
-- **Generic open GH issue** → `/ai:to-issues` to break into vertical slices, or `/ai:tdd` to implement.
+- **Generic open GH issue** → `/ai:to-issues` to break into stories, or `/ai:tdd` to implement.
 
 Only in the ai-kit repo (`workflow/skills/workflow-audit/` exists): when the date in the newest `docs/audits/workflow-audit-<date>.md` filename is over 30 days old, add one line under the list: `last workflow audit N days ago, run /ai:workflow-audit`; when no such file exists, `no workflow audit yet, run /ai:workflow-audit`.
 

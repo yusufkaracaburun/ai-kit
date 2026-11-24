@@ -1,6 +1,6 @@
 ---
 name: exploratory-test
-description: Human-driven manual review / exploratory testing — tester emits 50-100+ free-form findings across roles / apps / pages, skill acks each, then bundles into one parent GH issue per scope (checklist + repro + cross-refs). Use when a tester tests through an app and wants one tidy parent issue instead of issue-explosion. Triggers: "exploratory test", "manual review", "doorlopen en bugs loggen", or `/ai:exploratory-test`.
+description: Human-driven manual review / exploratory testing — tester emits 50-100+ free-form findings across roles / apps / pages, skill acks each, then bundles into one parent GH issue per scope (checklist + repro + cross-refs). Use when a tester tests through an app and wants one tidy parent issue instead of issue-explosion. Triggers on "exploratory test", "manual review", "doorlopen en bugs loggen", or `/ai:exploratory-test`.
 ---
 
 Run a long human-driven exploratory testing session. The tester emits free-form findings ("X is too big", "Y is missing"), the skill logs them with one short acknowledgement per finding, and at the end normalizes + publishes one clean parent issue per scope.
@@ -103,6 +103,7 @@ When the tester confirms:
 2. **Title pattern:** `Exploratory testing — <YYYY-MM-DD> — <host> (<rollen>)`.
 3. **Body structure:**
    ```markdown
+   <!-- card: other -->
    ## Sessie
    - Tester: <gh-user>
    - Datum: YYYY-MM-DD
@@ -131,14 +132,14 @@ When the tester confirms:
    ## Open questions
    - #14, #41 — vragen voor product
    ```
-4. **One `gh issue create` per scope.** If session spanned hosts, one parent per host, each with its own `area/*` label. Cross-link the parents (`Related: #N`) in each body.
+4. **One `gh issue create` per scope**, posted as [`triage/ISSUE-BODY.md`](../triage/ISSUE-BODY.md) says. If session spanned hosts, one parent per host, each with its own `area/*` label. Cross-link the parents (`Related: #N`) in each body. With one issue per finding, each issue uses `bug.md` from that file instead of the parent body above when it reports a fault; other findings follow that file's type pick.
 5. Echo issue URLs back to the tester.
 
 ## Phase 5 — hand off to phase-2 triage
 
 Per checkbox in the parent issue, the tester (later) picks:
 - **Fix-now** → commit directly (small fixes, no sub-issue).
-- **Sub-issue** → `gh sub_issue_write` OR `/ai:to-issues` (use `/ai:to-issues` when finding is a tracer-bullet slice).
+- **Sub-issue** → `gh issue create --parent <parent-issue>` with the body from [`triage/ISSUE-BODY.md`](../triage/ISSUE-BODY.md), OR `/ai:to-issues` (when the finding is a story).
 - **Verwerpen** → check the box with `~strikethrough~` and a one-line why.
 - **Dedupe** → check + `Duplicate of #N` comment.
 
@@ -166,7 +167,7 @@ Do not run phase-2 inside this skill. The whole point of capture-and-bundle is t
 - `/ai:qa` — automated smoke test against a URL. Different shape: assistant drives the browser, not the tester.
 - `/ai:diagnose` — one hard bug, reproduce-minimise-instrument loop.
 - `/ai:triage` — phase-2 per-issue state-machine; assumes issues already exist.
-- `/ai:to-issues` — splits a plan into tracer-bullet slices; assumes a plan, not raw observations.
+- `/ai:to-issues` — splits a plan into stories; assumes a plan, not raw observations.
 
 ## Manual-run reference (proof + design rationale)
 

@@ -30,7 +30,7 @@ The skill passes the full Agent Brief, in the shape of `triage/AGENT-BRIEF.md`:
 - **Summary**, **Current behavior** and **Desired behavior** — what changes and why
 - **Key interfaces** — the types, signatures and config shapes to change
 - **Acceptance criteria** — the behaviours to implement, in the order to test them
-- **Rule changed** — when it names a rule, grep for every other computation and user-facing description of it (backend and frontend) and update them in this slice
+- **Rule changed** — when it names a rule, grep for every other computation and user-facing description of it (backend and frontend) and update them in this change
 - **Out of scope** — what you must not touch; it binds like the acceptance criteria
 - **Test command** — how this project runs its tests (`composer test`, `pnpm test`, `make test`, …), plus the run budget
 - **Decisions in force** — lines quoted from the project's `docs/decisions.md`; treat them as settled

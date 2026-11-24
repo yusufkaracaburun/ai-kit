@@ -129,7 +129,7 @@ rm -rf "$TMP_GH_NONE"
 TMP_GH_NL=$(mktemp -d)
 (cd "$TMP_GH_NL" && git init -q && git remote add origin git@github.com:yusufkaracaburun/testrepo.git)
 "$GH_SETUP" "$TMP_GH_NL" --no-labels --no-project --quiet >/dev/null
-assert "nl: feature template written" '[ -f "$TMP_GH_NL/.github/ISSUE_TEMPLATE/feature.md" ]'
+assert "nl: story template written" '[ -f "$TMP_GH_NL/.github/ISSUE_TEMPLATE/story.md" ]'
 assert "nl: spike template written" '[ -f "$TMP_GH_NL/.github/ISSUE_TEMPLATE/spike.md" ]'
 assert "nl: config.yml written" '[ -f "$TMP_GH_NL/.github/ISSUE_TEMPLATE/config.yml" ]'
 assert "nl: dor-dod workflow written" '[ -f "$TMP_GH_NL/.github/workflows/dor-dod-enforcement.yml" ]'
@@ -140,46 +140,107 @@ assert "nl: gitleaks workflow written" '[ -f "$TMP_GH_NL/.github/workflows/gitle
 # file no script wrote.
 assert "secrets-gate passes on a freshly scaffolded repo" \
   '"$AIKIT/bin/ai-kit-secrets-gate.sh" "$TMP_GH_NL" >/dev/null 2>&1'
-assert "nl: feature has Dutch DoR header" 'grep -q "Definition of Ready (vóór \"In Progress\")" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/feature.md"'
-assert "nl: feature has Triage section" 'grep -q "## Triage" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/feature.md"'
-assert "nl: feature has Depends on field" 'grep -q "Depends on:" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/feature.md"'
-assert "nl: feature has Blocks field" 'grep -q "Blocks:" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/feature.md"'
+h2s() { sed -n 's/^## //p' "$1" | paste -sd '|' -; }
+assert "nl: bug template carries the required H2s" '[ "$(h2s "$TMP_GH_NL/.github/ISSUE_TEMPLATE/bug.md")" = "Stappen|Verwacht|Werkelijk|Waar|Acceptance criteria|Definition of Done (vóór close)" ]'
+assert "nl: bug template has a regression-test criterion" 'grep -q "^- \[ \] .*[Rr]egressietest" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/bug.md"'
+assert "nl: epic template carries its H2s" '[ "$(h2s "$TMP_GH_NL/.github/ISSUE_TEMPLATE/epic.md")" = "Doel|Klaar wanneer|Buiten scope|Definition of Done (vóór close)" ]'
+assert "nl: task template carries its H2s" '[ "$(h2s "$TMP_GH_NL/.github/ISSUE_TEMPLATE/task.md")" = "Wat|Acceptance criteria|Definition of Done (vóór close)" ]'
+assert "no feature template is written" '[ ! -e "$TMP_GH_NL/.github/ISSUE_TEMPLATE/feature.md" ]'
+assert "nl: idea template carries what, why, when" '[ "$(h2s "$TMP_GH_NL/.github/ISSUE_TEMPLATE/idea.md")" = "Wat|Waarom|Wanneer oppakken" ]'
+assert "nl: story has Dutch DoR header" 'grep -q "Definition of Ready (vóór \"In Progress\")" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/story.md"'
+assert "nl: story has Triage section" 'grep -q "## Triage" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/story.md"'
+assert "nl: story has Depends on field" 'grep -q "Depends on:" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/story.md"'
+assert "nl: story has Blocks field" 'grep -q "Blocks:" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/story.md"'
 assert "nl: spike has Time-box field" 'grep -q "Time-box:" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/spike.md"'
 
 # Workflows carry the right anchors.
 assert "dor-dod workflow parses DoR header" 'grep -q "Definition of Ready" "$TMP_GH_NL/.github/workflows/dor-dod-enforcement.yml"'
 assert "dor-dod workflow parses DoD header" 'grep -q "Definition of Done" "$TMP_GH_NL/.github/workflows/dor-dod-enforcement.yml"'
 assert "auto-promote checks P[0-3] labels" 'grep -q "P\\[0-3\\]-" "$TMP_GH_NL/.github/workflows/auto-promote-ready.yml"'
-assert "auto-promote checks epic/ labels" 'grep -q "epic/" "$TMP_GH_NL/.github/workflows/auto-promote-ready.yml"'
 assert "auto-promote checks area/ labels" 'grep -q "area/" "$TMP_GH_NL/.github/workflows/auto-promote-ready.yml"'
 
 # Placeholders remain when --no-project (script did not resolve them).
 assert "auto-promote keeps PROJECT_NUMBER placeholder" 'grep -q "AI_KIT_PROJECT_NUMBER" "$TMP_GH_NL/.github/workflows/auto-promote-ready.yml"'
 
 # Idempotency — second run does not overwrite. Mutate the file, re-run, check.
-echo "USER_EDIT" >> "$TMP_GH_NL/.github/ISSUE_TEMPLATE/feature.md"
+echo "USER_EDIT" >> "$TMP_GH_NL/.github/ISSUE_TEMPLATE/story.md"
+echo "USER_EDIT" >> "$TMP_GH_NL/.github/ISSUE_TEMPLATE/bug.md"
+echo "USER_EDIT" >> "$TMP_GH_NL/.github/ISSUE_TEMPLATE/idea.md"
 "$GH_SETUP" "$TMP_GH_NL" --no-labels --no-project --quiet >/dev/null
-assert "idempotent: user edits preserved on re-run" 'grep -q "USER_EDIT" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/feature.md"'
+assert "idempotent: user edits preserved on re-run" 'grep -q "USER_EDIT" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/story.md"'
+assert "idempotent: existing bug.md and idea.md preserved on re-run" 'grep -q "USER_EDIT" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/bug.md" && grep -q "USER_EDIT" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/idea.md"'
 
 # --force overwrites.
 "$GH_SETUP" "$TMP_GH_NL" --no-labels --no-project --quiet --force >/dev/null
-assert "force: user edits cleared" '! grep -q "USER_EDIT" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/feature.md"'
+assert "force: user edits cleared" '! grep -q "USER_EDIT" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/story.md"'
+assert "force: bug.md and idea.md edits cleared" 'grep -q "^## Stappen" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/bug.md" && ! grep -q "USER_EDIT" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/bug.md" "$TMP_GH_NL/.github/ISSUE_TEMPLATE/idea.md"'
 rm -rf "$TMP_GH_NL"
 
 # English variant.
 TMP_GH_EN=$(mktemp -d)
 (cd "$TMP_GH_EN" && git init -q && git remote add origin git@github.com:yusufkaracaburun/testrepo.git)
 "$GH_SETUP" "$TMP_GH_EN" --lang en --no-labels --no-project --quiet >/dev/null
-assert "en: feature has English DoR header" 'grep -q "Definition of Ready (before \"In Progress\")" "$TMP_GH_EN/.github/ISSUE_TEMPLATE/feature.md"'
-assert "en: feature has English Scope content" 'grep -q "Measurable criterion" "$TMP_GH_EN/.github/ISSUE_TEMPLATE/feature.md"'
+assert "en: story has English DoR header" 'grep -q "Definition of Ready (before \"In Progress\")" "$TMP_GH_EN/.github/ISSUE_TEMPLATE/story.md"'
+assert "en: story has English Scope content" 'grep -q "Measurable criterion" "$TMP_GH_EN/.github/ISSUE_TEMPLATE/story.md"'
+assert "en: bug template carries the required H2s" '[ "$(h2s "$TMP_GH_EN/.github/ISSUE_TEMPLATE/bug.md")" = "Steps|Expected|Actual|Where|Acceptance criteria|Definition of Done (before close)" ]'
+assert "en: bug template has a regression-test criterion" 'grep -q "^- \[ \] .*[Rr]egression test" "$TMP_GH_EN/.github/ISSUE_TEMPLATE/bug.md"'
+assert "en: epic template carries its H2s" '[ "$(h2s "$TMP_GH_EN/.github/ISSUE_TEMPLATE/epic.md")" = "Goal|Done when|Out of scope|Definition of Done (before close)" ]'
+assert "en: task template carries its H2s" '[ "$(h2s "$TMP_GH_EN/.github/ISSUE_TEMPLATE/task.md")" = "What|Acceptance criteria|Definition of Done (before close)" ]'
+assert "en: idea template carries what, why, when" '[ "$(h2s "$TMP_GH_EN/.github/ISSUE_TEMPLATE/idea.md")" = "What|Why|When to pick up" ]'
 assert "en: spike has English Goal header" 'grep -q "## Goal" "$TMP_GH_EN/.github/ISSUE_TEMPLATE/spike.md"'
 rm -rf "$TMP_GH_EN"
+
+# Priority is a project field, not body text; the Triage heading stays.
+for f in story.md story.en.md spike.md spike.en.md; do
+  # shellcheck disable=SC2034
+  TRIAGE_SECTION="$(sed -n '/^## Triage$/,/^## /p' "$AIKIT/workflow/context/templates/github/ISSUE_TEMPLATE/$f")"
+  assert "$f: Triage heading present without a Priority line" '[ -n "$TRIAGE_SECTION" ] && ! grep -q "Priority" <<<"$TRIAGE_SECTION"'
+done
+
+# A built card closes on a Definition of Done the bot can parse; an idea card has none.
+for lang in "" .en; do
+  # shellcheck disable=SC2034
+  IDEA="$AIKIT/workflow/context/templates/github/ISSUE_TEMPLATE/idea$lang.md"
+  assert "idea$lang.md: no DoR or DoD" '! grep -q "Definition of" "$IDEA"'
+  for t in epic story task bug spike; do
+    # shellcheck disable=SC2034
+    DOD_BOXES="$(sed -n '/^## Definition of Done/,/^## /p' "$AIKIT/workflow/context/templates/github/ISSUE_TEMPLATE/$t$lang.md" | grep -c '^- \[ \] ' || true)"
+    assert "$t$lang.md: DoD has 3 to 5 checkboxes" '[ "$DOD_BOXES" -ge 3 ] && [ "$DOD_BOXES" -le 5 ]'
+  done
+done
+
+# Every checkbox names its proof.
+for f in "$AIKIT"/workflow/context/templates/github/ISSUE_TEMPLATE/*.md; do
+  # shellcheck disable=SC2034
+  UNPROVEN="$(grep '^- \[ \] ' "$f" | grep -vE '\((proof|bewijs): .+\)$' || true)"
+  assert "$(basename "$f"): every checkbox names its proof" '[ -z "$UNPROVEN" ]'
+done
+# shellcheck disable=SC2034
+STORY_DOR="$(sed -n '/^## Definition of Ready/,/^## /p' "$AIKIT/workflow/context/templates/github/ISSUE_TEMPLATE/story.en.md")"
+for w in Independent Small Testable; do
+  assert "story DoR has the $w box" "grep -q '^- \[ \] $w: ' <<<\"\$STORY_DOR\""
+done
+
+for lang in "" .en; do
+  for t in story spike; do
+    assert "$t$lang.md: DoR accepts a card without an epic" "grep -qE '^- \[ \] Priority.*Epic(-label, of geen| label, or none)' '$AIKIT/workflow/context/templates/github/ISSUE_TEMPLATE/$t$lang.md'"
+  done
+  assert "story$lang.md: Triage has an Estimate line and the Small box reads it" "sed -n '/^## Triage/,/^## Scope/p' '$AIKIT/workflow/context/templates/github/ISSUE_TEMPLATE/story$lang.md' | grep -q '^- \*\*Estimate:\*\*' && grep -qE '^- \[ \] Small: .*(reason|reden)' '$AIKIT/workflow/context/templates/github/ISSUE_TEMPLATE/story$lang.md'"
+done
+
+# A repo that still has feature.md hears it once; the file stays.
+TMP_GH_OLD=$(mktemp -d)
+(cd "$TMP_GH_OLD" && git init -q && git remote add origin git@github.com:yusufkaracaburun/testrepo.git && mkdir -p .github/ISSUE_TEMPLATE && echo OLD > .github/ISSUE_TEMPLATE/feature.md)
+# shellcheck disable=SC2034
+OUT_OLD="$("$GH_SETUP" "$TMP_GH_OLD" --no-labels --no-project --no-protection)"
+assert "feature.md found: one line, file kept" '[ "$(grep -c "feature.md found" <<<"$OUT_OLD")" -eq 1 ] && grep -qx OLD "$TMP_GH_OLD/.github/ISSUE_TEMPLATE/feature.md"'
+rm -rf "$TMP_GH_OLD"
 
 # Dry-run writes nothing.
 TMP_GH_DRY=$(mktemp -d)
 (cd "$TMP_GH_DRY" && git init -q && git remote add origin git@github.com:yusufkaracaburun/testrepo.git)
 "$GH_SETUP" "$TMP_GH_DRY" --no-labels --no-project --quiet --dry-run >/dev/null
-assert "dry-run: no files written" '[ ! -f "$TMP_GH_DRY/.github/ISSUE_TEMPLATE/feature.md" ]'
+assert "dry-run: no files written" '[ ! -f "$TMP_GH_DRY/.github/ISSUE_TEMPLATE/story.md" ]'
 rm -rf "$TMP_GH_DRY"
 
 # Workflows have the right top-level structure (name + on + jobs).
@@ -206,7 +267,7 @@ rm -rf "$TMP_BS_GL"
 TMP_BS_GH=$(mktemp -d)
 (cd "$TMP_BS_GH" && git init -q && git remote add origin git@github.com:yusufkaracaburun/testrepo.git)
 "$AIKIT/bin/bootstrap-project.sh" --minimal --no-rules "$TMP_BS_GH" >/dev/null 2>&1
-assert "bootstrap on GitHub: feature template scaffolded" '[ -f "$TMP_BS_GH/.github/ISSUE_TEMPLATE/feature.md" ]'
+assert "bootstrap on GitHub: story template scaffolded" '[ -f "$TMP_BS_GH/.github/ISSUE_TEMPLATE/story.md" ]'
 assert "bootstrap on GitHub: dor-dod workflow scaffolded" '[ -f "$TMP_BS_GH/.github/workflows/dor-dod-enforcement.yml" ]'
 rm -rf "$TMP_BS_GH"
 

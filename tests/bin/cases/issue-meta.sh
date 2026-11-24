@@ -117,6 +117,24 @@ run_meta 61 --type Bug
 assert "issue-meta: bare P1 label maps to High" 'echo "$CALLS" | grep "setIssueFieldValue" | grep -q "optionId=O_h"'
 
 echo ""
+echo "=== ai-kit-issue-meta: Epic and Story types with their fallbacks ==="
+write_meta "$TYPES,"'{"id":"IT_e","name":"Epic"},{"id":"IT_s","name":"Story"}' "$PRIO" "$BOARDS"
+for t in Epic Story; do
+  run_meta 80 --type "$t"
+  assert "issue-meta: $t set when the repo has it" "grep -q 'issues/80 -f type=$t' <<<\"\$CALLS\" && ! grep -q 'using' <<<\"\$OUT\""
+done
+run_meta 81 --type Feature
+assert "issue-meta: Feature is an alias of Epic" 'grep -q "issues/81 -f type=Epic" <<<"$CALLS" && ! grep -q "using" <<<"$OUT"'
+write_meta "$TYPES" "$PRIO" "$BOARDS"
+run_meta 82 --type Epic
+assert "issue-meta: Epic falls back to Feature with one message" 'grep -q "issues/82 -f type=Feature" <<<"$CALLS" && [ "$(grep -c "no Epic type in this repo, using Feature" <<<"$OUT")" -eq 1 ]'
+run_meta 83 --type Story
+assert "issue-meta: Story falls back to Task with one message" 'grep -q "issues/83 -f type=Task" <<<"$CALLS" && [ "$(grep -c "no Story type in this repo, using Task" <<<"$OUT")" -eq 1 ]'
+write_meta '{"id":"IT_b","name":"Bug"}' "$PRIO" "$BOARDS"
+run_meta 84 --type Story
+assert "issue-meta: no Story and no Task type skips the type" '[ "$RC" -eq 0 ] && ! grep -q "type=" <<<"$CALLS" && [ "$(grep -c "type skipped" <<<"$OUT")" -eq 1 ] && ! grep -q "using" <<<"$OUT"'
+
+echo ""
 echo "=== ai-kit-issue-meta: no types, no board ==="
 write_meta "" "$PRIO" '{"projectsV2":{"nodes":[]}}'
 run_meta 48 --type Feature
@@ -240,7 +258,7 @@ assert "issue-meta: each failed write is reported" '[ "$(echo "$OUT" | grep -c "
 mv "$TMP_IM/gh.ok" "$TMP_IM/stubs/gh"
 
 rm -f "$TMP_IM/calls.log"
-for bad in "" "--type Task" "42" "42 --type Epic" "42 --type Task --priority P1" "42 --type Task --bogus" \
+for bad in "" "--type Task" "42" "42 --type Slice" "42 --type Task --priority P1" "42 --type Task --bogus" \
   "https://github.com/ac\$me/demo/issues/1 --type Task" "https://github.com/acme/demo/issues/45abc --type Task" \
   "42 --status Doing2" "42 --priority High" "42 --status Next --parent 40"; do
   RC_BAD=0

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # ai-kit-issue-meta.sh: give one issue its type, Priority, board spot and board Status.
 #
-# Type: set when the repo offers issue types, else skipped.
+# Type: set when the repo offers issue types, else skipped. A repo without the Epic type
+#   gets Feature, one without Story gets Task. --type Feature is an alias of Epic.
 # Priority: --priority, else the Priority the issue already has is kept, else the
 #   --parent issue's Priority, else Medium. Set as
 #   the Priority issue field; repos without that field get the P label instead.
@@ -14,7 +15,7 @@
 # Exits 2 only on bad arguments.
 #
 # Usage:
-#   ai-kit-issue-meta.sh <issue-number|issue-url> --type Feature|Bug|Task
+#   ai-kit-issue-meta.sh <issue-number|issue-url> --type Epic|Story|Task|Bug
 #                        [--priority Urgent|High|Medium|Low] [--parent <issue>]
 #                        [--status Backlog|Next|Doing|Blocked|Done]
 #   ai-kit-issue-meta.sh <issue-number|issue-url> --status Backlog|Next|Doing|Blocked|Done
@@ -23,10 +24,10 @@ set -uo pipefail
 
 usage() {
   cat <<USAGE
-Usage: $0 <issue-number|issue-url> --type Feature|Bug|Task [--priority Urgent|High|Medium|Low] [--parent <issue>] [--status <column>]
+Usage: $0 <issue-number|issue-url> --type Epic|Story|Task|Bug [--priority Urgent|High|Medium|Low] [--parent <issue>] [--status <column>]
        $0 <issue-number|issue-url> --status Backlog|Next|Doing|Blocked|Done
 
-  --type      Feature (epic, PRD, new functionality), Bug (fault), Task (slice, chore)
+  --type      Epic (epic, PRD; alias Feature), Story (deliverable piece), Task (subtask, chore, spike, idea), Bug (fault)
   --priority  explicit Priority; default: keep the issue's own, else the parent's, else Medium
   --parent    PRD or epic issue to inherit Priority from
   --status    board column to move the card to; drops labels that clash with it
@@ -71,7 +72,8 @@ done
 
 [ -n "$ISSUE" ] || bad "missing issue"
 [ -n "$TYPE$STATUS" ] || bad "need --type, --status or both"
-case "$TYPE" in ""|Feature|Bug|Task) ;; *) bad "--type must be Feature, Bug or Task" ;; esac
+[ "$TYPE" != Feature ] || TYPE=Epic
+case "$TYPE" in ""|Epic|Story|Task|Bug) ;; *) bad "--type must be Epic, Story, Task or Bug" ;; esac
 case "$PRIORITY" in ""|Urgent|High|Medium|Low) ;; *) bad "--priority must be Urgent, High, Medium or Low" ;; esac
 case "$STATUS" in ""|Backlog|Next|Doing|Blocked|Done) ;; *) bad "--status must be Backlog, Next, Doing, Blocked or Done" ;; esac
 [ -n "$TYPE" ] || [ -z "$PRIORITY$PARENT" ] || bad "--priority and --parent need --type"
@@ -145,19 +147,21 @@ import json, os
 from collections import Counter
 repo = (json.loads(os.environ["META_JSON"]).get("data") or {}).get("repository") or {}
 nodes = lambda o, k: ((o or {}).get(k) or {}).get("nodes") or []
-has_type = any(t.get("name") == os.environ["TYPE"] for t in nodes(repo, "issueTypes"))
+wanted = os.environ["TYPE"]
+names = [t.get("name") for t in nodes(repo, "issueTypes")]
+repo_type = next((t for t in (wanted, {"Epic": "Feature", "Story": "Task"}.get(wanted)) if t in names), "") if wanted else ""
 field = next((f for f in nodes(repo, "issueFields") if f.get("name") == "Priority"), {})
 options = "\x1e".join(o["name"] + "\x1f" + o["id"] for o in field.get("options") or [])
 boards = Counter(p["id"] for n in nodes(repo, "issues") for p in nodes(n, "projectsV2") if p)
 own = [p["id"] for p in nodes(repo.get("issue"), "projectsV2") if p]
 linked = [p["id"] for p in nodes(repo, "projectsV2") if p]
 board = max(own, key=lambda p: boards[p]) if own else (boards.most_common(1)[0][0] if boards else (linked[0] if len(linked) == 1 else ""))
-print("|".join([(repo.get("issue") or {}).get("id", ""), "1" if has_type else "", field.get("id", ""), options, board, "1" if own else ""]))
+print("|".join([(repo.get("issue") or {}).get("id", ""), repo_type, field.get("id", ""), options, board, "1" if own else ""]))
 ' 2>/dev/null); then
   note "could not parse gh's reply for #$NUM, nothing set"
   exit 0
 fi
-IFS='|' read -r ISSUE_ID HAS_TYPE FIELD_ID OPTIONS PROJECT_ID ON_BOARD <<<"$PARSED"
+IFS='|' read -r ISSUE_ID REPO_TYPE FIELD_ID OPTIONS PROJECT_ID ON_BOARD <<<"$PARSED"
 if [ -z "${ISSUE_ID:-}" ]; then
   note "#$NUM not found, nothing set"
   exit 0
@@ -166,7 +170,9 @@ fi
 DONE=() ADD_LABEL="" CLASH=""
 if [ -z "$TYPE" ]; then
   :
-elif [ -n "$HAS_TYPE" ]; then
+elif [ -n "$REPO_TYPE" ]; then
+  [ "$REPO_TYPE" = "$TYPE" ] || note "no $TYPE type in this repo, using $REPO_TYPE"
+  TYPE="$REPO_TYPE"
   if gh api -X PATCH "repos/$OWNER/$NAME/issues/$NUM" -f type="$TYPE" >/dev/null 2>"$ERR_FILE"; then
     DONE+=("type $TYPE")
   else

@@ -5,7 +5,7 @@ description: Install ai-kit's GitHub workflow hygiene — issue templates with D
 
 # Setup GitHub workflow
 
-Install `.github/ISSUE_TEMPLATE/` (feature + spike templates with embedded DoR/DoD), two `.github/workflows/` files (DoR/DoD enforcement + auto-promote-to-Ready), a PR template, branch protection, and a bulk label set into the current project. Adopt-as-pattern from the portal app (`/should-i-use` verdict 2026-05-23) — battle-tested, parsing logic verbatim.
+Install `.github/ISSUE_TEMPLATE/` (epic, story, task, bug, spike and idea templates; all but idea carry a DoD, story and spike also a DoR), two `.github/workflows/` files (DoR/DoD enforcement + auto-promote-to-Ready), a PR template, branch protection, and a bulk label set into the current project. Adopt-as-pattern from the portal app (`/should-i-use` verdict 2026-05-23) — battle-tested, parsing logic verbatim.
 
 ## When to invoke
 
@@ -19,17 +19,21 @@ Trigger phrases:
 
 Also fires automatically as part of `/ai:setup` when the project has a GitHub remote — silent skip on non-GH remotes; never asks for opt-in.
 
-**Not this skill** — use [`to-issues`](../to-issues/SKILL.md) when you want to *break down a plan* into N tickets. `setup-gh-workflow` scaffolds the templates + workflows themselves; `to-issues` populates them later. Use [`to-prd`](../to-prd/SKILL.md) in defer mode when you want to park a single lead — that opens one issue + roadmap entry; this skill is the one-time platform setup.
+**Not this skill** — use [`to-issues`](../to-issues/SKILL.md) when you want to *break down a plan* into N stories. `setup-gh-workflow` scaffolds the templates + workflows themselves; `to-issues` populates them later. Use [`to-prd`](../to-prd/SKILL.md) in Idea mode when you want to park a single lead — that opens one issue + roadmap entry; this skill is the one-time platform setup.
 
 ## What it installs
 
 | Artifact | Purpose |
 | -------- | ------- |
-| `.github/ISSUE_TEMPLATE/feature.md` | Standard feature/bugfix template — Triage / Scope / Acceptance / DoR / DoD |
+| `.github/ISSUE_TEMPLATE/epic.md` | Epic: goal, done when, out of scope, DoD. Its stories hang under it as sub-issues |
+| `.github/ISSUE_TEMPLATE/story.md` | Story template: Triage / Scope / Acceptance / DoR / DoD |
+| `.github/ISSUE_TEMPLATE/task.md` | Small maintenance or a separate subtask: what, acceptance criteria, DoD |
 | `.github/ISSUE_TEMPLATE/spike.md` | Time-boxed research template — adds Time-box + ADR-output DoD |
+| `.github/ISSUE_TEMPLATE/bug.md` | Bug template: steps, expected, actual, where, acceptance criteria with a regression test, DoD |
+| `.github/ISSUE_TEMPLATE/idea.md` | Not decided or started: what, why, when to pick up. No DoR/DoD |
 | `.github/ISSUE_TEMPLATE/config.yml` | Disables blank issues; links to project board |
 | `.github/workflows/dor-dod-enforcement.yml` | On close → check DoD, reopen if unchecked. On `labeled status:in-progress` → check DoR, strip label if unchecked. |
-| `.github/workflows/auto-promote-ready.yml` | Todo → Ready on board when DoR all checked + priority (Priority issue field, or a `P[0-3]-*` label) + `epic/*` + `area/*` labels set. Forward-only. |
+| `.github/workflows/auto-promote-ready.yml` | Todo → Ready on board when DoR all checked + priority (Priority issue field, or a `P[0-3]-*` label) + an `area/*` label set. Forward-only. |
 | `.github/workflows/gitleaks.yml` | Blocks secrets *added* by the pushed range — not full history, which goes red forever on any pre-existing finding. `ai-kit-secrets-gate.sh` checks for this file. |
 | `.github/PULL_REQUEST_TEMPLATE.md` | DoR/DoD PR checklist — scaffolded only when absent from all three GitHub-honored paths |
 | Branch protection on the default branch | `gh api PUT` — ≥1 approving review, no force-push, no deletion. 403 → prints manual checklist, exits 0 |
@@ -48,7 +52,7 @@ bin/setup-gh-workflow.sh /path/to/project --dry-run    # preview only
 The script:
 
 1. **Detects** the GitHub remote (`git remote get-url origin`). Silent exit if not `github.com`.
-2. **Copies** templates + workflows from `context/templates/github/`. **Never overwrites** existing files — pass `--force` to opt in.
+2. **Copies** templates + workflows from `context/templates/github/`. **Never overwrites** existing files — pass `--force` to opt in. A repo that still has `feature.md` gets one line saying `story.md` replaces it; nothing is renamed.
 3. **Bulk-creates labels** via `gh label create --force` (idempotent — updates color/description on re-run). When the repo's open issues are on a Projects v2 board, it skips `P0-P3` and `status:in-progress` and prints one line why: the Priority field and the Doing column are the source there.
 4. **Detects** existing GitHub Project for the repo owner; if found, resolves the Status field ID + Todo/Ready option IDs via `gh api graphql` and substitutes them into `auto-promote-ready.yml`. If no project board, prints the manual setup steps.
 5. **Scaffolds** `.github/PULL_REQUEST_TEMPLATE.md` — skipped when a template already sits at any of the three paths GitHub honors.
@@ -71,7 +75,7 @@ Two things the script intentionally does not do silently (config anti-pattern):
 
 ### 3. Customize labels per project
 
-`epic/core` and `epic/ux` ship as placeholders. Rename them per project — every issue needs an `epic/*` label for the DoR enforcement + auto-promote to trigger.
+`epic/core` and `epic/ux` ship as placeholders. Rename them per project — a story under an epic carries its `epic/*` label; a card without an epic has none.
 
 `area/*` defaults cover backend / frontend / infra / docs. Adjust to your project's modules (e.g. the portal app uses `area/portal` / `area/partner` / `area/admin` / `area/backend`).
 
@@ -80,12 +84,12 @@ Two things the script intentionally does not do silently (config anti-pattern):
 Every new issue must carry:
 
 - A priority: the Priority issue field (Urgent / High / Medium / Low), or one `P[0-3]-*` label if the repo has no field.
-- One `epic/*` label (epic membership).
+- One `epic/*` label when it belongs to an epic.
 - One or more `area/*` labels (where in the codebase).
 
-To start work, move the card to Doing on the board. In a repo without a board, add `status:in-progress`. The DoR workflow strips the label if any DoR checkbox is unchecked. To close, every DoD checkbox must be ticked or the close workflow reopens the issue.
+To start work, move the card to Doing on the board. In a repo without a board, add `status:in-progress`. The DoR workflow strips the label if any DoR checkbox is unchecked. To close, every DoD checkbox the issue has must be ticked or the close workflow reopens the issue.
 
-Issues already on the project board with all DoR checkboxes + a priority, an `epic/*` and an `area/*` label auto-promote Todo → Ready.
+Issues already on the project board with all DoR checkboxes + a priority and an `area/*` label auto-promote Todo → Ready. Cards without a DoR (epic, task, bug, idea) do not auto-promote; move them by hand.
 
 ## Boundaries
 
@@ -110,7 +114,7 @@ Issues already on the project board with all DoR checkboxes + a priority, an `ep
 
 ## Outputs
 
-- `.github/ISSUE_TEMPLATE/{feature,spike,config}.{md,yml}` in the project
+- `.github/ISSUE_TEMPLATE/{epic,story,task,bug,spike,idea}.md` and `config.yml` in the project
 - `.github/workflows/{dor-dod-enforcement,auto-promote-ready,gitleaks}.yml` in the project
 - Labels in the GitHub repo (idempotent)
 - Substituted Project IDs in `auto-promote-ready.yml` + project board URL in `config.yml` if a project board exists

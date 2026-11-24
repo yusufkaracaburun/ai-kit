@@ -2,6 +2,10 @@
 id: recurring-tasks
 skill: to-prd
 required_headings:
+  - "## Goal"
+  - "## Done when"
+  - "## Out of scope"
+  - "## Definition of Done"
   - "## Problem Statement"
   - "## Solution"
   - "## User Stories"
@@ -32,6 +36,25 @@ basic context about the project (it's a project-management tool, users have aske
 for recurring tasks for months).
 
 ---
+
+## Goal
+
+Individual contributors stop re-creating repeating tasks by hand.
+
+## Done when
+
+- [ ] A weekly task closed today yields its next instance with the same defaults (proof: end-to-end test)
+- [ ] A paused recurrence creates no instances (proof: integration test)
+
+## Out of scope
+
+- Calendar exceptions, team-level templates and backfill (see the anti-goals below)
+
+## Definition of Done
+
+- [ ] All sub-issues closed (proof: sub-issue count on the card)
+- [ ] Every "Done when" point met (proof: measurement per point)
+- [ ] Leftovers have their own card, or there are none (proof: links, or "none")
 
 ## Problem Statement
 

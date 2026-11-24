@@ -4,7 +4,7 @@ skill: setup-gh-workflow
 expects:
   - detects the GitHub remote via git remote get-url origin before doing anything
   - silent-skips when the remote is not github.com (no .github/ scaffolded)
-  - copies feature.md + spike.md + config.yml into .github/ISSUE_TEMPLATE/
+  - copies epic.md + story.md + task.md + bug.md + spike.md + idea.md + config.yml into .github/ISSUE_TEMPLATE/
   - copies dor-dod-enforcement.yml + auto-promote-ready.yml into .github/workflows/
   - never overwrites existing template files without --force
   - bulk-creates labels P0-P3 / epic/* / area/* / status:in-progress via gh label create --force
@@ -25,7 +25,7 @@ folder yet, no project board. I want the Dutch templates.
 The skill should:
 
 1. Detect the GitHub remote.
-2. Copy issue templates (feature + spike + config) into
+2. Copy issue templates (epic + story + task + bug + spike + idea + config) into
    `.github/ISSUE_TEMPLATE/`.
 3. Copy workflows (DoR/DoD enforcement + auto-promote-to-Ready) into
    `.github/workflows/`.

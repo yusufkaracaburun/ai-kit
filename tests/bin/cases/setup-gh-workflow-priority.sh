@@ -47,6 +47,10 @@ else
   assert "Priority field without P label promotes" 'echo "$OUT" | grep -q "promoted Todo"'
   OUT="$(run_promote '["P2-medium","epic/core","area/docs"]' none)"
   assert "P label without Priority field promotes" 'echo "$OUT" | grep -q "promoted Todo"'
+  OUT="$(run_promote '["area/docs"]' field)"
+  assert "card without an epic label promotes" 'echo "$OUT" | grep -q "promoted Todo"'
+  OUT="$(run_promote '["epic/core"]' field)"
+  assert "card without an area label blocks" 'echo "$OUT" | grep -q "area=false" && ! echo "$OUT" | grep -q "promoted Todo"'
   OUT="$(run_promote '["epic/core","area/docs"]' none)"
   assert "neither field nor P label blocks" 'echo "$OUT" | grep -q "priority=false" && ! echo "$OUT" | grep -q "promoted Todo"'
   OUT="$(run_promote '["P1-high","epic/core","area/docs"]' error)"

@@ -242,7 +242,7 @@ finish, write it where this project keeps decisions, and say where you put it.
   marketing-versus-code parity check, a maturity check, a pinned provenance
   SHA, and a security scan. The Trial block goes in the row's `TRIAL:` line;
   the suite fails a positive row without it.
-- **Every Adopt** opens a `/ai:to-prd` Defer-mode issue dated 14 days out,
+- **Every Adopt** opens a `/ai:to-prd` Idea-mode issue dated 14 days out,
   naming the usage metric: Skill calls from the `post-skill-log` hook, or the
   tool's own log. At the re-measure, 0 uses means add a nudge (hook or skill
   wiring) or reverse the verdict.
@@ -259,7 +259,7 @@ inventing a file nobody will read.
 
 **Track A verdicts are recorded in ai-kit's repo, not the current one.** If you
 were invoked from a different project, default to queuing it — the same
-`/ai:to-prd` Defer-mode path (label `catalog-candidate`) `recommend-tools` already uses
+`/ai:to-prd` Idea-mode path (label `catalog-candidate`) `recommend-tools` already uses
 for an ADOPT-shaped finding — rather than editing `VETTING.md` /
 `plugins-excluded.json` directly. Only edit `$AI_KIT_ROOT` in place when the
 user explicitly asks for it done now, `$AI_KIT_ROOT` resolved to a real git
