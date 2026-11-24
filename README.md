@@ -26,7 +26,7 @@ Cursor and other hosts: see [Install](#install).
 | Skills | 31 | Claude Code · Cursor |
 | Subagents | 7 | Claude Code |
 | Slash commands | 9 | Claude Code · Cursor |
-| Hooks | 14 plugin-wired entries over 12 scripts (`workflow/hooks/hooks.json`) | Claude Code |
+| Hooks | 19 plugin-wired entries over 15 scripts (`workflow/hooks/hooks.json`) | Claude Code |
 | Rules | 47 canonical mini-rules | Cursor · Claude Code (via emitter) |
 | Curated companions | 24 MCP servers · 28 hook recipes · 23 plugins | Recommend-only — never auto-installed |
 | Repo templates | 5 baseline files (`.editorconfig`, `.gitattributes`, `CODEOWNERS`, `renovate.json`, `.envrc`) | Drop-in via `/ai:setup` |
@@ -204,7 +204,9 @@ No network calls, no telemetry. Outside the project (where it writes the
 The plugin's `context-drift-check.sh` hook is opt-in per project:
 it fires only where `/ai:setup` recorded it as wired. After an edit it nudges you to update
 `CONTEXT.md` or an ADR when you change code those docs name. Deterministic
-shell, no LLM, silent when no such docs exist.
+shell, no LLM, silent when no such docs exist. `issue-card.sh` is opt-in too
+(`branches.issue_card_hook` = `wired`): it holds `gh issue create` to the repo's
+own `.md` issue templates and fills the new issue's empty type, Priority and Status.
 
 ## Contributing
 

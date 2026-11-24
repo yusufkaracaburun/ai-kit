@@ -10,6 +10,8 @@
 #   on, else the only project linked to the repo; none found, skipped.
 # Status: --status sets the card's Status column on that board, then removes labels
 #   that clash with the column. Without --type only the card moves.
+# --only-unset: keeps the type and Status the issue already has, drops no label, and
+#   gives an issue without a Priority one, with or without --type.
 #
 # Never fails the caller: API failures print one line on stderr and exit 0.
 # Exits 2 only on bad arguments.
@@ -17,20 +19,21 @@
 # Usage:
 #   ai-kit-issue-meta.sh <issue-number|issue-url> --type Epic|Story|Task|Bug
 #                        [--priority Urgent|High|Medium|Low] [--parent <issue>]
-#                        [--status Backlog|Next|Doing|Blocked|Done]
+#                        [--status Backlog|Next|Doing|Blocked|Done] [--only-unset]
 #   ai-kit-issue-meta.sh <issue-number|issue-url> --status Backlog|Next|Doing|Blocked|Done
 #
 set -uo pipefail
 
 usage() {
   cat <<USAGE
-Usage: $0 <issue-number|issue-url> --type Epic|Story|Task|Bug [--priority Urgent|High|Medium|Low] [--parent <issue>] [--status <column>]
+Usage: $0 <issue-number|issue-url> --type Epic|Story|Task|Bug [--priority Urgent|High|Medium|Low] [--parent <issue>] [--status <column>] [--only-unset]
        $0 <issue-number|issue-url> --status Backlog|Next|Doing|Blocked|Done
 
   --type      Epic (epic, PRD; alias Feature), Story (deliverable piece), Task (subtask, chore, spike, idea), Bug (fault)
   --priority  explicit Priority; default: keep the issue's own, else the parent's, else Medium
   --parent    PRD or epic issue to inherit Priority from
   --status    board column to move the card to; drops labels that clash with it
+  --only-unset  overwrite nothing: fill an empty type, Priority and Status
 USAGE
 }
 
@@ -57,7 +60,7 @@ parse_ref() {
   fi
 }
 
-ISSUE="" TYPE="" PRIORITY="" PARENT="" STATUS=""
+ISSUE="" TYPE="" PRIORITY="" PARENT="" STATUS="" ONLY_UNSET=""
 while [ $# -gt 0 ]; do
   case "$1" in
     -h|--help) usage; exit 0 ;;
@@ -65,6 +68,7 @@ while [ $# -gt 0 ]; do
     --priority) PRIORITY="${2:-}"; shift 2 || shift ;;
     --parent) PARENT="${2:-}"; shift 2 || shift ;;
     --status) STATUS="${2:-}"; shift 2 || shift ;;
+    --only-unset) ONLY_UNSET=1; shift ;;
     -*) bad "unknown flag: $1" ;;
     *) [ -z "$ISSUE" ] || bad "one issue at a time"; ISSUE="$1"; shift ;;
   esac
@@ -76,7 +80,8 @@ done
 case "$TYPE" in ""|Epic|Story|Task|Bug) ;; *) bad "--type must be Epic, Story, Task or Bug" ;; esac
 case "$PRIORITY" in ""|Urgent|High|Medium|Low) ;; *) bad "--priority must be Urgent, High, Medium or Low" ;; esac
 case "$STATUS" in ""|Backlog|Next|Doing|Blocked|Done) ;; *) bad "--status must be Backlog, Next, Doing, Blocked or Done" ;; esac
-[ -n "$TYPE" ] || [ -z "$PRIORITY$PARENT" ] || bad "--priority and --parent need --type"
+[ -n "$TYPE$ONLY_UNSET" ] || [ -z "$PRIORITY$PARENT" ] || bad "--priority and --parent need --type"
+[ -z "$ONLY_UNSET" ] || [ -z "$PRIORITY" ] || bad "--priority overwrites, drop --only-unset"
 parse_ref "$ISSUE" || bad "not an issue number or URL: $ISSUE"
 OWNER="$REF_OWNER" NAME="$REF_NAME" NUM="$REF_NUM"
 if [ -n "$PARENT" ]; then
@@ -96,7 +101,7 @@ option_id() {
   done
 }
 
-# Prints "itemId|statusFieldId|options" (option_id format) for the issue's card on $PROJECT_ID, read from
+# Prints "itemId|statusFieldId|current Status|options" (option_id format) for the issue's card on $PROJECT_ID, read from
 # the META reply's issue.projectItems or an addProjectV2ItemById reply in $1.
 status_item() {
   ITEM_JSON="$1" PROJECT_ID="$PROJECT_ID" python3 -c '
@@ -108,7 +113,7 @@ for item in items:
     project = (item or {}).get("project") or {}
     if project.get("id") == os.environ["PROJECT_ID"]:
         field = project.get("field") or {}
-        print("|".join([item.get("id", ""), field.get("id", ""), "\x1e".join(o["name"] + "\x1f" + o["id"] for o in field.get("options") or [])]))
+        print("|".join([item.get("id", ""), field.get("id", ""), (item.get("fieldValueByName") or {}).get("name") or "", "\x1e".join(o["name"] + "\x1f" + o["id"] for o in field.get("options") or [])]))
         break
 ' 2>/dev/null
 }
@@ -129,9 +134,9 @@ for l in (issue.get("labels") or {}).get("nodes") or []:
 }
 
 ISSUE_PRIORITY_FIELDS='labels(first:100){nodes{name} pageInfo{hasNextPage}} issueFieldValues(first:10){nodes{... on IssueFieldSingleSelectValue{name field{... on IssueFieldSingleSelect{name}}}}}'
-ITEM_FIELDS='id project{id field(name:"Status"){... on ProjectV2SingleSelectField{id options{id name}}}}'
+ITEM_FIELDS='id fieldValueByName(name:"Status"){... on ProjectV2ItemFieldSingleSelectValue{name}} project{id field(name:"Status"){... on ProjectV2SingleSelectField{id options{id name}}}}'
 # shellcheck disable=SC2016
-META_QUERY='query($owner:String!,$name:String!,$number:Int!){repository(owner:$owner,name:$name){issueTypes(first:20){nodes{id name}} issueFields(first:20){nodes{... on IssueFieldSingleSelect{id name options{id name}}}} issues(states:OPEN,first:50,orderBy:{field:CREATED_AT,direction:DESC}){nodes{projectsV2(first:10){nodes{id}}}} projectsV2(first:2){nodes{id}} issue(number:$number){id '"$ISSUE_PRIORITY_FIELDS"' projectItems(first:10){nodes{'"$ITEM_FIELDS"'}} projectsV2(first:10){nodes{id}}}}}'
+META_QUERY='query($owner:String!,$name:String!,$number:Int!){repository(owner:$owner,name:$name){issueTypes(first:20){nodes{id name}} issueFields(first:20){nodes{... on IssueFieldSingleSelect{id name options{id name}}}} issues(states:OPEN,first:50,orderBy:{field:CREATED_AT,direction:DESC}){nodes{projectsV2(first:10){nodes{id}}}} projectsV2(first:2){nodes{id}} issue(number:$number){id issueType{name} '"$ISSUE_PRIORITY_FIELDS"' projectItems(first:10){nodes{'"$ITEM_FIELDS"'}} projectsV2(first:10){nodes{id}}}}}'
 if ! command -v python3 >/dev/null 2>&1; then
   note "python3 not found, nothing set"
   exit 0
@@ -156,12 +161,12 @@ boards = Counter(p["id"] for n in nodes(repo, "issues") for p in nodes(n, "proje
 own = [p["id"] for p in nodes(repo.get("issue"), "projectsV2") if p]
 linked = [p["id"] for p in nodes(repo, "projectsV2") if p]
 board = max(own, key=lambda p: boards[p]) if own else (boards.most_common(1)[0][0] if boards else (linked[0] if len(linked) == 1 else ""))
-print("|".join([(repo.get("issue") or {}).get("id", ""), repo_type, field.get("id", ""), options, board, "1" if own else ""]))
+print("|".join([(repo.get("issue") or {}).get("id", ""), repo_type, field.get("id", ""), options, board, "1" if own else "", ((repo.get("issue") or {}).get("issueType") or {}).get("name") or ""]))
 ' 2>/dev/null); then
   note "could not parse gh's reply for #$NUM, nothing set"
   exit 0
 fi
-IFS='|' read -r ISSUE_ID REPO_TYPE FIELD_ID OPTIONS PROJECT_ID ON_BOARD <<<"$PARSED"
+IFS='|' read -r ISSUE_ID REPO_TYPE FIELD_ID OPTIONS PROJECT_ID ON_BOARD OWN_TYPE <<<"$PARSED"
 if [ -z "${ISSUE_ID:-}" ]; then
   note "#$NUM not found, nothing set"
   exit 0
@@ -170,6 +175,8 @@ fi
 DONE=() ADD_LABEL="" CLASH=""
 if [ -z "$TYPE" ]; then
   :
+elif [ -n "$ONLY_UNSET" ] && [ -n "$OWN_TYPE" ]; then
+  DONE+=("kept type $OWN_TYPE")
 elif [ -n "$REPO_TYPE" ]; then
   [ "$REPO_TYPE" = "$TYPE" ] || note "no $TYPE type in this repo, using $REPO_TYPE"
   TYPE="$REPO_TYPE"
@@ -183,7 +190,7 @@ else
 fi
 
 KEEP_PRIORITY=""
-if [ -n "$TYPE" ] && [ -z "$PRIORITY" ]; then
+if [ -n "$TYPE$ONLY_UNSET" ] && [ -z "$PRIORITY" ]; then
   read -r OWN_PRIORITY OWN_SOURCE <<<"$(priority_of "$META_JSON")"
   if [ "${OWN_SOURCE:-}" = field ] || [ -z "$FIELD_ID" ]; then
     KEEP_PRIORITY="${OWN_PRIORITY:-}"
@@ -204,7 +211,8 @@ if [ -n "$TYPE" ] && [ -z "$PRIORITY" ]; then
 fi
 
 OPTION_ID=$(option_id "$PRIORITY" "$OPTIONS")
-if [ -z "$TYPE" ]; then
+[ -z "$ONLY_UNSET" ] || [ -n "$OPTION_ID" ] || KEEP_PRIORITY="${OWN_PRIORITY:-}"
+if [ -z "$TYPE$ONLY_UNSET" ]; then
   :
 elif [ -n "$KEEP_PRIORITY" ]; then
   DONE+=("kept Priority $KEEP_PRIORITY")
@@ -225,20 +233,21 @@ else
 fi
 
 if [ -n "$PROJECT_ID" ]; then
-  IFS='|' read -r ITEM_ID STATUS_FIELD_ID STATUS_OPTIONS <<<"$(status_item "$META_JSON")"
+  IFS='|' read -r ITEM_ID STATUS_FIELD_ID OWN_STATUS STATUS_OPTIONS <<<"$(status_item "$META_JSON")"
   if [ -z "${ITEM_ID:-}" ]; then
     # Already on the board but hidden from projectItems: the add returns the existing card.
     # shellcheck disable=SC2016
     ADD_QUERY='mutation($projectId:ID!,$contentId:ID!){addProjectV2ItemById(input:{projectId:$projectId,contentId:$contentId}){item{'"$ITEM_FIELDS"'}}}'
     if ADD_JSON=$(gh api graphql -f projectId="$PROJECT_ID" -f contentId="$ISSUE_ID" -f query="$ADD_QUERY" 2>"$ERR_FILE"); then
       [ -n "$ON_BOARD" ] || DONE+=("board")
-      IFS='|' read -r ITEM_ID STATUS_FIELD_ID STATUS_OPTIONS <<<"$(status_item "$ADD_JSON")"
+      IFS='|' read -r ITEM_ID STATUS_FIELD_ID OWN_STATUS STATUS_OPTIONS <<<"$(status_item "$ADD_JSON")"
     else
       ADD_STEP="adding to board"
       [ -z "$ON_BOARD" ] || ADD_STEP="reading the board card"
       fail "$ADD_STEP failed${STATUS:+, Status skipped}"
     fi
   fi
+  [ -z "$ONLY_UNSET" ] || [ -z "${OWN_STATUS:-}" ] || { DONE+=("kept Status $OWN_STATUS"); STATUS=""; }
   STATUS_OPTION=$(option_id "$STATUS" "${STATUS_OPTIONS:-}")
   if [ -z "$STATUS" ] || [ -z "${ITEM_ID:-}" ]; then
     :
@@ -250,7 +259,7 @@ if [ -n "$PROJECT_ID" ]; then
     if gh api graphql -f projectId="$PROJECT_ID" -f itemId="$ITEM_ID" -f fieldId="$STATUS_FIELD_ID" -f optionId="$STATUS_OPTION" -f query="$STATUS_QUERY" >/dev/null 2>"$ERR_FILE"; then
       DONE+=("Status $STATUS")
       # Column is where the work is, label who picks it up; these labels contradict the column.
-      case "$STATUS" in
+      [ -n "$ONLY_UNSET" ] || case "$STATUS" in
         Backlog) CLASH="needs-info status:in-progress" ;;
         Next|Done) CLASH="needs-triage needs-info status:in-progress" ;;
         Doing) CLASH="needs-triage needs-info" ;;

@@ -22,7 +22,8 @@ ran again. Doctor could detect the drift with `cmp` but not fix it.
    `marker_hook_on` in `bin/lib/setup-marker.sh`. No marker: silent.
    search-delegation, build-delegation and phase-check fire unless
    `branches.<name>_hook` is `skipped`; context-drift stays opt-in and fires
-   only on `wired`.
+   only on `wired`. (2026-11-24, #348: the blocking issue-card hook follows
+   the same gate, opt-in through `branches.issue_card_hook`.)
 3. `/ai:setup` records the choice in the marker and copies nothing. The four
    `apply-*-hook.sh` scripts and `install_project_hook` are gone.
 4. `/ai:upgrade` deletes the old project copies and their `settings.json`

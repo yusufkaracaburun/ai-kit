@@ -38,6 +38,11 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/bin/hooks/heavy-run-gate.sh"
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/hooks/issue-card.sh",
+            "timeout": 5
           }
         ]
       }
@@ -72,6 +77,16 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/bin/hooks/context-drift-check.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/hooks/issue-card.sh",
+            "timeout": 60
           }
         ]
       }

@@ -235,6 +235,28 @@ assert "issue-meta: Status failure carries gh's first stderr line" 'echo "$OUT_S
 assert "issue-meta: Status failure leaves labels alone" '! echo "$OUT_ST" | grep -q "removed"'
 
 echo ""
+echo "=== ai-kit-issue-meta: --only-unset keeps what is set ==="
+write_meta "$TYPES" "$PRIO" "$BOARDS" '{"name":"needs-info"}' false "$ITEMS"
+run_meta 90 --only-unset --status Backlog --type Bug
+assert "issue-meta: --only-unset fills an empty type, Priority and Status" 'echo "$CALLS" | grep -q "issues/90 -f type=Bug" && echo "$CALLS" | grep setIssueFieldValue | grep -q "optionId=O_m" && echo "$CALLS" | grep updateProjectV2ItemFieldValue | grep -q "optionId=S_bl"'
+assert "issue-meta: --only-unset drops no label" '! echo "$CALLS" | grep -q "/labels"'
+run_meta 91 --only-unset --status Backlog
+assert "issue-meta: --only-unset without --type still sets Priority and Status" 'echo "$CALLS" | grep -q setIssueFieldValue && echo "$CALLS" | grep -q updateProjectV2ItemFieldValue && ! echo "$CALLS" | grep -q "type="'
+SET_ITEMS='{"id":"PVTI_on","fieldValueByName":{"name":"Next"},"project":{"id":"PVT_b","field":'"$STATUS_FIELD"'}}'
+write_meta "$TYPES" "$PRIO" "$BOARDS" '{"name":"High","field":{"name":"Priority"}}' false "$SET_ITEMS"
+sed -i.bak 's/"issue":{"id":"I_new",/&"issueType":{"name":"Task"},/' "$TMP_IM/meta.json"
+run_meta 92 --only-unset --status Backlog --type Bug
+assert "issue-meta: --only-unset keeps a set type, Priority and Status" '! echo "$CALLS" | grep -qE "type=|setIssueFieldValue|updateProjectV2ItemFieldValue|/labels"'
+assert "issue-meta: --only-unset says what it kept" 'echo "$OUT" | grep -q "kept type Task, kept Priority High, kept Status Next"'
+run_meta 93 --status Backlog --type Bug
+assert "issue-meta: without --only-unset type and Status are overwritten" 'echo "$CALLS" | grep -q "type=Bug" && echo "$CALLS" | grep -q updateProjectV2ItemFieldValue'
+
+ONLY_VERY='{"id":"F_prio","name":"Priority","options":[{"id":"O_vh","name":"Very High"}]}'
+write_meta "$TYPES" "$ONLY_VERY" "$BOARDS" '{"name":"P1"},{"name":"area-x"}'
+run_meta 94 --only-unset --type Bug
+assert "issue-meta: --only-unset keeps a P label when the field lacks its option" '! echo "$CALLS" | grep -q "/labels" && echo "$OUT" | grep -q "kept Priority High"'
+
+echo ""
 echo "=== ai-kit-issue-meta: API failure and bad args ==="
 write_meta "$TYPES" "$PRIO" "$BOARDS"
 RC_FAIL=0
@@ -260,7 +282,7 @@ mv "$TMP_IM/gh.ok" "$TMP_IM/stubs/gh"
 rm -f "$TMP_IM/calls.log"
 for bad in "" "--type Task" "42" "42 --type Slice" "42 --type Task --priority P1" "42 --type Task --bogus" \
   "https://github.com/ac\$me/demo/issues/1 --type Task" "https://github.com/acme/demo/issues/45abc --type Task" \
-  "42 --status Doing2" "42 --priority High" "42 --status Next --parent 40"; do
+  "42 --status Doing2" "42 --priority High" "42 --status Next --parent 40" "42 --only-unset --type Task --priority High"; do
   RC_BAD=0
   # shellcheck disable=SC2086
   (cd "$TMP_IM" && STUB_DATA="$TMP_IM" PATH="$TMP_IM/stubs:$PATH" "$AIKIT/bin/ai-kit-issue-meta.sh" $bad >/dev/null 2>&1) || RC_BAD=$?

@@ -253,10 +253,10 @@ assert "a PRD takes epic.md's headings by reference, without a card marker" 'gre
 assert "ISSUE-BODY applies the template's labels and title prefix" 'grep -qF "frontmatter labels and title prefix" "$SK/triage/ISSUE-BODY.md" && ! grep -qF "Default label: \`enhancement\`" "$SK/to-prd/SKILL.md"'
 assert "autonomous skips an idea card instead of stopping on it" 'grep -qF "skip <n> idea-card" "$SK/autonomous/SKILL.md" && ! grep "brief-thin" "$SK/autonomous/SKILL.md" | grep -q "idea"'
 # PyYAML is not guaranteed on the CI images: in a plain scalar ": " is the break strict parsers reject.
-for f in "$SK"/*/SKILL.md; do
+for f in "$SK"/*/SKILL.md "$AIKIT"/workflow/agents/*.md "$AIKIT"/workflow/commands/*.md; do
   # shellcheck disable=SC2034
   DESC="$(sed -n '2,/^---$/s/^description: //p' "$f")"
-  assert "$(basename "$(dirname "$f")"): description is valid YAML" '[ -n "$DESC" ] && { [[ "$DESC" == [\"\>\|\'"'"']* ]] || ! grep -q ": " <<<"$DESC"; }'
+  assert "${f#"$AIKIT"/workflow/}: description is valid YAML" '[ -n "$DESC" ] && { [[ "$DESC" == [\"\>\|\'"'"']* ]] || ! grep -q ": " <<<"$DESC"; }'
 done
 assert "AGENT-BRIEF has a Posting section" 'grep -q "^## Posting" "$SK/triage/AGENT-BRIEF.md"'
 assert "AGENT-BRIEF reads inputs from the repo, never a scratchpad" 'grep -q "^### Inputs from the repo, not from memory" "$SK/triage/AGENT-BRIEF.md" && grep -qF "scratchpad" "$SK/triage/AGENT-BRIEF.md"'

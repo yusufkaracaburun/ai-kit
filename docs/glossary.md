@@ -75,7 +75,7 @@ Every `universal: true` + `default_mode: always-on` rule, pre-emitted into the p
 
 ### Hook
 
-A shell script registered in `.claude/settings.json` (or, for the plugin, `workflow/hooks/hooks.json`) that fires on host events. Plugin-shipped: a PreToolUse hook `lead-guard.sh` (denies work tools to a *lead* session's main thread; ADR-0017), a PostToolUse hook (`bin/hooks/post-skill-log.sh`) matching `^Skill$` for usage logging, a UserPromptSubmit hook `lead-nudge.sh` (re-injects the lead reply contract per prompt), and two SessionStart hooks — `peer-sessions-check.sh` (fires only when other Claude Code sessions are live on the machine; ADR-0014) and `global-rules-link.sh` (keeps `~/.claude/rules/ai-kit` pointing at the plugin's *global rules*; ADR-0015), plus `session-reap.sh` on both SessionStart and SessionEnd (kills detached processes left behind by ended sessions). Also plugin-shipped and gated on the project's `.ai-kit-setup` (ADR-0018): `search-delegation-check.sh` and `build-delegation-check.sh` (PreToolUse), `phase-check.sh` (UserPromptSubmit), and the opt-in `context-drift-check.sh` (PostToolUse).
+A shell script registered in `.claude/settings.json` (or, for the plugin, `workflow/hooks/hooks.json`) that fires on host events. Plugin-shipped: a PreToolUse hook `lead-guard.sh` (denies work tools to a *lead* session's main thread; ADR-0017), a PostToolUse hook (`bin/hooks/post-skill-log.sh`) matching `^Skill$` for usage logging, a UserPromptSubmit hook `lead-nudge.sh` (re-injects the lead reply contract per prompt), and two SessionStart hooks — `peer-sessions-check.sh` (fires only when other Claude Code sessions are live on the machine; ADR-0014) and `global-rules-link.sh` (keeps `~/.claude/rules/ai-kit` pointing at the plugin's *global rules*; ADR-0015), plus `session-reap.sh` on both SessionStart and SessionEnd (kills detached processes left behind by ended sessions). Also plugin-shipped and gated on the project's `.ai-kit-setup` (ADR-0018): `search-delegation-check.sh` and `build-delegation-check.sh` (PreToolUse), `phase-check.sh` (UserPromptSubmit), the opt-in `context-drift-check.sh` (PostToolUse), and the opt-in `issue-card.sh` (PreToolUse and PostToolUse on Bash; checks and completes `gh issue create`).
 
 Event types: `PreToolUse`, `PostToolUse`, `SessionStart`, `SessionEnd`, `UserPromptSubmit`, `Notification`.
 
@@ -105,7 +105,7 @@ A Claude Code distributable bundle of skills + agents + commands, defined by `wo
 
 ### PostToolUse hook
 
-A hook event firing after a tool call completes. ai-kit ships two: one matches `^Skill$` and logs to local usage stats, the other (`context-drift-check.sh`) matches `Edit|Write|MultiEdit`.
+A hook event firing after a tool call completes. ai-kit ships three: one matches `^Skill$` and logs to local usage stats, `context-drift-check.sh` matches `Edit|Write|MultiEdit`, and `issue-card.sh` matches `Bash`.
 
 ### Primitive
 

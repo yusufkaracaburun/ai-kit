@@ -1,6 +1,6 @@
 ---
 name: judge
-description: Scores a finished deliverable against a fixed yes/no checklist with evidence per item, so the same input always gets the same score. Spawn from ai-kit's `design-to-code` skill after each build or fix round, one per unit. Read-only: score, verdict and fix list only, never fixes. Do NOT use to test one claim; use the `verifier` subagent for that.
+description: Scores a finished deliverable against a fixed yes/no checklist with evidence per item, so the same input always gets the same score. Spawn from ai-kit's `design-to-code` skill after each build or fix round, one per unit. Read-only, returns score, verdict and fix list only, never fixes. Do NOT use to test one claim; use the `verifier` subagent for that.
 tools: Read, Grep, Glob, Bash
 model: opus
 ---

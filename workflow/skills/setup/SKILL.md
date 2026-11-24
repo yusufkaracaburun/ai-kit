@@ -386,6 +386,14 @@ which is logged. Re-runs keep the recorded answer and do not ask again.
 Claude Code only: Cursor ships no hooks, so it has no gate. Record
 `--review-gate-hook=wired|skipped`.
 
+### Issue card hook (off by default, no question)
+
+A hook in the plugin's `hooks/hooks.json` that denies `gh issue create` when
+the body lacks the headings of every `.github/ISSUE_TEMPLATE/*.md`, and after
+the create sets type, Priority and Backlog where they are empty. It fires only
+where the marker says `wired` and the repo has `.md` templates. Do not ask; on
+the user's request record `--issue-card-hook=wired`.
+
 ### Branch 2i — Subagent model default (auto-apply)
 
 Without `CLAUDE_CODE_SUBAGENT_MODEL` every general-purpose subagent runs on
@@ -676,6 +684,7 @@ $AI_KIT_ROOT/bin/verify-setup.sh "$(pwd)" --strict
     "build_delegation_hook": "wired",
     "phase_check_hook": "wired",
     "review_gate_hook": "wired",
+    "issue_card_hook": "skipped",
     "secrets_scan": "clean",
     "docker": "skipped",
     "issue_tracker": "skipped",

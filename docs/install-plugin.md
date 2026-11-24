@@ -119,6 +119,13 @@ Bundled (via `workflow/.claude-plugin/plugin.json`):
   `branches.<name>_hook` choice there; context-drift fires only on `wired`.
   `/ai:upgrade` removes the copies older setups left in `.claude/hooks/`.
   ADR-0018.
+- The issue-card hook (`workflow/bin/hooks/issue-card.sh`, PreToolUse and
+  PostToolUse on Bash). Denies `gh issue create` when the body lacks the `##`
+  headings of every `.github/ISSUE_TEMPLATE/*.md`, or cannot be read; after the
+  create it sets type, Priority and Backlog where they are empty. Off unless
+  the marker has `branches.issue_card_hook` = `wired`
+  (`write-setup-marker.sh --issue-card-hook=wired`) and the repo has `.md`
+  templates. It adds no new hook event, so `/reload-plugins` picks it up.
 - The SessionStart and SessionEnd session-reap hook
   (`workflow/bin/hooks/session-reap.sh`). Kills detached processes an ended
   session left running and logs each kill to
