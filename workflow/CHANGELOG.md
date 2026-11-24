@@ -1,5 +1,39 @@
 # Changelog
 
+## 2.35.0 — 2026-11-24
+
+### Added
+
+- One card vocabulary: epic, story, task, bug, spike and idea. Each has an issue template in nl and en, installed by setup-gh-workflow. to-issues, to-prd, triage and exploratory-test read the repo template through triage/ISSUE-BODY.md and carry no body shape of their own (#348).
+- A bug template with steps, expected, actual, where, acceptance criteria with a regression test, and a Definition of Done.
+- Opt-in issue-card hooks (`branches.issue_card_hook`, off by default). A PreToolUse check denies `gh issue create` unless the body holds all headings of one repo template. A PostToolUse step sets the issue type, the priority (from the parent, else Medium) and Backlog without overwriting set values. Bodies marked `<!-- card: other -->` pass. The shell mask is now shared with the heavy-run gate.
+- `ai-kit-tick-dod.sh` ticks proven Definition of Done boxes on a card and nothing else.
+- A strict frontmatter test for agents and commands.
+
+### Changed
+
+- Every card that gets built has a Definition of Done of 3 to 5 provable checkboxes, and every checkbox names its proof (#348).
+- to-prd's Defer mode is now Idea mode. An idea card holds something not decided or not started, has no DoD, and is never executed as it is.
+- autonomous: the verifier checks every acceptance criterion and every DoD box separately. An unproven box keeps the card open in Blocked, and the ship step ticks only proven boxes before the push that closes the card (#268).
+- ai-kit-issue-meta accepts Epic and Story types, with fallbacks to Feature and Task. next skips idea cards. auto-promote no longer requires an epic label.
+- quality-floor: DRY covers a UI concept built twice (same purpose, same states), KISS asks for a slot before a flag or mode prop, YAGNI refuses a shared component with one use, and refactoring no longer waits for the third edit.
+- grill-first also fires when a recommendation rests on an unchecked assumption. Check the assumption first, then grill on what stays open. An approved plan counts as go.
+- session-coordination allows asking the peer session that owns the domain (ADR-0014 amended).
+
+### Fixed
+
+- The DoR/DoD and auto-promote workflows now parse CRLF issue bodies.
+- The doctor worktree test runs inside a linked worktree.
+
+### Upgrade notes
+
+- Card names are epic, story, task, bug, spike and idea. A feature card is now a story.
+- Defer mode is Idea mode.
+- Existing repos keep their `feature.md` template until renamed to `story.md`. Rollout only adds missing templates and renames after an owner go.
+- The issue-card hook is off by default. Turn it on per repo with `branches.issue_card_hook` in `.ai-kit-setup`.
+- Repos with the dor-dod and auto-promote workflows installed need a reinstall with `--force` to get the CRLF fix and the dropped epic-label requirement.
+- quality-floor and grill-first changes apply after `claude plugin update ai@yusufkaracaburun` and `/reload-plugins`. The new hooks need a full session restart.
+
 ## 2.34.3 — 2026-11-24
 
 ### Fixed
