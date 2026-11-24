@@ -1,6 +1,6 @@
 ---
 name: quality-floor
-description: Design checks every diff must pass, each a yes/no test; SOLID, DRY, YAGNI, deep modules, nearest-sibling parity
+description: Design checks every diff must pass, each a yes/no test; SOLID, DRY, KISS, YAGNI, deep modules, nearest-sibling parity
 applies_to:
   frameworks: []
   languages: []
@@ -14,13 +14,13 @@ repo_age_min_years: 0
 
 # Quality floor
 
-The minimum a diff must meet before review calls it done. Each item is a
-yes/no test a builder runs before reporting and a reviewer runs on the
-diff. Cite a finding as `quality-floor: <section>`.
+The minimum for a diff to be done: yes/no tests a builder runs before
+reporting and a reviewer runs on the diff. Cite as `quality-floor: <section>`.
+The four gates in `pre-write-discipline` apply; a failed gate is a finding.
 
 **Severity.** A failed check is a Blocker unless the diff or the report states a reason for it; with a stated reason it is a Suggestion.
 
-## SOLID, DRY, YAGNI
+## SOLID, DRY, KISS, YAGNI
 
 - **Single responsibility.** Can you name what the changed class or function
   does in one sentence without "and"? No → split it or say why not.
@@ -28,11 +28,15 @@ diff. Cite a finding as `quality-floor: <section>`.
   `if` chain in more than one place? Yes → finding.
 - **Dependency direction.** Does domain code import a framework, HTTP or
   storage type it could take as a parameter? Yes → finding.
-- **DRY.** Is the same rule (validation, mapping, formula) now written in
-  two places? Yes → finding. Similar-looking code that changes for
-  different reasons is not duplication.
-- **YAGNI.** Does the diff add a flag, option, interface or parameter that
-  no current caller uses? Yes → finding.
+- **DRY.** Is the same rule (validation, mapping, formula) or UI concept (same
+  purpose, same states) now built in two places? Yes → finding; reuse a shared
+  part or extract one in this change. Alike but changing for different reasons
+  is not duplication.
+- **KISS.** Does a shared component switch content or structure through a flag
+  or mode prop where a slot would do? Yes → finding.
+- **YAGNI.** Does the diff add a flag, option, interface, parameter, prop or
+  slot (not in unmodified vendored files) that no current caller uses, or put
+  a component with one use in a shared location? Yes → finding.
 
 ## Deep modules
 
@@ -40,10 +44,6 @@ diff. Cite a finding as `quality-floor: <section>`.
   its arguments to one other call? Yes → finding.
 - **Interface smaller than the body.** Must callers know the call order,
   a mode flag or the storage shape to use it? Yes → finding.
-
-## Pre-write gates
-
-The four gates in `pre-write-discipline` apply; a failed gate is a finding.
 
 ## Nearest shape and sibling parity
 

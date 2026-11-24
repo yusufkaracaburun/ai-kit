@@ -43,7 +43,7 @@ Refactoring is behavior-preserving design work in small steps. Do not turn clean
 - When adding behavior, first ask what structural friction blocks the change; refactor before the feature only when it makes the feature safer or simpler.
 - When fixing a bug in unclear code, characterize the current failure and refactor only enough to make the fix visible before changing behavior.
 - When tests are absent or weak, make the smallest possible structural move and improve testability before attempting broader cleanup.
-- When the same edit appears for a third time, remove duplication through clearer ownership instead of copying again.
+- When a second copy of the same concept with the same reason to change appears, extract it through clearer ownership; a copy with a different reason to change may stay (deviates from Fowler's rule of three).
 - When a function mixes responsibilities, abstraction levels, phases, or hidden side effects, rename, extract, split phases, or isolate side effects before adding more logic.
 - When one change forces edits across many files, centralize the knowledge or introduce a clearer boundary.
 - When repeated conditionals or type codes grow, decompose intent first; introduce polymorphism, state, strategy, or a table only when the variation is real.
