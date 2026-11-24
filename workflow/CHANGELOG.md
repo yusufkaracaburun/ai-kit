@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.34.3 — 2026-11-24
+
+### Fixed
+
+- usage-stats: `--since` no longer needs gawk's `mktime`, so it works with the BSD awk on macOS.
+
 ## 2.34.2 — 2026-11-23
 
 ### Fixed
