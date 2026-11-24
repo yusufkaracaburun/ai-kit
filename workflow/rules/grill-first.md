@@ -1,4 +1,4 @@
-<!-- ai-kit global rule (ADR-0015): Never jump to plan or implementation from an issue/PRD/spec — open with grill questions first, then name the ai-kit phase and skill that carry the work -->
+<!-- ai-kit global rule (ADR-0015): Never jump to plan or implementation from an issue/PRD/spec or an unchecked assumption behind a recommendation — open with grill questions first, then name the ai-kit phase and skill that carry the work -->
 <!-- Source: standards/rules/grill-first.mini.md — re-stamp with bin/sync-plugin-rules.sh -->
 
 # Grill before plan
@@ -8,6 +8,10 @@ When the user hands over an issue, PRD, spec, ADR or memory anchor and asks for 
 ## When the gate fires
 
 Any of: an issue number / URL / spec path is passed · "implement this", "pak je dit op", "do issue #X", "start with X" · context holds a plan with no recent grill turn covering it · a memory anchor names a task list not challenged this session.
+
+It also fires before you present a recommendation or make a choice that rests on an unchecked assumption: name the assumption and check it yourself first (code, docs, or the peer session that owns the domain).
+A matching score or a resemblance is not a check. Then grill the user on what stays open, with those questions only, before you present or choose.
+A fact you can look up is never a question, and a conventional default does not fire the gate.
 
 ## How
 
@@ -28,6 +32,8 @@ Any of: an issue number / URL / spec path is passed · "implement this", "pak je
 
 ## Skip only when
 
-The user answered the open questions in the same turn · says "go", "skip grill", "no questions", "geen vragen, gewoon doen" · the task is a trivial one-liner the issue body fully specifies (typo, lint, version bump).
+The user answered the open questions in the same turn · says "go", "skip grill", "no questions", "geen vragen, gewoon doen" (an approved plan counts as "go" for the choices inside it) · the task is a trivial one-liner the issue body fully specifies (typo, lint, version bump).
+
+A skip stops the questions to the user, not your own check: name any assumption that stays unchecked.
 
 Completeness of the source doc ≠ completeness of the implementation spec; the grill closes the gap. See `grill-with-docs` (the workflow) and `bin/hooks/phase-check.sh` (the enforcement half on Claude Code — it repeats the table on every work-start prompt; the plugin serves it in every project with an `.ai-kit-setup` marker).

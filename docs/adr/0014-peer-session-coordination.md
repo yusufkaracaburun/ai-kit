@@ -57,6 +57,8 @@ Two facts found on the machine while building this shaped the mechanism:
    contract, deploy); (3) a shared-resource clash (emulator, device, port, DB,
    Paper frame); (4) relaying a user decision that affects the peer's claimed
    area. Anything else: read, don't send.
+   Amended 2026-11-24: a fifth trigger, (5) an assumption in the domain the
+   peer owns that code, docs and its claim do not settle.
 3. **One lead per repo, designated by the user.** The lead owns push/merge
    order; non-leads commit locally and report to the lead. No lead named → the
    first session on that repo is lead by default and says so in its claim.
