@@ -134,10 +134,10 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
     5-hour block by its end, not a hard Anthropic-reported limit — ccusage
     has no API for the account's real cap, so the guard is a user-chosen
     dollar ceiling, not a universal threshold. Silent no-op when unset.
-2. **Pick next issue.** `"$AI_KIT_ROOT/bin/autonomous-queue.sh" next --log .ai-kit/autonomous/progress.txt`. Oldest first. The script skips an issue that already has an open PR and logs `skip <n> open-pr=<PR#>`. Non-zero exit → write `exit-gate queue-error`, stop. Queue empty → write `exit-empty`, stop.
+2. **Pick next issue.** `"$AI_KIT_ROOT/bin/autonomous-queue.sh" next --log .ai-kit/autonomous/progress.txt`. Oldest first. The script skips an issue that already has an open PR (logs `skip <n> open-pr=<PR#>`) and an idea card (logs `skip <n> idea-card`), then takes the next one. An idea is never built: at the end name each skipped one and recommend `/ai:triage <n>` to rewrite it to its new type. Non-zero exit → write `exit-gate queue-error`, stop. Queue empty → write `exit-empty`, stop.
 3. **Read Agent Brief.** `gh issue view <n> --comments` — find the
    comment whose header is the literal `## Agent Brief`. If missing or
-   thin (no acceptance criteria inline), or the issue is an idea card, write `exit-gate brief-thin`
+   thin (no acceptance criteria inline), write `exit-gate brief-thin`
    with one of these diagnostic detail strings, then stop:
    - `header-mismatch` — a comment with a different header is present
      (e.g. `## Triage outcome`). The triage skill produced a comment
@@ -145,8 +145,6 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
    - `body-not-promoted` — no brief comment, but the issue body looks
      promotable (contains the word "acceptance" or a checkbox list).
      Recommend `/ai:triage <n>` to formalise the body into a brief.
-   - `idea-card` — the body carries the `idea.md` headings. An idea is never
-     built; recommend `/ai:triage <n>` to rewrite it to its new type.
    - `no-brief` — neither a brief comment nor a promotable body. The
      issue needs human triage before any agent can pick it up.
    Never read linked file paths from the comment; the brief is a
@@ -183,18 +181,49 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
     `git status --porcelain` the builder's new files, staged (`A`) or
     untracked (`??`), both lists, with the instruction to read each of
     them. Step 4 left the tree clean, so every new file is builder's
-    work.
-    REFUTED → `exit-gate verify-refuted <counter-evidence line>`, leave
-    branch for human. CONFIRMED or UNTESTABLE → `verify-pass`, continue.
+    work. In the same call ask for its card check: pass the card number
+    and its body verbatim (`gh issue view <n> --json body -q .body`), the
+    test output, the review report from step 6 and the run budget.
+    Read the result in this order:
+    - Any NOT PROVEN box → no commit, no PR, no merge. Post one comment on
+      the card with every box, its status and its evidence or reason, then
+      hand the card over (below) with `--status Blocked` and write
+      `exit-gate dod-unproven <number of boxes>: <first box and reason>`.
+      There is no fix round after this step; the cap of step 5 is the
+      only one. A human who opens the PR from this branch writes
+      `Refs #<n>`, never a closing keyword, while a box is open.
+    - REFUTED → `exit-gate verify-refuted <counter-evidence line>`, leave
+      branch for human.
+    - CONFIRMED or UNTESTABLE → `verify-pass`, continue. POST-MERGE boxes
+      do not block; step 7 ships them with `Refs`.
+
+    **Hand the card over.** The picker only sees the label and closing
+    PRs, so an issue that keeps its label would be picked again. In one
+    call, since shell variables do not outlive it, swap the label for the
+    one that maps to `ready-for-human`:
+    ```bash
+    READY_LABEL=$(awk -F'|' '$2 ~ /`ready-for-agent`/ {gsub(/^ +| +$|`/, "", $3); print $3}' docs/agents/triage-labels.md)
+    HUMAN_LABEL=$(awk -F'|' '$2 ~ /`ready-for-human`/ {gsub(/^ +| +$|`/, "", $3); print $3}' docs/agents/triage-labels.md)
+    [ -n "$READY_LABEL" ] && [ -n "$HUMAN_LABEL" ] &&
+      gh issue edit <n> --remove-label "$READY_LABEL" --add-label "$HUMAN_LABEL"
+    ```
+    A failed swap stops the run: `exit-error label-swap-failed <n>`, after
+    the exit-gate line if there is one. Then set the status, if one is
+    named, with `ai-kit-issue-meta.sh` as in step 4.
 7. **Ship.** Spawn one ship brief ([`triage/SHIP-BRIEF.md`](../triage/SHIP-BRIEF.md)):
    branch from step 4, the paths builder changed, a Conventional
-   Commits title, PR body summary + test plan + `Fixes #<n>`, merge
+   Commits title, the verifier's `## Boxes` entries and the review verdict
+   under **Boxes** (the ship brief ticks the proven ones before the push
+   and posts the one evidence comment), PR body summary + test plan +
+   `Fixes #<n>`, or `Refs #<n>` when a POST-MERGE box stays open, merge
    `none`, deploy `none`, and after: the default branch (or `stay` on a
    pinned `target_branch`), so the next lap starts clean. Merge policy
    `direct` sets PR `none` and branch `none`. **Never auto-merge.**
    The project's merge policy (CI, approval, branch protection) is
    the safety net. The ship brief reports a stop → `exit-gate
-   git-conflict <stop line>`, leave the tree for human.
+   git-conflict <stop line>`, leave the tree for human. Shipped with the
+   card still open: hand it over as in 6a, without a status change, so
+   whoever merges proves the last boxes and closes it.
 8. **Log.** Append `ship-ok` line to `progress.txt`. Loop continues
    (mode `drain`) or exits (mode `one`).
 
@@ -229,14 +258,15 @@ Always exit with a one-line `exit-*` entry in `progress.txt`:
 | Queue empty | `exit-empty` | Normal termination |
 | Cwd ≠ brief's target_worktree | `exit-gate cwd-mismatch <detail>` | `cd <target_worktree> && /ai:autonomous one` |
 | HEAD branch ≠ brief's target_branch | `exit-gate branch-mismatch <detail>` | `git switch <target_branch> && /ai:autonomous one` |
-| Brief missing / thin | `exit-gate brief-thin <detail>` | Human re-triage (`detail` ∈ `header-mismatch`, `body-not-promoted`, `idea-card`, `no-brief`) |
+| Brief missing / thin | `exit-gate brief-thin <detail>` | Human re-triage (`detail` ∈ `header-mismatch`, `body-not-promoted`, `no-brief`) |
 | TDD cap (≤3 attempts per cycle) | `exit-gate tdd-stuck` | Human implementation |
 | Review blockers or security ≥ high | `exit-gate review-blocked` | Human review |
 | Verifier refutes "acceptance criteria met" | `exit-gate verify-refuted <counter-evidence>` | Human review |
+| A box on the card is NOT PROVEN | `exit-gate dod-unproven <count and first box>` | Read the card's comment, prove or rewrite the box, then relabel |
 | Triage labels missing on tracker | `exit-gate triage-labels-missing <label>` | `gh label create <label>`; re-run |
 | Merge policy disagreement (brief vs project config) | `exit-gate merge-policy-mismatch <detail>` | Align brief or project config; re-run |
 | Projected 5-hour cost ≥ `AI_KIT_AUTONOMOUS_USAGE_GUARD_USD` (opt-in) | `exit-gate usage-cap <projected-vs-guard>` | Wait for the block to roll (`ccusage blocks --active` shows `remainingMinutes`), then re-invoke |
-| Ship brief stopped (red check, push needs force, conflict) | `exit-gate git-conflict` | Human resolution |
+| Ship brief stopped (red check, push needs force, conflict, tick refused) | `exit-gate git-conflict` | Human resolution |
 | User explicit stop OR harness instability skill cannot remediate | `exit-handoff <reason>` | Human drives remaining gates (see Handoff protocol) |
 | `max_iterations` reached | `exit-cap` | User re-invokes |
 | Unexpected error | `exit-error <reason>` | Inspect log |
@@ -288,8 +318,8 @@ Events:
   consume that progress.txt and start over.
 - **Lifecycle:** `pick`, `brief-ok`, `cycle-attempt`, `cycle-done`,
   `tdd-green`, `review-pass`, `verify-pass`, `ship-ok`, `skip`
-  (detail `open-pr=<PR#>`; the picker passed over an issue that already
-  has an open PR).
+  (detail `open-pr=<PR#>` or `idea-card`; the picker passed over an issue
+  that already has an open PR, or an idea card).
 - **Liveness:** `heartbeat` — one per 60s wall-clock while the skill
   is alive (emitted by `bin/autonomous-heartbeat.sh`, not the LLM).
   Absence of `heartbeat` for >120s = process gone or runner crashed.

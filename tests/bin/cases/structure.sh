@@ -251,7 +251,7 @@ for s in exploratory-test setup; do
 done
 assert "a PRD takes epic.md's headings by reference, without a card marker" 'grep -qF "the headings of \`epic.md\` come first" "$SK/to-prd/SKILL.md" && ! grep -qE "card: other|^## (Goal|Done when|Out of scope|Definition of Done)" "$SK/to-prd/SKILL.md"'
 assert "ISSUE-BODY applies the template's labels and title prefix" 'grep -qF "frontmatter labels and title prefix" "$SK/triage/ISSUE-BODY.md" && ! grep -qF "Default label: \`enhancement\`" "$SK/to-prd/SKILL.md"'
-assert "autonomous never builds an idea card" 'grep -qF "\`idea-card\`" "$SK/autonomous/SKILL.md"'
+assert "autonomous skips an idea card instead of stopping on it" 'grep -qF "skip <n> idea-card" "$SK/autonomous/SKILL.md" && ! grep "brief-thin" "$SK/autonomous/SKILL.md" | grep -q "idea"'
 # PyYAML is not guaranteed on the CI images: in a plain scalar ": " is the break strict parsers reject.
 for f in "$SK"/*/SKILL.md; do
   # shellcheck disable=SC2034
@@ -270,6 +270,21 @@ done
 AUTO="$SK/autonomous/SKILL.md"
 AUTO_Q="$AIKIT/workflow/bin/autonomous-queue.sh"
 assert "autonomous queue reads the label from triage-labels.md" 'grep -qF "docs/agents/triage-labels.md" "$AUTO" && grep -qF "docs/agents/triage-labels.md" "$AUTO_Q" && grep -qF -- "--label \"\$READY_LABEL\"" "$AUTO_Q"'
+SHIP="$SK/triage/SHIP-BRIEF.md"
+assert "verifier checks a card box by box" 'grep -q "^## Card check" "$AG/verifier.md" && grep -qF "no evidence means NOT PROVEN" "$AG/verifier.md" && grep -qF "box names no proof" "$AG/verifier.md" && grep -qF "**POST-MERGE**" "$AG/verifier.md" && grep -q "^## Boxes" "$AG/verifier.md"'
+assert "verifier stays read-only with one claim and one verdict for other callers" 'grep -qx "tools: Read, Grep, Glob, Bash" "$AG/verifier.md" && grep -qx "REFUTED | CONFIRMED | UNTESTABLE" "$AG/verifier.md" && grep -qF "Only when the caller passes a card" "$AG/verifier.md"'
+assert "autonomous gates on an unproven box and lists the exit" 'grep -qF "| \`exit-gate dod-unproven" "$AUTO" && grep -qF -- "--status Blocked" "$AUTO" && grep -qF "never a closing keyword" "$AUTO" && grep -qF "no commit, no PR, no merge" "$AUTO"'
+HANDOVER="$(sed -n '/Hand the card over\.\*\*/,/^7\. /p' "$AUTO")"
+assert "autonomous takes a handed-over card out of the queue, with both labels read in the same call" 'grep -qF "READY_LABEL=\$(awk" <<<"$HANDOVER" && grep -qF "HUMAN_LABEL=\$(awk" <<<"$HANDOVER" && grep -qF -- "[ -n \"\$HUMAN_LABEL\" ]" <<<"$HANDOVER" && grep -qF -- "--remove-label \"\$READY_LABEL\"" <<<"$HANDOVER"'
+assert "a failed label swap stops the run" 'grep -qF "exit-error label-swap-failed" <<<"$HANDOVER"'
+assert "a refused tick is a listed ship stop" 'grep -F "exit-gate git-conflict" "$AUTO" | grep -qF "tick refused"'
+assert "verifier box entries are a list, so a pipe in the text survives" '! grep -qF "| Status | Box |" "$AG/verifier.md" && grep -qE "^- PROVEN, NOT PROVEN" "$AG/verifier.md" && grep -qE "^  - box: .*verbatim" "$AG/verifier.md"'
+assert "ship brief counts a pre-ticked box without evidence as open" 'grep -qF "ticked before you came counts as open" "$SHIP"'
+assert "ship brief adds the merge SHA to the evidence comment" 'grep -qF "add the merge SHA and its evidence to the same comment" "$SHIP"'
+assert "ship brief ticks proven boxes by script before the push" 'grep -qF "bin/ai-kit-tick-dod.sh" "$SHIP" && grep -qF "before the push or merge that closes a card" "$SHIP" && grep -qF "one evidence comment" "$SHIP"'
+assert "ship brief writes Refs while a box is open, proves post-merge boxes and closes explicitly" 'grep -qF "A box stays open: no closing keyword." "$SHIP" && grep -qF "Post-merge boxes" "$SHIP" && grep -qF "gh issue close N" "$SHIP"'
+assert "ship brief gates an epic the same way" 'grep -qF "also an epic, with its Done when and Definition of Done" "$SHIP"'
+assert "the tick step is described once" '! grep -rqF "ai-kit-tick-dod" "$AIKIT/workflow/rules" "$AIKIT/workflow/standards/rules"'
 assert "autonomous verifier gets staged and untracked new files" 'grep -qF "staged (\`A\`) or" "$AUTO" && grep -qF "untracked (\`??\`)" "$AUTO"'
 assert "ship brief requires a review APPROVE on the staged tree" 'grep -qF "stage nothing beyond the reviewed paths" "$SK/triage/SHIP-BRIEF.md"'
 assert "ship brief deletes a squash-merged branch with -D" 'grep -qF "git branch -D <branch>" "$SK/triage/SHIP-BRIEF.md" && grep -qF "says \`MERGED\`" "$SK/triage/SHIP-BRIEF.md" && grep -qF "git worktree remove <path>" "$SK/triage/SHIP-BRIEF.md"'

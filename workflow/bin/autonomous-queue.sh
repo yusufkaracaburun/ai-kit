@@ -9,8 +9,10 @@ Usage: $0 next [--json] [--repo OWNER/REPO] [--log FILE]
 
 Print the oldest open issue labeled with the ready-for-agent label
 (read from docs/agents/triage-labels.md, default "ready-for-agent").
-An issue an open PR closes is skipped; each skip appends a progress.txt
-line to --log FILE (stderr without it): <ts>\\t<issue#>\\tskip\\topen-pr=<PR#>
+An issue an open PR closes is skipped, and so is an idea card: its body has
+every ## heading of the repo's or the kit's idea template (two or more) and no
+Definition of Done. Each skip appends a progress.txt line to --log FILE (stderr without
+it): <ts>\\t<issue#>\\tskip\\topen-pr=<PR#>|idea-card
 
 Output (default):  <issue#>\\t<title>
 Output (--json):   {"issue": <n>, "title": "..."}  or  null
@@ -45,8 +47,8 @@ command -v gh >/dev/null 2>&1 \
 READY_LABEL="$(awk -F'|' '$2 ~ /`ready-for-agent`/ {gsub(/^ +| +$|`/, "", $3); print $3}' docs/agents/triage-labels.md 2>/dev/null || true)"
 READY_LABEL="${READY_LABEL:-ready-for-agent}"
 
-# shellcheck disable=SC2054  # `number,title,updatedAt` is a gh --json arg value, not a bash array literal.
-GH_ARGS=(issue list --label "$READY_LABEL" --state open --json number,title,updatedAt --limit 200)
+# shellcheck disable=SC2054  # `number,title,updatedAt,body` is a gh --json arg value, not a bash array literal.
+GH_ARGS=(issue list --label "$READY_LABEL" --state open --json number,title,updatedAt,body --limit 200)
 [ -n "$REPO" ] && GH_ARGS+=(--repo "$REPO")
 
 RAW="$(gh "${GH_ARGS[@]}")"
@@ -59,10 +61,14 @@ if [ "$(printf '%s' "$RAW" | tr -d '[:space:]')" != "[]" ]; then
   PRS="$(gh "${PR_ARGS[@]}")"
 fi
 
-RAW="$RAW" PRS="$PRS" LOG="$LOG" JSON_OUT="$JSON_OUT" python3 - <<'PY'
-import datetime
-import json, os, sys
-raw = os.environ.get("RAW") or "[]"
+TEMPLATES="$(cd "$(dirname "$0")/../context/templates/github/ISSUE_TEMPLATE" && pwd)"
+
+# RAW goes in as a file: 200 issue bodies outgrow the size limit of an env var.
+PRS="$PRS" LOG="$LOG" JSON_OUT="$JSON_OUT" python3 - <(printf '%s' "$RAW") "$TEMPLATES" <<'PY'
+import datetime, glob
+import json, os, re, sys
+with open(sys.argv[1], encoding="utf-8") as f:
+    raw = f.read() or "[]"
 try:
     data = json.loads(raw)
 except json.JSONDecodeError as e:
@@ -80,19 +86,45 @@ open_pr = {}
 for pr in prs:
     for ref in pr.get("closingIssuesReferences") or []:
         open_pr.setdefault(ref.get("number"), pr.get("number"))
+
+
+def headings(text):
+    h2s = re.findall(r"^##[ \t]+(.+?)[ \t\r]*$", text or "", re.M)
+    return {re.sub(r"\s*\([^)]*\)$", "", h).lower() for h in h2s}
+
+
+idea_templates = []
+for folder in (".github/ISSUE_TEMPLATE", sys.argv[2]):
+    for path in glob.glob(f"{folder}/idea.md") + glob.glob(f"{folder}/idea.*.md"):
+        with open(path, encoding="utf-8") as f:
+            template = headings(f.read())
+        # One heading is too weak a signal to skip a card on.
+        if len(template) > 1:
+            idea_templates.append(template)
+
+
+def is_idea(issue):
+    have = headings(issue.get("body"))
+    return "definition of done" not in have and any(t <= have for t in idea_templates)
+
+
 data.sort(key=lambda i: i.get("updatedAt", ""))
 ts = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 log = open(os.environ["LOG"], "a") if os.environ.get("LOG") else sys.stderr
+queue = []
 for i in data:
     if i["number"] in open_pr:
         print(f"{ts}\t{i['number']}\tskip\topen-pr={open_pr[i['number']]}", file=log)
-data = [i for i in data if i["number"] not in open_pr]
+    elif is_idea(i):
+        print(f"{ts}\t{i['number']}\tskip\tidea-card", file=log)
+    else:
+        queue.append(i)
 is_json = os.environ.get("JSON_OUT") == "true"
-if not data:
+if not queue:
     if is_json:
         print("null")
     sys.exit(0)
-top = data[0]
+top = queue[0]
 if is_json:
     print(json.dumps({"issue": top["number"], "title": top["title"]}))
 else:

@@ -45,7 +45,7 @@ jobs:
               const re = new RegExp(`##\\s+${header}[\\s\\S]*?(?=\\n##\\s|$)`, 'i');
               const match = body.match(re);
               if (!match) return null;
-              const lines = match[0].split('\n');
+              const lines = match[0].split(/\r?\n/);
               return lines
                 .map(l => l.match(/^\s*-\s*\[([ xX])\]\s*(.+)$/))
                 .filter(Boolean)

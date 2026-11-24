@@ -59,6 +59,41 @@ assert "open PR: --log gets the skip line in progress.txt schema" \
 assert "open PR: stderr stays free for errors" '[ ! -s "$TMP_AQ/skip.err" ]'
 assert "open PR: pr list asks past the default page" 'grep -q -- "--limit 200" "$TMP_AQ/pr.args"'
 
+# An idea card is never built: skipped by its headings, in either language or the repo's own idea.md.
+cat > "$TMP_AQ/stubs/gh" <<'STUB'
+#!/usr/bin/env bash
+if [ "$1" = pr ]; then echo "[]"; else cat "$ISSUES"; fi
+STUB
+python3 - "$AIKIT/workflow/context/templates/github/ISSUE_TEMPLATE" > "$TMP_AQ/ideas.json" <<'PY'
+import json, sys
+tpl = lambda n: open(f"{sys.argv[1]}/{n}", encoding="utf-8").read().split("---\n", 2)[2]
+cards = [
+    (1, tpl("idea.md") + "\n<!-- card: other -->\n"),
+    (2, tpl("idea.en.md").replace("\n", "\r\n").replace("## What", "## what (short)")),
+    (3, "## Ons idee\n\ntext\n\n## Extra\n\n## Meer\n"),
+    (4, tpl("idea.en.md") + tpl("task.en.md")),
+    (5, tpl("task.md")),
+]
+print(json.dumps([{"number": n, "title": f"c{n}", "updatedAt": f"2026-05-0{n}", "body": b + "x" * 300000} for n, b in cards]))
+PY
+mkdir -p "$TMP_AQ/own/.github/ISSUE_TEMPLATE"
+printf -- '---\nname: Idee\n---\n\n## Ons idee\n\n## Extra\n' > "$TMP_AQ/own/.github/ISSUE_TEMPLATE/idea.md"
+AQ_OUT_IDEA="$(cd "$TMP_AQ/own" && ISSUES="$TMP_AQ/ideas.json" PATH="$TMP_AQ/stubs:$PATH" "$AIKIT/bin/autonomous-queue.sh" next --log "$TMP_AQ/ideas.log")"
+assert "idea cards (nl, en, the repo's own) are skipped, the next card is picked" '[ "$AQ_OUT_IDEA" = "$(printf "4\tc4")" ]'
+assert "each skipped idea card is logged once" \
+  '[ "$(grep -cE "^[0-9TZ:-]+	[123]	skip	idea-card$" "$TMP_AQ/ideas.log")" -eq 3 ] && [ "$(wc -l < "$TMP_AQ/ideas.log")" -eq 3 ]'
+# One heading is too weak a signal, and another template's name may start with idea.
+mkdir -p "$TMP_AQ/weak/.github/ISSUE_TEMPLATE"
+printf '## Ons idee\n' > "$TMP_AQ/weak/.github/ISSUE_TEMPLATE/idea.md"
+printf '## Ons idee\n\n## Extra\n' > "$TMP_AQ/weak/.github/ISSUE_TEMPLATE/ideation.md"
+AQ_OUT_WEAK="$(cd "$TMP_AQ/weak" && ISSUES="$TMP_AQ/ideas.json" PATH="$TMP_AQ/stubs:$PATH" "$AIKIT/bin/autonomous-queue.sh" next 2>/dev/null)"
+assert "a one-heading idea.md and another idea*-named template skip nothing" '[ "$AQ_OUT_WEAK" = "$(printf "3\tc3")" ]'
+AQ_OUT_KIT="$(cd "$TMP_AQ" && ISSUES="$TMP_AQ/ideas.json" PATH="$TMP_AQ/stubs:$PATH" "$AIKIT/bin/autonomous-queue.sh" next 2>/dev/null)"
+assert "without an idea.md in the repo the kit's headings decide" '[ "$AQ_OUT_KIT" = "$(printf "3\tc3")" ]'
+echo '[{"number": 6, "title": "no body", "updatedAt": "2026-05-06", "body": null}]' > "$TMP_AQ/nobody.json"
+AQ_OUT_NULL="$(ISSUES="$TMP_AQ/nobody.json" PATH="$TMP_AQ/stubs:$PATH" "$AIKIT/bin/autonomous-queue.sh" next)"
+assert "a card without a body is picked" '[ "$AQ_OUT_NULL" = "$(printf "6\tno body")" ]'
+
 # Label comes from docs/agents/triage-labels.md; ready-for-agent without it.
 cat > "$TMP_AQ/stubs/gh" <<'STUB'
 #!/usr/bin/env bash

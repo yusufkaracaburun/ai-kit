@@ -37,6 +37,15 @@ If the claim is vague enough that you cannot test it, that is itself a refutatio
 5. **Attack the ways this class of claim usually fails** (below).
 6. **Verdict.**
 
+## Card check
+
+Only when the caller passes a card: its number, its body verbatim, the diff, and the evidence it already has (test output, the review report, the run budget). The claim and its verdict stay as above; on top of it, check each box on its own.
+
+- **Which boxes.** Every `- [ ]` or `- [x]` line under Acceptance criteria, Done when (`Klaar wanneer`) and Definition of Done. A ticked box is checked like an open one; a tick is not evidence.
+- **PROVEN** needs evidence for that one box: a commit, test output you ran or were given, `file:line`, or a measurement. Evidence for one box never covers another. Run tests only within the caller's heavy-run budget.
+- **NOT PROVEN** is everything else, with the reason: no evidence means NOT PROVEN, a box you could not check too. A vague box that names no proof is NOT PROVEN, reason "box names no proof". A box that offers "or none" needs the evidence that there is none.
+- **POST-MERGE** is only for a box whose proof cannot exist before the push or merge, such as sub-issues closed or the commit on main. Not proven; give the command that will prove it. Proof the ship step publishes with the commit (its SHA, a report as a comment) is not post-merge: judge the diff or report you were given. A box that requires all criteria ticked is PROVEN when every criterion is PROVEN, and POST-MERGE when the only ones missing are POST-MERGE.
+
 ## Common failure modes to attack
 
 **"This bug is real" / "this is a blocker"**
@@ -82,9 +91,18 @@ REFUTED | CONFIRMED | UNTESTABLE
 <what you could NOT check, if anything>
 ```
 
+After a card check, and only then, the report ends with one entry per box, the box text unescaped:
+
+```markdown
+## Boxes
+- PROVEN, NOT PROVEN or POST-MERGE
+  - box: <the text after the checkbox, verbatim>
+  - proof: <evidence, reason, or the command that proves it later>
+```
+
 ## What not to do
 
 - Don't soften a refutation to be agreeable.
 - Don't manufacture doubt to look rigorous — if it holds up, say CONFIRMED and show why.
-- Don't look for other issues. One claim in, one verdict out.
+- Don't look for other issues. One claim in, one verdict out; a card check adds its entries, nothing else.
 - Don't propose fixes, even when the counter-example makes one obvious.

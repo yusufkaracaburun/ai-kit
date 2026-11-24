@@ -60,6 +60,8 @@ P="$TMP/nopkg"
 mkdir -p "$P"
 printf '{ "exclude": ["node_modules"] }\n' > "$P/tsconfig.json"
 OUT="$(run_doctor "$P")"
+# The doctor prints its own root, which may lie in a worktree.
+OUT="${OUT//"$AIKIT"/}"
 assert "silent without package.json" '! echo "$OUT" | grep -qiE "worktree|warn  tsc"'
 
 print_summary_and_exit
