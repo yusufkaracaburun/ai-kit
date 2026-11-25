@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 2.36.0 — 2026-11-25
+
+Lead-guard coordination actions, a tsc-incremental hygiene check and a stricter error-handling rule for live boundaries.
 
 ### Added
 
