@@ -49,7 +49,8 @@ If any is missing, pick a sane default and note it under "Scope" in the report.
    - Rule copies — when the brief names a changed rule, grep for other computations and user-facing descriptions of it (backend and frontend); any left is a blocker
 5. **Security pass** — apply the **Security deep pass** checklist below. `default` depth: only high-confidence findings on changed lines. `deep` depth: also run the dependency audit and add critical/high CVEs.
 6. **Test coverage** — for behaviour changes, identify which test file should cover them; flag missing coverage. Don't fail on style-only changes.
-7. **Verdict** — `APPROVE` only when zero blockers and zero high-severity security findings. Otherwise `REQUEST CHANGES`.
+7. **UI line** — `UI: yes` when the diff can change what a user sees or does in the browser; in doubt yes. Judge the change, not file extensions. The caller uses it to decide on a QA pass; you never run the app and never write the `QA:` line.
+8. **Verdict** — `APPROVE` only when zero blockers and zero high-severity security findings. Otherwise `REQUEST CHANGES`.
 
 Emit the report in the **Output format** below, exactly.
 
@@ -85,6 +86,7 @@ Add security findings under **Blockers** or a separate **Security** section with
 - Mode: <daily|comprehensive>
 - Files: <count>
 - Security depth: <default|deep>
+- UI: yes|no
 
 ## Criteria
 - <acceptance criterion from the brief> — met, `path/to/file.ext:n`
@@ -112,6 +114,8 @@ Add security findings under **Blockers** or a separate **Security** section with
 
 ## Verdict
 APPROVE | REQUEST CHANGES
+
+QA: <pass|blocked>, <n> bugs, <min>, <tokens|unknown>   (or `QA: skipped - <reason>` for a first run; n = slice bugs found over both runs that survived the verifiers; blocked = such a bug left, a changed tree, or a re-run that is red or cannot run. The caller adds this line after its QA pass; the reviewer never runs the app and leaves it out)
 ```
 
 <!-- emit-agents:end -->
