@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.37.2 — 2026-11-25
+
+The optional QA pass is removed from `/ai:review`. `/ai:qa` stays and runs on demand.
+
+### Removed
+
+- **QA pass in review (#349).** The 10-slice trial reported 2 catches against a bar of 3, with 0 false blocks. Review no longer starts the app or asks the qa-runner for a UI check. The `UI: yes|no` reviewer line stays. A filled `## QA` section in `docs/agents/dev-environment.md` is now ignored.
+
 ## 2.37.1 — 2026-11-25
 
 `/ai:which` no longer breaks on free text.
