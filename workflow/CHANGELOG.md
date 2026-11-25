@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.37.1 — 2026-11-25
+
+`/ai:which` no longer breaks on free text.
+
+### Fixed
+
+- `/ai:which` passed the typed text through the shell unquoted. A `?` in the text aborted the command under zsh, and `;` or `$(...)` in the text could run as code. The command now has the agent pass the text as one quoted argument.
+
 ## 2.37.0 — 2026-11-25
 
 An optional QA pass for UI slices, and setup re-runs that keep your dev-environment notes.
