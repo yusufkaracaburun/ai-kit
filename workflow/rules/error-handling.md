@@ -1,4 +1,4 @@
-<!-- ai-kit global rule (ADR-0015): Fail fast at boundaries, trust internal code, never swallow errors -->
+<!-- ai-kit global rule (ADR-0015): Fail fast at new boundaries, tighten live ones with care, trust internal code, never swallow errors -->
 <!-- Source: standards/rules/error-handling.mini.md — re-stamp with bin/sync-plugin-rules.sh -->
 
 
@@ -10,8 +10,16 @@ nobody knows the system is broken. This rule prevents both.
 
 ## Where to validate
 
-- **At system boundaries** (HTTP handlers, queue consumers, CLI args, file
+- **At new system boundaries** (HTTP handlers, queue consumers, CLI args, file
   parsers) — validate aggressively. Reject early with a clear message.
+- **On a boundary already in use** (endpoint, queue consumer, webhook, CLI, file
+  parser; even one with no validation today), a new or tighter check changes
+  what clients may send. Add one only for a named, proven problem (report, log,
+  incident) or to block a security risk you can name (authorization, injection,
+  path traversal, another user's data); being an HTTP endpoint is not a reason.
+  First look at what clients really send (logs, client code). If real requests
+  would fail the check, log them (no secrets or personal data) and reject only
+  once clients are fixed. Close a proven security hole at once.
 - **Inside internal code** — trust the types and the contract. No defensive
   `if (input == null)` everywhere; that's noise that hides real bugs.
 

@@ -10,6 +10,7 @@
 
 - lead-guard lets a `role=lead` session do coordination itself: Bash redirects, mkdir, touch, sed -i, cp and rm with literal paths inside the memo, Claude and temp dirs (`rm -r` in temp dirs only), `CONTEXT.md`, `docs/decisions.md` and `docs/roadmap.md`, `git add` of existing literal files, `git worktree remove` and `git branch -d` without force, `gh issue create|edit|comment`, and Chrome screenshots. Execution, commit and push stay denied (ADR-0017 amended).
 - lead-guard now judges commands after a newline, `gh api -XPOST` and `--method=POST`, forced `git branch` forms, and `gh issue reopen|transfer|lock|unlock`, which all passed before. A redirect into a temp dir through an unknown variable, a substitution or `..` is denied. A command over 64 KB after the safe parts are taken out is denied.
+- error-handling: a new or tighter check on a boundary already in use needs a named, proven problem, or must block a security risk you can name (authorization, injection, path traversal, another user's data); being an HTTP endpoint is not a reason. If real requests would fail the check, log them without secrets or personal data and reject only once clients are fixed; a proven security hole is closed at once. "Validate aggressively" now names new boundaries. project-lifecycle and the builder agent point to the rule. The tdd test guide asks for a captured (stripped, field types kept) or client-generated happy-path payload when testing an existing client.
 
 ### Fixed
 

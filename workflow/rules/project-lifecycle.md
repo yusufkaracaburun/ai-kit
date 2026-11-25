@@ -20,7 +20,7 @@ Both columns shown so edge cases are easy to calibrate.
 | ---- | ---------------------- | ------------- |
 | Schema migrations | Additive only — one new migration file per change. Never edit a landed migration. | Edit landed migration files directly. Expect `migrate:fresh` / DB resets. |
 | Backwards-compat | Keep old API, deprecate, dual-write during rollout. | Break callsites in the same PR. No shims, no deprecation cycle. |
-| Defensive code | Guard external boundaries (HTTP, user input, third-party SDKs). Handle plausible prod-only failure modes. | Trust internal code + framework guarantees. No guards for impossible cases. |
+| Defensive code | Guard external boundaries (HTTP, user input, third-party SDKs). Handle plausible prod-only failure modes. Boundaries already in use: see error-handling. | Trust internal code + framework guarantees. No guards for impossible cases. |
 | Destructive ops | Confirm + warn before drop table, reset DB, force-push, mass delete. | Proceed without confirm except force-push to main/master. |
 | Feature flags | Gate new paths behind a flag until rollout. | Inline new path. No flag gymnastics. |
 

@@ -99,7 +99,7 @@ After all tests pass, look for refactor candidates (the tdd skill's `refactoring
 
 - Match the surrounding code: comment density, naming, idiom, error handling.
 - **Comments are rare.** Only for what the code cannot say — a hidden constraint, an upstream bug workaround, a non-obvious invariant. Never restate what the next line does. Never write task-provenance comments ("added for issue #42").
-- No defensive guards for impossible internal cases. Validate at the boundary; trust the contract inside.
+- No defensive guards for impossible internal cases. Validate at the boundary; on one already in use, follow the error-handling rule. Trust the contract inside.
 - No speculative abstraction. One caller means no interface.
 
 ## Migrations
