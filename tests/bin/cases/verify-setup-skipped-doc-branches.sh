@@ -37,6 +37,23 @@ OUT4="$(HOME="$TMP4/home" bash "$AIKIT/bin/verify-setup.sh" "$TMP4/proj" 2>&1 ||
 assert "agent-stack.md still owed when a custom command exists" 'grep -q "FAIL: agent-stack.md" <<<"$OUT4"'
 rm -rf "$TMP4"
 
+echo "=== the docs URL must sit in the docs section ==="
+TMP6=$(mktemp -d)
+mkdir -p "$TMP6/docs/agents"
+DEV6="$TMP6/docs/agents/dev-environment.md"
+printf '{\n  "ai_kit_version": "1.0.0",\n  "completed_at": "2026-01-01T00:00:00Z",\n  "branches": {"setup_mode": "solo-both", "setup_tier": "full"}\n}\n' > "$TMP6/.ai-kit-setup"
+verify6() { OUT6="$(bash "$AIKIT/bin/verify-setup.sh" "$TMP6" --strict 2>&1 || true)"; }
+printf '# Dev\n\n## Official documentation\n\n| Tool | Documentation |\n\n## QA\n\n- URL: http://localhost:{port}/\n' > "$DEV6"
+verify6
+assert "URL only in the QA section does not count" 'grep -q "FAIL: dev-environment: docs table has URL" <<<"$OUT6"'
+printf '# Dev\n\n## Official documentation\n\n| react | https://react.dev |\n\n## QA\n\n- URL:\n' > "$DEV6"
+verify6
+assert "URL in the docs section counts" '! grep -q "FAIL: dev-environment: docs table has URL" <<<"$OUT6"'
+printf '# Dev\n\nSee https://react.dev\n' > "$DEV6"
+verify6
+assert "file without the docs heading keeps the whole-file check" '! grep -q "FAIL: dev-environment: docs table has URL" <<<"$OUT6"'
+rm -rf "$TMP6"
+
 echo "=== issue-tracker.md follows the tracker branch ==="
 TMP5=$(mktemp -d)
 printf '{\n  "ai_kit_version": "1.0.0",\n  "completed_at": "2026-01-01T00:00:00Z",\n  "branches": {"setup_mode": "solo-both", "setup_tier": "full", "issue_tracker": "skipped"}\n}\n' > "$TMP5/.ai-kit-setup"

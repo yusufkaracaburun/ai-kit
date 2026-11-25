@@ -15,8 +15,6 @@ _Last reconciled: 2026-11-24 against 114 open issues (#347 closed and removed; #
 
 ## P2 — next up
 
-- **#350** `bug`: `detect-tooling.sh --write` overwrites a filled `docs/agents/dev-environment.md`, the QA section included; the URL check in `verify-setup.sh` reads the whole file. 2026-11-25.
-
 - **#179** `enhancement` — ship the hook scripts `hooks-patterns.json` only
   names: `test-suite-stop-gate` (3 hand-written variants across the hub app /
   the portal app / the legacy app), `block-env-edits`, `block-lockfile-edits`,

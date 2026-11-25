@@ -108,7 +108,15 @@ fi
 if [ "$WRITE" = true ]; then
   mkdir -p "$TARGET/docs/agents"
   OUT="$TARGET/docs/agents/dev-environment.md"
-  command cp -f "$AIKIT/context/templates/docs/agents/dev-environment.md" "$OUT"
+  if [ -L "$OUT" ]; then
+    echo "Kept symlink, not filled: $OUT"
+    exit 0
+  fi
+  RESULT="Kept existing"
+  if [ ! -e "$OUT" ]; then
+    command cp -f "$AIKIT/context/templates/docs/agents/dev-environment.md" "$OUT"
+    RESULT="Wrote draft"
+  fi
 
   FW_LIST="$(IFS=,; echo "${FRAMEWORKS[*]-}")"
   python3 - "$OUT" "$PM_NAME" "$INSTALL_CMD" "$FW_LIST" "$SCRIPT_TEST" "$SCRIPT_BUILD" \
@@ -133,7 +141,8 @@ docs_urls = {
     "dart": "https://dart.dev/guides",
 }
 
-text = out.read_text()
+with out.open(newline="") as f:
+    original = text = f.read()
 detected = ["## Detected in this repo", ""]
 if pm:
     detected.append(f"- Package manager: {pm} (`{install}`)")
@@ -170,10 +179,12 @@ if rows:
         count=1,
     )
 text = re.sub(r"<!-- Filled by /ai:setup[^>]*-->\n?", "", text)
-out.write_text(text)
+if text != original:
+    with out.open("w", newline="") as f:
+        f.write(text)
 PY
 
-  echo "Wrote draft: $OUT"
+  echo "$RESULT: $OUT"
   exit 0
 fi
 

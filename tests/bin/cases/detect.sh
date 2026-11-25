@@ -184,6 +184,38 @@ assert "json frameworks include flutter" 'echo "$JSON_FLUTTER" | python3 -c "imp
 rm -rf "$TMP_JSON_FLUTTER"
 
 
+echo "=== detect-tooling-write ==="
+# section: detect-tooling-write
+TMP_W=$(mktemp -d)
+echo '{"dependencies":{"react":"^19.0.0"}}' > "$TMP_W/package.json"
+OUT_W="$("$AIKIT/bin/detect-tooling.sh" "$TMP_W" --write)"
+DEV_W="$TMP_W/docs/agents/dev-environment.md"
+assert "write: absent file reported as written" 'grep -qF "Wrote draft: " <<<"$OUT_W"'
+assert "write: fresh file gets the docs row" 'grep -qF "| react | https://react.dev |" "$DEV_W"'
+printf '\nHand-written note.\r\n- Start command: pnpm dev --port {port}\n- URL: http://localhost:{port}/' >> "$DEV_W"
+cp "$DEV_W" "$TMP_W/before"
+OUT_W="$("$AIKIT/bin/detect-tooling.sh" "$TMP_W" --write)"
+assert "write: filled file stays byte-identical" 'cmp -s "$TMP_W/before" "$DEV_W"'
+assert "write: existing file reported as kept" 'grep -qF "Kept existing: " <<<"$OUT_W"'
+
+cp "$AIKIT/context/templates/docs/agents/dev-environment.md" "$DEV_W"
+printf 'Hand-written note.\n' >> "$DEV_W"
+"$AIKIT/bin/detect-tooling.sh" "$TMP_W" --write >/dev/null
+assert "write: leftover placeholders filled in place" 'grep -qF "| react | https://react.dev |" "$DEV_W" && ! grep -q "Filled by /ai:setup" "$DEV_W"'
+assert "write: note survives the fill" 'grep -qxF "Hand-written note." "$DEV_W"'
+
+cp "$AIKIT/context/templates/docs/agents/dev-environment.md" "$TMP_W/shared.md"
+cp "$TMP_W/shared.md" "$TMP_W/before"
+rm "$DEV_W" && ln -s "$TMP_W/shared.md" "$DEV_W"
+"$AIKIT/bin/detect-tooling.sh" "$TMP_W" --write >/dev/null
+assert "write: symlink kept, target untouched" '[ -L "$DEV_W" ] && cmp -s "$TMP_W/before" "$TMP_W/shared.md"'
+rm "$TMP_W/shared.md"
+RC_W=0
+"$AIKIT/bin/detect-tooling.sh" "$TMP_W" --write >/dev/null 2>&1 || RC_W=$?
+assert "write: dangling symlink kept, target not created" '[ "$RC_W" = 0 ] && [ -L "$DEV_W" ] && [ ! -e "$TMP_W/shared.md" ]'
+rm -rf "$TMP_W"
+
+
 echo "=== detect-deploy-shape ==="
 # section: detect-deploy-shape
 TMP_DEPLOY_UNK=$(mktemp -d)

@@ -36,7 +36,7 @@ When install, test, build, or deploy commands are unclear:
 
 ## QA
 
-<!-- Optional. /ai:review runs a quick browser QA on UI changes only when both Start command and URL have a value; empty or in angle brackets means off. The section counts only once committed on the base branch. Write {port} where the free port goes, e.g. `pnpm dev --port {port}` and, as the full URL with its http scheme, `localhost:{port}/`. An app that cannot change its port fills Fixed port. -->
+<!-- Optional. /ai:review runs a quick browser QA on UI changes only when both Start command and URL have a value; empty or in angle brackets means off. The section counts only once committed on the base branch. Write {port} where the free port goes, e.g. `pnpm dev --port {port}` and `http://localhost:{port}/`. An app that cannot change its port fills Fixed port. -->
 
 - Start command:
 - URL:

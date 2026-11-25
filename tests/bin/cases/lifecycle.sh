@@ -189,7 +189,7 @@ mkdir -p "$TMP_MIN/docs/agents"
 cp "$AIKIT/context/templates/docs/agents/dev-environment.md" "$TMP_MIN/docs/agents/"
 sed -i '' '/Filled by \/ai:setup/d' "$TMP_MIN/docs/agents/dev-environment.md" 2>/dev/null \
   || sed -i '/Filled by \/ai:setup/d' "$TMP_MIN/docs/agents/dev-environment.md"
-printf '\n| Tool | Documentation |\n| ---- | ------------- |\n| nx | https://nx.dev |\n' >> "$TMP_MIN/docs/agents/dev-environment.md"
+perl -pi -e 's#^\| \| \|$#| nx | https://nx.dev |#' "$TMP_MIN/docs/agents/dev-environment.md"
 "$AIKIT/bin/write-setup-marker.sh" "$TMP_MIN" --setup-mode=solo-both --tier=minimal \
   --docker=skipped --tracker=skipped --workflow=skipped --architecture=skipped --sandcastle=false --secrets-scan=clean
 if "$AIKIT/bin/verify-setup.sh" "$TMP_MIN" --strict --minimal >/dev/null 2>&1; then
@@ -208,7 +208,7 @@ mkdir -p "$TMP_V/docs/agents"
 cp "$AIKIT/context/templates/docs/agents/dev-environment.md" "$TMP_V/docs/agents/"
 sed -i '' '/Filled by \/ai:setup/d' "$TMP_V/docs/agents/dev-environment.md" 2>/dev/null \
   || sed -i '/Filled by \/ai:setup/d' "$TMP_V/docs/agents/dev-environment.md"
-printf '\n| Tool | Documentation |\n| ---- | ------------- |\n| ai-kit | https://github.com |\n' >> "$TMP_V/docs/agents/dev-environment.md"
+perl -pi -e 's#^\| \| \|$#| ai-kit | https://github.com |#' "$TMP_V/docs/agents/dev-environment.md"
 cp "$AIKIT/context/templates/docs/agents/issue-tracker-github.md" "$TMP_V/docs/agents/issue-tracker.md"
 cp "$AIKIT/context/templates/docs/agents/triage-labels.md" "$TMP_V/docs/agents/"
 cp "$AIKIT/context/templates/docs/agents/domain.md" "$TMP_V/docs/agents/"

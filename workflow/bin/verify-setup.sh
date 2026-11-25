@@ -234,7 +234,11 @@ if [ "$STRICT" = true ]; then
     check "dev-environment: no setup placeholder" \
       "$( ! grep -q 'Filled by /ai:setup' "$DEV_ENV" 2>/dev/null && echo true || echo false)"
     check "dev-environment: docs table has URL" \
-      "$(grep -qE 'https?://' "$DEV_ENV" 2>/dev/null && echo true || echo false)"
+      "$(awk '
+          /^## / { docs = ($0 ~ /^## Official documentation[[:space:]]*$/); if (docs) heading = 1 }
+          /https?:\/\// { any = 1; if (docs) hit = 1 }
+          END { exit !(heading ? hit : any) }
+        ' "$DEV_ENV" 2>/dev/null && echo true || echo false)"
   fi
 
   ARCH_FILE="$TARGET/docs/agents/architecture.md"
