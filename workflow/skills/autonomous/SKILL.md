@@ -174,34 +174,24 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
    unverified` → `exit-gate tdd-stuck`, leave branch for human.
 6. **Review.** Invoke `review` in `comprehensive` mode with
    security depth `deep`. Any **Blocker** or security finding ≥ `high`
-   → `exit-gate review-blocked`, leave branch for human. Review's QA pass
-   runs here too when the project switched it on, against the uncommitted
-   work. Its blockers are not `review-blocked`: they get that pass's one
-   fix round (a builder brief with step 5's cap and logging; a cycle at
-   the cap counts as red). Still red, a re-run that cannot run, or a tree
-   changed by QA in any run → `exit-gate qa-blocked <first blocker or
-   path>`, leave branch for human; never ask. QA passed → log `qa-pass`;
-   first run skipped → log `qa-skip <reason>` and continue. No `QA:` line
-   (off, or `UI: no`) → log neither.
+   → `exit-gate review-blocked`, leave branch for human.
 6a. **Verify.** Spawn `verifier` (Task tool, `subagent_type=ai:verifier`)
     on the claim "the acceptance criteria in the Agent Brief are met by
     this branch"; pass the brief, `git diff <default-branch>`, and from
     `git status --porcelain` the builder's new files, staged (`A`) or
     untracked (`??`), both lists, with the instruction to read each of
-    them. Step 4 left the tree clean and step 6 stops on a tree QA
-    changed, so every new file is builder's work. In the same call
-    ask for its card check: pass the card number and its body verbatim
-    (`gh issue view <n> --json body -q .body`), the test output, the
-    review report from step 6 and the run budget.
+    them. Step 4 left the tree clean, so every new file is builder's
+    work. In the same call ask for its card check: pass the card number
+    and its body verbatim (`gh issue view <n> --json body -q .body`), the
+    test output, the review report from step 6 and the run budget.
     Read the result in this order:
     - Any NOT PROVEN box → no commit, no PR, no merge. Post one comment on
       the card with every box, its status and its evidence or reason, then
       hand the card over (below) with `--status Blocked` and write
       `exit-gate dod-unproven <number of boxes>: <first box and reason>`.
-      There is no fix round after this step; the cap of step 5 and the
-      one QA fix round of step 6 are the only ones. A human who opens the
-      PR from this branch writes `Refs #<n>`, never a closing keyword,
-      while a box is open.
+      There is no fix round after this step; the cap of step 5 is the
+      only one. A human who opens the PR from this branch writes
+      `Refs #<n>`, never a closing keyword, while a box is open.
     - REFUTED → `exit-gate verify-refuted <counter-evidence line>`, leave
       branch for human.
     - CONFIRMED or UNTESTABLE → `verify-pass`, continue. POST-MERGE boxes
@@ -225,7 +215,6 @@ Invocation: `/ai:autonomous` (= `dry-run`), `/ai:autonomous one`,
    Commits title, the verifier's `## Boxes` entries and the review verdict
    under **Boxes** (the ship brief ticks the proven ones before the push
    and posts the one evidence comment), PR body summary + test plan +
-   the review's `QA:` and `Untested:` lines verbatim when there are any +
    `Fixes #<n>`, or `Refs #<n>` when a POST-MERGE box stays open, merge
    `none`, deploy `none`, and after: the default branch (or `stay` on a
    pinned `target_branch`), so the next lap starts clean. Merge policy
@@ -272,7 +261,6 @@ Always exit with a one-line `exit-*` entry in `progress.txt`:
 | Brief missing / thin | `exit-gate brief-thin <detail>` | Human re-triage (`detail` ∈ `header-mismatch`, `body-not-promoted`, `no-brief`) |
 | TDD cap (≤3 attempts per cycle) | `exit-gate tdd-stuck` | Human implementation |
 | Review blockers or security ≥ high | `exit-gate review-blocked` | Human review |
-| QA still red or unable to re-run after its one fix round, or QA changed the tree | `exit-gate qa-blocked <first blocker or path>` | Human reads the repro or the changed paths, fixes on the branch |
 | Verifier refutes "acceptance criteria met" | `exit-gate verify-refuted <counter-evidence>` | Human review |
 | A box on the card is NOT PROVEN | `exit-gate dod-unproven <count and first box>` | Read the card's comment, prove or rewrite the box, then relabel |
 | Triage labels missing on tracker | `exit-gate triage-labels-missing <label>` | `gh label create <label>`; re-run |
@@ -329,8 +317,7 @@ Events:
   `preflight-*` line on a fresh run = step 0 was skipped — refuse to
   consume that progress.txt and start over.
 - **Lifecycle:** `pick`, `brief-ok`, `cycle-attempt`, `cycle-done`,
-  `tdd-green`, `review-pass`, `qa-pass` (detail: the `QA:` line), `qa-skip`
-  (detail: the reason), `verify-pass`, `ship-ok`, `skip`
+  `tdd-green`, `review-pass`, `verify-pass`, `ship-ok`, `skip`
   (detail `open-pr=<PR#>` or `idea-card`; the picker passed over an issue
   that already has an open PR, or an idea card).
 - **Liveness:** `heartbeat` — one per 60s wall-clock while the skill
