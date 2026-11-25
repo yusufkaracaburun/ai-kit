@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.37.0 — 2026-11-25
+
+An optional QA pass for UI slices, and setup re-runs that keep your dev-environment notes.
+
+### Added
+
+- **QA pass in review (#328).** After APPROVE and before the approve marker, for a diff that changes what a user sees. The qa-runner starts the app from the reviewed worktree on a free port and stops only its own server. A fault caused by the slice (a visible layout shift on load included) blocks after a verifier checks it, with one fix round. A run that cannot start is reported as skipped. The pass is off unless the base branch's `docs/agents/dev-environment.md` has a QA section with a start command and a URL. In autonomous runs it logs `qa-pass`, `qa-skip` and `qa-blocked`. In a 5-slice trial a quick QA run found a real bug that review missed in 3 of them. The full step has not run on a real app yet.
+
+### Changed
+
+- The reviewer report carries a `UI: yes|no` line.
+- The strict verify-setup docs-URL check counts only the Official documentation section when that heading exists, so a file whose only URL sits elsewhere now fails it.
+
+### Fixed
+
+- `detect-tooling --write` keeps an existing `dev-environment.md` instead of copying the template over it (#350). It also leaves a symlink alone.
+
 ## 2.36.0 — 2026-11-25
 
 Lead-guard coordination actions, a tsc-incremental hygiene check and a stricter error-handling rule for live boundaries.
