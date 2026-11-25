@@ -6,6 +6,15 @@
 
 - **`tsc-incremental` hygiene section.** Warns when a `tsc --noEmit` or `vue-tsc --noEmit` script runs without incremental builds, when its tsbuildinfo is not gitignored, or when `tsBuildInfoFile` points into `node_modules`. Reads `package.json` and tsconfig files only. Measured on a React app with TypeScript 6: a warm run with no change took 2.8 instead of 11 CPU seconds, and a run after a component edit about 9 instead of 11.7. A fresh worktree pays one full run.
 
+### Changed
+
+- lead-guard lets a `role=lead` session do coordination itself: Bash redirects, mkdir, touch, sed -i, cp and rm with literal paths inside the memo, Claude and temp dirs (`rm -r` in temp dirs only), `CONTEXT.md`, `docs/decisions.md` and `docs/roadmap.md`, `git add` of existing literal files, `git worktree remove` and `git branch -d` without force, `gh issue create|edit|comment`, and Chrome screenshots. Execution, commit and push stay denied (ADR-0017 amended).
+- lead-guard now judges commands after a newline, `gh api -XPOST` and `--method=POST`, forced `git branch` forms, and `gh issue reopen|transfer|lock|unlock`, which all passed before. A redirect into a temp dir through an unknown variable, a substitution or `..` is denied. A command over 64 KB after the safe parts are taken out is denied.
+
+### Fixed
+
+- lead-guard no longer denies `gh api -X GET` or a heredoc body that only holds text.
+
 ## 2.35.0 — 2026-11-24
 
 ### Added

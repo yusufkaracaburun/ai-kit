@@ -85,11 +85,11 @@ Synonym for *Agent* in the "IDE / CLI" sense. This glossary uses *agent* for tha
 
 ### Lead
 
-The one session per repo, named by the user, that owns push/merge order and the board (ADR-0014). Under the lead contract (ADR-0017) it never executes: work goes to subagents, every reply opens with a Doing / Where / Needs-you / Advice status block, and no agent claim reaches the user without evidence.
+The one session per repo, named by the user, that owns push/merge order and the board (ADR-0014). Under the lead contract (ADR-0017) it never executes: work goes to subagents, coordination (issue cards, decision docs, staging, cleanup) is its own, every reply opens with a Doing / Where / Needs-you / Advice status block, and no agent claim reaches the user without evidence.
 
 ### Lead-guard
 
-The plugin's PreToolUse hook `workflow/bin/hooks/lead-guard.sh`. For a session with *claim role* `lead`, it denies Edit/Write on repo files, mutating or heavy Bash, Paper write tools and Chrome write tools on the main thread. Subagents, memo or scratch paths and Claude Code settings files (`.claude/settings.json`, `.claude/settings.local.json`) pass (ADR-0017).
+The plugin's PreToolUse hook `workflow/bin/hooks/lead-guard.sh`. For a session with *claim role* `lead`, it denies Edit/Write on repo files, mutating or heavy Bash, Paper write tools and Chrome write tools on the main thread. Subagents, memo or scratch paths (Bash writes included), Claude Code settings files (`.claude/settings.json`, `.claude/settings.local.json`) and the coordination actions listed in ADR-0017's 2026-11-25 amendment pass.
 
 ### Lead-nudge
 

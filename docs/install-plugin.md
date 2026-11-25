@@ -103,11 +103,14 @@ Bundled (via `workflow/.claude-plugin/plugin.json`):
   re-points the link when it ends, so the next session starts on the new
   rules. Opt out machine-wide: `bin/ai-kit-no-global-rules.sh on`.
 - The PreToolUse lead-guard hook (`workflow/bin/hooks/lead-guard.sh`). In a
-  session whose claim says `role=lead`, denies file edits, write/test/build
+  session whose claim says `role=lead`, denies code edits, write/test/build
   Bash commands, Paper write tools and chrome actions on the main thread; memo
   and scratch paths (`~/.claude/`, `.agents/memory/`, `.planning/`, `/tmp`,
   `$TMPDIR`), Claude Code settings files (`.claude/settings.json`,
-  `.claude/settings.local.json`, for `/update-config`) and subagents pass.
+  `.claude/settings.local.json`, for `/update-config`), coordination actions
+  (`CONTEXT.md`, `docs/decisions.md`, `docs/roadmap.md`, `git add` of literal
+  files, `git worktree remove`, `git branch -d`, `gh issue create|edit|comment`,
+  screenshots) and subagents pass.
   Turn it off with `ai-kit-claim.sh set role=build`. ADR-0017.
 - The UserPromptSubmit lead-nudge hook (`workflow/bin/hooks/lead-nudge.sh`). In a
   `role=lead` session, prints one line restating the lead reply contract before

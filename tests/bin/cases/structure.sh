@@ -289,7 +289,7 @@ assert "autonomous verifier gets staged and untracked new files" 'grep -qF "stag
 assert "ship brief requires a review APPROVE on the staged tree" 'grep -qF "stage nothing beyond the reviewed paths" "$SK/triage/SHIP-BRIEF.md"'
 assert "ship brief deletes a squash-merged branch with -D" 'grep -qF "git branch -D <branch>" "$SK/triage/SHIP-BRIEF.md" && grep -qF "says \`MERGED\`" "$SK/triage/SHIP-BRIEF.md" && grep -qF "git worktree remove <path>" "$SK/triage/SHIP-BRIEF.md"'
 assert "ship brief checks headRefOid before -D and never forces a worktree remove" 'grep -qF "headRefOid" "$SK/triage/SHIP-BRIEF.md" && grep -qF "never \`--force\`" "$SK/triage/SHIP-BRIEF.md"'
-assert "review: role=lead staging goes to a subagent" 'grep -qF "a subagent stages by explicit path" "$SK/review/SKILL.md"'
+assert "review: the lead stages by explicit path" 'grep -qF "the lead stages by explicit path" "$SK/review/SKILL.md"'
 assert "autonomous has no exit-gate security row" '! grep -qF "exit-gate security" "$AUTO"'
 assert "autonomous runs no git switch -c or gh pr create itself" '! grep -qF "git switch -c" "$AUTO" && ! grep -qF "gh pr create" "$AUTO"'
 for s in review qa diagnose; do

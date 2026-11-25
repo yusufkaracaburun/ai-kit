@@ -148,6 +148,44 @@ agreed on the edges:
 - #199 lead-guard pattern gaps.
 - #200 `ai-kit-heavy.sh`, one machine-load gate.
 
+## Amendment 2026-11-25 (grill lead rights)
+
+The lead does coordination itself; execution stays denied. A replay of real
+denied commands showed that most were memo writes, staging and issue comments,
+and each one cost a subagent spawn. The Bash patterns also misread heredoc
+bodies and `gh api -X GET`.
+
+The lead may now:
+
+- write through Bash (`>`, `>>`, sed -i, mkdir, touch, cp, rm) when every path
+  is literal and inside the dirs Write already allows; `$HOME`, `$TMPDIR` and
+  `~` resolve. A `cp` source may be outside. Recursive rm works in temp dirs
+  only, and never on the temp dir itself.
+- edit `CONTEXT.md`, `docs/decisions.md` and `docs/roadmap.md` at the root of
+  its own repo or a worktree of it.
+- `git add` existing literal files (no option, directory, glob or variable), run
+  `git worktree remove` and `git branch -d` without force.
+- `gh issue create`, `edit` and `comment`, without `--delete-last`.
+- take Chrome screenshots and zooms.
+- run `gh api` with method GET. A heredoc body is data unless a shell or an
+  interpreter may read it.
+
+Still denied: commit, push and every other git write, `gh pr` writes, closing,
+deleting, reopening, transferring or locking an issue, releases, code, skills,
+rules, ADRs, tests, builds, installs, process kills, Paper writes and every
+other Chrome action. Commit and push stay with the ship brief until #346.
+
+Every segment of a compound command is judged, and one denied segment denies
+the call. `lib/lead-allow.pl` takes out only what it can prove, on top of the
+shared shell mask. A segment it cannot prove, and a call it cannot read, falls
+back to the old patterns. This ends "No inline exceptions, not even
+`gh issue comment`" under Consequences.
+
+Known limits: `gh api -f` or `-F` without `-X` posts and passes. A script
+written to a temp dir can be run from it. The patterns still miss
+`{ git push; }`, if/then and do bodies, `!`, time, env and eval prefixes, a
+quoted `git`, xargs and `find -delete`.
+
 ## Reversibility
 
 Cheap. Delete the `PreToolUse` entry from `workflow/hooks/hooks.json` and

@@ -131,7 +131,7 @@ deny "git stash pop"
 deny "git clean -fd"
 deny "git checkout -- src/a.ts"
 deny "git branch -D old"
-deny "git branch -d old"
+allow "git branch -d old"
 deny "git add src/a.ts"
 deny "rm notes.txt"
 deny "composer install"
@@ -142,7 +142,7 @@ deny "gh api -X POST repos/o/r/issues"
 deny "gh api --method PATCH repos/o/r"
 deny "gh pr comment 12 --body x"
 deny "gh pr review 12 --approve"
-deny "gh issue comment 3 --body x"
+allow "gh issue comment 3 --body x"
 deny "echo x >> notes.md"
 allow "printf 'x' >> ~/.claude/projects/foo/memory/MEMORY.md"
 allow "echo w >> $HOME/.claude/projects/foo/memory/MEMORY.md"
@@ -265,6 +265,308 @@ allow "go version"
 # the review skill's main thread runs this under role=lead, so lead-guard must not block it
 allow "bash bin/review-gate.sh --approve"
 
+echo "=== lead-guard: coordination rights ==="
+# section: lead-guard-coordination
+REPO="$TMP_H/repo" OUTSIDE="$TMP_H/outside" SCRATCH="$TMP_H/tmpdir/s"
+mkdir -p "$REPO/docs/sub" "$REPO/.agents/memory" "$OUTSIDE" "$SCRATCH/d"
+git -C "$REPO" init -q
+git -C "$REPO" -c user.name=t -c user.email=t@t commit -q --allow-empty -m init
+git -C "$REPO" worktree add -q "$TMP_H/wt" 2>/dev/null
+git -C "$OUTSIDE" init -q
+ln -s "$REPO" "$SCRATCH/link"
+touch "$REPO/a.md" "$REPO/docs/b.md" "$SCRATCH/f"
+raw() {
+  # raw <command>: the command verbatim, cwd in the repo
+  jq -n --arg c "$1" --arg d "$REPO" '{session_id: "lead1", tool_name: "Bash", cwd: $d, tool_input: {command: $c}}' |
+    bash "$HOOK" | jq -r '.hookSpecificOutput.permissionDecisionReason // empty'
+}
+ok() { OUT=$(raw "$1"); assert "allow: ${1:0:100}" '[ -z "$OUT" ]'; }
+no() { OUT=$(raw "$1"); assert "deny: ${1:0:100}" '[ -n "$OUT" ]'; }
+
+# writes through Bash inside the memo and temp dirs
+ok "echo x > $SCRATCH/f"
+ok 'echo x >>/tmp/f 2>/private/tmp/err'
+ok 'echo x >> "$HOME/.claude/n.md"'
+ok 'mkdir -p ${TMPDIR}n && cd ${TMPDIR}n && touch a b && rm -f a'
+ok "sed -i '' 's/a/b/' /tmp/f"
+ok "sed -i.bak -e 's|/x|/y|g' ~/.claude/n.md"
+ok "cp $REPO/a.md /tmp/a.md"
+ok 'cp -R ../x/*.md /tmp/d/'
+ok 'cp /tmp/a "/tmp/b c"'
+no 'command rm -f src/a'
+ok "/usr/bin/sed -i '' '/^## x/a\\
+- y; w src/z
+' /tmp/f"
+no "sed -i '' '/x/a\\
+y
+w src/z
+' /tmp/f"
+ok 'rm -rf /tmp/a/b && rm -f .agents/memory/old.md ~/.claude/n.md .planning/x'
+ok 'rm --recursive /tmp/a/b'
+for a in -r -R -fr -rf --recursive '-f -R'; do
+  no "rm $a ~/.claude/d"
+  no "rm $a .agents/memory/d"
+  no "rm $a .planning/d"
+  no "rm $a /tmp/a .planning/d"
+done
+for a in 'echo x | tee /tmp/a' 'mv /tmp/a /tmp/b' 'chmod +x /tmp/a' 'ln -s /tmp/a /tmp/b' 'command rm -f /tmp/a' 'S=/tmp/x; rm $S/y' 'S=/tmp/x; echo x > $S/y'; do no "$a"; done
+ok "cd $SCRATCH; rm -f old.md; echo x > new.md"
+ok "(cd $SCRATCH && rm -f old.md)"
+ok 'cat > .agents/memory/n.md'
+no 'rm /tmp/../etc/x'
+no 'echo x > /tmp/../etc/x'
+no 'echo x > /tmp/$UNKNOWN'
+no 'echo x > /tmp/$(date +%s)'
+no 'cp /tmp/a docs/a.md'
+no 'cp /tmp/a "docs/a b.md"'
+no 'mv docs/a.md /tmp/a.md'
+no 'rm "/tmp/a" "src/b"'
+no 'rm /tmp/a src/b'
+no 'cp -t src /tmp/a /tmp/b'
+no 'tee /tmp/a src/b'
+no 'touch /tmp/a src/b'
+no 'mkdir -p /tmp/a src/b'
+no 'chmod +x src/a.sh'
+no 'ln -s /repo/src /tmp/l'
+no 'ln -s ../x /tmp/l'
+no "sed -i '' 's/a/b/' src/a"
+no "sed -i 's/a/b/w src/x' /tmp/a"
+no "sed -i '1e git push' /tmp/a"
+no "sed -i 's/a/b/e' /tmp/a"
+no 'rm -rf /tmp'
+no 'rm -rf /tmp/'
+no 'rm -rf "$TMPDIR"'
+no 'rm -rf /private/tmp/.'
+no 'rm -rf /tmp/*'
+no 'rm -rf ~/.claude'
+no 'rm -rf .planning'
+no 'rm -rf .agents/memory/'
+no 'rm /tmp/{a,../etc/b}'
+no 'rm /tmp/`pwd`'
+no 'rm -rf /tmp/$X/y'
+no 'S=/tmp/x; read S; rm -rf $S/y'
+no 'false && S=/tmp/x; rm -rf $S/y'
+for a in "chdir $REPO" "pushd $REPO" "alias x=y" "eval x" "source /tmp/x" ". /tmp/x" "command cd $REPO" "builtin cd $REPO" "HOME=$REPO" "export TMPDIR=$REPO" "read HOME"; do
+  no "cd $SCRATCH; $a; rm a"
+  no "$a; rm \$HOME/.claude/x"
+  no "$a; rm ~/.claude/x"
+  no "$a; echo x > \$TMPDIR/x"
+done
+no 'S=/repo/src; rm -rf $S/y'
+no 'false &&
+S=/tmp/x; rm -rf $S/y'
+no "false && # c
+cd $SCRATCH; rm a"
+no "cd /tmp && rm -rf *"
+no "touch /tmp/a; echo \"it's\"; git push; echo \"it's\""
+no "touch /tmp/a; echo it\\'s
+git push
+echo \\'"
+no 'tee /tmp/x >(bash)'
+no 'mv /tmp/a/* /tmp/b'
+no "git -C $REPO -C /x add a.md"
+no 'HOME=/repo; rm ~/.claude/x'
+no 'cd src && rm a'
+no "false && cd $SCRATCH; rm a"
+no "cd $SCRATCH/none; rm a"
+no "cd $SCRATCH || rm a"
+no "cd $SCRATCH | rm a"
+no "(cd $SCRATCH); rm a"
+no "cd $SCRATCH && cd - && rm a"
+no "cd $SCRATCH && pushd $REPO; rm a"
+no "f() { cd $REPO; }; cd $SCRATCH; f; rm a"
+no "echo x > $SCRATCH/link/a.md"
+no "rm -rf $SCRATCH/link/docs"
+no "touch $SCRATCH/d/x && git commit -m x"
+no "touch /tmp/a \$'\\'' ; git push ; echo '"
+no "# it's
+touch /tmp/a; git push; echo 'x'"
+no 'echo x > /tmp/a; git push'
+no 'cp /tmp/a /tmp/b
+git push'
+ok "grep -c 'x
+rm y' /tmp/a"
+
+# coordination docs at the repo root
+doc() { jq -n --arg t "$1" --arg f "$2" --arg d "$REPO" '{session_id: "lead1", tool_name: $t, cwd: $d, tool_input: {file_path: $f}}' | bash "$HOOK"; }
+for f in CONTEXT.md docs/decisions.md docs/roadmap.md; do
+  for t in Edit Write MultiEdit; do
+    OUT=$(doc $t "$REPO/$f")
+    assert "$t $f is silent" '[ -z "$OUT" ]'
+  done
+  OUT=$(doc Edit "$TMP_H/wt/$f")
+  assert "Edit $f in a worktree is silent" '[ -z "$OUT" ]'
+  OUT=$(doc Edit "$OUTSIDE/$f")
+  assert "Edit $f in another repo is denied" '[ -n "$OUT" ]'
+done
+for f in README.md docs/adr/0001-x.md docs/b.md docs/sub/CONTEXT.md docs/docs/roadmap.md docs/../CONTEXT.md decisions.md; do
+  OUT=$(doc Edit "$REPO/$f")
+  assert "Edit $f is denied" '[ -n "$OUT" ]'
+done
+ln -s a.md "$REPO/CONTEXT.md"
+OUT=$(doc Edit "$REPO/CONTEXT.md")
+assert "Edit of a symlinked CONTEXT.md is denied" '[ -n "$OUT" ]'
+no 'echo x >> docs/roadmap.md'
+
+# git add with literal files
+ok 'git add a.md docs/b.md'
+ok "git -C $REPO add -- a.md"
+ok "cd $REPO && git add \"a.md\" 'docs/b.md'"
+no 'git add gone.md'
+for a in . ./ .. docs docs/ '*.md' "'*.md'" ':/a.md' "':!a.md'" -A -u '-f a.md' '-p a.md' '-i' '-N a.md' '--all' '-- -A' '$F' '"$F"' \
+  '$(ls)' '`ls`' '{a,b}.md' '--pathspec-from-file=/tmp/x' '' '--'; do
+  no "git add $a"
+done
+no 'git add ~/a.md'
+no 'git -C rel add a.md'
+no "git -C $REPO add docs"
+no "git -C \$R add a.md"
+no 'git add a.md && git commit -m x'
+no 'GIT_DIR=/x git add a.md'
+no 'cd nowhere; git add a.md'
+
+# clean up without force
+ok 'git worktree remove .agents/worktrees/w'
+ok 'git branch -d a feat/b'
+no 'git worktree remove -f .agents/worktrees/w'
+no 'git worktree remove --force .agents/worktrees/w'
+no 'git worktree remove .agents/worktrees/w -f'
+no 'git worktree remove "$W"'
+no 'git branch -D a'
+no 'git branch -d -f a'
+no 'git branch -df a'
+no 'git branch -d a --force'
+no 'git branch -M a'
+no 'git branch -f a HEAD'
+ok 'git branch -m a'
+ok 'git branch -vv --merged'
+no 'git branch --delete --force a'
+no 'git branch -d $(git branch)'
+no 'git worktree remove w; git branch -D w'
+
+# issue cards
+ok 'gh issue create --title "x; y" --body-file /tmp/b.md'
+ok "gh issue edit 3 --add-label 'a (b)'"
+ok 'gh issue comment 3 --body "see $X and \`code\`"'
+ok 'gh issue comment 3 --body "$(cat /tmp/b.md)"'
+ok "gh issue create -t x --body \"\$(cat <<'EOF'
+one; git push
+EOF
+)\""
+for a in 'close 3' 'delete 3' 'reopen 3' 'transfer 3 o/r' 'lock 3' 'unlock 3'; do no "gh issue $a"; done
+no 'gh issue comment 3 --body "$(git push)"'
+no 'gh issue comment 3 --body "`git push`"'
+no 'gh issue comment 3 --body $(git push)'
+no 'gh issue comment 3 --body x && git push'
+no 'gh issue comment 3 --body x > src/a'
+no 'gh issue comment 3 --delete-last'
+no 'gh issue comment 3 --delete-last=true --yes'
+no 'gh issue comment 3 "--delete-last"'
+ok 'gh issue comment 3 --edit-last --body x'
+no 'gh pr comment 3 --body x'
+no 'gh pr merge 3'
+no 'gh release create v1'
+no 'gh repo edit'
+no "gh issue create --body \"\$(cat <<'EOF'
+x
+EOF
+git push
+EOF
+)\""
+
+# gh api GET and heredoc bodies
+ok 'gh api -X GET repos/o/r'
+ok 'gh api --method GET search/issues -f q=x'
+ok 'gh api -XGET repos/o/r'
+ok 'gh api --method=GET repos/o/r'
+no 'gh api -X GET -X POST repos/o/r'
+no 'gh api -XPOST repos/o/r'
+no 'gh api --method=PATCH repos/o/r'
+ok 'gh api repos/o/foo-x'
+no 'gh api -X DELETE repos/o/r -f "a= -X GET"'
+no 'gh api -X GET a; gh api -X POST b'
+ok "cat <<'EOF'
+git push
+it's \"x
+rm -rf src
+echo > src/a
+EOF"
+ok 'cat > /tmp/x <<EOF
+git commit -m x
+EOF
+ls'
+ok "cat >> /tmp/x <<-'EOF' | wc -l
+	kill 1
+	EOF"
+ok "gh issue create -t x -F - <<'EOF'
+git push
+EOF"
+no "cat > src/a <<'EOF'
+x
+EOF"
+no 'cat <<EOF
+$(git push)
+EOF'
+no 'cat <<EOF
+`git push`
+EOF'
+no 'cat <<EOF
+x
+EOF
+git push'
+for sh in 'bash <<EOF' 'sh -s <<EOF' 'python3 - <<EOF' "bash <<'EOF'" 'cat <<EOF | bash' "cat <<'EOF' 2>&1 | bash" "cat <<'EOF' >&1 | bash" 'cat <<EOF &> /tmp/x | bash' 'gh alias import - <<EOF' 'cat <<EOF | sort --compress-program=sh' 'cat <<EOF |' '$SHELL <<EOF' './x <<EOF' 'bash <(cat <<EOF' 'cat <<EOF > >(bash)'; do
+  no "$sh
+git push
+EOF
+"
+done
+ok 'python3 - <<EOF
+print("run `make x` now")
+EOF'
+no '{
+cat <<EOF
+git push
+EOF
+} 2>&1 | bash'
+no '$(
+cat <<EOF
+git push
+EOF
+)'
+no 'echo hi # <<EOF
+git push
+EOF'
+no '(( x = 1<<EOF ))
+git push
+EOF'
+no "cat <<A <<B
+A
+cat <<X
+B
+git push
+X"
+no 'cat <<EOF-1
+EOF-1
+git push
+EOF'
+no 'cat <<\EOF
+EOF
+git push'
+
+# size: 300 KB, judged before the hook could time out
+big() { perl -e 'print $ARGV[0] x $ARGV[1]' -- "$1" "$2"; }
+for c in "cat > /tmp/x <<'EOF'
+$(big 'git commit it
+' 22000)
+EOF" "$(big 'rm /tmp/a/b; ' 23000)" "$(big 'echo hi; ' 33000)" "gh issue comment 1 -b '$(big 'a; b (c) ' 33000)'"; do
+  jq -n --rawfile c <(printf %s "$c") '{session_id: "lead1", tool_name: "Bash", cwd: "/tmp", tool_input: {command: $c}}' >"$TMP_H/big.json"
+  SECONDS=0
+  bash "$HOOK" <"$TMP_H/big.json" >/dev/null
+  assert "a 300 KB command is judged in time (${c:0:20})" '[ "$SECONDS" -le 2 ]'
+done
+no "$(big 'echo hi; ' 9000)git push"
+assert "deny names the coordination rights" 'grep -q "git add" <<<"$OUT" && grep -q "gh issue" <<<"$OUT"'
+
 echo "=== lead-guard: design + browser ==="
 # section: lead-guard-mcp
 PAPER_WRITES=$(grep -oE 'mcp__paper__[a-z_]+' "$HOOK" | sort -u | tr '\n' ' ')
@@ -283,6 +585,16 @@ OUT=$(fire lead1 mcp__pencil__execute '{}')
 assert "pencil execute is no longer guarded" '[ -z "$OUT" ]'
 OUT=$(fire lead1 mcp__claude-in-chrome__computer '{}')
 assert "chrome computer is denied" '[ -n "$OUT" ]'
+for a in screenshot zoom; do
+  OUT=$(fire lead1 mcp__claude-in-chrome__computer "{\"action\":\"$a\"}")
+  assert "chrome computer $a is silent" '[ -z "$OUT" ]'
+done
+for a in left_click type key scroll screenshot_x; do
+  OUT=$(fire lead1 mcp__claude-in-chrome__computer "{\"action\":\"$a\"}")
+  assert "chrome computer $a is denied" '[ -n "$OUT" ]'
+done
+OUT=$(fire lead1 mcp__claude-in-chrome__browser_batch '{"action":"screenshot"}')
+assert "chrome browser_batch is denied" '[ -n "$OUT" ]'
 OUT=$(fire lead1 mcp__claude-in-chrome__read_page '{}')
 assert "chrome read_page is silent" '[ -z "$OUT" ]'
 OUT=$(fire lead1 mcp__claude-in-chrome__navigate '{}')
