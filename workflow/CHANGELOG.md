@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- **`tsc-incremental` hygiene section.** Warns when a `tsc --noEmit` or `vue-tsc --noEmit` script runs without incremental builds, when its tsbuildinfo is not gitignored, or when `tsBuildInfoFile` points into `node_modules`. Reads `package.json` and tsconfig files only. Measured on a React app with TypeScript 6: a warm run with no change took 2.8 instead of 11 CPU seconds, and a run after a component edit about 9 instead of 11.7. A fresh worktree pays one full run.
+
 ## 2.35.0 — 2026-11-24
 
 ### Added

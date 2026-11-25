@@ -8,7 +8,8 @@
 #   6. ai-kit-context-lean.sh    — always-loaded CLAUDE.md/AGENTS.md over 200 lines
 #   7. ai-kit-secrets-gate.sh    — secret-prevention wiring (never scans history)
 #   8. ai-kit-test-ci.sh         — does any workflow actually run the test suite
-#   9. ai-kit-upstream-drift.sh  — vendored upstreams that moved past their pin
+#   9. ai-kit-tsc-incremental.sh — does a tsc --noEmit typecheck build incrementally
+#  10. ai-kit-upstream-drift.sh  — vendored upstreams that moved past their pin
 #                                  (ai-kit repo only — consumer projects vendor nothing)
 #
 # Exit code = max of the sections (0 clean, 1 warn, 2 block).
@@ -21,7 +22,7 @@ AIKIT="$(resolve_ai_kit_root "$SCRIPT_BIN")"
 
 usage() {
   cat <<USAGE
-Usage: $0 [path] [--skip-doctor] [--skip-dedupe] [--skip-symmetry] [--skip-memory] [--skip-repo-skills] [--skip-context-lean] [--skip-test-ci] [--skip-upstream-drift]
+Usage: $0 [path] [--skip-doctor] [--skip-dedupe] [--skip-symmetry] [--skip-memory] [--skip-repo-skills] [--skip-context-lean] [--skip-test-ci] [--skip-tsc-incremental] [--skip-upstream-drift]
 
 Runs ai-kit hygiene checks against the given project path (default: cwd).
 Exit code = max of the section exit codes (0 clean, 1 warn, 2 block).
@@ -37,6 +38,7 @@ SKIP_REPO_SKILLS=0
 SKIP_CONTEXT_LEAN=0
 SKIP_SECRETS_GATE=0
 SKIP_TEST_CI=0
+SKIP_TSC_INCREMENTAL=0
 SKIP_UPSTREAM_DRIFT=0
 
 for arg in "$@"; do
@@ -50,6 +52,7 @@ for arg in "$@"; do
     --skip-context-lean) SKIP_CONTEXT_LEAN=1 ;;
     --skip-secrets-gate) SKIP_SECRETS_GATE=1 ;;
     --skip-test-ci) SKIP_TEST_CI=1 ;;
+    --skip-tsc-incremental) SKIP_TSC_INCREMENTAL=1 ;;
     --skip-upstream-drift) SKIP_UPSTREAM_DRIFT=1 ;;
     -*) echo "unknown flag: $arg" >&2; usage >&2; exit 2 ;;
     *)  PROJECT_PATH="$arg" ;;
@@ -124,6 +127,12 @@ if [ "$SKIP_TEST_CI" -eq 0 ]; then
   record "$?" "test-ci"
 fi
 
+if [ "$SKIP_TSC_INCREMENTAL" -eq 0 ]; then
+  section "tsc-incremental (does the typecheck reuse its last run?)"
+  bash "$AIKIT/bin/ai-kit-tsc-incremental.sh" "$PROJECT_PATH"
+  record "$?" "tsc-incremental"
+fi
+
 # Only ai-kit itself carries standards/external/vendored.json. A consumer
 # project has no vendored upstreams, so the section stays silent there rather
 # than printing an empty report on every /ai:hygiene run.
@@ -146,7 +155,7 @@ esac
 score=100
 fix_lines=()
 # Map section name → the command that reproduces what hygiene just ran.
-# Seven of the eight sections take the project path; audit-setup-symmetry is
+# Every section but one takes the project path; audit-setup-symmetry is
 # the odd one out, and has no ai-kit- prefix on disk either. Printing a bare
 # script path used to send you to a command that behaves differently from the
 # one that produced the warning — doctor without a path argument exits 0, so
