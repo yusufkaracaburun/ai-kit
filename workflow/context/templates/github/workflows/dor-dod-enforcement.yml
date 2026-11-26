@@ -4,6 +4,8 @@ name: DoR + DoD enforcement
 #  - issue closed       → check DoD checkboxes; reopen indien onafgevinkt
 #  - issue labeled      → bij `status:in-progress` check DoR checkboxes; revert label indien onafgevinkt
 #  - issue body edited  → herevalueer (gebruiker fixt vakjes)
+#  - epic closed        → heropen als er sub-issues open staan zonder het later-label
+#                         (default `na-migratie`, repo-variabele LATER_LABEL); .github/scripts/epic-open-sub-issues.sh
 #
 # Parsing-conventie: body bevat secties "## Definition of Ready" en "## Definition of Done"
 # met markdown task-lists (`- [ ]` / `- [x]`). Alleen vakjes onder die headers tellen.
@@ -97,3 +99,20 @@ jobs:
 
             // 'edited' action: just log — no enforcement
             console.log(`#${issue_number}: ${action} — no enforcement triggered`);
+
+  epic-sub-issues:
+    # Logic lives in a script, not github-script, so the kit's stub-gh tests cover it.
+    if: github.event.action == 'closed' && github.event.issue.state_reason != 'not_planned'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check open sub-issues of an epic
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          ISSUE: ${{ github.event.issue.number }}
+          LATER_LABEL: ${{ vars.LATER_LABEL || 'na-migratie' }}
+        run: bash .github/scripts/epic-open-sub-issues.sh

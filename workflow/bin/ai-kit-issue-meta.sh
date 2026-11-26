@@ -9,7 +9,8 @@
 # Board: the project the issue is on, else the one most open issues of the repo are
 #   on, else the only project linked to the repo; none found, skipped.
 # Status: --status sets the card's Status column on that board, then removes labels
-#   that clash with the column. Without --type only the card moves.
+#   that clash with the column. Without --type only the card moves. Doing also moves
+#   the parent issue's card to Doing when it sits in Backlog or Next.
 # --only-unset: keeps the type and Status the issue already has, drops no label, and
 #   gives an issue without a Priority one, with or without --type.
 #
@@ -46,6 +47,14 @@ fail() {
   local err
   err=$(head -n 1 "$ERR_FILE")
   note "$1${err:+: $err}"
+}
+# Every gh call runs in its own process group, killed as a whole after AI_KIT_GH_TIMEOUT seconds.
+# perl, not timeout(1): macOS ships no coreutils.
+gh() {
+  # shellcheck disable=SC2016
+  perl -e 'my $t = shift; my $p = fork // exit 1; if (!$p) { setpgrp(0, 0); exec @ARGV; exit 127 }
+    $SIG{ALRM} = sub { kill "TERM", -$p; print STDERR "gh timed out after ${t}s\n"; exit 124 };
+    alarm $t; waitpid $p, 0; exit($? & 127 ? 128 + ($? & 127) : $? >> 8)' "${AI_KIT_GH_TIMEOUT:-30}" gh "$@"
 }
 
 # Sets REF_OWNER, REF_NAME, REF_NUM; a bare number uses gh's {owner}/{repo} of the cwd repo.
@@ -232,6 +241,36 @@ else
   note "no Priority field or no $PRIORITY option, adding label $ADD_LABEL instead"
 fi
 
+# shellcheck disable=SC2016
+PARENT_STATUS_QUERY='query($owner:String!,$name:String!,$number:Int!){repository(owner:$owner,name:$name){issue(number:$number){parent{number projectItems(first:10){nodes{'"$ITEM_FIELDS"'}}}}}}'
+# Moves the parent's card on $PROJECT_ID to Doing when it sits in Backlog or Next.
+# shortcut: a parent card hidden from projectItems (board of another owner) is left alone; add it via addProjectV2ItemById if that bites.
+parent_to_doing() {
+  local json parent num item field status options option
+  if ! json=$(gh api graphql -F owner="$OWNER" -F name="$NAME" -F number="$NUM" -f query="$PARENT_STATUS_QUERY" 2>"$ERR_FILE"); then
+    fail "parent lookup failed, parent left alone"
+    return
+  fi
+  parent=$(PARENT_JSON="$json" python3 -c '
+import json, os
+issue = ((json.loads(os.environ["PARENT_JSON"]).get("data") or {}).get("repository") or {}).get("issue") or {}
+parent = issue.get("parent")
+if parent:
+    print(parent.get("number"), json.dumps({"data": {"repository": {"issue": parent}}}))
+' 2>/dev/null) || { note "could not parse the parent lookup, parent left alone"; return; }
+  [ -n "$parent" ] || return
+  num="${parent%% *}"
+  IFS='|' read -r item field status options <<<"$(status_item "${parent#* }")"
+  case "${status:-}" in Backlog|Next) ;; *) return ;; esac
+  option=$(option_id Doing "$options")
+  [ -n "$option" ] || return
+  if gh api graphql -f projectId="$PROJECT_ID" -f itemId="$item" -f fieldId="$field" -f optionId="$option" -f query="$STATUS_QUERY" >/dev/null 2>"$ERR_FILE"; then
+    DONE+=("parent #$num Doing")
+  else
+    fail "moving parent #$num to Doing failed"
+  fi
+}
+
 if [ -n "$PROJECT_ID" ]; then
   IFS='|' read -r ITEM_ID STATUS_FIELD_ID OWN_STATUS STATUS_OPTIONS <<<"$(status_item "$META_JSON")"
   if [ -z "${ITEM_ID:-}" ]; then
@@ -258,6 +297,7 @@ if [ -n "$PROJECT_ID" ]; then
     STATUS_QUERY='mutation($projectId:ID!,$itemId:ID!,$fieldId:ID!,$optionId:String!){updateProjectV2ItemFieldValue(input:{projectId:$projectId,itemId:$itemId,fieldId:$fieldId,value:{singleSelectOptionId:$optionId}}){clientMutationId}}'
     if gh api graphql -f projectId="$PROJECT_ID" -f itemId="$ITEM_ID" -f fieldId="$STATUS_FIELD_ID" -f optionId="$STATUS_OPTION" -f query="$STATUS_QUERY" >/dev/null 2>"$ERR_FILE"; then
       DONE+=("Status $STATUS")
+      [ "$STATUS" != Doing ] || parent_to_doing
       # Column is where the work is, label who picks it up; these labels contradict the column.
       [ -n "$ONLY_UNSET" ] || case "$STATUS" in
         Backlog) CLASH="needs-info status:in-progress" ;;

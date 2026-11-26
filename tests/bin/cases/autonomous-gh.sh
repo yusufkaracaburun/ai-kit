@@ -168,6 +168,7 @@ assert "nl: story template written" '[ -f "$TMP_GH_NL/.github/ISSUE_TEMPLATE/sto
 assert "nl: spike template written" '[ -f "$TMP_GH_NL/.github/ISSUE_TEMPLATE/spike.md" ]'
 assert "nl: config.yml written" '[ -f "$TMP_GH_NL/.github/ISSUE_TEMPLATE/config.yml" ]'
 assert "nl: dor-dod workflow written" '[ -f "$TMP_GH_NL/.github/workflows/dor-dod-enforcement.yml" ]'
+assert "nl: epic sub-issue script written" '[ -f "$TMP_GH_NL/.github/scripts/epic-open-sub-issues.sh" ]'
 assert "nl: auto-promote workflow written" '[ -f "$TMP_GH_NL/.github/workflows/auto-promote-ready.yml" ]'
 assert "nl: gitleaks workflow written" '[ -f "$TMP_GH_NL/.github/workflows/gitleaks.yml" ]'
 # End-to-end: the gate ai-kit-secrets-gate.sh enforces must be satisfied by

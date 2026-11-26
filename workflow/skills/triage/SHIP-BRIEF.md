@@ -9,6 +9,7 @@ Skills that hand off to it: `to-prd` (Idea mode), `autonomous`, `harvest`, `diag
 - Precondition: the staged tree carries a `/ai:review` APPROVE; stage nothing beyond the reviewed paths.
 - Run the steps in order; skip a step only when its field says `none`.
 - Stage by path and read `git diff --staged` before the commit. Never `git commit -a`, `--no-verify` or a force push.
+- Run git as `git -C <literal absolute path>`, no `cd … &&`, no shell variables: the review gate denies a commit or push whose repo it cannot read from the command.
 - A failed hook, a denied commit or push, or a red CI check is a stop: report the command and its output, change nothing else.
 - Merge only when the field says so and the project's merge policy allows it. Deploy only when the user approved this deploy in this conversation; otherwise stop before it and print the deploy command (see the `deployment-on-demand` rule).
 - After a squash merge, delete the local branch only once `gh pr view <n> --json state` says `MERGED`: switch to the base, then `git branch -D <branch>`. `-d` refuses it, because squashed commits are not ancestors of the base. Before `-D`, `git rev-parse <branch>` must equal `gh pr view <n> --json headRefOid -q .headRefOid`; if not, stop and report the local commits the PR lacks. A branch checked out in a linked worktree needs `git worktree remove <path>` from the main checkout first, since the switch and the delete both fail there; if it refuses a dirty worktree, stop and report, never `--force`.

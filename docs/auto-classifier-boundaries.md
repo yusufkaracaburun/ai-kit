@@ -81,6 +81,29 @@ or surface the command for the user to run (Workaround 2). Don't try
 `--no-verify`-style flags or attempt to disable hooks — they won't help and
 will just queue up more refusals.
 
+## Classifier denials and allow rules
+
+Four facts decide what to hand the user after an auto-mode classifier block:
+
+1. Narrow `permissions.allow` rules still resolve before the classifier. Only
+   broad ones such as `Bash(*)` are dropped in auto mode
+   ([permission modes](https://code.claude.com/docs/en/permission-modes)).
+2. Permission rules match the command a PreToolUse hook returns. A hook that
+   rewrites commands, such as the rtk prefix, makes a `Bash(git commit:*)`
+   rule miss, and in auto mode a rewrite that sets no `permissionDecision`
+   can be denied ([hooks, `updatedInput`](https://code.claude.com/docs/en/hooks)).
+3. `autoMode.allow` entries are prose. They are read only from
+   `~/.claude/settings.json`, managed settings or `--settings`; a project
+   `.claude/settings.json` is ignored for them
+   ([auto mode config](https://code.claude.com/docs/en/auto-mode-config)).
+4. The user can approve one blocked call through `/permissions`, Recently
+   blocked, then `r`.
+
+So the handoff is a paste-ready `autoMode.allow` prose entry for
+`~/.claude/settings.json` that names the hook prefix (for example "git commit
+and git push in the current project, also when prefixed with `rtk`"), not a
+`permissions.allow` rule. The rtk hook stays on.
+
 ## Related
 
 - `bin/release.sh` — `--bump-marketplace` flag encapsulates the

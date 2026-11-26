@@ -32,7 +32,8 @@ Also fires automatically as part of `/ai:setup` when the project has a GitHub re
 | `.github/ISSUE_TEMPLATE/bug.md` | Bug template: steps, expected, actual, where, acceptance criteria with a regression test, DoD |
 | `.github/ISSUE_TEMPLATE/idea.md` | Not decided or started: what, why, when to pick up. No DoR/DoD |
 | `.github/ISSUE_TEMPLATE/config.yml` | Disables blank issues; links to project board |
-| `.github/workflows/dor-dod-enforcement.yml` | On close → check DoD, reopen if unchecked. On `labeled status:in-progress` → check DoR, strip label if unchecked. |
+| `.github/workflows/dor-dod-enforcement.yml` | On close → check DoD, reopen if unchecked. On close of an epic (issue type Epic or Feature) → reopen it and comment its open sub-issues that lack a later label (`na-migratie` by default, repo variable `LATER_LABEL` overrides). The list has number and title, no board Status: `GITHUB_TOKEN` cannot read Projects boards. On `labeled status:in-progress` → check DoR, strip label if unchecked. |
+| `.github/scripts/epic-open-sub-issues.sh` | The epic close check the workflow runs |
 | `.github/workflows/auto-promote-ready.yml` | Todo → Ready on board when DoR all checked + priority (Priority issue field, or a `P[0-3]-*` label) + an `area/*` label set. Forward-only. |
 | `.github/workflows/gitleaks.yml` | Blocks secrets *added* by the pushed range — not full history, which goes red forever on any pre-existing finding. `ai-kit-secrets-gate.sh` checks for this file. |
 | `.github/PULL_REQUEST_TEMPLATE.md` | DoR/DoD PR checklist — scaffolded only when absent from all three GitHub-honored paths |
@@ -87,7 +88,7 @@ Every new issue must carry:
 - One `epic/*` label when it belongs to an epic.
 - One or more `area/*` labels (where in the codebase).
 
-To start work, move the card to Doing on the board. In a repo without a board, add `status:in-progress`. The DoR workflow strips the label if any DoR checkbox is unchecked. To close, every DoD checkbox the issue has must be ticked or the close workflow reopens the issue.
+To start work, move the card to Doing on the board. In a repo without a board, add `status:in-progress`. The DoR workflow strips the label if any DoR checkbox is unchecked. To close, every DoD checkbox the issue has must be ticked or the close workflow reopens the issue. An epic also needs its sub-issues closed, or labelled with the later label when they may land after it.
 
 Issues already on the project board with all DoR checkboxes + a priority and an `area/*` label auto-promote Todo → Ready. Cards without a DoR (epic, task, bug, idea) do not auto-promote; move them by hand.
 
@@ -116,6 +117,7 @@ Issues already on the project board with all DoR checkboxes + a priority and an 
 
 - `.github/ISSUE_TEMPLATE/{epic,story,task,bug,spike,idea}.md` and `config.yml` in the project
 - `.github/workflows/{dor-dod-enforcement,auto-promote-ready,gitleaks}.yml` in the project
+- `.github/scripts/epic-open-sub-issues.sh` in the project
 - Labels in the GitHub repo (idempotent)
 - Substituted Project IDs in `auto-promote-ready.yml` + project board URL in `config.yml` if a project board exists
 - `.github/PULL_REQUEST_TEMPLATE.md` when no PR template existed

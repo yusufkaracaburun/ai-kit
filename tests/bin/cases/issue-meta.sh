@@ -11,9 +11,10 @@ cat > "$TMP_IM/stubs/gh" <<'STUB'
 printf '%s\n' "$*" >> "$STUB_DATA/calls.log"
 [ -z "${STUB_FAIL:-}" ] || { echo "HTTP 403: Resource not accessible" >&2; echo "second line" >&2; exit 1; }
 case "$*" in
-  *updateProjectV2ItemFieldValue*) [ -z "${STUB_FAIL_STATUS:-}" ] || { echo "HTTP 403: Resource not accessible" >&2; exit 1; }; echo '{"data":{}}' ;;
+  *updateProjectV2ItemFieldValue*) [ -z "${STUB_SLEEP:-}" ] || sleep "$STUB_SLEEP"; [ -z "${STUB_FAIL_STATUS:-}" ] || { echo "HTTP 403: Resource not accessible" >&2; exit 1; }; echo '{"data":{}}' ;;
   *addProjectV2ItemById*) [ -z "${STUB_FAIL_ADD:-}" ] || { echo "HTTP 403: Resource not accessible" >&2; exit 1; }; cat "$STUB_DATA/add.json" 2>/dev/null || echo '{"data":{}}' ;;
   *setIssueFieldValue*) echo '{"data":{}}' ;;
+  *'parent{'*) [ -z "${STUB_FAIL_PARENT:-}" ] || { echo "HTTP 502: Bad Gateway" >&2; exit 1; }; cat "$STUB_DATA/parent-status.json" 2>/dev/null || echo '{"data":{"repository":{"issue":{"parent":null}}}}' ;;
   *issueTypes*) cat "$STUB_DATA/meta.json" ;;
   *issueFieldValues*) cat "$STUB_DATA/parent.json" ;;
   "api -X PATCH "*|"api -X POST "*|"api -X PUT "*|"api -X DELETE "*) echo '{}' ;;
@@ -167,7 +168,27 @@ assert "issue-meta: leaving Blocked drops needs-info, the last label, in one del
 write_meta "$TYPES" "$PRIO" "$BOARDS" '{"name":"area-x"}' false "$ITEMS"
 run_meta 69 --status Doing
 assert "issue-meta: --status Doing alone exits 0" '[ "$RC" -eq 0 ]'
-assert "issue-meta: --status Doing alone writes only Status" 'echo "$CALLS" | grep "updateProjectV2ItemFieldValue" | grep -q "optionId=S_doing" && ! echo "$CALLS" | grep -q "api -X PATCH\|setIssueFieldValue\|addProjectV2ItemById\|/labels" && [ "$(echo "$CALLS" | wc -l)" -eq 2 ]'
+assert "issue-meta: --status Doing alone writes only Status" 'echo "$CALLS" | grep "updateProjectV2ItemFieldValue" | grep -q "optionId=S_doing" && ! echo "$CALLS" | grep -q "api -X PATCH\|setIssueFieldValue\|addProjectV2ItemById\|/labels" && [ "$(echo "$CALLS" | wc -l)" -eq 3 ]'
+assert "issue-meta: --status Doing looks up the parent once" '[ "$(echo "$CALLS" | grep -c "parent{")" -eq 1 ]'
+
+parent_status() {
+  echo '{"data":{"repository":{"issue":{"parent":{"number":40,"projectItems":{"nodes":[{"id":"PVTI_par","fieldValueByName":{"name":"'"$1"'"},"project":{"id":"PVT_b","field":'"$STATUS_FIELD"'}}]}}}}}}' > "$TMP_IM/parent-status.json"
+}
+for st in Backlog Next; do
+  parent_status "$st"
+  run_meta 69 --status Doing
+  assert "issue-meta: Doing moves a parent in $st to Doing" 'echo "$CALLS" | grep "updateProjectV2ItemFieldValue" | grep "itemId=PVTI_par" | grep -q "optionId=S_doing" && echo "$OUT" | grep -q "#69 set Status Doing, parent #40 Doing$"'
+done
+parent_status Blocked
+run_meta 69 --status Doing
+assert "issue-meta: Doing leaves a parent in Blocked alone" '! echo "$CALLS" | grep -q "itemId=PVTI_par" && echo "$OUT" | grep -q "#69 set Status Doing$"'
+parent_status Backlog
+run_meta 69 --status Next
+assert "issue-meta: Next does not look up the parent" '! echo "$CALLS" | grep -q "parent{"'
+RC=0
+OUT="$(cd "$TMP_IM" && STUB_FAIL_PARENT=1 STUB_DATA="$TMP_IM" PATH="$TMP_IM/stubs:$PATH" "$AIKIT/bin/ai-kit-issue-meta.sh" 69 --status Doing 2>&1)" || RC=$?
+assert "issue-meta: parent lookup failure warns and keeps the Status" '[ "$RC" -eq 0 ] && echo "$OUT" | grep -q "parent lookup failed, parent left alone: HTTP 502" && echo "$OUT" | grep -q "#69 set Status Doing$"'
+rm -f "$TMP_IM/parent-status.json"
 write_meta "$TYPES" "$PRIO" "$BOARDS" '{"name":"ready-for-human"},{"name":"status:in-progress"}' false "$ITEMS"
 run_meta 70 --status Backlog
 assert "issue-meta: move to Backlog keeps ready-for-human, drops status:in-progress" 'echo "$CALLS" | grep "api -X PUT repos/{owner}/{repo}/issues/70/labels" | grep "labels\[\]=ready-for-human" | grep -vq "status:in-progress"'
@@ -233,6 +254,14 @@ OUT_ST="$(cd "$TMP_IM" && STUB_FAIL_STATUS=1 STUB_DATA="$TMP_IM" PATH="$TMP_IM/s
 assert "issue-meta: Status write failure exits 0" '[ "$RC_ST" -eq 0 ]'
 assert "issue-meta: Status failure carries gh's first stderr line" 'echo "$OUT_ST" | grep -q "setting Status Next failed: HTTP 403: Resource not accessible$"'
 assert "issue-meta: Status failure leaves labels alone" '! echo "$OUT_ST" | grep -q "removed"'
+
+echo ""
+echo "=== ai-kit-issue-meta: a hanging gh call is cut off ==="
+write_meta "$TYPES" "$PRIO" "$BOARDS" "" false "$ITEMS"
+RC=0 T0=$SECONDS
+OUT="$(cd "$TMP_IM" && AI_KIT_GH_TIMEOUT=1 STUB_SLEEP=30 STUB_DATA="$TMP_IM" PATH="$TMP_IM/stubs:$PATH" "$AIKIT/bin/ai-kit-issue-meta.sh" 78 --status Next 2>&1)" || RC=$?
+assert "issue-meta: hanging gh call returns within the timeout plus a margin" '[ $((SECONDS - T0)) -le 5 ]'
+assert "issue-meta: hanging gh call is reported as that step failing" '[ "$RC" -eq 0 ] && echo "$OUT" | grep -q "setting Status Next failed: gh timed out after 1s$"'
 
 echo ""
 echo "=== ai-kit-issue-meta: --only-unset keeps what is set ==="

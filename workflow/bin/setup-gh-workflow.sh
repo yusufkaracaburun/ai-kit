@@ -126,7 +126,7 @@ log "setup-gh-workflow: target=$TARGET remote=$OWNER/$REPO lang=$LANG_VARIANT"
 TEMPLATE_DIR="$AIKIT/context/templates/github"
 [ -d "$TEMPLATE_DIR" ] || { echo "Templates missing: $TEMPLATE_DIR" >&2; exit 1; }
 
-mkdir -p "$TARGET/.github/ISSUE_TEMPLATE" "$TARGET/.github/workflows"
+mkdir -p "$TARGET/.github/ISSUE_TEMPLATE" "$TARGET/.github/workflows" "$TARGET/.github/scripts"
 
 copy_template() {
   local src="$1" dst="$2"
@@ -160,6 +160,7 @@ copy_template "$TEMPLATE_DIR/ISSUE_TEMPLATE/config.yml" "$TARGET/.github/ISSUE_T
 #    needs placeholder substitution after project-board detection.
 # ----------------------------------------------------------------------------
 copy_template "$TEMPLATE_DIR/workflows/dor-dod-enforcement.yml" "$TARGET/.github/workflows/dor-dod-enforcement.yml"
+copy_template "$TEMPLATE_DIR/scripts/epic-open-sub-issues.sh"  "$TARGET/.github/scripts/epic-open-sub-issues.sh"
 copy_template "$TEMPLATE_DIR/workflows/auto-promote-ready.yml"  "$TARGET/.github/workflows/auto-promote-ready.yml"
 # gitleaks.yml blocks secrets being *added* (range-scoped, not full history).
 # ai-kit-secrets-gate.sh warns when it is absent; before this copy nothing

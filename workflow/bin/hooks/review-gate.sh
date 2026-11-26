@@ -155,7 +155,7 @@ gated_here() {
   return 1
 }
 unsure() {
-  gated_here && deny "review-gate: cannot tell which repo this $1 targets: use an unquoted absolute path: git -C /abs/path $1."
+  gated_here && deny "review-gate: cannot tell which repo this $1 targets: run git -C /literal/absolute/path $1, no cd … && and no shell variables."
 }
 
 # Heredoc bodies are data.

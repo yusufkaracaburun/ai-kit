@@ -140,7 +140,7 @@ for x in "$H" "$O"; do
 done
 echo b >"$H/b"
 git -C "$H" add b
-plain="use an unquoted absolute path"
+plain="run git -C /literal/absolute/path commit, no cd"
 OUT=$(CLAUDE_PROJECT_DIR="$H" fire "$P" 'git -C "$WT" commit -m x')
 assert "unsure target outside a repo cwd is judged by CLAUDE_PROJECT_DIR" 'grep -q "$plain" <<<"$OUT"'
 OUT=$(fire "$P" 'git -C "$WT" commit -m x')
