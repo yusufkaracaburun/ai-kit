@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.38.3 — 2026-11-26
+
+- docs-sync closable-issues check works again (#351)
+- install no longer deletes user dead links with ai-kit in the path (#352)
+
 ## 2.38.2 — 2026-11-26
 
 ### Fixed
