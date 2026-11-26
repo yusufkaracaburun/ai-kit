@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.38.1 — 2026-11-26
+
+### Changed
+- session-coordination asks for the open sub-issue count and board Status before an epic or module is called done.
+
 ## 2.38.0 — 2026-11-26
 
 ### Added
