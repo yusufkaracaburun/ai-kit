@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.39.0 — 2026-11-26
+
+### Added
+- Close-DoD workflow reopens an epic that still has open sub-issues without the later label, and comments the list first.
+- `ai-kit-issue-meta.sh --status Doing` moves a Backlog or Next parent epic to Doing.
+
+### Changed
+- Every `gh` call in `ai-kit-issue-meta.sh` times out (`AI_KIT_GH_TIMEOUT`, default 30 s).
+- context-discipline: persisted docs cite path plus symbol, not line numbers.
+- session-coordination and `docs/auto-classifier-boundaries.md` name a command-rewriting hook as the cause of allow rules not matching, with an `autoMode.allow` entry.
+- SHIP-BRIEF and the review-gate deny message use `git -C` with a literal path.
+- tdd anchors the `.agents` watch ignore to the project root.
+
 ## 2.38.3 — 2026-11-26
 
 - docs-sync closable-issues check works again (#351)
