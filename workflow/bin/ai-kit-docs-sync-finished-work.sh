@@ -130,7 +130,7 @@ CLOSABLE_ISSUES=()  # entries like `<issue#>|<pr#>|<issue-title>|<pr-url>`
 
 if [ "$GH_AVAILABLE" -eq 1 ]; then
   # List recently merged PRs (limit to last 50 — enough signal, cheap call).
-  pr_json="$(gh -R "$PROJECT_PATH" pr list --state merged --limit 50 --json number,body,url 2>/dev/null || true)"
+  pr_json="$(cd "$PROJECT_PATH" && gh pr list --state merged --limit 50 --json number,body,url 2>/dev/null || true)"
   if [ -n "$pr_json" ] && [ "$pr_json" != "[]" ]; then
     # Extract `closes #N`, `fixes #N`, `resolves #N` (case-insensitive verb).
     # Strict regex: verb + whitespace + `#` + digits, with a word-boundary
@@ -149,9 +149,9 @@ for pr in data:
     if [ -n "$refs" ]; then
       while IFS='|' read -r issue_num pr_num pr_url; do
         [ -z "$issue_num" ] && continue
-        state="$(gh -R "$PROJECT_PATH" issue view "$issue_num" --json state -q .state 2>/dev/null || echo "")"
+        state="$(cd "$PROJECT_PATH" && gh issue view "$issue_num" --json state -q .state 2>/dev/null || echo "")"
         if [ "$state" = "OPEN" ]; then
-          title="$(gh -R "$PROJECT_PATH" issue view "$issue_num" --json title -q .title 2>/dev/null || echo "")"
+          title="$(cd "$PROJECT_PATH" && gh issue view "$issue_num" --json title -q .title 2>/dev/null || echo "")"
           CLOSABLE_ISSUES+=("${issue_num}|${pr_num}|${title}|${pr_url}")
         fi
       done <<< "$refs"
@@ -253,9 +253,9 @@ if [ "$PROMPTS_ENABLED" -eq 1 ] && [ "${#CLOSABLE_ISSUES[@]}" -gt 0 ]; then
     if [ "$reply" = "y" ] || [ "$reply" = "Y" ]; then
       if [ "$TEST_AUTO_YES" = "1" ]; then
         echo "  (test mode — skipping actual gh issue close for #$issue_num)"
-      elif gh -R "$PROJECT_PATH" issue close "$issue_num" \
+      elif (cd "$PROJECT_PATH" && gh issue close "$issue_num" \
              --comment "Closed by merged PR #$pr_num — closable detected via /ai:docs-sync finished-work." \
-             >/dev/null 2>&1; then
+             >/dev/null 2>&1); then
         echo "  closed: #$issue_num"
       else
         echo "  close FAILED for #$issue_num" >&2

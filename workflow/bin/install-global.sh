@@ -12,7 +12,8 @@ PRIMITIVES="$(resolve_primitives_root "$AIKIT")"
 # The root the last install ran from. Links made then point into it, and a
 # plugin root carries its version in the path
 # (~/.claude/plugins/cache/.../ai/1.63.0), so after an upgrade those links
-# are dead and have no /ai-kit/ segment for install_dir_to's sweep to recognise.
+# are dead and point outside the current source tree, so the sweeps in
+# install_files_to and install_dir_to (via aikit_owned_link) only know them by it.
 # Read it before write_ai_kit_root_config overwrites the file.
 PREV_ROOT=""
 if [ -f "${HOME}/.config/ai-kit/root" ]; then
@@ -41,13 +42,10 @@ install_files_to() {
   # source tree, and a dead link there reads as "existing entry, skip".
   for dead in "$target"/*.md; do
     [ -L "$dead" ] && [ ! -e "$dead" ] || continue
+    aikit_owned_link "$dead" "$src_root" || continue
     was="$(readlink "$dead")"
-    case "$was" in
-      */ai-kit/*|"$PREV_ROOT"/*)
-        command rm -f "$dead"
-        echo "Removed dead link $(basename "$dead") (was -> $was)"
-        ;;
-    esac
+    command rm -f "$dead"
+    echo "Removed dead link $(basename "$dead") (was -> $was)"
   done
   for entry in "$src_root"/*.md; do
     [ -f "$entry" ] || continue

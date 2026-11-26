@@ -109,6 +109,8 @@ ln -s "$GONE/commands/doctor.md" "$H/.cursor/commands/doctor.md"
 # `mine` does not, so only the sweep ever sees it.
 ln -s "/nonexistent/other-tool/skills/qa/" "$H/.agents/skills/qa"
 ln -s "/nonexistent/other-tool/skills/mine/" "$H/.agents/skills/mine"
+# A path that merely contains an ai-kit segment is not an ai-kit link.
+ln -s "/nonexistent/notes/ai-kit/mine.md" "$H/.cursor/commands/mine.md"
 OUT=$(install_global "$H")
 assert "relinks a dead ai-kit skill link into the repo" \
   '[ -e "$H/.agents/skills/audit-architecture" ] && readlink "$H/.agents/skills/audit-architecture" | grep -q "workflow/skills/audit-architecture"'
@@ -127,6 +129,8 @@ assert "a foreign dead link on a colliding name stays dead" \
   '[ -L "$H/.agents/skills/qa" ] && [ ! -e "$H/.agents/skills/qa" ]'
 assert "and is reported as an existing non-aikit entry" \
   'grep -q "Skipped qa (existing non-aikit entry" <<<"$OUT"'
+assert "a foreign dead command link under an ai-kit path segment stays" \
+  '[ -L "$H/.cursor/commands/mine.md" ] && [ ! -e "$H/.cursor/commands/mine.md" ]'
 rm -rf "$H"
 
 echo "=== links from a previous root with no /ai-kit/ segment are reclaimed ==="

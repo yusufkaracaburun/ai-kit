@@ -178,6 +178,14 @@ mkdir -p "$TMP_GHAUTH/stub-bin" "$TMP_GHAUTH/repo"
 ) >/dev/null 2>&1
 cat > "$TMP_GHAUTH/stub-bin/gh" <<'STUB'
 #!/usr/bin/env bash
+# Real gh wants -R OWNER/REPO; a filesystem path must fail.
+prev=""
+for a in "$@"; do
+  if [ "$prev" = "-R" ] || [ "$prev" = "--repo" ]; then
+    case "$a" in /*|.*|"~"*) exit 1 ;; esac
+  fi
+  prev="$a"
+done
 case "$*" in
   *"auth status --hostname github.com"*) exit 0 ;;
   *"auth status"*) exit 1 ;;
