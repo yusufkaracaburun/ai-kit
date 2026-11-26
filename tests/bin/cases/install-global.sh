@@ -97,7 +97,8 @@ rm -rf "$H"
 echo "=== dead ai-kit symlinks are reclaimed, foreign dead links are not ==="
 H=$(mktemp -d)
 GONE="$H/moved-away/ai-kit/workflow"
-mkdir -p "$H/.agents/skills" "$H/.cursor/commands"
+mkdir -p "$H/.agents/skills" "$H/.cursor/commands" "$H/.config/ai-kit"
+printf '%s\n' "$H/moved-away/ai-kit" > "$H/.config/ai-kit/root"
 # A link to a skill that still exists in the source tree, and one to a name
 # that no longer does (a rename orphan the entry loop never visits).
 ln -s "$GONE/skills/audit-architecture/" "$H/.agents/skills/audit-architecture"

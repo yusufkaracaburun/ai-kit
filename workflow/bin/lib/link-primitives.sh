@@ -132,13 +132,10 @@ install_dir_to() {
   # source tree, and a dead link there reads as "existing entry, skip".
   for dead in "$target"/*; do
     [ -L "$dead" ] && [ ! -e "$dead" ] || continue
+    aikit_owned_link "$dead" "$src_root" || continue
     was="$(readlink "$dead")"
-    case "$was" in
-      */ai-kit/*|"${PREV_ROOT:-//no-previous-root}"/*)
-        command rm -f "$dead"
-        echo "Removed dead link $(basename "$dead") (was -> $was)"
-        ;;
-    esac
+    command rm -f "$dead"
+    echo "Removed dead link $(basename "$dead") (was -> $was)"
   done
   for entry in "$src_root"/*/; do
     [ -d "$entry" ] || continue
@@ -174,16 +171,24 @@ prune_cursor_global_skills() {
   prune_aikit_skill_links "${HOME}/.cursor/skills" "${1:-}"
 }
 
+# True when link $1 points into ai-kit: the plugin, $2's source tree or
+# $PREV_ROOT. A dead link is judged by its readlink text.
+aikit_owned_link() {
+  local target src_real=""
+  aikit_skill_link "$1" && return 0
+  target="$(cd "$1" 2>/dev/null && pwd -P)" || target="$(readlink "$1")"
+  [[ $target == "${PREV_ROOT:-//no-previous-root}"/* ]] && return 0
+  [ -n "${2:-}" ] || return 1
+  src_real="$(cd "$2" 2>/dev/null && pwd -P)" || src_real="$2"
+  [[ $target == "$2"/* || $target == "$src_real"/* ]]
+}
+
 # Removes links in $1 into ai-kit (plugin, or $2's source tree); foreign entries stay.
 prune_aikit_skill_links() {
-  local src_real="" link resolved
-  [ -n "${2:-}" ] && src_real="$(cd "$2" 2>/dev/null && pwd -P)"
+  local link
   for link in "$1"/*; do
     [ -L "$link" ] || continue
-    resolved="$(cd "$link" 2>/dev/null && pwd -P)" || resolved=""
-    if aikit_skill_link "$link" || { [ -n "$src_real" ] && [[ $resolved == "$src_real"/* ]]; }; then
-      command rm -f "$link"
-    fi
+    aikit_owned_link "$link" "${2:-}" && command rm -f "$link"
   done
   return 0
 }

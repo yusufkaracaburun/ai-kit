@@ -24,12 +24,12 @@ The driver runs each section in order, prints a per-section header, and exits wi
 
 Two sub-checks, both read-only by default:
 
-1. **Local merged branches.** `git branch --merged <default>`. Default branch detected via `git remote show origin` HEAD, falling back to `master` then `main`. The default branch itself, `HEAD`, the currently-checked-out branch, and long-lived `release/*` / `epic/*` branches are always excluded — a merged `release/*` is a tag boundary, not a leftover.
+1. **Local merged branches.** `git branch --merged <default>`, plus squash-merged branches: a branch whose PR `gh pr list --state merged --head <branch>` reports, if its local tip equals that PR's head. Without `gh` or its auth, only `--merged` is used. Default branch detected via `git remote show origin` HEAD, falling back to `master` then `main`. The default branch itself, `HEAD`, the currently-checked-out branch, and long-lived `release/*` / `epic/*` branches are always excluded — a merged `release/*` is a tag boundary, not a leftover.
 2. **Closable issues.** For each recently merged PR (`gh pr list --state merged --limit 50`), extract `closes #N` / `fixes #N` / `resolves #N` from the body via strict regex (case-insensitive verb, NO fuzzy match for `addresses #N` / `see #N` / `for #N`). If the referenced issue is still `OPEN`, it counts as closable.
 
 Fix flow (strictest guardrails per #88 — destructive + visible to others):
 
-- **Local branch delete** → group-confirmable: `git branch -d <name>` per branch. `-d` refuses to delete unmerged branches as a safety net.
+- **Local branch delete** → group-confirmable: `git branch -d <name>` per branch. `-d` refuses to delete unmerged branches as a safety net. A squash-merged branch gets `git branch -D`, since `-d` always refuses it. A failed delete prints git's error.
 - **Remote branch delete** → **always individual y/N per branch**: `git push origin --delete <name>`. There is no batch flag.
 - **`gh issue close`** → **always individual y/N per issue**, with the issue title + closing PR URL printed inline. There is no batch flag.
 
@@ -97,7 +97,7 @@ Scope bounds for the checks:
 
 - **Dead links.** Inline `[text](path)` only. No HTML `<a href>`. No bare URLs (link-rot belongs to a different tool). No anchor (`#section`) validation. No reference-style links.
 - Repo-hygiene = `find`-based mechanical checks only. No AST. No dead-code detection.
-- Finished-work cleanup = `--merged master/main` branches only, strict `closes #N / fixes #N / resolves #N` regex for issue close-candidates. No fuzzy matching.
+- Finished-work cleanup = `--merged master/main` branches plus branches whose PR gh reports as merged, strict `closes #N / fixes #N / resolves #N` regex for issue close-candidates. No fuzzy matching.
 
 ## Working with project-local docs-sync skills
 

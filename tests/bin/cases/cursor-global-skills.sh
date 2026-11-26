@@ -169,6 +169,23 @@ HOME="$H" bash -c "source '$AIKIT/bin/lib/link-primitives.sh'; install_dir_to '$
 AFTER="$(stat -c '%i' "$H/.agents/skills/demo-skill" 2>/dev/null || stat -f '%i' "$H/.agents/skills/demo-skill")"
 assert "an up-to-date link is not recreated" '[ "$BEFORE" = "$AFTER" ]'
 
+echo "=== dead-link reaping: only links into a kit location go ==="
+# section: cursor-global-dead-links
+H14=$(mktemp -d)
+mkdir -p "$H14/clone/workflow/skills/kept-skill" "$H14/.agents/skills" "$H14/.cursor/skills"
+ln -s "$H14/clone/workflow/skills/renamed-skill/" "$H14/.agents/skills/renamed-skill"
+ln -s "$H14/mine/ai-kit/own-skill" "$H14/.agents/skills/own-skill"
+ln -s "$H14/old-clone/workflow/skills/moved-skill/" "$H14/.cursor/skills/moved-skill"
+ln -s "$H14/mine/ai-kit/own-skill" "$H14/.cursor/skills/own-skill"
+HOME="$H14" PREV_ROOT="$H14/old-clone" bash -c "source '$AIKIT/bin/lib/ai-kit-root.sh'; source '$AIKIT/bin/lib/link-primitives.sh'
+  install_dir_to '$H14/clone/workflow/skills' '$H14/.agents/skills'
+  prune_cursor_global_skills '$H14/clone/workflow/skills'" >/dev/null
+assert "install_dir_to reaps a dead link into the source tree" '[ ! -L "$H14/.agents/skills/renamed-skill" ]'
+assert "install_dir_to keeps a dead foreign link with ai-kit in its path" '[ -L "$H14/.agents/skills/own-skill" ]'
+assert "cursor prune removes a dead link into the previous clone" '[ ! -L "$H14/.cursor/skills/moved-skill" ]'
+assert "cursor prune keeps a dead foreign link with ai-kit in its path" '[ -L "$H14/.cursor/skills/own-skill" ]'
+rm -rf "$H14"
+
 echo "=== SessionEnd hook adds new and prunes dead ai-kit entries in ~/.agents/skills ==="
 # section: cursor-global-hook
 CACHE="$H/.claude/plugins/cache/yusufkaracaburun/ai"

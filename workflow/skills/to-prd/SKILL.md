@@ -82,15 +82,14 @@ If `gh` returns non-zero, surface the exact error to the user; do not proceed to
 
 #### 5. Append the roadmap entry
 
-Open `docs/roadmap.md` and append a numbered paragraph to the **last `## What's next`** section. Use the next unused number — read the section, count entries, pick `<n+1>`. Reference the new issue as `(#N)`.
+Open `docs/roadmap.md` and read its `##` headings; the skill assumes no heading name. Pick the section the roadmap parks open work in:
 
-```markdown
-N. **<lead, title cased>** (#<issue-number>) — <one-paragraph
-   context: why deferred, what unblocks it, who owns it. End with a
-   pointer to related ADR or sibling roadmap entry if any.>
-```
+- Priority sections (`## P1`, `## P2 — next up`, ...): the one matching the issue's priority label, `P2` when it has none.
+- Otherwise the last `## What's next` (or equally named backlog) section.
 
-If the agent cannot find a `## What's next` heading, **do not invent one** — surface to the user and ask where to place the entry.
+Append the entry at the end of that section in the style its entries already use: bullets stay bullets (`- **#<N>** \`<label>\`: <context>. <YYYY-MM-DD>.`), numbered paragraphs take the next unused number. Reference the new issue as `#N`. The context says why deferred, what unblocks it and who owns it, with a pointer to a related ADR or sibling entry if any.
+
+No section fits (no priority section for that label, no backlog section): **do not invent one**. Surface it to the user and ask where to place the entry.
 
 #### 6. Ship + report
 
@@ -105,7 +104,7 @@ chore(idea): capture #<N> in roadmap
 Single-line report, once the ship brief reports the commit:
 
 ```
-Captured: <issue URL> + docs/roadmap.md § What's next entry N.
+Captured: <issue URL> + docs/roadmap.md § <section>.
 ```
 
 ### Decisions baked in (Idea mode)
@@ -113,7 +112,7 @@ Captured: <issue URL> + docs/roadmap.md § What's next entry N.
 | Choice | Default | Why |
 | ------ | ------- | --- |
 | Label | the template's own | One source for the label. Override via `--label`. |
-| Roadmap section | last `## What's next` | New work converges there; topic-matching is fragile. |
+| Roadmap section | the priority section matching the issue label (`P2` if none), else the last `## What's next` | Follows the roadmap's own headings; topic-matching is fragile. |
 | Local-only mode | append roadmap entry, no issue | Better to capture *something* than refuse. Surfaces clearly. |
 | Approval gate | **none** | An idea is light parking; users redirect after the fact. |
 

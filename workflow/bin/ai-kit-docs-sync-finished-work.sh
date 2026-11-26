@@ -2,8 +2,9 @@
 # Detect finished-work cleanup candidates — merged branches + closable issues.
 #
 # Scope (locked from #88 grilling — DO NOT EXPAND):
-#   * Local merged branches: `git branch --merged <default>`, excluding default
-#     branch, HEAD, and the currently-checked-out branch.
+#   * Local merged branches: `git branch --merged <default>`, plus branches
+#     whose PR gh reports as merged (squash merges), excluding default branch,
+#     HEAD, the currently-checked-out branch, release/* and epic/*.
 #   * Closable issues: merged PRs whose body contains
 #     `closes #N` / `fixes #N` / `resolves #N` (strict regex, NO fuzzy match).
 #     Cross-reference each #N — if the referenced issue is still `open`,
@@ -14,7 +15,7 @@
 # git repo or when no default branch can be determined.
 #
 # Fix flow (two-step, per-op safety per #88):
-#   - Local branch delete  → group-confirmable (`git branch -d <name>`).
+#   - Local branch delete  → group-confirmable (`git branch -d <name>`, `-D` if squash-merged).
 #   - Remote branch delete → INDIVIDUAL y/N per branch (`git push origin --delete`).
 #   - `gh issue close`     → INDIVIDUAL y/N per issue.
 #
@@ -72,6 +73,21 @@ fi
 
 CURRENT_BRANCH="$(git -C "$PROJECT_PATH" branch --show-current 2>/dev/null || echo "")"
 
+is_excluded() {
+  case "$1" in
+    "$DEFAULT_BRANCH"|"$CURRENT_BRANCH"|release/*|epic/*) return 0 ;;
+    *"detached"*|*HEAD*) return 0 ;;
+  esac
+  return 1
+}
+
+GH_AVAILABLE=1
+if ! command -v gh >/dev/null 2>&1; then
+  GH_AVAILABLE=0
+elif ! gh auth status --hostname github.com >/dev/null 2>&1; then
+  GH_AVAILABLE=0
+fi
+
 # Local merged branches. Strip leading `*` and whitespace.
 MERGED_BRANCHES=()
 while IFS= read -r b; do
@@ -84,23 +100,33 @@ while IFS= read -r b; do
   esac
   b="$(printf '%s' "$b" | sed -e 's/^[* ]\{1,\}//' -e 's/[[:space:]]\{1,\}$//')"
   [ -z "$b" ] && continue
-  case "$b" in
-    "$DEFAULT_BRANCH") continue ;;
-    "$CURRENT_BRANCH") continue ;;
-    *"detached"*|*HEAD*) continue ;;
-  esac
+  is_excluded "$b" && continue
   MERGED_BRANCHES+=("$b")
 done < <(git -C "$PROJECT_PATH" branch --merged "$DEFAULT_BRANCH" 2>/dev/null)
+
+# Squash-merged branches: git never sees them as merged, so ask gh. Only when
+# the local tip is the PR's head, so -D cannot drop commits the PR lacks.
+SQUASHED_BRANCHES=()
+if [ "$GH_AVAILABLE" -eq 1 ]; then
+  while read -r b worktree; do
+    [ -n "$worktree" ] && continue
+    is_excluded "$b" && continue
+    case " ${MERGED_BRANCHES[*]-} " in *" $b "*) continue ;; esac
+    oid="$(git -C "$PROJECT_PATH" rev-parse "refs/heads/$b")"
+    if (cd "$PROJECT_PATH" && gh pr list --state merged --head "$b" --json headRefOid -q '.[].headRefOid' 2>/dev/null) | grep -qx "$oid"; then
+      MERGED_BRANCHES+=("$b")
+      SQUASHED_BRANCHES+=("$b")
+    fi
+  done < <(git -C "$PROJECT_PATH" for-each-ref --format='%(refname:lstrip=2) %(worktreepath)' refs/heads)
+fi
+
+delete_flag() {
+  case " ${SQUASHED_BRANCHES[*]-} " in *" $1 "*) echo "-D" ;; *) echo "-d" ;; esac
+}
 
 # Closable issues via merged PRs.
 # Requires `gh` and a GitHub remote; warn + skip if missing.
 CLOSABLE_ISSUES=()  # entries like `<issue#>|<pr#>|<issue-title>|<pr-url>`
-GH_AVAILABLE=1
-if ! command -v gh >/dev/null 2>&1; then
-  GH_AVAILABLE=0
-elif ! gh auth status --hostname github.com >/dev/null 2>&1; then
-  GH_AVAILABLE=0
-fi
 
 if [ "$GH_AVAILABLE" -eq 1 ]; then
   # List recently merged PRs (limit to last 50 — enough signal, cheap call).
@@ -147,7 +173,7 @@ if [ "${#MERGED_BRANCHES[@]}" -gt 0 ]; then
   echo "  Local merged branches (${#MERGED_BRANCHES[@]}):"
   for b in "${MERGED_BRANCHES[@]}"; do
     last="$(git -C "$PROJECT_PATH" log -1 --format='%h %s' "$b" 2>/dev/null || echo '<unknown>')"
-    printf '    %s — last: %s\n' "$b" "$last"
+    printf '    %s — last: %s (git branch %s)\n' "$b" "$last" "$(delete_flag "$b")"
   done
   echo ""
 fi
@@ -189,13 +215,13 @@ ask() {
 }
 
 if [ "$PROMPTS_ENABLED" -eq 1 ] && [ "${#MERGED_BRANCHES[@]}" -gt 0 ]; then
-  reply="$(ask "Delete ${#MERGED_BRANCHES[@]} local merged branch(es) (git branch -d)? [y/N] ")"
+  reply="$(ask "Delete ${#MERGED_BRANCHES[@]} local merged branch(es) (git branch -d, -D if squash-merged)? [y/N] ")"
   if [ "$reply" = "y" ] || [ "$reply" = "Y" ]; then
     for b in "${MERGED_BRANCHES[@]}"; do
-      if git -C "$PROJECT_PATH" branch -d "$b" >/dev/null 2>&1; then
+      if err="$(git -C "$PROJECT_PATH" branch "$(delete_flag "$b")" "$b" 2>&1 >/dev/null)"; then
         echo "  deleted local: $b"
       else
-        echo "  KEPT (unmerged or in-use): $b"
+        echo "  KEPT $b: $err" >&2
       fi
     done
   fi
