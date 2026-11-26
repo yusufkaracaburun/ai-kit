@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.38.2 — 2026-11-26
+
+### Fixed
+- docs-sync finished-work lists squash-merged branches (merged PR head equals local tip), deletes them with `-D`, and shows git's delete error.
+- `/ai:to-prd` Defer mode adds the roadmap row to the section matching the issue's priority label.
+- Dead-link reaping in `install_dir_to` and the Cursor skill prune only removes links that point into a kit location.
+
 ## 2.38.1 — 2026-11-26
 
 ### Changed
