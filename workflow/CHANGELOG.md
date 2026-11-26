@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.38.0 — 2026-11-26
+
+### Added
+- Issue-card hook denies a story, task or bug without `--parent` in repos with epic templates; a visible `parent: none` line is the only escape, idea and spike stay free.
+- Story and bug templates ask what a data-removing delete takes with it.
+
+### Changed
+- A user question is no longer relayed as a decision, a replaced decision lands on main at once, and one topic has one asking session.
+- Options carry measured use and backend support, decide one feature each, and use a fixed shape for unfamiliar items.
+
 ## 2.37.2 — 2026-11-25
 
 The optional QA pass is removed from `/ai:review`. `/ai:qa` stays and runs on demand.
