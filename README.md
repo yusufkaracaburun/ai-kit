@@ -206,7 +206,8 @@ it fires only where `/ai:setup` recorded it as wired. After an edit it nudges yo
 `CONTEXT.md` or an ADR when you change code those docs name. Deterministic
 shell, no LLM, silent when no such docs exist. `issue-card.sh` is opt-in too
 (`branches.issue_card_hook` = `wired`): it holds `gh issue create` to the repo's
-own `.md` issue templates and fills the new issue's empty type, Priority and Status.
+own `.md` issue templates (a story, task or bug needs `--parent` where an epic
+template exists) and fills the new issue's empty type, Priority and Status.
 
 ## Contributing
 

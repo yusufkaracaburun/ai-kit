@@ -4,7 +4,8 @@
 #
 #   issue-card.pl <prefix regex> <dir> <owner/name of origin> <template>...
 #     masked call (lib/shell-mask.sh) on stdin. One line per create in this
-#     repo, \x1f between kind, template, detail and --parent:
+#     repo, \x1f between kind, template, detail, literal --parent and 1 when
+#     any --parent is given or the body has a `parent: none` line:
 #       ok <template>  (empty when two templates match equally well)
 #       other          (the body has a `card: other` line)
 #       missing <closest template> <headings>
@@ -18,6 +19,8 @@
 # later one the call's own repo is checked. A body file changed earlier in the
 # same call is read as it was before. In a fork, gh creates in the upstream;
 # the fork's own templates are checked and after the create nothing is set.
+# Two templates that match a body equally well name no template, so the
+# --parent check is skipped.
 use strict;
 use warnings;
 
@@ -69,9 +72,10 @@ sub body_of {
     return length $text > MAX_BODY ? ('it is over 65536 characters, more than GitHub takes') : ('', $text);
 }
 
-# Returns the H2 texts; sets $$other when a line of its own says `card: other`.
+# Returns the H2 texts; sets $$other or $$no_parent when a line of its own says
+# `card: other` or `parent: none`.
 sub headings {
-    my ($text, $other) = @_;
+    my ($text, $other, $no_parent) = @_;
     my ($fence, $in_comment, @found) = ('', 0);
     for my $line (split /\r?\n/, $text) {
         if ($fence) {
@@ -83,6 +87,7 @@ sub headings {
             $in_comment = 0;
         }
         $$other = 1 if $other && $line =~ /^\s*<!--\s*card:\s*other\s*-->\s*$/;
+        $$no_parent = 1 if $no_parent && $line =~ /^\s*<!--\s*parent:\s*none\s*-->\s*$/;
         if ($line =~ /^ {0,3}(`{3,}(?!.*`)|~{3,})/) { $fence = $1; next }
         $line =~ s/(`[^`]+`)/(my $code = $1) =~ s{<!--}{}g; $code/ge;
         $line =~ s/<!--.*?-->//g;
@@ -105,10 +110,11 @@ for my $file (@files) {
 }
 exit if !@templates;
 
+my $no_parent;
 sub verdict {
     my ($text) = @_;
     my $other = 0;
-    my %has = map { lc($_) => 1 } headings($text, \$other);
+    my %has = map { lc($_) => 1 } headings($text, \$other, \$no_parent);
     return 'other' if $other;
     my ($best, @ok);
     for (@templates) {
@@ -142,6 +148,7 @@ for my $seg (split /[;&|()\n]+/, $masked) {
     my ($repo, $parent) = @f{qw(--repo --parent)};
     next if $repo && !$repo->[1] && slug($repo->[0]) ne $origin;
     my ($reason, $text) = $repo && $repo->[1] ? ('its --repo is not literal text') : body_of(\%f);
+    $no_parent = 0;
     my ($kind, $file, $detail) = $reason ? ('unreadable', '', $reason) : verdict($text);
-    print join("\x1f", $kind, $file // '', $detail // '', $parent && !$parent->[1] ? $parent->[0] : ''), "\n";
+    print join("\x1f", $kind, $file // '', $detail // '', $parent && !$parent->[1] ? $parent->[0] : '', $parent || $no_parent ? 1 : ''), "\n";
 }

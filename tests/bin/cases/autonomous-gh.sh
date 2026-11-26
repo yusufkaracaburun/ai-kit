@@ -257,9 +257,8 @@ for w in Independent Small Testable; do
 done
 
 for lang in "" .en; do
-  for t in story spike; do
-    assert "$t$lang.md: DoR accepts a card without an epic" "grep -qE '^- \[ \] Priority.*Epic(-label, of geen| label, or none)' '$AIKIT/workflow/context/templates/github/ISSUE_TEMPLATE/$t$lang.md'"
-  done
+  assert "spike$lang.md: DoR accepts a card without an epic" "grep -qE '^- \[ \] Priority.*Epic(-label, of geen| label, or none)' '$AIKIT/workflow/context/templates/github/ISSUE_TEMPLATE/spike$lang.md'"
+  assert "story$lang.md: DoR needs the epic as parent where the repo has epics" "grep -qE '^- \[ \] Priority.*epic (als|as) parent, (verplicht als de|required when the) repo' '$AIKIT/workflow/context/templates/github/ISSUE_TEMPLATE/story$lang.md'"
   assert "story$lang.md: Triage has an Estimate line and the Small box reads it" "sed -n '/^## Triage/,/^## Scope/p' '$AIKIT/workflow/context/templates/github/ISSUE_TEMPLATE/story$lang.md' | grep -q '^- \*\*Estimate:\*\*' && grep -qE '^- \[ \] Small: .*(reason|reden)' '$AIKIT/workflow/context/templates/github/ISSUE_TEMPLATE/story$lang.md'"
 done
 

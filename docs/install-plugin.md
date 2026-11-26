@@ -124,8 +124,9 @@ Bundled (via `workflow/.claude-plugin/plugin.json`):
   ADR-0018.
 - The issue-card hook (`workflow/bin/hooks/issue-card.sh`, PreToolUse and
   PostToolUse on Bash). Denies `gh issue create` when the body lacks the `##`
-  headings of every `.github/ISSUE_TEMPLATE/*.md`, or cannot be read; after the
-  create it sets type, Priority and Backlog where they are empty. Off unless
+  headings of every `.github/ISSUE_TEMPLATE/*.md`, or cannot be read; where an
+  `epic` template exists it also denies a story, task or bug without
+  `--parent`; after the create it sets type, Priority and Backlog where they are empty. Off unless
   the marker has `branches.issue_card_hook` = `wired`
   (`write-setup-marker.sh --issue-card-hook=wired`) and the repo has `.md`
   templates. It adds no new hook event, so `/reload-plugins` picks it up.

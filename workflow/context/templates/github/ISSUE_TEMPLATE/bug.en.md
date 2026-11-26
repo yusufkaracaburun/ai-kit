@@ -30,6 +30,7 @@ labels: [bug]
 
 - [ ] <Measurable criterion> (proof: <command, test, screenshot or measurement>)
 - [ ] Regression test that fails without the fix (proof: name of the test)
+- [ ] <Delete or status change that removes data: what the database deletes with it and what the server blocks, checked in the backend code> (proof: <file:line>)
 
 ## Definition of Done (before close)
 

@@ -9,5 +9,9 @@ Never present choices as a flat unranked list. Put the option **you would pick**
 - No clear winner → two leading options at 1 and 2, both `(Recommended — tradeoff)`, with the tie-breaker in the question; prefer the reversible one.
 - Skip only for commodities with no decision content ("badge colour: red / blue / green") or when the user said "don't recommend, just ask".
 - When a turn asks the user something, the recommendation also stands in that turn's prose, not only in the `AskUserQuestion` labels. The user typing "advies?" means this rule was missed.
+- An option that adds or keeps behaviour states its measured use (count, period, source) and that the backend supports it, both checked before you ask. Not measurable: say so and why.
+- One option decides one feature; never drop several features in one option.
+- An item the user may not know: one sentence on what it is, one on what works today, one on what is missing, then the options.
+- A question that reopens a recorded decision quotes that decision with its date.
 
 Recommending is the grilling pattern collapsed to one turn (`grill-first.mini.md`).

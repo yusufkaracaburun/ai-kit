@@ -71,9 +71,10 @@ post() {
 U=https://github.com/acme/demo/issues
 for pair in epic:Epic story:Story task:Task bug:Bug spike:Task idea:Task; do
   n="${pair%%:*}"
-  WANT="$U/7 --only-unset --status Backlog --type ${pair#*:}"
+  PA=" --parent 40"; [[ $n =~ ^(epic|spike|idea)$ ]] && PA=""
+  WANT="$U/7 --only-unset --status Backlog --type ${pair#*:}$PA"
   for lang in "$NL $n.md" "$EN $n.en.md"; do
-    C="gh issue create --title x --body-file $B/${lang#* }"
+    C="gh issue create --title x --body-file $B/${lang#* }$PA"
     OUT=$(pre "${lang% *}" "$C")
     post "${lang% *}" "$C" "$U/7"
     assert "${lang#* } passes and gives ${pair#*:} in Backlog" '[ -z "$OUT" ] && [ "$META" = "$WANT" ]'
@@ -83,7 +84,7 @@ denied "an en body in an nl repo is denied" "$NL" "gh issue create -t x -F $B/bu
 printf '## WAT\n\nx\n\n## Extra heading\n\n##   waarom ##\n\n## Wanneer oppakken (datum)\n' >"$B/case.md"
 silent "case, parenthetical suffix, closing hashes and extra headings are fine" "$NL" "gh issue create -t x -F $B/case.md"
 sed 's/$/\r/' "$B/bug.md" >"$B/crlf.md"
-silent "CRLF body passes" "$NL" "gh issue create -t x -F $B/crlf.md"
+silent "CRLF body passes" "$NL" "gh issue create -t x -F $B/crlf.md --parent 40"
 printf -- '---\nname: Uitleg\n---\nGeen koppen.\n' >"$NL/.github/ISSUE_TEMPLATE/plain.md"
 denied "a template without headings passes nothing" "$NL" "gh issue create -t x -b hi" "## Wat"
 rm "$NL/.github/ISSUE_TEMPLATE/plain.md"
@@ -118,6 +119,27 @@ printf 'Text `<!-- card: other -->` inline\n' >"$B/inline.md"
 denied "card: other inside a sentence does not pass" "$NL" "gh issue create -t x -F $B/inline.md"
 printf '```\n<!-- card: other -->\n```\n' >"$B/otherfence.md"
 denied "card: other in a fence does not pass" "$NL" "gh issue create -t x -F $B/otherfence.md"
+
+echo "=== issue-card: parent epic ==="
+# section: issue-card-parent
+OUT=$(pre "$NL" "gh issue create -t x -F $B/story.md")
+assert "a story without --parent is denied where an epic template exists" 'grep -qF -- "issue-card [no parent]:" <<<"$OUT"'
+assert "the reason names the area epic, the maintenance epic and the escape line" 'grep -qF -- "--parent <epic>" <<<"$OUT" && grep -qF "area" <<<"$OUT" && grep -qF "maintenance epic" <<<"$OUT" && grep -qF "<!-- parent: none -->" <<<"$OUT"'
+{ cat "$B/story.md"; printf '\n<!-- parent: none -->\n'; } >"$B/noparent.md"
+silent "a parent: none line passes without --parent" "$NL" "gh issue create -t x -F $B/noparent.md"
+{ cat "$B/story.md"; printf '\n```\n<!-- parent: none -->\n```\n'; } >"$B/noparentfence.md"
+denied "a parent: none line in a fence does not pass" "$NL" "gh issue create -t x -F $B/noparentfence.md" "[no parent]"
+denied "of two creates, the one without --parent is denied" "$NL" "gh issue create -t x -F $B/story.md --parent 40 && gh issue create -t y -F $B/bug.md" "a Bug card"
+denied "an en bug without --parent is denied" "$EN" "gh issue create -t x -F $B/bug.en.md" "[no parent]"
+denied "a task without --parent is denied" "$NL" "gh issue create -t x -F $B/task.md" "[no parent]"
+silent "a story with --parent passes" "$NL" "gh issue create -t x -F $B/story.md --parent 40"
+silent "a variable --parent counts as a parent" "$NL" 'gh issue create -t x -F '"$B"'/story.md --parent "$E"'
+silent "an epic needs no parent" "$NL" "gh issue create -t x -F $B/epic.md"
+silent "an idea needs no parent" "$NL" "gh issue create -t x -F $B/idea.md"
+silent "a spike needs no parent" "$EN" "gh issue create -t x -F $B/spike.en.md"
+silent "card: other needs no parent" "$NL" "gh issue create -t x -F $B/other.md"
+mkrepo "$TMP/noepic" wired story.md bug.md
+silent "a repo without an epic template needs no parent" "$TMP/noepic" "gh issue create -t x -F $B/story.md"
 
 echo "=== issue-card: off ==="
 # section: issue-card-off

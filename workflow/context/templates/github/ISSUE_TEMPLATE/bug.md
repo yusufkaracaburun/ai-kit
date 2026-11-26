@@ -30,6 +30,7 @@ labels: [bug]
 
 - [ ] <Meetbaar criterium> (bewijs: <commando, test, screenshot of meting>)
 - [ ] Regressietest die zonder de fix faalt (bewijs: naam van de test)
+- [ ] <Delete of statuswijziging die data weghaalt: wat de database mee verwijdert en wat de server blokkeert, nagekeken in de backendcode> (bewijs: <bestand:regel>)
 
 ## Definition of Done (vóór close)
 

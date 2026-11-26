@@ -2,7 +2,9 @@
 # Claude Code hook on Bash for `gh issue create`, both events:
 #   PreToolUse   denies a body that lacks the H2 headings of every .md template
 #                in the repo's .github/ISSUE_TEMPLATE, or that it cannot read.
-#                A body line `<!-- card: other -->` passes.
+#                Where an epic template exists it also denies a story, task
+#                or bug without --parent or a `<!-- parent: none -->` line. A body line `<!-- card: other -->`
+#                passes.
 #   PostToolUse  gives the new issue its type (from the matched template),
 #                Priority and Backlog through ai-kit-issue-meta.sh
 #                --only-unset. A failure is a message, never a block.
@@ -65,12 +67,16 @@ card_type() {
   esac
 }
 
+has_epic=""
+[ -f "$top/.github/ISSUE_TEMPLATE/epic.md" ] || [ -f "$top/.github/ISSUE_TEMPLATE/epic.en.md" ] && has_epic=1
 reasons="" types=() parents=()
-while IFS=$'\x1f' read -r kind file detail parent; do
+while IFS=$'\x1f' read -r kind file detail parent any_parent; do
   type=""
   case "$kind" in
     '') continue ;;
-    ok) type="$(card_type "$file")" ;;
+    ok) type="$(card_type "$file")"
+      [[ -n $has_epic && -z $any_parent && ${file##*/} =~ ^(story|task|bug)\. ]] &&
+        reasons+="issue-card [no parent]: a $type card in a repo with epics hangs under an epic. Add --parent <epic>: the epic of the area it touches, else the repo's maintenance epic. Only when no epic fits, put the line <!-- parent: none --> in the body."$'\n' ;;
     unreadable) reasons+="issue-card [unreadable]: cannot read the body of this gh issue create: $detail. Write the body to a file in an earlier call and pass its literal path, for example: gh issue create --title \"Title\" --body-file /tmp/issue-body.md"$'\n' ;;
     missing) reasons+="issue-card [missing headings]: the body lacks $detail. Closest template: ${file#"$top"/}. Keep every ## heading of one template in .github/ISSUE_TEMPLATE, then create the issue again."$'\n' ;;
   esac

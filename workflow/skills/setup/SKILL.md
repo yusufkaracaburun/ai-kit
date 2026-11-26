@@ -389,7 +389,8 @@ Claude Code only: Cursor ships no hooks, so it has no gate. Record
 ### Issue card hook (off by default, no question)
 
 A hook in the plugin's `hooks/hooks.json` that denies `gh issue create` when
-the body lacks the headings of every `.github/ISSUE_TEMPLATE/*.md`, and after
+the body lacks the headings of every `.github/ISSUE_TEMPLATE/*.md` (or, where
+an `epic` template exists, a story, task or bug has no `--parent`), and after
 the create sets type, Priority and Backlog where they are empty. It fires only
 where the marker says `wired` and the repo has `.md` templates. Do not ask; on
 the user's request record `--issue-card-hook=wired`.

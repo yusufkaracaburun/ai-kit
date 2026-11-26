@@ -7,7 +7,7 @@ labels: [enhancement]
 
 ## Triage
 
-- **Epic:** epic/<name> / geen
+- **Epic:** #N (verplicht als de repo epics heeft)
 - **Area:** area/<name> (kies één of meer)
 - **Depends on:** #N / extern (<wat>) / geen
 - **Blocks:** #N / geen
@@ -24,10 +24,11 @@ labels: [enhancement]
 
 - [ ] <Meetbaar criterium> (bewijs: <commando, test, screenshot of meting>)
 - [ ] <Meetbaar criterium> (bewijs: <commando, test, screenshot of meting>)
+- [ ] <Delete of statuswijziging die data weghaalt: wat de database mee verwijdert en wat de server blokkeert, nagekeken in de backendcode> (bewijs: <bestand:regel>)
 
 ## Definition of Ready (vóór "In Progress")
 
-- [ ] Priority-veld gezet (of een P-label als de repo geen veld heeft) + Area-label gezet + Epic-label, of geen (bewijs: velden en labels op de kaart)
+- [ ] Priority-veld gezet (of een P-label als de repo geen veld heeft) + Area-label gezet + epic als parent, verplicht als de repo epics heeft (bewijs: velden, labels en parent op de kaart)
 - [ ] Independent: elke blokkade staat bij Depends on, of "geen" (bewijs: de regel Depends on)
 - [ ] Small: past in één PR (bewijs: Estimate op de kaart ≤ 400 regels, of een reden)
 - [ ] Testable: elk acceptance criterium noemt zijn bewijs (bewijs: de criteria hierboven)

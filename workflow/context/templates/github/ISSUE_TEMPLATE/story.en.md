@@ -7,7 +7,7 @@ labels: [enhancement]
 
 ## Triage
 
-- **Epic:** epic/<name> / none
+- **Epic:** #N (required when the repo has epics)
 - **Area:** area/<name> (pick one or more)
 - **Depends on:** #N / external (<what>) / none
 - **Blocks:** #N / none
@@ -24,10 +24,11 @@ labels: [enhancement]
 
 - [ ] <Measurable criterion> (proof: <command, test, screenshot or measurement>)
 - [ ] <Measurable criterion> (proof: <command, test, screenshot or measurement>)
+- [ ] <Delete or status change that removes data: what the database deletes with it and what the server blocks, checked in the backend code> (proof: <file:line>)
 
 ## Definition of Ready (before "In Progress")
 
-- [ ] Priority field set (or a P label if the repo has no field) + Area label set + Epic label, or none (proof: fields and labels on the card)
+- [ ] Priority field set (or a P label if the repo has no field) + Area label set + epic as parent, required when the repo has epics (proof: fields, labels and parent on the card)
 - [ ] Independent: every blocker is under Depends on, or "none" (proof: the Depends on line)
 - [ ] Small: fits one PR (proof: estimate on the card ≤ 400 lines, or a reason)
 - [ ] Testable: every acceptance criterion names its proof (proof: the criteria above)

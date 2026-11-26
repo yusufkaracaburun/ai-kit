@@ -70,6 +70,8 @@ gh issue create \
   --body-file <path>
 ```
 
+A `bug.md` card in a repo with epic templates also takes `--parent <epic>`, per [`triage/ISSUE-BODY.md`](../triage/ISSUE-BODY.md); an idea needs none.
+
 Capture the returned issue number — needed for the roadmap pointer. Then set its type, Priority and board spot (type `Bug` when the lead is a fault, else `Task`; add `--priority` only when the user named one):
 
 ```bash

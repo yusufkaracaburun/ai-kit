@@ -132,7 +132,7 @@ When the tester confirms:
    ## Open questions
    - #14, #41 — vragen voor product
    ```
-4. **One `gh issue create` per scope**, posted as [`triage/ISSUE-BODY.md`](../triage/ISSUE-BODY.md) says. If session spanned hosts, one parent per host, each with its own `area/*` label. Cross-link the parents (`Related: #N`) in each body. With one issue per finding, each issue uses `bug.md` from that file instead of the parent body above when it reports a fault; other findings follow that file's type pick.
+4. **One `gh issue create` per scope**, posted as [`triage/ISSUE-BODY.md`](../triage/ISSUE-BODY.md) says. If session spanned hosts, one parent per host, each with its own `area/*` label. Cross-link the parents (`Related: #N`) in each body. With one issue per finding, each issue uses `bug.md` from that file instead of the parent body above when it reports a fault; other findings follow that file's type pick. A bug or task card in a repo with epic templates takes `--parent <epic>` as that file says.
 5. Echo issue URLs back to the tester.
 
 ## Phase 5 — hand off to phase-2 triage
